@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON hostile-review packet (audit/rounds/<M>/round<n>/packet.json, holon-audit-packet/0.1; holon/audit/hostile.py packet): every law of the milestone at the round's target commit with its statement hash, status and premises, the policy, every input read, and each auditor type's targets. I101 (F-M3-37): a counted round's packet.json is valid against this schema and holds at least one law (spec/<M>/lib/audit_evidence.json, which names this schema).",
+  "type": "object",
+  "required": [
+    "packet_version",
+    "milestone",
+    "round",
+    "target_commit",
+    "policy",
+    "inputs",
+    "laws",
+    "auditors"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "packet_version": {
+      "const": "holon-audit-packet/0.1"
+    },
+    "milestone": {
+      "type": "string",
+      "pattern": "^M[0-9]+$"
+    },
+    "round": {
+      "type": "integer"
+    },
+    "target_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "laws": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "binders",
+          "facts",
+          "filter_bin",
+          "kernels",
+          "non_vacuity",
+          "premises",
+          "rule",
+          "statement_hash",
+          "status",
+          "subform",
+          "triage",
+          "witness_sha256"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "binders": {
+            "type": "array"
+          },
+          "facts": {
+            "type": "string"
+          },
+          "filter_bin": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kernels": {
+            "type": "array"
+          },
+          "non_vacuity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "premises": {
+            "type": "array"
+          },
+          "rule": {
+            "type": "string"
+          },
+          "statement_hash": {
+            "type": "string",
+            "pattern": "^(sha256:)?[0-9a-f]{64}$"
+          },
+          "status": {
+            "type": "string"
+          },
+          "subform": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "triage": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "witness_sha256": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "auditors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "name",
+          "what",
+          "targets"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "what": {
+            "type": "string"
+          },
+          "targets": {
+            "type": [
+              "object",
+              "array"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

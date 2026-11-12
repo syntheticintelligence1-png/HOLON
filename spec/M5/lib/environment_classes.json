@@ -1,0 +1,213 @@
+{
+  "categories": [
+    "l1_chain",
+    "da",
+    "fetcher"
+  ],
+  "doc": "I54 (frozen at the I54 prereg): which assumption ids and premise forms of a result record are environment premises for L9 (spec/M5/preregistration.json definitions.L9). Environment, for L9, is exactly the three categories of Q11 and the whitepaper's L9 row: l1_chain (L1 fork choice, reorg depth, finality, and the block environment that L1 supplies: block number and time), da (data availability: blob availability and its retention window) and fetcher (off-chain retrieval of chain data: RPC, beacon and archive clients). Neighbour contracts replaced by stand-ins (L5), hash and collision premises (L13), and language or translation abstractions (L1, L17) are not environment for L9; each such id is listed here with its reason, so that none is dropped silently. Every id that the result records of M2 and M3 held at the I54 base is classified below (an id first seen later is 'unclassified': an environment axiom of an unknown category, uncovered; definitions.L9.unclassified). forms: axiom (a premise that constrains the environment: assumed), havoc (environment terms are free values: no constraint, but no time-indexed fact either; assumed, not modelled), module (a premise naming a module record of definitions.L9.module_families; modelled only when that module is validated).",
+  "forms": [
+    "axiom",
+    "havoc",
+    "module"
+  ],
+  "id_patterns": [
+    {
+      "environment": false,
+      "pattern": "^go-prim[-:]",
+      "why": "a Go primitive's declared semantics (language abstraction)"
+    }
+  ],
+  "ids": {
+    "A-codec-domain": {
+      "environment": false,
+      "why": "a codec's input domain (translation abstraction)"
+    },
+    "A-dirty": {
+      "environment": false,
+      "why": "memory is not zeroed (EVM memory abstraction)"
+    },
+    "A-env": {
+      "categories": [
+        "l1_chain",
+        "da"
+      ],
+      "environment": true,
+      "form": "havoc",
+      "why": "storage, block, msg and tx members and blobhash are free terms: the L1 block environment and the blob-hash vector are havoc, not modelled"
+    },
+    "A-go-growth": {
+      "environment": false,
+      "why": "Go append growth (language abstraction)"
+    },
+    "A-gocount-length": {
+      "environment": false,
+      "why": "Go count document (translation abstraction)"
+    },
+    "A-gocount-receiver": {
+      "environment": false,
+      "why": "Go count document (translation abstraction)"
+    },
+    "A-gocount-store": {
+      "environment": false,
+      "why": "Go count document (translation abstraction)"
+    },
+    "A-goloop-cells": {
+      "environment": false,
+      "why": "Go loop document (translation abstraction)"
+    },
+    "A-goloop-outcome": {
+      "environment": false,
+      "why": "Go loop document (translation abstraction)"
+    },
+    "A-goloop-sites": {
+      "environment": false,
+      "why": "Go loop document (translation abstraction)"
+    },
+    "A-gox-cap-len": {
+      "environment": false,
+      "why": "Go op document (translation abstraction)"
+    },
+    "A-gox-cells": {
+      "environment": false,
+      "why": "Go op document (translation abstraction)"
+    },
+    "A-gox-hypz-len": {
+      "environment": false,
+      "why": "the compression hypothesis HypZ_len (an oracle hypothesis, L5)"
+    },
+    "A-gox-nat": {
+      "environment": false,
+      "why": "Go op document (translation abstraction)"
+    },
+    "A-gox-sol-cells": {
+      "environment": false,
+      "why": "Go op document (translation abstraction)"
+    },
+    "A-hash": {
+      "environment": false,
+      "why": "a scope note: no hash premise"
+    },
+    "A-implicit": {
+      "environment": false,
+      "why": "implicit reverts are checks (EVM abstraction)"
+    },
+    "A-keccak-structural": {
+      "environment": false,
+      "why": "structural storage keys (a hash premise, L13)"
+    },
+    "A-loop": {
+      "environment": false,
+      "why": "loops at a generic iteration (translation abstraction)"
+    },
+    "A-own-fields": {
+      "environment": false,
+      "why": "OWN carrier fields (translation abstraction)"
+    },
+    "A-own-len": {
+      "environment": false,
+      "why": "OWN carrier lengths (translation abstraction)"
+    },
+    "A-proxy": {
+      "environment": false,
+      "why": "the proxy's delegation (a neighbour contract, L5)"
+    },
+    "A-reach": {
+      "environment": false,
+      "why": "every guard reach is recorded (extraction bookkeeping)"
+    },
+    "A-reentrancy": {
+      "environment": false,
+      "why": "external calls do not change this contract's storage (a neighbour-contract premise, L5)"
+    },
+    "A-width-Header": {
+      "environment": false,
+      "why": "stored widths (layout abstraction)"
+    },
+    "CF-keccak-blobhashes": {
+      "environment": false,
+      "why": "collision freedom (L13)"
+    },
+    "CF-keccak-headers": {
+      "environment": false,
+      "why": "collision freedom (L13)"
+    },
+    "Hyp-Z0-kzg": {
+      "environment": false,
+      "why": "a constant checked by an oracle against the code (L5)"
+    },
+    "abs-absolute-index-arrays": {
+      "environment": false,
+      "why": "representation choice"
+    },
+    "abs-nat-tokens": {
+      "environment": false,
+      "why": "representation choice"
+    },
+    "abs-post-genesis-initial": {
+      "environment": false,
+      "why": "the initial state (representation choice)"
+    },
+    "abs-window-shadow": {
+      "environment": false,
+      "why": "representation choice"
+    },
+    "extracted-env-terms": {
+      "environment": false,
+      "why": "terms the generator does not translate are values of the model's table unk: a translation gap (L1), whatever their source"
+    },
+    "go-append-growth": {
+      "environment": false,
+      "why": "Go append growth (language abstraction)"
+    },
+    "go-errors-nonnil": {
+      "environment": false,
+      "why": "Go errors (language abstraction)"
+    },
+    "go-nil-deref-not-modelled": {
+      "environment": false,
+      "why": "Go nil dereference (language abstraction)"
+    },
+    "go-opaque-calls": {
+      "environment": false,
+      "why": "calls outside the analyzed packages are opaque (translation abstraction); a fetcher call among them is environment only through a record's environment block (definitions.L9.implicit)"
+    },
+    "oracle-ISubmitter": {
+      "environment": false,
+      "why": "neighbour stand-in (L5)"
+    },
+    "oracle-messenger": {
+      "environment": false,
+      "why": "neighbour stand-in (L5)"
+    },
+    "oracle-verifier": {
+      "environment": false,
+      "why": "neighbour stand-in (L5)"
+    },
+    "scope-rollup-coverage-debt": {
+      "environment": false,
+      "why": "a scope note"
+    }
+  },
+  "premise_prefixes": {
+    "cf:": {
+      "environment": false,
+      "why": "collision freedom (L13)"
+    },
+    "env:": {
+      "categories": [
+        "l1_chain"
+      ],
+      "environment": true,
+      "form": "axiom",
+      "why": "a statement premise over the block environment (e.g. env:block.timestamp >= 1): an axiom"
+    },
+    "hyp:": {
+      "environment": false,
+      "why": "an oracle hypothesis (L5)"
+    },
+    "nz:": {
+      "environment": false,
+      "why": "a hash's non-zero range (L13)"
+    }
+  }
+}

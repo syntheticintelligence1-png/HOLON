@@ -752,8 +752,8 @@ def _emit(law: dict, m: str, root: Path, counter: bool, conjunct: int | None = N
         imp = f"{layout(m, root, law['law_id'])[2]}model/{model_path(law, m, root).name}"
         note = statement_hash(law, m, root)
         try:
-            if kind == "linked":
-                return GL.emit(law, F.load(fp), imp, counter=counter, note=note).text
+            if kind == "linked":   # I100: a conjunction's counter-law states the conjunct `conjunct`
+                return GL.emit(law, F.load(fp), imp, counter=counter, note=note, conjunct=conjunct).text
             if kind == "goops":   # I67: as holon.codecrun writes a Go-op law's file (holon.gen.goloop.emit)
                 return GG.emit(law, F.load(fp), imp, counter=counter, note=note).text
             if kind == "gocount":   # I90: as holon.codecrun writes a count law's file (holon.gen.gocount.emit)

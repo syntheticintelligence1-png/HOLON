@@ -1,0 +1,123 @@
+{
+  "actions": [
+    {
+      "by": [
+        "ab5e4ef"
+      ],
+      "effect": [
+        [
+          "set",
+          "v4e6aac",
+          3
+        ]
+      ],
+      "flows": {},
+      "guard": [],
+      "id": "f15c751"
+    },
+    {
+      "by": [
+        "a2f2a90"
+      ],
+      "effect": [
+        [
+          "set",
+          "v4e6aac",
+          1
+        ]
+      ],
+      "flows": {},
+      "guard": [
+        [
+          "eq",
+          "v4e6aac",
+          0
+        ]
+      ],
+      "id": "fcece11"
+    },
+    {
+      "by": [
+        "a2f2a90"
+      ],
+      "effect": [
+        [
+          "set",
+          "v4e6aac",
+          2
+        ]
+      ],
+      "flows": {},
+      "guard": [
+        [
+          "eq",
+          "v4e6aac",
+          1
+        ]
+      ],
+      "id": "f44b864"
+    },
+    {
+      "by": [
+        "a2f2a90"
+      ],
+      "effect": [
+        [
+          "set",
+          "v4e6aac",
+          3
+        ]
+      ],
+      "flows": {},
+      "guard": [
+        [
+          "eq",
+          "v4e6aac",
+          2
+        ]
+      ],
+      "id": "f8f298e"
+    }
+  ],
+  "actors": [
+    {
+      "id": "ab5e4ef",
+      "trusted": true
+    },
+    {
+      "id": "a2f2a90",
+      "trusted": false
+    }
+  ],
+  "assets": [
+    "s68494a"
+  ],
+  "bad": [
+    [
+      "ge",
+      "v4e6aac",
+      3
+    ]
+  ],
+  "family": "deep",
+  "horizon": 2,
+  "id": "g_deep_1",
+  "semantics": "single deviator: one class acts, the others take no action; each action at most once per schedule; holdings start at 0; payoff at the schedule's end",
+  "truth": {
+    "classes": {
+      "a2f2a90": "rational",
+      "ab5e4ef": "rational"
+    },
+    "depth": 3,
+    "verdict": "rational"
+  },
+  "vars": {
+    "v4e6aac": 0
+  },
+  "witness": [
+    {
+      "action": "f15c751",
+      "caller": "ab5e4ef"
+    }
+  ]
+}

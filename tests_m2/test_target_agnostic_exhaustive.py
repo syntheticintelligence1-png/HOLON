@@ -36,14 +36,13 @@ GENERIC = {"t", "w", "D", "F", "W", "Z", "log", "append", "ctx", "classes", "vie
 ADAPTERS = ["holon/replay.py", "holon/mreplay.py", "holon/consumers.py", "holon/refinement.py",
             "holon/oracles/zero_blob.py"]
 ALLOWLIST: dict[str, list[str]] = {
-    # the --morph checkout flags of the replay adapters' commands (replay, refine, oracle zero-blob)
-    "holon/__main__.py": ["morph"],
+    # (I47, spec/M2/amendments/I47.jsonl: holon/__main__.py's checkout flag is read from targets/<dev>/target.json, so
+    # the file holds no target identifier and its entry, ["morph"], is removed)
     # the M0 commit-side trace builder (replay evidence for the M0 codec witnesses on the real Rollup)
     "holon/evidence.py": ["commitBatch", "fsr"],
-    # I62's mutation driver (holon audit mutation, A1): its pinned target checkout is the config key replay.morph, as
-    # the replay adapters' --morph flag above; stage.py points that key at a mutant's scratch tree
-    "holon/mutate/common.py": ["morph"],
-    "holon/mutate/stage.py": ["morph"],
+    # (I47, spec/M2/amendments/I47.jsonl: I62's mutation driver reads its pinned checkout's config key from
+    # targets/<dev>/target.json, so holon/mutate/common.py and stage.py hold no target identifier and their entries,
+    # ["morph"] each, are removed)
     # I62's mutation driver replays a mutant on the real Rollup from the model's initial state, whose fsr starts the
     # trace, as the commit-side trace builder holon/evidence.py above
     "holon/mutate/replay.py": ["fsr"],

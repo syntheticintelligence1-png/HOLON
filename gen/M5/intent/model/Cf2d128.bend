@@ -1,0 +1,978 @@
+import Base
+
+def ite(-A: Data, c: Bool, a: A, b: A) -> A:
+  match c:
+    case True{}:
+      a
+    case False{}:
+      b
+
+def b2u(b: Bool) -> U32:
+  match b:
+    case True{}:
+      1
+    case False{}:
+      0
+
+def u_nz(+x: U32) -> Bool:
+  Bool.not(U32.is_eq(x, 0))
+
+type W is Data:
+  W{l0: U32, l1: U32, l2: U32, l3: U32, l4: U32, l5: U32, l6: U32, l7: U32}
+
+def w0() -> W:
+  W{0, 0, 0, 0, 0, 0, 0, 0}
+
+def w_u(+x: U32) -> W:
+  W{x, 0, 0, 0, 0, 0, 0, 0}
+
+def w_b(b: Bool) -> W:
+  w_u(b2u(b))
+
+def w_lo(w: W) -> U32:
+  match w:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      a0
+
+def w_nz(w: W) -> Bool:
+  match w:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      u_nz(U32.or(U32.or(U32.or(a0, a1), U32.or(a2, a3)), U32.or(U32.or(a4, a5), U32.or(a6, a7))))
+
+def w_hi0(w: W) -> Bool:
+  match w:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      Bool.not(u_nz(U32.or(U32.or(U32.or(a1, a2), U32.or(a3, a4)), U32.or(U32.or(a5, a6), a7))))
+
+def w_eq(a: W, b: W) -> Bool:
+  match a b:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7} W{b0, b1, b2, b3, b4, b5, b6, b7}:
+      Bool.and(U32.is_eq(a0, b0), Bool.and(U32.is_eq(a1, b1), Bool.and(U32.is_eq(a2, b2), Bool.and(U32.is_eq(a3, b3), Bool.and(U32.is_eq(a4, b4), Bool.and(U32.is_eq(a5, b5), Bool.and(U32.is_eq(a6, b6), U32.is_eq(a7, b7))))))))
+
+def u_lt2(+a: U32, +b: U32, lo: Bool) -> Bool:
+  Bool.or(U32.is_lt(a, b), Bool.and(U32.is_eq(a, b), lo))
+
+def w_lt(a: W, b: W) -> Bool:
+  match a b:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7} W{+b0, +b1, +b2, +b3, +b4, +b5, +b6, +b7}:
+      u_lt2(a7, b7, u_lt2(a6, b6, u_lt2(a5, b5, u_lt2(a4, b4, u_lt2(a3, b3, u_lt2(a2, b2, u_lt2(a1, b1, U32.is_lt(a0, b0))))))))
+
+def w_le(+a: W, +b: W) -> Bool:
+  Bool.not(w_lt(b, a))
+
+def w_gt(+a: W, +b: W) -> Bool:
+  w_lt(b, a)
+
+def w_ge(+a: W, +b: W) -> Bool:
+  Bool.not(w_lt(a, b))
+
+def u_add(+a: U32, +b: U32) -> U32:
+  ite(U32, U32.is_eq(b, 0), a, ite(U32, U32.is_eq(a, 0), b, (a + b : U32)))
+
+def u_addc(+t: U32, c: Bool) -> U32:
+  ite(U32, c, U32.inc(t), t)
+
+def u_sub(+a: U32, +b: U32) -> U32:
+  ite(U32, U32.is_eq(b, 0), a, (a - b : U32))
+
+def u_subc(+t: U32, c: Bool) -> U32:
+  ite(U32, c, (t - 1 : U32), t)
+
+def cy(+a: U32, +b: U32, +c: U32) -> U32:
+  b2u(Bool.or(U32.is_lt((a + b : U32), a), U32.is_lt(((a + b : U32) + c : U32), (a + b : U32))))
+
+def w_add(a: W, b: W) -> W:
+  match a b:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7} W{b0, b1, b2, b3, b4, b5, b6, b7}:
+      +t0 = u_add(a0, b0)
+      +k1 = U32.is_lt(t0, a0)
+      +t1 = u_add(a1, b1)
+      +s1 = u_addc(t1, k1)
+      +k2 = Bool.or(U32.is_lt(t1, a1), U32.is_lt(s1, t1))
+      +t2 = u_add(a2, b2)
+      +s2 = u_addc(t2, k2)
+      +k3 = Bool.or(U32.is_lt(t2, a2), U32.is_lt(s2, t2))
+      +t3 = u_add(a3, b3)
+      +s3 = u_addc(t3, k3)
+      +k4 = Bool.or(U32.is_lt(t3, a3), U32.is_lt(s3, t3))
+      +t4 = u_add(a4, b4)
+      +s4 = u_addc(t4, k4)
+      +k5 = Bool.or(U32.is_lt(t4, a4), U32.is_lt(s4, t4))
+      +t5 = u_add(a5, b5)
+      +s5 = u_addc(t5, k5)
+      +k6 = Bool.or(U32.is_lt(t5, a5), U32.is_lt(s5, t5))
+      +t6 = u_add(a6, b6)
+      +s6 = u_addc(t6, k6)
+      +k7 = Bool.or(U32.is_lt(t6, a6), U32.is_lt(s6, t6))
+      +t7 = u_add(a7, b7)
+      +s7 = u_addc(t7, k7)
+      W{t0, s1, s2, s3, s4, s5, s6, s7}
+
+def w_add_ok(a: W, b: W) -> Bool:
+  match a b:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7} W{b0, b1, b2, b3, b4, b5, b6, b7}:
+      +t0 = u_add(a0, b0)
+      +k1 = U32.is_lt(t0, a0)
+      +t1 = u_add(a1, b1)
+      +s1 = u_addc(t1, k1)
+      +k2 = Bool.or(U32.is_lt(t1, a1), U32.is_lt(s1, t1))
+      +t2 = u_add(a2, b2)
+      +s2 = u_addc(t2, k2)
+      +k3 = Bool.or(U32.is_lt(t2, a2), U32.is_lt(s2, t2))
+      +t3 = u_add(a3, b3)
+      +s3 = u_addc(t3, k3)
+      +k4 = Bool.or(U32.is_lt(t3, a3), U32.is_lt(s3, t3))
+      +t4 = u_add(a4, b4)
+      +s4 = u_addc(t4, k4)
+      +k5 = Bool.or(U32.is_lt(t4, a4), U32.is_lt(s4, t4))
+      +t5 = u_add(a5, b5)
+      +s5 = u_addc(t5, k5)
+      +k6 = Bool.or(U32.is_lt(t5, a5), U32.is_lt(s5, t5))
+      +t6 = u_add(a6, b6)
+      +s6 = u_addc(t6, k6)
+      +k7 = Bool.or(U32.is_lt(t6, a6), U32.is_lt(s6, t6))
+      +t7 = u_add(a7, b7)
+      +s7 = u_addc(t7, k7)
+      +k8 = Bool.or(U32.is_lt(t7, a7), U32.is_lt(s7, t7))
+      Bool.not(k8)
+
+def bw(+a: U32, +b: U32, +c: U32) -> U32:
+  b2u(Bool.or(U32.is_lt(a, b), U32.is_lt((a - b : U32), c)))
+
+def w_sub(a: W, b: W) -> W:
+  match a b:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7} W{+b0, +b1, +b2, +b3, +b4, +b5, +b6, +b7}:
+      +d0 = u_sub(a0, b0)
+      +k1 = U32.is_lt(a0, b0)
+      +d1 = u_sub(a1, b1)
+      +s1 = u_subc(d1, k1)
+      +k2 = Bool.or(U32.is_lt(a1, b1), Bool.and(k1, U32.is_eq(d1, 0)))
+      +d2 = u_sub(a2, b2)
+      +s2 = u_subc(d2, k2)
+      +k3 = Bool.or(U32.is_lt(a2, b2), Bool.and(k2, U32.is_eq(d2, 0)))
+      +d3 = u_sub(a3, b3)
+      +s3 = u_subc(d3, k3)
+      +k4 = Bool.or(U32.is_lt(a3, b3), Bool.and(k3, U32.is_eq(d3, 0)))
+      +d4 = u_sub(a4, b4)
+      +s4 = u_subc(d4, k4)
+      +k5 = Bool.or(U32.is_lt(a4, b4), Bool.and(k4, U32.is_eq(d4, 0)))
+      +d5 = u_sub(a5, b5)
+      +s5 = u_subc(d5, k5)
+      +k6 = Bool.or(U32.is_lt(a5, b5), Bool.and(k5, U32.is_eq(d5, 0)))
+      +d6 = u_sub(a6, b6)
+      +s6 = u_subc(d6, k6)
+      +k7 = Bool.or(U32.is_lt(a6, b6), Bool.and(k6, U32.is_eq(d6, 0)))
+      +d7 = u_sub(a7, b7)
+      +s7 = u_subc(d7, k7)
+      W{d0, s1, s2, s3, s4, s5, s6, s7}
+
+def w_sub_ok(+a: W, +b: W) -> Bool:
+  w_ge(a, b)
+
+def w_not(a: W) -> W:
+  match a:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      W{U32.not(a0), U32.not(a1), U32.not(a2), U32.not(a3), U32.not(a4), U32.not(a5), U32.not(a6), U32.not(a7)}
+
+def w_and(a: W, b: W) -> W:
+  match a b:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7} W{b0, b1, b2, b3, b4, b5, b6, b7}:
+      W{U32.and(a0, b0), U32.and(a1, b1), U32.and(a2, b2), U32.and(a3, b3), U32.and(a4, b4), U32.and(a5, b5), U32.and(a6, b6), U32.and(a7, b7)}
+
+def w_or(a: W, b: W) -> W:
+  match a b:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7} W{b0, b1, b2, b3, b4, b5, b6, b7}:
+      W{U32.or(a0, b0), U32.or(a1, b1), U32.or(a2, b2), U32.or(a3, b3), U32.or(a4, b4), U32.or(a5, b5), U32.or(a6, b6), U32.or(a7, b7)}
+
+def w_xor(a: W, b: W) -> W:
+  match a b:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7} W{b0, b1, b2, b3, b4, b5, b6, b7}:
+      W{U32.xor(a0, b0), U32.xor(a1, b1), U32.xor(a2, b2), U32.xor(a3, b3), U32.xor(a4, b4), U32.xor(a5, b5), U32.xor(a6, b6), U32.xor(a7, b7)}
+
+def w_limbs(w: W) -> List<&2, U32>:
+  match w:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      [a0, a1, a2, a3, a4, a5, a6, a7]
+
+def l_at(xs: List<&2, U32>, n: Nat) -> U32:
+  match xs n:
+    case Nil{} _:
+      0
+    case Con{h, t} 0n:
+      h
+    case Con{h, t} 1n+p:
+      l_at(t, p)
+
+def w_of_limbs(+xs: List<&2, U32>) -> W:
+  W{l_at(xs, 0n), l_at(xs, 1n), l_at(xs, 2n), l_at(xs, 3n), l_at(xs, 4n), l_at(xs, 5n), l_at(xs, 6n), l_at(xs, 7n)}
+
+def mul_hi(+a: U32, +b: U32) -> U32:
+  +al = U32.and(a, 65535)
+  +ah = U32.shrn(a, 16n)
+  +bl = U32.and(b, 65535)
+  +bh = U32.shrn(b, 16n)
+  +ll = (al * bl : U32)
+  +lh = (al * bh : U32)
+  +hl = (ah * bl : U32)
+  +hh = (ah * bh : U32)
+  +mid = (lh + hl : U32)
+  +cmid = b2u(U32.is_lt(mid, lh))
+  +lo = (ll + U32.shln(mid, 16n) : U32)
+  +clo = b2u(U32.is_lt(lo, ll))
+  (((hh + U32.shrn(mid, 16n) : U32) + U32.shln(cmid, 16n) : U32) + clo : U32)
+
+def l_mul1(xs: List<&2, U32>, +b: U32, +c: U32) -> List<&2, U32>:
+  match xs:
+    case Nil{}:
+      [c]
+    case Con{+x, t}:
+      +lo = (x * b : U32)
+      +s = (lo + c : U32)
+      Con{s, l_mul1(t, b, (mul_hi(x, b) + b2u(U32.is_lt(s, lo)) : U32))}
+
+def l_add(xs: List<&2, U32>, ys: List<&2, U32>, +c: U32) -> List<&2, U32>:
+  match xs ys:
+    case Nil{} Nil{}:
+      ite(List<&2, U32>, U32.is_eq(c, 0), Nil{}, [c])
+    case Nil{} Con{+y, yt}:
+      Con{(y + c : U32), l_add(Nil{}, yt, cy(y, 0, c))}
+    case Con{+x, xt} Nil{}:
+      Con{(x + c : U32), l_add(xt, Nil{}, cy(x, 0, c))}
+    case Con{+x, xt} Con{+y, yt}:
+      Con{((x + y : U32) + c : U32), l_add(xt, yt, cy(x, y, c))}
+
+def l_mulfull(+xs: List<&2, U32>, ys: List<&2, U32>, +sh: List<&2, U32>) -> List<&2, U32>:
+  match ys:
+    case Nil{}:
+      Nil{}
+    case Con{+y, yt}:
+      l_add(List.append(&2, U32, sh, l_mul1(xs, y, 0)), l_mulfull(xs, yt, Con{0, sh}), 0)
+
+def l_hi_zero(xs: List<&2, U32>, n: Nat) -> Bool:
+  match xs n:
+    case Nil{} _:
+      True{}
+    case Con{h, t} 0n:
+      Bool.and(Bool.not(u_nz(h)), l_hi_zero(t, 0n))
+    case Con{h, t} 1n+p:
+      l_hi_zero(t, p)
+
+def w_mul(+a: W, +b: W) -> W:
+  w_of_limbs(l_mulfull(w_limbs(a), w_limbs(b), Nil{}))
+
+def w_mul_ok(+a: W, +b: W) -> Bool:
+  l_hi_zero(l_mulfull(w_limbs(a), w_limbs(b), Nil{}), 8n)
+
+def w_shl1(a: W) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      W{U32.shln(a0, 1n), U32.or(U32.shln(a1, 1n), U32.shrn(a0, 31n)), U32.or(U32.shln(a2, 1n), U32.shrn(a1, 31n)), U32.or(U32.shln(a3, 1n), U32.shrn(a2, 31n)), U32.or(U32.shln(a4, 1n), U32.shrn(a3, 31n)), U32.or(U32.shln(a5, 1n), U32.shrn(a4, 31n)), U32.or(U32.shln(a6, 1n), U32.shrn(a5, 31n)), U32.or(U32.shln(a7, 1n), U32.shrn(a6, 31n))}
+
+def w_top(a: W) -> U32:
+  match a:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      U32.shrn(a7, 31n)
+
+def w_setlow(a: W, +b: U32) -> W:
+  match a:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      W{U32.or(a0, b), a1, a2, a3, a4, a5, a6, a7}
+
+type DM is Data:
+  DM{q: W, r: W, a: W}
+
+def w_dm_step(+d: W, m: DM) -> DM:
+  match m:
+    case DM{q, r, +a}:
+      +r1 = w_setlow(w_shl1(r), w_top(a))
+      +ge = w_ge(r1, d)
+      DM{w_setlow(w_shl1(q), b2u(ge)), ite(W, ge, w_sub(r1, d), r1), w_shl1(a)}
+
+def w_dm_go(n: Nat, +d: W, m: DM) -> DM:
+  match n:
+    case 0n:
+      m
+    case 1n+p:
+      w_dm_go(p, d, w_dm_step(d, m))
+
+def dm_q(m: DM) -> W:
+  match m:
+    case DM{q, r, a}:
+      q
+
+def dm_r(m: DM) -> W:
+  match m:
+    case DM{q, r, a}:
+      r
+
+def w_div(+a: W, +b: W) -> W:
+  ite(W, w_nz(b), dm_q(w_dm_go(256n, b, DM{w0(), w0(), a})), w0())
+
+def w_mod(+a: W, +b: W) -> W:
+  ite(W, w_nz(b), dm_r(w_dm_go(256n, b, DM{w0(), w0(), a})), w0())
+
+def mul_c(+x: U32, +c: U32, +k: U32) -> U32:
+  ((x * c : U32) + k : U32)
+
+def mul_k(+x: U32, +c: U32, +k: U32) -> U32:
+  (mul_hi(x, c) + b2u(U32.is_lt(((x * c : U32) + k : U32), (x * c : U32))) : U32)
+
+def w_mul_small(a: W, +c: U32) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      +k1 = mul_k(a0, c, 0)
+      +k2 = mul_k(a1, c, k1)
+      +k3 = mul_k(a2, c, k2)
+      +k4 = mul_k(a3, c, k3)
+      +k5 = mul_k(a4, c, k4)
+      +k6 = mul_k(a5, c, k5)
+      +k7 = mul_k(a6, c, k6)
+      W{mul_c(a0, c, 0), mul_c(a1, c, k1), mul_c(a2, c, k2), mul_c(a3, c, k3), mul_c(a4, c, k4), mul_c(a5, c, k5), mul_c(a6, c, k6), mul_c(a7, c, k7)}
+
+def dq16(+r: U32, +x: U32, +d: U32) -> U32:
+  +c1 = U32.or(U32.shln(r, 16n), U32.shrn(x, 16n))
+  +c2 = U32.or(U32.shln(U32.mod(c1, d), 16n), U32.and(x, 65535))
+  U32.or(U32.shln(U32.div(c1, d), 16n), U32.div(c2, d))
+
+def dr16(+r: U32, +x: U32, +d: U32) -> U32:
+  +c1 = U32.or(U32.shln(r, 16n), U32.shrn(x, 16n))
+  U32.mod(U32.or(U32.shln(U32.mod(c1, d), 16n), U32.and(x, 65535)), d)
+
+def w_div_small(a: W, +d: U32) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      +r7 = dr16(0, a7, d)
+      +r6 = dr16(r7, a6, d)
+      +r5 = dr16(r6, a5, d)
+      +r4 = dr16(r5, a4, d)
+      +r3 = dr16(r4, a3, d)
+      +r2 = dr16(r3, a2, d)
+      +r1 = dr16(r2, a1, d)
+      W{dq16(r1, a0, d), dq16(r2, a1, d), dq16(r3, a2, d), dq16(r4, a3, d), dq16(r5, a4, d), dq16(r6, a5, d), dq16(r7, a6, d), dq16(0, a7, d)}
+
+def w_mod_small(a: W, +d: U32) -> W:
+  match a:
+    case W{+a0, +a1, +a2, +a3, +a4, +a5, +a6, +a7}:
+      w_u(dr16(dr16(dr16(dr16(dr16(dr16(dr16(dr16(0, a7, d), a6, d), a5, d), a4, d), a3, d), a2, d), a1, d), a0, d))
+
+def b_len(xs: List<&2, U32>) -> U32:
+  match xs:
+    case Nil{}:
+      0
+    case Con{h, t}:
+      U32.inc(b_len(t))
+
+def b_at(xs: List<&2, U32>, n: Nat) -> U32:
+  match xs n:
+    case Nil{} _:
+      0
+    case Con{h, t} 0n:
+      h
+    case Con{h, t} 1n+p:
+      b_at(t, p)
+
+def b_dropn(n: Nat, xs: List<&2, U32>) -> List<&2, U32>:
+  match n:
+    case 0n:
+      xs
+    case 1n+p:
+      match xs:
+        case Nil{}:
+          Nil{}
+        case Con{h, t}:
+          b_dropn(p, t)
+
+def b_drop(xs: List<&2, U32>, n: Nat) -> List<&2, U32>:
+  b_dropn(n, xs)
+
+def b_take(n: Nat, xs: List<&2, U32>, +pad: U32) -> List<&2, U32>:
+  match n xs:
+    case 0n _:
+      Nil{}
+    case 1n+p Nil{}:
+      Con{pad, b_take(p, Nil{}, pad)}
+    case 1n+p Con{h, t}:
+      Con{h, b_take(p, t, pad)}
+
+def u8(b0: Bool, b1: Bool, b2: Bool, b3: Bool, b4: Bool, b5: Bool, b6: Bool, b7: Bool) -> U32:
+  U32{WCon{b0, WCon{b1, WCon{b2, WCon{b3, WCon{b4, WCon{b5, WCon{b6, WCon{b7, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WCon{False{}, WNil{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+
+def u_be4w(x0: U32, x1: U32, x2: U32, x3: U32) -> U32:
+  match x0:
+    case U32{aw}:
+      match aw:
+        case WCon{a0, at0}:
+          match at0:
+            case WCon{a1, at1}:
+              match at1:
+                case WCon{a2, at2}:
+                  match at2:
+                    case WCon{a3, at3}:
+                      match at3:
+                        case WCon{a4, at4}:
+                          match at4:
+                            case WCon{a5, at5}:
+                              match at5:
+                                case WCon{a6, at6}:
+                                  match at6:
+                                    case WCon{a7, _}:
+                                      match x1:
+                                        case U32{bw}:
+                                          match bw:
+                                            case WCon{b0, bt0}:
+                                              match bt0:
+                                                case WCon{b1, bt1}:
+                                                  match bt1:
+                                                    case WCon{b2, bt2}:
+                                                      match bt2:
+                                                        case WCon{b3, bt3}:
+                                                          match bt3:
+                                                            case WCon{b4, bt4}:
+                                                              match bt4:
+                                                                case WCon{b5, bt5}:
+                                                                  match bt5:
+                                                                    case WCon{b6, bt6}:
+                                                                      match bt6:
+                                                                        case WCon{b7, bt7}:
+                                                                          match bt7:
+                                                                            case WCon{b8, bt8}:
+                                                                              match bt8:
+                                                                                case WCon{b9, bt9}:
+                                                                                  match bt9:
+                                                                                    case WCon{b10, bt10}:
+                                                                                      match bt10:
+                                                                                        case WCon{b11, bt11}:
+                                                                                          match bt11:
+                                                                                            case WCon{b12, bt12}:
+                                                                                              match bt12:
+                                                                                                case WCon{b13, bt13}:
+                                                                                                  match bt13:
+                                                                                                    case WCon{b14, bt14}:
+                                                                                                      match bt14:
+                                                                                                        case WCon{b15, _}:
+                                                                                                          match x2:
+                                                                                                            case U32{cw}:
+                                                                                                              match cw:
+                                                                                                                case WCon{c0, ct0}:
+                                                                                                                  match ct0:
+                                                                                                                    case WCon{c1, ct1}:
+                                                                                                                      match ct1:
+                                                                                                                        case WCon{c2, ct2}:
+                                                                                                                          match ct2:
+                                                                                                                            case WCon{c3, ct3}:
+                                                                                                                              match ct3:
+                                                                                                                                case WCon{c4, ct4}:
+                                                                                                                                  match ct4:
+                                                                                                                                    case WCon{c5, ct5}:
+                                                                                                                                      match ct5:
+                                                                                                                                        case WCon{c6, ct6}:
+                                                                                                                                          match ct6:
+                                                                                                                                            case WCon{c7, ct7}:
+                                                                                                                                              match ct7:
+                                                                                                                                                case WCon{c8, ct8}:
+                                                                                                                                                  match ct8:
+                                                                                                                                                    case WCon{c9, ct9}:
+                                                                                                                                                      match ct9:
+                                                                                                                                                        case WCon{c10, ct10}:
+                                                                                                                                                          match ct10:
+                                                                                                                                                            case WCon{c11, ct11}:
+                                                                                                                                                              match ct11:
+                                                                                                                                                                case WCon{c12, ct12}:
+                                                                                                                                                                  match ct12:
+                                                                                                                                                                    case WCon{c13, ct13}:
+                                                                                                                                                                      match ct13:
+                                                                                                                                                                        case WCon{c14, ct14}:
+                                                                                                                                                                          match ct14:
+                                                                                                                                                                            case WCon{c15, ct15}:
+                                                                                                                                                                              match ct15:
+                                                                                                                                                                                case WCon{c16, ct16}:
+                                                                                                                                                                                  match ct16:
+                                                                                                                                                                                    case WCon{c17, ct17}:
+                                                                                                                                                                                      match ct17:
+                                                                                                                                                                                        case WCon{c18, ct18}:
+                                                                                                                                                                                          match ct18:
+                                                                                                                                                                                            case WCon{c19, ct19}:
+                                                                                                                                                                                              match ct19:
+                                                                                                                                                                                                case WCon{c20, ct20}:
+                                                                                                                                                                                                  match ct20:
+                                                                                                                                                                                                    case WCon{c21, ct21}:
+                                                                                                                                                                                                      match ct21:
+                                                                                                                                                                                                        case WCon{c22, ct22}:
+                                                                                                                                                                                                          match ct22:
+                                                                                                                                                                                                            case WCon{c23, _}:
+                                                                                                                                                                                                              match x3:
+                                                                                                                                                                                                                case U32{dw}:
+                                                                                                                                                                                                                  match dw:
+                                                                                                                                                                                                                    case WCon{d0, dt0}:
+                                                                                                                                                                                                                      match dt0:
+                                                                                                                                                                                                                        case WCon{d1, dt1}:
+                                                                                                                                                                                                                          match dt1:
+                                                                                                                                                                                                                            case WCon{d2, dt2}:
+                                                                                                                                                                                                                              match dt2:
+                                                                                                                                                                                                                                case WCon{d3, dt3}:
+                                                                                                                                                                                                                                  match dt3:
+                                                                                                                                                                                                                                    case WCon{d4, dt4}:
+                                                                                                                                                                                                                                      match dt4:
+                                                                                                                                                                                                                                        case WCon{d5, dt5}:
+                                                                                                                                                                                                                                          match dt5:
+                                                                                                                                                                                                                                            case WCon{d6, dt6}:
+                                                                                                                                                                                                                                              match dt6:
+                                                                                                                                                                                                                                                case WCon{d7, dt7}:
+                                                                                                                                                                                                                                                  match dt7:
+                                                                                                                                                                                                                                                    case WCon{d8, dt8}:
+                                                                                                                                                                                                                                                      match dt8:
+                                                                                                                                                                                                                                                        case WCon{d9, dt9}:
+                                                                                                                                                                                                                                                          match dt9:
+                                                                                                                                                                                                                                                            case WCon{d10, dt10}:
+                                                                                                                                                                                                                                                              match dt10:
+                                                                                                                                                                                                                                                                case WCon{d11, dt11}:
+                                                                                                                                                                                                                                                                  match dt11:
+                                                                                                                                                                                                                                                                    case WCon{d12, dt12}:
+                                                                                                                                                                                                                                                                      match dt12:
+                                                                                                                                                                                                                                                                        case WCon{d13, dt13}:
+                                                                                                                                                                                                                                                                          match dt13:
+                                                                                                                                                                                                                                                                            case WCon{d14, dt14}:
+                                                                                                                                                                                                                                                                              match dt14:
+                                                                                                                                                                                                                                                                                case WCon{d15, dt15}:
+                                                                                                                                                                                                                                                                                  match dt15:
+                                                                                                                                                                                                                                                                                    case WCon{d16, dt16}:
+                                                                                                                                                                                                                                                                                      match dt16:
+                                                                                                                                                                                                                                                                                        case WCon{d17, dt17}:
+                                                                                                                                                                                                                                                                                          match dt17:
+                                                                                                                                                                                                                                                                                            case WCon{d18, dt18}:
+                                                                                                                                                                                                                                                                                              match dt18:
+                                                                                                                                                                                                                                                                                                case WCon{d19, dt19}:
+                                                                                                                                                                                                                                                                                                  match dt19:
+                                                                                                                                                                                                                                                                                                    case WCon{d20, dt20}:
+                                                                                                                                                                                                                                                                                                      match dt20:
+                                                                                                                                                                                                                                                                                                        case WCon{d21, dt21}:
+                                                                                                                                                                                                                                                                                                          match dt21:
+                                                                                                                                                                                                                                                                                                            case WCon{d22, dt22}:
+                                                                                                                                                                                                                                                                                                              match dt22:
+                                                                                                                                                                                                                                                                                                                case WCon{d23, dt23}:
+                                                                                                                                                                                                                                                                                                                  match dt23:
+                                                                                                                                                                                                                                                                                                                    case WCon{d24, dt24}:
+                                                                                                                                                                                                                                                                                                                      match dt24:
+                                                                                                                                                                                                                                                                                                                        case WCon{d25, dt25}:
+                                                                                                                                                                                                                                                                                                                          match dt25:
+                                                                                                                                                                                                                                                                                                                            case WCon{d26, dt26}:
+                                                                                                                                                                                                                                                                                                                              match dt26:
+                                                                                                                                                                                                                                                                                                                                case WCon{d27, dt27}:
+                                                                                                                                                                                                                                                                                                                                  match dt27:
+                                                                                                                                                                                                                                                                                                                                    case WCon{d28, dt28}:
+                                                                                                                                                                                                                                                                                                                                      match dt28:
+                                                                                                                                                                                                                                                                                                                                        case WCon{d29, dt29}:
+                                                                                                                                                                                                                                                                                                                                          match dt29:
+                                                                                                                                                                                                                                                                                                                                            case WCon{d30, dt30}:
+                                                                                                                                                                                                                                                                                                                                              match dt30:
+                                                                                                                                                                                                                                                                                                                                                case WCon{d31, _}:
+                                                                                                                                                                                                                                                                                                                                                  U32{WCon{d0, WCon{d1, WCon{d2, WCon{d3, WCon{d4, WCon{d5, WCon{d6, WCon{d7, WCon{Bool.or(d8, c0), WCon{Bool.or(d9, c1), WCon{Bool.or(d10, c2), WCon{Bool.or(d11, c3), WCon{Bool.or(d12, c4), WCon{Bool.or(d13, c5), WCon{Bool.or(d14, c6), WCon{Bool.or(d15, c7), WCon{Bool.or(d16, Bool.or(c8, b0)), WCon{Bool.or(d17, Bool.or(c9, b1)), WCon{Bool.or(d18, Bool.or(c10, b2)), WCon{Bool.or(d19, Bool.or(c11, b3)), WCon{Bool.or(d20, Bool.or(c12, b4)), WCon{Bool.or(d21, Bool.or(c13, b5)), WCon{Bool.or(d22, Bool.or(c14, b6)), WCon{Bool.or(d23, Bool.or(c15, b7)), WCon{Bool.or(d24, Bool.or(c16, Bool.or(b8, a0))), WCon{Bool.or(d25, Bool.or(c17, Bool.or(b9, a1))), WCon{Bool.or(d26, Bool.or(c18, Bool.or(b10, a2))), WCon{Bool.or(d27, Bool.or(c19, Bool.or(b11, a3))), WCon{Bool.or(d28, Bool.or(c20, Bool.or(b12, a4))), WCon{Bool.or(d29, Bool.or(c21, Bool.or(b13, a5))), WCon{Bool.or(d30, Bool.or(c22, Bool.or(b14, a6))), WCon{Bool.or(d31, Bool.or(c23, Bool.or(b15, a7))), WNil{}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+
+def u_be4(xs: List<&2, U32>) -> U32:
+  match xs:
+    case Nil{}:
+      0
+    case Con{x0, r0}:
+      match r0:
+        case Nil{}:
+          u_be4w(x0, 0, 0, 0)
+        case Con{x1, r1}:
+          match r1:
+            case Nil{}:
+              u_be4w(x0, x1, 0, 0)
+            case Con{x2, r2}:
+              match r2:
+                case Nil{}:
+                  u_be4w(x0, x1, x2, 0)
+                case Con{x3, r3}:
+                  u_be4w(x0, x1, x2, x3)
+
+def w_of_b32(+xs: List<&2, U32>) -> W:
+  W{u_be4(b_drop(xs, 28n)), u_be4(b_drop(xs, 24n)), u_be4(b_drop(xs, 20n)), u_be4(b_drop(xs, 16n)), u_be4(b_drop(xs, 12n)), u_be4(b_drop(xs, 8n)), u_be4(b_drop(xs, 4n)), u_be4(xs)}
+
+def b_word(xs: List<&2, U32>, n: Nat) -> W:
+  w_of_b32(b_take(32n, b_drop(xs, n), 0))
+
+def u_b4n(x: U32) -> List<&2, U32>:
+  match x:
+    case U32{aw}:
+      match aw:
+        case WCon{a0, at0}:
+          match at0:
+            case WCon{a1, at1}:
+              match at1:
+                case WCon{a2, at2}:
+                  match at2:
+                    case WCon{a3, at3}:
+                      match at3:
+                        case WCon{a4, at4}:
+                          match at4:
+                            case WCon{a5, at5}:
+                              match at5:
+                                case WCon{a6, at6}:
+                                  match at6:
+                                    case WCon{a7, at7}:
+                                      match at7:
+                                        case WCon{a8, at8}:
+                                          match at8:
+                                            case WCon{a9, at9}:
+                                              match at9:
+                                                case WCon{a10, at10}:
+                                                  match at10:
+                                                    case WCon{a11, at11}:
+                                                      match at11:
+                                                        case WCon{a12, at12}:
+                                                          match at12:
+                                                            case WCon{a13, at13}:
+                                                              match at13:
+                                                                case WCon{a14, at14}:
+                                                                  match at14:
+                                                                    case WCon{a15, at15}:
+                                                                      match at15:
+                                                                        case WCon{a16, at16}:
+                                                                          match at16:
+                                                                            case WCon{a17, at17}:
+                                                                              match at17:
+                                                                                case WCon{a18, at18}:
+                                                                                  match at18:
+                                                                                    case WCon{a19, at19}:
+                                                                                      match at19:
+                                                                                        case WCon{a20, at20}:
+                                                                                          match at20:
+                                                                                            case WCon{a21, at21}:
+                                                                                              match at21:
+                                                                                                case WCon{a22, at22}:
+                                                                                                  match at22:
+                                                                                                    case WCon{a23, at23}:
+                                                                                                      match at23:
+                                                                                                        case WCon{a24, at24}:
+                                                                                                          match at24:
+                                                                                                            case WCon{a25, at25}:
+                                                                                                              match at25:
+                                                                                                                case WCon{a26, at26}:
+                                                                                                                  match at26:
+                                                                                                                    case WCon{a27, at27}:
+                                                                                                                      match at27:
+                                                                                                                        case WCon{a28, at28}:
+                                                                                                                          match at28:
+                                                                                                                            case WCon{a29, at29}:
+                                                                                                                              match at29:
+                                                                                                                                case WCon{a30, at30}:
+                                                                                                                                  match at30:
+                                                                                                                                    case WCon{a31, _}:
+                                                                                                                                      [u8(a24, a25, a26, a27, a28, a29, a30, a31), u8(a16, a17, a18, a19, a20, a21, a22, a23), u8(a8, a9, a10, a11, a12, a13, a14, a15), u8(a0, a1, a2, a3, a4, a5, a6, a7)]
+
+def u_b4z(c: Bool, x: U32) -> List<&2, U32>:
+  match c:
+    case True{}:
+      [0, 0, 0, 0]
+    case False{}:
+      u_b4n(x)
+
+def u_b4(+x: U32) -> List<&2, U32>:
+  u_b4z(U32.is_eq(x, 0), x)
+
+def b_of_w(w: W) -> List<&2, U32>:
+  match w:
+    case W{a0, a1, a2, a3, a4, a5, a6, a7}:
+      List.append(&2, U32, u_b4(a7), List.append(&2, U32, u_b4(a6), List.append(&2, U32, u_b4(a5), List.append(&2, U32, u_b4(a4), List.append(&2, U32, u_b4(a3), List.append(&2, U32, u_b4(a2), List.append(&2, U32, u_b4(a1), u_b4(a0))))))))
+
+def b_of_u(x: U32) -> List<&2, U32>:
+  List.append(&2, U32, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], u_b4(x))
+
+def b_eq(xs: List<&2, U32>, ys: List<&2, U32>) -> Bool:
+  match xs ys:
+    case Nil{} Nil{}:
+      True{}
+    case Nil{} Con{h, t}:
+      False{}
+    case Con{h, t} Nil{}:
+      False{}
+    case Con{a, s} Con{b, u}:
+      Bool.and(U32.is_eq(a, b), b_eq(s, u))
+
+def n_of_w(+w: W) -> Nat:
+  U32.to_nat(w_lo(w))
+
+def m_ov(bs: List<&2, U32>, mem: List<&2, U32>) -> List<&2, U32>:
+  match bs:
+    case Nil{}:
+      mem
+    case Con{b, r}:
+      match mem:
+        case Nil{}:
+          Con{b, m_ov(r, Nil{})}
+        case Con{h, t}:
+          Con{b, m_ov(r, t)}
+
+def m_over(mem: List<&2, U32>, bs: List<&2, U32>) -> List<&2, U32>:
+  m_ov(bs, mem)
+
+def m_put(off: Nat, mem: List<&2, U32>, bs: List<&2, U32>) -> List<&2, U32>:
+  match off mem:
+    case 0n Nil{}:
+      m_over(Nil{}, bs)
+    case 0n Con{h, t}:
+      m_over(Con{h, t}, bs)
+    case 1n+p Nil{}:
+      Con{57005, m_put(p, Nil{}, bs)}
+    case 1n+p Con{h, t}:
+      Con{h, m_put(p, t, bs)}
+
+def m_havoc(mem: List<&2, U32>) -> List<&2, U32>:
+  match mem:
+    case Nil{}:
+      Nil{}
+    case Con{h, t}:
+      Con{57005, m_havoc(t)}
+
+def m_slice(mem: List<&2, U32>, +off: W, +n: W) -> List<&2, U32>:
+  b_take(n_of_w(n), b_drop(mem, n_of_w(off)), 57005)
+
+type KW is Data:
+  KW{k: W, v: W}
+
+def kw_get(xs: List<&2, KW>, +k: W) -> W:
+  match xs:
+    case Nil{}:
+      w0()
+    case Con{h, t}:
+      match h:
+        case KW{hk, hv}:
+          ite(W, w_eq(hk, k), hv, kw_get(t, k))
+
+# the first entry with key k takes v, every later one is kept (I30: stop at the first match); done: k was met
+def kw_put(xs: List<&2, KW>, +k: W, +v: W, +done: Bool) -> List<&2, KW>:
+  match xs:
+    case Nil{}:
+      ite(List<&2, KW>, done, Nil{}, [KW{k, v}])
+    case Con{h, t}:
+      match h:
+        case KW{+hk, hv}:
+          +eq = w_eq(hk, k)
+          Con{KW{hk, ite(W, Bool.and(eq, Bool.not(done)), v, hv)}, kw_put(t, k, v, Bool.or(done, eq))}
+
+def kw_set(xs: List<&2, KW>, +k: W, +v: W) -> List<&2, KW>:
+  kw_put(xs, k, v, False{})
+
+type HSt is Data:
+  HSt{sl: List<&2, KW>}
+
+def sload(s: HSt, +k: W) -> W:
+  match s:
+    case HSt{sl}:
+      kw_get(sl, k)
+
+def sstore(s: HSt, +k: W, +v: W) -> HSt:
+  match s:
+    case HSt{sl}:
+      HSt{kw_set(sl, k, v)}
+
+type HKB is Data:
+  HKB{b: List<&2, U32>, v: W}
+
+def b_rev(xs: List<&2, U32>, acc: List<&2, U32>) -> List<&2, U32>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{h, t}:
+      b_rev(t, Con{h, acc})
+
+def h_revs(xs: List<&2, HKB>) -> List<&2, HKB>:
+  match xs:
+    case Nil{}:
+      Nil{}
+    case Con{h, t}:
+      match h:
+        case HKB{hb, hv}:
+          Con{HKB{b_rev(hb, Nil{}), hv}, h_revs(t)}
+
+def h_cons(c: Bool, xt: List<&2, U32>, cv: W, r: List<&2, HKB>) -> List<&2, HKB>:
+  match c:
+    case True{}:
+      Con{HKB{xt, cv}, r}
+    case False{}:
+      r
+
+def h_one(+b: U32, cb: List<&2, U32>, cv: W, r: List<&2, HKB>) -> List<&2, HKB>:
+  match cb:
+    case Nil{}:
+      r
+    case Con{x, xt}:
+      h_cons(U32.is_eq(x, b), xt, cv, r)
+
+def h_step(+b: U32, cs: List<&2, HKB>) -> List<&2, HKB>:
+  match cs:
+    case Nil{}:
+      Nil{}
+    case Con{c, rest}:
+      match c:
+        case HKB{cb, cv}:
+          h_one(b, cb, cv, h_step(b, rest))
+
+def h_end1(cb: List<&2, U32>, cv: W, r: W) -> W:
+  match cb:
+    case Nil{}:
+      cv
+    case Con{x, xt}:
+      r
+
+def h_ends(cs: List<&2, HKB>) -> W:
+  match cs:
+    case Nil{}:
+      w0()
+    case Con{c, rest}:
+      match c:
+        case HKB{cb, cv}:
+          h_end1(cb, cv, h_ends(rest))
+
+def h_filt(k: List<&2, U32>, cs: List<&2, HKB>) -> W:
+  match k:
+    case Nil{}:
+      h_ends(cs)
+    case Con{b, t}:
+      h_filt(t, h_step(b, cs))
+
+# the value of the first entry whose key is k (0 when none): the table's entries filtered by k's bytes, the last byte
+# first (keys share long prefixes: a mapping key is a word, then the slot), each byte bound once and each entry moved,
+# never copied (A30: no reusable binder of the key or of the table)
+def h_get(xs: List<&2, HKB>, k: List<&2, U32>) -> W:
+  h_filt(b_rev(k, Nil{}), h_revs(xs))
+
+type HCall is Data:
+  HCall{to: W, d: List<&2, U32>, ok: Bool, ret: List<&2, U32>}
+
+type HAns is Data:
+  HAns{f: Bool, ok: Bool, ret: List<&2, U32>}
+
+def c_find(xs: List<&2, HCall>, +to: W, +bt: Bool, +d: List<&2, U32>) -> HAns:
+  match xs:
+    case Nil{}:
+      HAns{False{}, False{}, Nil{}}
+    case Con{h, t}:
+      match h:
+        case HCall{cto, cd, cok, cret}:
+          ite(HAns, Bool.and(Bool.or(Bool.not(bt), w_eq(cto, to)), b_eq(cd, d)), HAns{True{}, cok, cret}, c_find(t, to, bt, d))
+
+def a_ok(a: HAns) -> Bool:
+  match a:
+    case HAns{f, ok, ret}:
+      Bool.and(f, ok)
+
+def a_ret(a: HAns) -> List<&2, U32>:
+  match a:
+    case HAns{f, ok, ret}:
+      ret
+
+type HLog is Data:
+  HLog{t: List<&2, W>, d: List<&2, U32>}
+
+type HOut is Data:
+  HOut{c: U32, rv: List<&2, U32>, po: HSt, lg: List<&2, HLog>, tw: List<&2, W>}
+
+def o_code(o: HOut) -> U32:
+  match o:
+    case HOut{c, rv, po, lg, tw}:
+      c
+
+def o_post(o: HOut) -> HSt:
+  match o:
+    case HOut{c, rv, po, lg, tw}:
+      po
+
+def o_logs(o: HOut) -> List<&2, HLog>:
+  match o:
+    case HOut{c, rv, po, lg, tw}:
+      lg
+
+def w_nth(xs: List<&2, W>, n: Nat) -> W:
+  match xs n:
+    case Nil{} _:
+      w0()
+    case Con{h, t} 0n:
+      h
+    case Con{h, t} 1n+p:
+      w_nth(t, p)
+
+def w_len(xs: List<&2, W>) -> U32:
+  match xs:
+    case Nil{}:
+      0
+    case Con{h, t}:
+      U32.inc(w_len(t))
+
+type KB is Data:
+  KB{k: W, b: List<&2, U32>}
+
+def kb_get(xs: List<&2, KB>, +k: W) -> List<&2, U32>:
+  match xs:
+    case Nil{}:
+      Nil{}
+    case Con{h, t}:
+      match h:
+        case KB{hk, hb}:
+          ite(List<&2, U32>, w_eq(hk, k), hb, kb_get(t, k))
+
+# ---- intent lane: statement helpers (holon.intent.model HELPERS)
+def ip_ite_w(c: Bool, a: W, b: W) -> W:
+  ite(W, c, a, b)
+
+def ip_ite_u(c: Bool, a: U32, b: U32) -> U32:
+  ite(U32, c, a, b)
+
+def ip_ite_b(c: Bool, a: Bool, b: Bool) -> Bool:
+  ite(Bool, c, a, b)
+
+def ip_lle(xs: List<&2, U32>, ys: List<&2, U32>, lo: Bool) -> Bool:
+  match xs ys:
+    case Nil{} Nil{}:
+      lo
+    case Nil{} Con{y, yt}:
+      lo
+    case Con{x, xt} Nil{}:
+      lo
+    case Con{+x, xt} Con{+y, yt}:
+      ip_lle(xt, yt, Bool.or(U32.is_lt(x, y), Bool.and(U32.is_eq(x, y), lo)))
+
+def ip_le_pct(+r: W, +n: U32, +a: W) -> Bool:
+  ip_lle(l_mul1(w_limbs(r), 100, 0), l_mul1(w_limbs(a), n, 0), True{})
+
+def ip_is_true(b: Bool) -> Type:
+  match b:
+    case True{}:
+      Unit
+    case False{}:
+      Empty
+
+# ---- intent lane: the model of Cf2d128 (holon.intent.model)
+type St is Data:
+  St{f_owner: W, f_stopped: W}
+
+def st_owner(s: St) -> W:
+  match s:
+    case St{f_owner, f_stopped}:
+      f_owner
+
+def st_stopped(s: St) -> W:
+  match s:
+    case St{f_owner, f_stopped}:
+      f_stopped
+
+type X_pause is Data:
+  X_pause{caller: W, e_msg_value: W}
+
+def x_pause_caller(x: X_pause) -> W:
+  match x:
+    case X_pause{caller, e_msg_value}:
+      caller
+
+def x_pause_e_msg_value(x: X_pause) -> W:
+  match x:
+    case X_pause{caller, e_msg_value}:
+      e_msg_value
+
+def chk_pause(+s: St, +x: X_pause) -> U32:
+  ip_ite_u(w_eq(x_pause_e_msg_value(x), W{0, 0, 0, 0, 0, 0, 0, 0}), 0, 1)
+
+def post_pause(+s: St, +x: X_pause) -> St:
+  St{st_owner(s), W{1, 0, 0, 0, 0, 0, 0, 0}}

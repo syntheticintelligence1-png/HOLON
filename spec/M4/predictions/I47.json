@@ -1,0 +1,137 @@
+{
+  "outcome_paths": [
+    "targets/",
+    "results/targets/",
+    "gen/targets/"
+  ],
+  "plan": "docs/BUILD_PLAN.md#i47",
+  "predictions": [
+    {
+      "check": "tests_m4/test_i47_factory.py::TestToyTarget::test_toy_runs_on_the_holon_before_it and tests_m4/test_i47_factory.py::TestToyTarget::test_toy_runs",
+      "claim": "The toy target runs with zero edits to holon/: tests_m4/fixtures/i47_abacus (written at this prereg, before any I47 code) is committed as targets/abacus/ by a commit of I47 that changes no holon/ file, and `holon target run --target abacus`, run on the holon/ and config/ of that commit's parent (and again at HEAD, with the committed toy outputs removed first), decides its three laws: L_abacus_a_reach PROVED, L_abacus_b_reach PROVED, L_abacus_small REFUTED by a trace with at least three inc_a.",
+      "expected": {
+        "L_abacus_a_reach": "PROVED",
+        "L_abacus_b_reach": "PROVED",
+        "L_abacus_small": "REFUTED"
+      },
+      "id": "I47-P1"
+    },
+    {
+      "check": "tests_m4/test_i47_factory.py::TestGateSpeed::test_m1_gate_speedup",
+      "claim": "With 4 workers, the M1 gate (`holon gate --milestone M1 --jobs 4`, HEAD) takes at most half the wall time of BASE's sequential M1 gate (BASE's own code, no --jobs) on the same machine (at least 4 CPUs; the test fails, never skips, below that), runs alternating parallel, sequential, parallel, sequential and the means of two compared, with the same verdict per check, the same not_applicable entries and the same canaries.",
+      "expected": {
+        "speedup_at_least": 2.0,
+        "workers": 4
+      },
+      "id": "I47-P2"
+    },
+    {
+      "check": "tests_m4/test_i47_factory.py::TestParallelRun::test_m1_run_parallel_equals_sequential and tests_m4/test_i47_factory.py::TestParallelRun::test_toy_run_parallel_equals_sequential",
+      "claim": "Outputs are byte-identical to the sequential run under G1's normalization (JSON keys named seconds removed), each run starting with its outputs removed: `holon run --milestone M1 --jobs 4` against `holon run --milestone M1`, over results/M1 and gen/M1 (16 records re-created); and the toy target with 2 and with 3 workers against 1.",
+      "expected": {
+        "differing_files": 0
+      },
+      "id": "I47-P3"
+    },
+    {
+      "check": "tests_m4/test_i47_factory.py::TestDrift::test_new_tag_marks_the_stale_set",
+      "claim": "A simulated new tag triggers re-extraction and marks exactly the predicted stale set: against a local upstream holding only the pinned tag v1, `holon drift --target abacus` reports no change and extracts nothing; with tag v2 (upstream_v2: only the body of observer a_small changes, a <= 2 to a <= 5) it reports refs/tags/v2, re-extracts abacus.facts.json (changed), finds a_small among the definitions whose kernel form changed, and its stale set is exactly [L_abacus_small] (the two reach laws reach a_of and b_of, never a_small); its report is byte-identical when run again; with tags v2 and v3 (upstream_v3: also inc_b's effect, b + 2 to b + 3) it picks refs/tags/v3, the newest, finds a_small and an inc_b definition changed, and the stale set is all three laws (every trace law reaches inc_b through the run). stale_closure_latency_s is recorded, and nothing under targets/ is written.",
+      "expected": {
+        "changed_definition": "a_small",
+        "stale": [
+          "L_abacus_small"
+        ],
+        "v3_stale": [
+          "L_abacus_a_reach",
+          "L_abacus_b_reach",
+          "L_abacus_small"
+        ]
+      },
+      "id": "I47-P4"
+    },
+    {
+      "check": "tests_m4/test_i47_factory.py::TestTargetAgnostic::test_scan and tests_m4/test_i47_factory.py::TestTargetAgnostic::test_residue_is_unchanged_and_pinned",
+      "claim": "Target-agnostic scan, at I47's exit commit: no file under holon/ names a declared target (the names of every targets/*/target.json plus morph, morph-l2, morphl2 and abacus, case-insensitive, bounded by non-alphanumerics, in the file's path or its code with comments and docstrings removed) except the 19 files whose bytes committed M1-M3 records hash (generator_sha256, tests_m4/_i47_probe.py), which I47 may not change; those 19 are byte-identical to BASE. At BASE, 17 other files named the development target (51 occurrences); at the exit they name none. Contract and field names that only Morph code knows (Rollup, batchdata, the M1 state fields) stay covered by tests_m2/test_target_agnostic_exhaustive.py, which I47 amends only to drop holon/__main__.py's allowlisted 'morph' (spec/M2/amendments/I47.jsonl).",
+      "expected": {
+        "editable_files_naming_a_target_at_base": 17,
+        "editable_files_naming_a_target_at_head": 0,
+        "residue_files": 19
+      },
+      "id": "I47-P5"
+    }
+  ],
+  "prompt": "prompts/I47_target_factory.md",
+  "regressions": [
+    {
+      "check": "tests_m4/test_i47_factory.py::TestRegressions::test_r1_generator_digests_unchanged",
+      "claim": "Every generator_sha256 digest (every module of holon/ that defines one, holon.records once per IR version) and the set of files they read are the same at I47's exit commit as at BASE 4fd64a52, so no committed record's generator_sha256 moves and G1 regenerates every committed M0-M3 record as it is.",
+      "id": "I47-R1"
+    },
+    {
+      "check": "tests_m4/test_i47_factory.py::TestRegressions::test_r2_outcomes_unchanged",
+      "claim": "No non-merge commit of I47 (HEAD's first-parent chain from the prereg commit to the exit) changes a committed M0-M3 outcome: facts/, laws/, results/M0-M3, gen/M0-M3, replay/, spec/bindings/, spec/M0-M3/, audit/.",
+      "id": "I47-R2"
+    },
+    {
+      "check": "tests_m4/test_i47_factory.py::TestTargets::test_target_files_validate and tests_m4/test_i47_factory.py::TestTargets::test_morph_target and tests_m4/test_i47_factory.py::TestTargets::test_abacus_is_the_fixture and tests_m4/test_i47_factory.py::TestToyTarget::test_committed_toy_outputs_regenerate",
+      "claim": "Construction: every targets/*/target.json validates against spec/M4/lib/target.schema.json; targets/morph pins 3e44e795586af3e11285b603ab642c67823add51 and morph-l2/morph; targets/abacus is the fixture verbatim; the committed toy outputs regenerate.",
+      "id": "I47-R3"
+    },
+    {
+      "check": "tests_m4/test_i47_factory.py::TestPerfLoop::test_veto_and_neutral",
+      "claim": "Construction (section 9.2(7)): tools/perf_loop.py vetoes a candidate that changes an outcome (a refuter that finds nothing) and keeps or declines a neutral one, and leaves the tree unchanged without --apply.",
+      "id": "I47-R4"
+    },
+    {
+      "check": "tests_m4/test_i47_factory.py::TestDrift::test_morph_drift_recorded",
+      "claim": "Construction (L22): `holon drift --target morph` ran against the live upstream and its report, comparing the refs seen with the pinned refs, is committed.",
+      "id": "I47-R5"
+    },
+    {
+      "check": "the commands in the claim, run at the exit and reported in docs/iterations/I47.md",
+      "claim": "The gates CI runs stay green (python -m holon gate --milestone M0, M1, M2; the partial M3 gate; G7, G4, G6), python tools/freeze.py check prints FROZEN OK, python -m holon audit prereg --milestone M4 prints PREREG OK, and python -m unittest discover -s tests -t . -v passes as at BASE.",
+      "id": "I47-R6"
+    }
+  ],
+  "tests": [
+    "tests_m4/test_i47_factory.py"
+  ],
+  "thresholds": {
+    "base": "4fd64a52f030438cac06595f8673840d6c5c6525",
+    "baseline_m1_gate_seconds": {
+      "G1": 75.4,
+      "G11V": 2.9,
+      "G2": 151.2,
+      "G4": 21.4,
+      "G5": 4.1,
+      "G7": 23.4,
+      "doc": "one sequential run at BASE in this container before the prereg (a copy without .git), for the reader: the prediction is measured by its test, not against this number",
+      "other": 0.9,
+      "total": 279.4
+    },
+    "gpu": "none. CPU substitute: per-law worker processes (ProcessPoolExecutor) for proof, refutation and re-check work; no GPU enumeration is attempted",
+    "instrument_sha256": {
+      "spec/M4/lib/target.schema.json": "8bbb5c6bcccfe50ed61e81072c3b761c0a01b616a5bbd0075e7a7cdc36cbc957",
+      "tests_m4/_i47.py": "686f4501c02376ac0cb5d6d6d410b85ce5d07f3e53cecba446276a26c5182153",
+      "tests_m4/_i47_probe.py": "070ccbcd16f45560ba558cec677b49ef3f635d8f4110db3781546763967810d5",
+      "tests_m4/fixtures/i47_abacus/laws/L_abacus_a_reach.json": "bc18c6f0cc7d0d235099b8ae61c208bbbdfd7ba0e7825a293a44cd49d22440ba",
+      "tests_m4/fixtures/i47_abacus/laws/L_abacus_b_reach.json": "319f9d8e94d6655506c0f8b6a7edb147d5e2f9446fe4ca9429aca4e6cba9a93c",
+      "tests_m4/fixtures/i47_abacus/laws/L_abacus_small.json": "8bb8111f9bbe523150c5672fcbc351fd9fb3613504b318fdd4df72d11ab767e6",
+      "tests_m4/fixtures/i47_abacus/target.json": "b178476913496ed0e24f884daa92858716932836b5c56d094ffa428ae78c0436",
+      "tests_m4/fixtures/i47_abacus/upstream_v1/abacus.facts.json": "fe3e01a7099be2bba7fdf233774bf39ef28b6bd61789b15db9df5bfcc30c8a1a",
+      "tests_m4/fixtures/i47_abacus/upstream_v2/abacus.facts.json": "b74a6409ea1c1d9f27b37f03587d41dbf5269fc9b8423eb6e9fd2bcf4028dd66",
+      "tests_m4/fixtures/i47_abacus/upstream_v3/abacus.facts.json": "740abb5171ec3a7fc700ed105be277f26ff5a965230c53e6ed181839922afb33"
+    },
+    "machine": "the session's container: 4 CPUs (nproc 4), no GPU",
+    "perf_loop_min_gain": 0.05,
+    "speed_protocol": "BASE's sequential M1 gate against HEAD's --jobs 4, alternating par, seq, par, seq, means of two",
+    "speedup_at_least": 2.0,
+    "upstream_shas": {
+      "v1": "919cccf4abca40c28d0f2aae9173e94088367329",
+      "v2": "33b32d4f91a31a9b0cffd389bf5f8cf998626de3",
+      "v3": "fa3ba7f4fe510b1cd24450c7619bbff33f2c05ef"
+    },
+    "workers": 4
+  },
+  "title": "Target-agnostic factory, parallel checking, performance loop, drift trigger: targets/<name>/target.json for the development target and a toy second target (abacus) that runs with no edit to holon/; per-law worker processes in the run and the gate with a deterministic merge; the section 9.2(7) loop with veto; holon drift (git ls-remote against the pin, re-extraction, stale closure, stale_closure_latency); no committed M0-M3 output or generator digest moves"
+}

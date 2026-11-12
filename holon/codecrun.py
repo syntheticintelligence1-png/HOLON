@@ -278,6 +278,8 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
                              "marker": v.marker, "seconds": v.seconds})
         if status == "REFUTED":
             rec["witness"], rec["difference"] = res["witness"], res["difference"]
+            if res.get("conjunct") is not None:   # I100: the binding's counter-law sha256 is that conjunct's
+                rec["failing_conjunct"] = res["conjunct"]
             t = triage.get(lid, {})
             rec["triage"] = t.get("triage", "finding")
             if t.get("why"):
@@ -321,6 +323,8 @@ def _decide_linked(law, doc, cm, ld, pd, imp, cfg, shash, write_pair, accepted) 
            "statement_text": dd.statement.text if dd.statement else None}
     if dd.status in ("PROVED", "REFUTED"):
         out.update({"check": dd.check, "law_name": dd.em.name, "witness": dd.witness, "difference": dd.difference})
+    if dd.status == "REFUTED" and dd.conjunct is not None:   # I100: a conjunction's counter-law states one conjunct
+        out["conjunct"] = dd.conjunct
     return out
 
 

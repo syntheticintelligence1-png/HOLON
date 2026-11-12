@@ -18,6 +18,7 @@ USAGE = """usage: python -m holon eval <command> [options]
   unrename   --root DIR2 --map MAP --out DIR3
   renaming   [--root DIR] [--cache DIR] [--check]            gen/eval/renaming/<entry>.json (rule N3)
   controls   [--root DIR] [--check]                          the unsolved controls (rules K1-K2)
+  holon      [--root DIR] [--entries ID,..] [--check]       HOLON on the corpus pre-fix commits (I51)
   baselines  budget|run|agent|adjudicate|assemble|heldout ...   the I52 baselines (holon.eval.baselines.cli)
 """
 
@@ -32,6 +33,7 @@ COMMANDS = {
     "unrename": ("holon.eval.rename", "cli_unrename"),
     "renaming": ("holon.eval.renaming", "cli_renaming"),
     "controls": ("holon.eval.controls", "cli_controls"),
+    "holon": ("holon.eval.holon_run", "cli_holon"),
     "baselines": ("holon.eval.baselines.cli", "cli_baselines"),
 }
 

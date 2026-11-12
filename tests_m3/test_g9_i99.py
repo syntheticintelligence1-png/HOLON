@@ -93,6 +93,12 @@ def _rec(law: str) -> dict:
     return json.loads((ROOT / "results" / "M3" / f"{law}.json").read_text(encoding="utf-8"))
 
 
+def _i100_laws() -> set:
+    """I100's twelve laws (the I100 key's thresholds), which I99 never knew (spec/M3/amendments/I99.jsonl)."""
+    th = json.loads((ROOT / "spec" / "M3" / "predictions" / "I100.json").read_text(encoding="utf-8"))["thresholds"]
+    return set(th["constant_read_laws"]) | set(th["record_laws"])
+
+
 class TestPrereg(unittest.TestCase):
     def test_r0_the_prereg_pins_hold(self):
         th = _th()
@@ -177,13 +183,37 @@ class TestOutcome(unittest.TestCase):
         self.assertEqual(s["base"], s["head"])
         live = {p.stem: json.loads(p.read_text(encoding="utf-8")).get("status")
                 for p in sorted((ROOT / "results" / "M3").glob("L*.json"))}
-        self.assertEqual(live, s["head"])
+        # I100 (amended, spec/M3/amendments/I99.jsonl): I100 adds the records of its twelve laws
+        later = _i100_laws()
+        self.assertEqual({k: live.get(k) for k in s["head"]}, s["head"])
+        self.assertEqual(sorted(set(live) - set(s["head"])), sorted(later))
 
     def test_p3_no_law_hash_changes(self):
         base = _load("laws.json")["base"]
         head = {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                 for m in ("M0", "M1", "M2", "M3") for p in sorted((ROOT / "laws" / m).rglob("*.json"))}
-        self.assertEqual(head, base)
+        # I100 (amended, spec/M3/amendments/I99.jsonl): I100's catalog bump and its twelve laws; a changed file must
+        # equal I99's base with rule_catalog_version masked (DERIVATION and REGISTRY without I100's twelve, the
+        # registry without its derivation_sha256)
+        later = _i100_laws()
+        self.assertEqual(sorted(set(head) - set(base)), sorted(f"laws/M3/{lid}.json" for lid in later))
+        self.assertEqual(sorted(set(base) - set(head)), [])
+
+        def masked(rel: str, d: dict) -> dict:
+            d = {k: v for k, v in d.items() if k != "rule_catalog_version"}
+            if rel == "laws/M3/DERIVATION.json":
+                d["laws"] = [e for e in d["laws"] if e.get("law_id") not in later]
+            if rel == "laws/M3/REGISTRY.json":
+                d.pop("derivation_sha256", None)
+                d["statements"] = {k: v for k, v in d["statements"].items() if k not in later}
+            return d
+        for rel, sha in sorted(base.items()):
+            if head[rel] == sha:
+                continue
+            old = subprocess.run(["git", "-C", str(ROOT), "show", f"{_th()['base_commit']}:{rel}"],
+                                 capture_output=True, text=True, check=True).stdout
+            self.assertEqual(masked(rel, json.loads((ROOT / rel).read_text(encoding="utf-8"))),
+                             masked(rel, json.loads(old)), rel)
 
     def test_p4_the_new_g9_fails_on_the_old_records(self):
         b = _load("g9.json")["before"]

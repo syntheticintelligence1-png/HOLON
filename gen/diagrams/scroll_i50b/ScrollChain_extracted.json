@@ -1,0 +1,1097 @@
+{
+  "carriers": [
+    {
+      "base_type": "uint8",
+      "cls": "state",
+      "id": "_initialized",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "bool",
+      "cls": "state",
+      "id": "_initializing",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "uint256",
+      "cls": "state",
+      "id": "ContextUpgradeable.__gap",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "address",
+      "cls": "state",
+      "id": "_owner",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "uint256",
+      "cls": "state",
+      "id": "OwnableUpgradeable.__gap",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "bool",
+      "cls": "state",
+      "id": "_paused",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "uint256",
+      "cls": "state",
+      "id": "PausableUpgradeable.__gap",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "uint256",
+      "cls": "state",
+      "id": "__maxNumTxInChunk",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "address",
+      "cls": "state",
+      "id": "__messageQueue",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "address",
+      "cls": "state",
+      "id": "__verifier",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "bool",
+      "cls": "state",
+      "id": "isSequencer",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "bool",
+      "cls": "state",
+      "id": "isProver",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "uint256",
+      "cls": "state",
+      "id": "__lastFinalizedBatchIndex",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "bytes32",
+      "cls": "state",
+      "id": "committedBatches",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "bytes32",
+      "cls": "state",
+      "id": "finalizedStateRoots",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "bytes32",
+      "cls": "state",
+      "id": "withdrawRoots",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "uint256",
+      "cls": "state",
+      "id": "initialEuclidBatchIndex",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "struct ScrollChain.ScrollChainMiscData",
+      "cls": "state",
+      "id": "miscData",
+      "interface": false,
+      "reach": "inductive",
+      "rule": "V1"
+    },
+    {
+      "base_type": "State",
+      "cls": "state",
+      "id": "State",
+      "interface": false,
+      "product": [
+        "_initialized",
+        "_initializing",
+        "ContextUpgradeable.__gap",
+        "_owner",
+        "OwnableUpgradeable.__gap",
+        "_paused",
+        "PausableUpgradeable.__gap",
+        "__maxNumTxInChunk",
+        "__messageQueue",
+        "__verifier",
+        "isSequencer",
+        "isProver",
+        "__lastFinalizedBatchIndex",
+        "committedBatches",
+        "finalizedStateRoots",
+        "withdrawRoots",
+        "initialEuclidBatchIndex",
+        "miscData"
+      ],
+      "reach": "inductive",
+      "rule": "V2"
+    },
+    {
+      "base_type": "Act",
+      "cls": "rep",
+      "id": "Act",
+      "interface": true,
+      "reach": "external",
+      "rule": "V2"
+    },
+    {
+      "base_type": "Obs",
+      "cls": "rep",
+      "id": "Obs",
+      "interface": false,
+      "reach": "image",
+      "rule": "V2"
+    },
+    {
+      "base_type": null,
+      "cls": "env",
+      "id": "env.block.timestamp",
+      "interface": false,
+      "reach": "external",
+      "rule": "V3"
+    },
+    {
+      "base_type": null,
+      "cls": "env",
+      "id": "env.msg.data.length",
+      "interface": false,
+      "reach": "external",
+      "rule": "V3"
+    },
+    {
+      "base_type": null,
+      "cls": "env",
+      "id": "env.msg.value",
+      "interface": false,
+      "reach": "external",
+      "rule": "V3"
+    },
+    {
+      "base_type": null,
+      "cls": "env",
+      "id": "env.tx.origin",
+      "interface": false,
+      "reach": "external",
+      "rule": "V3"
+    },
+    {
+      "base_type": null,
+      "cls": "rep",
+      "id": "ext.IL1MessageQueueV1.nextUnfinalizedQueueIndex",
+      "interface": false,
+      "reach": "external",
+      "rule": "V4"
+    },
+    {
+      "base_type": null,
+      "cls": "rep",
+      "id": "ext.IL1MessageQueueV2.finalizePoppedCrossDomainMessage",
+      "interface": false,
+      "reach": "external",
+      "rule": "V4"
+    },
+    {
+      "base_type": null,
+      "cls": "rep",
+      "id": "ext.IL1MessageQueueV2.firstCrossDomainMessageIndex",
+      "interface": false,
+      "reach": "external",
+      "rule": "V4"
+    },
+    {
+      "base_type": null,
+      "cls": "rep",
+      "id": "ext.IL1MessageQueueV2.getFirstUnfinalizedMessageEnqueueTime",
+      "interface": false,
+      "reach": "external",
+      "rule": "V4"
+    },
+    {
+      "base_type": null,
+      "cls": "rep",
+      "id": "ext.IL1MessageQueueV2.getMessageRollingHash",
+      "interface": false,
+      "reach": "external",
+      "rule": "V4"
+    },
+    {
+      "base_type": null,
+      "cls": "rep",
+      "id": "ext.IRollupVerifier.verifyBundleProof",
+      "interface": false,
+      "reach": "external",
+      "rule": "V4"
+    },
+    {
+      "base_type": null,
+      "cls": "rep",
+      "id": "ext.SystemConfig.enforcedBatchParameters",
+      "interface": false,
+      "reach": "external",
+      "rule": "V4"
+    },
+    {
+      "base_type": null,
+      "cls": "rep",
+      "id": "commit.IRollupVerifier.verifyBundleProof",
+      "interface": false,
+      "reach": "external",
+      "rule": "V5"
+    },
+    {
+      "base_type": null,
+      "cls": "rep",
+      "id": "commit.blobhash",
+      "interface": false,
+      "reach": "external",
+      "rule": "V5"
+    },
+    {
+      "base_type": null,
+      "cls": "digest",
+      "id": "hash.keccak256",
+      "interface": false,
+      "reach": "image",
+      "rule": "V5"
+    }
+  ],
+  "contract": "ScrollChain",
+  "diagram_version": "holon-diagram-transitions/0.1",
+  "edges": [
+    {
+      "action": null,
+      "id": "STORE._initialized",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "_initialized"
+    },
+    {
+      "action": null,
+      "id": "LOAD._initialized",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "_initialized",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE._initializing",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "_initializing"
+    },
+    {
+      "action": null,
+      "id": "LOAD._initializing",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "_initializing",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.ContextUpgradeable.__gap",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "ContextUpgradeable.__gap"
+    },
+    {
+      "action": null,
+      "id": "LOAD.ContextUpgradeable.__gap",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "ContextUpgradeable.__gap",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE._owner",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "_owner"
+    },
+    {
+      "action": null,
+      "id": "LOAD._owner",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "_owner",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.OwnableUpgradeable.__gap",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "OwnableUpgradeable.__gap"
+    },
+    {
+      "action": null,
+      "id": "LOAD.OwnableUpgradeable.__gap",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "OwnableUpgradeable.__gap",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE._paused",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "_paused"
+    },
+    {
+      "action": null,
+      "id": "LOAD._paused",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "_paused",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.PausableUpgradeable.__gap",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "PausableUpgradeable.__gap"
+    },
+    {
+      "action": null,
+      "id": "LOAD.PausableUpgradeable.__gap",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "PausableUpgradeable.__gap",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.__maxNumTxInChunk",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "__maxNumTxInChunk"
+    },
+    {
+      "action": null,
+      "id": "LOAD.__maxNumTxInChunk",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "__maxNumTxInChunk",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.__messageQueue",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "__messageQueue"
+    },
+    {
+      "action": null,
+      "id": "LOAD.__messageQueue",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "__messageQueue",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.__verifier",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "__verifier"
+    },
+    {
+      "action": null,
+      "id": "LOAD.__verifier",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "__verifier",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.isSequencer",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "isSequencer"
+    },
+    {
+      "action": null,
+      "id": "LOAD.isSequencer",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "isSequencer",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.isProver",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "isProver"
+    },
+    {
+      "action": null,
+      "id": "LOAD.isProver",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "isProver",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.__lastFinalizedBatchIndex",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "__lastFinalizedBatchIndex"
+    },
+    {
+      "action": null,
+      "id": "LOAD.__lastFinalizedBatchIndex",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "__lastFinalizedBatchIndex",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.committedBatches",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "committedBatches"
+    },
+    {
+      "action": null,
+      "id": "LOAD.committedBatches",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "committedBatches",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.finalizedStateRoots",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "finalizedStateRoots"
+    },
+    {
+      "action": null,
+      "id": "LOAD.finalizedStateRoots",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "finalizedStateRoots",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.withdrawRoots",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "withdrawRoots"
+    },
+    {
+      "action": null,
+      "id": "LOAD.withdrawRoots",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "withdrawRoots",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.initialEuclidBatchIndex",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "initialEuclidBatchIndex"
+    },
+    {
+      "action": null,
+      "id": "LOAD.initialEuclidBatchIndex",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "initialEuclidBatchIndex",
+      "tgt": "State"
+    },
+    {
+      "action": null,
+      "id": "STORE.miscData",
+      "kind": "STORE",
+      "rule": "E1",
+      "source": null,
+      "src": "State",
+      "tgt": "miscData"
+    },
+    {
+      "action": null,
+      "id": "LOAD.miscData",
+      "kind": "LOAD",
+      "rule": "E1",
+      "source": null,
+      "src": "miscData",
+      "tgt": "State"
+    },
+    {
+      "action": "addProver",
+      "id": "TRANS.addProver",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:478-485",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "addSequencer",
+      "id": "TRANS.addSequencer",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:458-466",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "commitAndFinalizeBatch",
+      "id": "TRANS.commitAndFinalizeBatch",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:398-450",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "commitAndFinalizeBatch",
+      "id": "CALL.commitAndFinalizeBatch.4",
+      "kind": "CALL",
+      "rule": "E4",
+      "source": "src/L1/rollup/ScrollChain.sol:405-406",
+      "src": "State",
+      "tgt": "ext.SystemConfig.enforcedBatchParameters"
+    },
+    {
+      "action": "commitAndFinalizeBatch",
+      "id": "CALL.commitAndFinalizeBatch.5",
+      "kind": "CALL",
+      "rule": "E4",
+      "source": "src/L1/rollup/ScrollChain.sol:407-408",
+      "src": "State",
+      "tgt": "ext.IL1MessageQueueV2.getFirstUnfinalizedMessageEnqueueTime"
+    },
+    {
+      "action": "commitAndFinalizeBatch",
+      "id": "CALL.commitAndFinalizeBatch.44",
+      "kind": "CALL",
+      "rule": "E4",
+      "source": "src/L1/rollup/ScrollChain.sol:671",
+      "src": "State",
+      "tgt": "ext.IL1MessageQueueV2.getMessageRollingHash"
+    },
+    {
+      "action": "commitAndFinalizeBatch",
+      "id": "CALL.commitAndFinalizeBatch.46",
+      "kind": "CALL",
+      "rule": "E4",
+      "source": "src/L1/rollup/ScrollChain.sol:686",
+      "src": "State",
+      "tgt": "ext.IRollupVerifier.verifyBundleProof"
+    },
+    {
+      "action": "commitAndFinalizeBatch",
+      "id": "CALL.commitAndFinalizeBatch.50",
+      "kind": "CALL",
+      "rule": "E4",
+      "source": "src/L1/rollup/ScrollChain.sol:751",
+      "src": "State",
+      "tgt": "ext.IL1MessageQueueV2.finalizePoppedCrossDomainMessage"
+    },
+    {
+      "action": "commitAndFinalizeBatch",
+      "id": "HASH.commitAndFinalizeBatch.0",
+      "kind": "HASH",
+      "rule": "E5",
+      "source": "src/L1/rollup/ScrollChain.sol:439",
+      "src": "State",
+      "tgt": "hash.keccak256"
+    },
+    {
+      "action": "commitAndFinalizeBatch",
+      "id": "COMMIT.commitAndFinalizeBatch.1",
+      "kind": "COMMIT",
+      "rule": "E5",
+      "source": "src/L1/rollup/ScrollChain.sol:590",
+      "src": "State",
+      "tgt": "commit.blobhash"
+    },
+    {
+      "action": "commitAndFinalizeBatch",
+      "id": "HASH.commitAndFinalizeBatch.2",
+      "kind": "HASH",
+      "rule": "E5",
+      "source": "src/libraries/codec/BatchHeaderV0Codec.sol:209",
+      "src": "State",
+      "tgt": "hash.keccak256"
+    },
+    {
+      "action": "commitAndFinalizeBatch",
+      "id": "COMMIT.commitAndFinalizeBatch.3",
+      "kind": "COMMIT",
+      "rule": "E5",
+      "source": "src/L1/rollup/ScrollChain.sol:686",
+      "src": "State",
+      "tgt": "commit.IRollupVerifier.verifyBundleProof"
+    },
+    {
+      "action": "commitBatches",
+      "id": "TRANS.commitBatches",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:342-348",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "commitBatches",
+      "id": "COMMIT.commitBatches.0",
+      "kind": "COMMIT",
+      "rule": "E5",
+      "source": "src/L1/rollup/ScrollChain.sol:590",
+      "src": "State",
+      "tgt": "commit.blobhash"
+    },
+    {
+      "action": "commitBatches",
+      "id": "HASH.commitBatches.1",
+      "kind": "HASH",
+      "rule": "E5",
+      "source": "src/libraries/codec/BatchHeaderV0Codec.sol:209",
+      "src": "State",
+      "tgt": "hash.keccak256"
+    },
+    {
+      "action": "disableEnforcedBatchMode",
+      "id": "TRANS.disableEnforcedBatchMode",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:506-509",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "finalizeBundlePostEuclidV2",
+      "id": "TRANS.finalizeBundlePostEuclidV2",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:374-394",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "finalizeBundlePostEuclidV2",
+      "id": "CALL.finalizeBundlePostEuclidV2.5",
+      "kind": "CALL",
+      "rule": "E4",
+      "source": "src/L1/rollup/ScrollChain.sol:385",
+      "src": "State",
+      "tgt": "ext.IL1MessageQueueV1.nextUnfinalizedQueueIndex"
+    },
+    {
+      "action": "finalizeBundlePostEuclidV2",
+      "id": "CALL.finalizeBundlePostEuclidV2.6",
+      "kind": "CALL",
+      "rule": "E4",
+      "source": "src/L1/rollup/ScrollChain.sol:386",
+      "src": "State",
+      "tgt": "ext.IL1MessageQueueV2.firstCrossDomainMessageIndex"
+    },
+    {
+      "action": "finalizeBundlePostEuclidV2",
+      "id": "CALL.finalizeBundlePostEuclidV2.24",
+      "kind": "CALL",
+      "rule": "E4",
+      "source": "src/L1/rollup/ScrollChain.sol:671",
+      "src": "State",
+      "tgt": "ext.IL1MessageQueueV2.getMessageRollingHash"
+    },
+    {
+      "action": "finalizeBundlePostEuclidV2",
+      "id": "CALL.finalizeBundlePostEuclidV2.26",
+      "kind": "CALL",
+      "rule": "E4",
+      "source": "src/L1/rollup/ScrollChain.sol:686",
+      "src": "State",
+      "tgt": "ext.IRollupVerifier.verifyBundleProof"
+    },
+    {
+      "action": "finalizeBundlePostEuclidV2",
+      "id": "CALL.finalizeBundlePostEuclidV2.30",
+      "kind": "CALL",
+      "rule": "E4",
+      "source": "src/L1/rollup/ScrollChain.sol:751",
+      "src": "State",
+      "tgt": "ext.IL1MessageQueueV2.finalizePoppedCrossDomainMessage"
+    },
+    {
+      "action": "finalizeBundlePostEuclidV2",
+      "id": "HASH.finalizeBundlePostEuclidV2.0",
+      "kind": "HASH",
+      "rule": "E5",
+      "source": "src/libraries/codec/BatchHeaderV0Codec.sol:209",
+      "src": "State",
+      "tgt": "hash.keccak256"
+    },
+    {
+      "action": "finalizeBundlePostEuclidV2",
+      "id": "COMMIT.finalizeBundlePostEuclidV2.1",
+      "kind": "COMMIT",
+      "rule": "E5",
+      "source": "src/L1/rollup/ScrollChain.sol:686",
+      "src": "State",
+      "tgt": "commit.IRollupVerifier.verifyBundleProof"
+    },
+    {
+      "action": "importGenesisBatch",
+      "id": "TRANS.importGenesisBatch",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:314-339",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "importGenesisBatch",
+      "id": "HASH.importGenesisBatch.0",
+      "kind": "HASH",
+      "rule": "E5",
+      "source": "src/libraries/codec/BatchHeaderV0Codec.sol:209",
+      "src": "State",
+      "tgt": "hash.keccak256"
+    },
+    {
+      "action": "initialize",
+      "id": "TRANS.initialize",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:250-260",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "initializeV2",
+      "id": "TRANS.initializeV2",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:262-286",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "isBatchFinalized",
+      "id": "OBS.isBatchFinalized",
+      "kind": "LOAD",
+      "rule": "E3",
+      "source": "src/L1/rollup/ScrollChain.sol:293-295",
+      "src": "State",
+      "tgt": "Obs"
+    },
+    {
+      "action": "isEnforcedModeEnabled",
+      "id": "OBS.isEnforcedModeEnabled",
+      "kind": "LOAD",
+      "rule": "E3",
+      "source": "src/L1/rollup/ScrollChain.sol:303-305",
+      "src": "State",
+      "tgt": "Obs"
+    },
+    {
+      "action": "lastFinalizedBatchIndex",
+      "id": "OBS.lastFinalizedBatchIndex",
+      "kind": "LOAD",
+      "rule": "E3",
+      "source": "src/L1/rollup/ScrollChain.sol:298-300",
+      "src": "State",
+      "tgt": "Obs"
+    },
+    {
+      "action": "owner",
+      "id": "OBS.owner",
+      "kind": "LOAD",
+      "rule": "E3",
+      "source": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:48-50",
+      "src": "State",
+      "tgt": "Obs"
+    },
+    {
+      "action": "paused",
+      "id": "OBS.paused",
+      "kind": "LOAD",
+      "rule": "E3",
+      "source": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:69-71",
+      "src": "State",
+      "tgt": "Obs"
+    },
+    {
+      "action": "removeProver",
+      "id": "TRANS.removeProver",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:489-493",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "removeSequencer",
+      "id": "TRANS.removeSequencer",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:470-474",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "renounceOwnership",
+      "id": "TRANS.renounceOwnership",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:66-68",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "revertBatch",
+      "id": "TRANS.revertBatch",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:354-371",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "revertBatch",
+      "id": "HASH.revertBatch.0",
+      "kind": "HASH",
+      "rule": "E5",
+      "source": "src/libraries/codec/BatchHeaderV0Codec.sol:209",
+      "src": "State",
+      "tgt": "hash.keccak256"
+    },
+    {
+      "action": "setPause",
+      "id": "TRANS.setPause",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "src/L1/rollup/ScrollChain.sol:497-503",
+      "src": "State",
+      "tgt": "State"
+    },
+    {
+      "action": "transferOwnership",
+      "id": "TRANS.transferOwnership",
+      "kind": "TRANS",
+      "rule": "E2",
+      "source": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:74-77",
+      "src": "State",
+      "tgt": "State"
+    }
+  ],
+  "facts": "gen/targets/scroll_i50b/facts/ScrollChain.extracted.json",
+  "facts_sha256": "594f639a212b47576fe6e28604f323455ff667853d60ba1b6a2d5f28656ba076",
+  "facts_version": "holon-facts/0.3",
+  "model": "ScrollChain_extracted",
+  "provenance": {
+    "extraction": {
+      "frontend": "solidity",
+      "frontend_version": "holon-frontend-solidity/0.3",
+      "inputs": [
+        {
+          "sha256": "1fbf2a131b895514f0027866cc0deff151ea16424b4aed2b8c573d2275cfa9e8",
+          "unit": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol"
+        },
+        {
+          "sha256": "a2c4e5c274a586f145d278293ae33198cd8f412ab7e6d26f2394c8949b32b24b",
+          "unit": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol"
+        },
+        {
+          "sha256": "c05b019a0b3bee8f3fac2da7c929f7d665b97d6d046aa35126615fff11205119",
+          "unit": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol"
+        },
+        {
+          "sha256": "db92fc1b515decad3a783b1422190877d2d70b907c6e36fb0998d9465aee42db",
+          "unit": "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol"
+        },
+        {
+          "sha256": "5fb301961e45cb482fe4e05646d2f529aa449fe0e90c6671475d6a32356fa2d4",
+          "unit": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol"
+        },
+        {
+          "sha256": "4f986b07b1d63db9672b75d580a8a0f4f7006bdeaab29b3bd3bb4b4baafd9d11",
+          "unit": "src/L1/rollup/IL1MessageQueueV1.sol"
+        },
+        {
+          "sha256": "d77bdc23859094ce1c229a0d454ecd15d7972a4b39fa5673df8cef33a631577b",
+          "unit": "src/L1/rollup/IL1MessageQueueV2.sol"
+        },
+        {
+          "sha256": "f7f9265f56670982d88ffe76abca082304d68b24827654c135ac3ac5baa65691",
+          "unit": "src/L1/rollup/IScrollChain.sol"
+        },
+        {
+          "sha256": "65efbaaf7435fa56181a94cdd6cb21fc41f8b8bda85487859945e2c02384733e",
+          "unit": "src/L1/rollup/ScrollChain.sol"
+        },
+        {
+          "sha256": "560c64af5fdd857289ce64ad918d7c0a5b52008065e07ade8539935de90431cf",
+          "unit": "src/L1/system-contract/SystemConfig.sol"
+        },
+        {
+          "sha256": "bbe3954cf2eec2f6b09edc6d656acd1dd6a1337bc300e27b7b40cc8b875dcbcb",
+          "unit": "src/libraries/codec/BatchHeaderV0Codec.sol"
+        },
+        {
+          "sha256": "179566ff8e4a63956e08726bdd592fdac0d887d30a9aa60ce072cf4c7951de73",
+          "unit": "src/libraries/codec/BatchHeaderV1Codec.sol"
+        },
+        {
+          "sha256": "9f57bcc41292fd1d457a54b0f1d23fb00a1c84c71a80b943780f1a05ab94fce1",
+          "unit": "src/libraries/codec/BatchHeaderV3Codec.sol"
+        },
+        {
+          "sha256": "7731e32b62ff611d4fdc102d752ca15e0bc4e2a5787dcc845939492d356618e6",
+          "unit": "src/libraries/codec/BatchHeaderV7Codec.sol"
+        },
+        {
+          "sha256": "cc41a4f7f1558fe9127a508301d02ee0877e9b1bfc40ac11b6b014f7e37f9445",
+          "unit": "src/libraries/verifier/IRollupVerifier.sol"
+        }
+      ],
+      "kind": "transitions",
+      "method": "extracted",
+      "settings": {
+        "evmVersion": "cancun",
+        "optimizer": {
+          "enabled": false
+        },
+        "outputSelection": {
+          "*": {
+            "": [
+              "ast"
+            ],
+            "*": [
+              "storageLayout"
+            ]
+          }
+        }
+      },
+      "sidecar": {
+        "path": "targets/scroll_i50b/extract_solidity.json",
+        "sha256": "17265548fab47c4b3493e93238e85bca616800d141937493ac00cb3e9059c0c4"
+      },
+      "toolchain": {
+        "solc": {
+          "sha256": "fb03a29a517452b9f12bcf459ef37d0a543765bb3bbc911e70a87d6a37c30d5f",
+          "version": "0.8.24+commit.e11b9ed9.Linux.g++"
+        }
+      }
+    },
+    "target": {
+      "commit": "42de954bee237cfa478a5b443ac0aeb900aca5ad",
+      "repo": "scroll-tech/scroll-contracts",
+      "scope": "transitions of every external/public function, storage families, cost terms, principal predicates, hash/commit edges, coverage"
+    }
+  }
+}

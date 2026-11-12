@@ -203,7 +203,7 @@ def build_sites(model: str, facts: dict, prog: F.Program, system: System, active
 
 # ------------------------------------------------------------------ one model
 class Model:
-    def __init__(self, path: Path, inputs: Inputs, seeds: dict):
+    def __init__(self, path: Path, inputs: Inputs, seeds: dict, sort_types_version: str | None = None):
         self.path = path
         self.name = path.stem
         self.rel = inputs.rel(path)
@@ -221,7 +221,9 @@ class Model:
                 raise PassError(f"{self.rel}: a holon-facts/0.3 document needs {X.SEEDS_VERSION} seeds, not "
                                 f"{seeds.get('seeds_version')!r}")
             try:
-                self.walk03 = X.walk(self.name, self.facts, seeds)
+                # I50b: the typed-sorts sidecar's version picks the adapter's rules (0.1 unless the sidecar says 0.2)
+                self.walk03 = X.walk(self.name, self.facts, seeds,
+                                     sort_types_version=sort_types_version or X.SORT_TYPES_0_1)
             except X.ExtractedError as e:
                 raise PassError(f"{self.rel}: {e}") from e
             self.prog = self.walk03.prog
@@ -299,8 +301,9 @@ def run_pass(docs: list[Path], root: Path, milestone: str | None, seeds_path: Pa
     seeds file it names (holon-sort-seeds/0.2, I30); both are inputs. Without them, I13's frozen M2 seeds."""
     root = Path(root).resolve()
     inputs = Inputs(root)
+    stv = None
     if sidecar_path is not None:
-        inputs.read_json(Path(sidecar_path))
+        stv = inputs.read_json(Path(sidecar_path)).get("sort_types_version")
     if seeds_path is None:
         seeds_path = root / SEEDS
         seeds = inputs.read_json(seeds_path)
@@ -317,7 +320,7 @@ def run_pass(docs: list[Path], root: Path, milestone: str | None, seeds_path: Pa
     if dup:
         raise PassError(f"two fact documents name the same model: {dup}")
     for p in sorted(docs, key=lambda p: p.stem):
-        models.append(Model(p, inputs, seeds))
+        models.append(Model(p, inputs, seeds, stv))
     numbered = C.number([c for m in models for c in m.raw])
     bymodel: dict[str, list] = {}
     for c in numbered:

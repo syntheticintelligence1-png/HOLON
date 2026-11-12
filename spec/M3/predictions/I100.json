@@ -1,0 +1,180 @@
+{
+  "title": "I100: rule PAR_record_round_trip: the record law over an encoder into a byte record and its getter family, the constant read-back laws, and the back-test's record bridges (L7 candidate; RG-M3-01 to RG-M3-03 and RG-M3-06; F-M3-08, F-M3-10)",
+  "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I100)",
+  "prompt": "prompts/I100_par_record_round_trip.md",
+  "tests": [
+    "tests_m3/test_par_record_i100.py"
+  ],
+  "outcome_paths": [
+    "docs/iterations/I100/",
+    "docs/iterations/I100.md"
+  ],
+  "thresholds": {
+    "base": "4fd64a52 (the lead after #131, which filed RG-M3-06), with BUILD_PLAN's row I100 (1d889c88)",
+    "base_commit": "4fd64a52f030438cac06595f8673840d6c5c6525",
+    "contract_docstring_sha256": "7c73f635eee9e4482540916c2afd3261b9eb9230e4c47d7ff754e746616cc811",
+    "pins": {
+      "instrument": {
+        "path": "tests_m3/_i100.py",
+        "sha256": "b8a165b44a84b3bede9a74637657b0dd334be7c255d979aabb67d4ec67db7994"
+      },
+      "record_map": {
+        "path": "spec/M3/lib/backtest_record_map.json",
+        "sha256": "1a410be857f8782a04482e494e984c61b745dba61421b604b8548b8469f8baa1"
+      }
+    },
+    "catalog_expected": "holon-rules/1.16",
+    "catalog_previous": "holon-rules/1.15",
+    "constant_read_laws": {
+      "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_Version_v2": "0x02",
+      "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_Version_v0": "0x00",
+      "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_Version_v1": "0x01",
+      "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v1": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v2": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "record_laws": {
+      "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2": 13,
+      "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0": 12,
+      "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1": 13,
+      "L_par_rec_enc_sol_BatchHeaderBytes_v0": 12,
+      "L_par_rec_enc_sol_BatchHeaderBytes_v1": 13,
+      "L_par_rec_enc_sol_BatchHeaderBytes_v2": 13
+    },
+    "exit_blockers_before": [
+      "gap:M0:L_par_hdr_v2",
+      "gap:M0:L_rt_go_v0",
+      "gap:M0:L_rt_go_v1",
+      "gap:M0:L_rt_go_v2"
+    ],
+    "exit_blockers_after": [
+      "gap:M0:L_par_hdr_v2"
+    ],
+    "mutations": {
+      "m05": "not_caught",
+      "m06": "refuted",
+      "m07": "obstructed",
+      "m08": "obstructed"
+    },
+    "reply": "I100 ready: PR #<n> <head sha>, 12 laws added, 0 statuses moved, back-test exit blockers 4 -> 1, B0 red (awaiting signature)"
+  },
+  "predictions": [
+    {
+      "id": "I100-P1",
+      "claim": "Obligation (2): six constant_read laws, exactly the instrument's: enc_sol's SequencerSetVerifyHash at versions 0, 1 and 2 (32 zero bytes, premise version = N) and the Version slot of BatchHeaderV0_Bytes (0x00, v0), BatchHeaderV1_Bytes (0x01, v1) and BatchCache_createBatchHeaderWithSequencerSetHash (0x02, v2), without premises; they are I25's six constant_read elements; each PROVED by open_refl, BendTT's verdict checked.",
+      "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p1_the_constant_read_back_laws"
+    },
+    {
+      "id": "I100-P2",
+      "claim": "Obligations (3) and (4): six record laws, exactly the instrument's, with 12 conjuncts (enc_sol v0, BatchHeaderV0_Bytes v0) or 13 (enc_sol v1 and v2, BatchHeaderV1_Bytes v1, BatchCache v2), each PROVED by open_refl, BendTT's verdict checked; the par_record basis at HEAD has no obstruction.",
+      "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p2_the_record_laws"
+    },
+    {
+      "id": "I100-P3",
+      "claim": "Obligation (1): every field conjunct of a record law is the claim, under the same premises, of the round_trip law L_par_rt_<e>_<d>_v<N>, PROVED at HEAD and at the base.",
+      "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p3_the_field_conjuncts_are_the_round_trips"
+    },
+    {
+      "id": "I100-P4",
+      "claim": "12 laws added and 0 statuses moved: the M3 registry at HEAD is the base's plus the 12 (every base hash kept) under holon-rules/1.16; every M3 record of the base keeps its status.",
+      "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p4_twelve_laws_added_none_moved"
+    },
+    {
+      "id": "I100-P5",
+      "claim": "Obligation (5): the back-test pairs L_rt_go_v0, _v1 and _v2 with L_par_rec_enc_sol_BatchHeaderBytes_v0, _v1 and _v2, bridges dec_go, enc_sol and view PROVED, acceptance bridges; the other five rows are the base's; the exit blockers go from 4 to 1 (gap:M0:L_par_hdr_v2).",
+      "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p5_the_backtest"
+    },
+    {
+      "id": "I100-P6",
+      "claim": "Round 3's m08 is caught, obstructed: (enc_sol, BatchHeaderBytes, N) for N = 0, 1 and 2, each missing exactly BatchHeaderBytes_ParentBatchHash and BatchHeaderBytes_SequencerSetVerifyHash; no instance dropped.",
+      "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p6_m08_obstructed"
+    },
+    {
+      "id": "I100-P7",
+      "claim": "Round 3's m06 is caught, refuted: no obstruction; the mutant's L_par_rec_enc_sol_BatchHeaderBytes_v1 has 12 conjuncts (no LastBlockNumber getter); the mutant's back-test pairs L_rt_go_v1 with it, its dec_go and view bridges REFUTED by Bend-checked counter-laws and its enc_sol bridge PROVED; gap:M0:L_rt_go_v1 is an exit blocker.",
+      "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p7_m06_refuted"
+    },
+    {
+      "id": "I100-P8",
+      "claim": "Round 3's m07 is caught, obstructed: (BatchHeaderV1_Bytes, BatchHeaderBytes, 1) and (BatchCache_createBatchHeaderWithSequencerSetHash, BatchHeaderBytes, 2), each missing exactly BatchHeaderBytes_LastBlockNumber and BatchHeaderBytes_ParentBatchHash; enc_sol's instances are HEAD's.",
+      "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p8_m07_obstructed"
+    },
+    {
+      "id": "I100-P9",
+      "claim": "Round 3's m05 is not caught: the block-context functions are in no linked codec document, so the mutant's instances are HEAD's and its verdict is not_caught.",
+      "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p9_m05_not_caught"
+    }
+  ],
+  "regressions": [
+    {
+      "id": "I100-R0",
+      "claim": "The contract docstring, the instrument and the record map keep the sha256 pinned in thresholds.",
+      "check": "tests_m3/test_par_record_i100.py::TestPrereg::test_r0_the_prereg_pins_hold"
+    },
+    {
+      "id": "I100-R1",
+      "claim": "holon audit prereg --milestone M3 prints PREREG OK.",
+      "check": "tests_m3/test_par_record_i100.py::TestPrereg::test_r1_the_prereg_audit_passes"
+    },
+    {
+      "id": "I100-R2",
+      "claim": "The instrument imports nothing from holon/ or tools/.",
+      "check": "tests_m3/test_par_record_i100.py::TestPrereg::test_r2_the_instrument_imports_nothing_from_holon_or_tools"
+    },
+    {
+      "id": "I100-R3",
+      "claim": "The record map spec/M3/lib/backtest_record_map.json is the instrument's computation (record_map_doc).",
+      "check": "tests_m3/test_par_record_i100.py::TestPrereg::test_r3_the_record_map_is_the_computation"
+    },
+    {
+      "id": "I100-R4",
+      "claim": "I100's own commits write no frozen root.",
+      "check": "tests_m3/test_par_record_i100.py::TestPrereg::test_r4_own_commits_write_no_frozen_root"
+    },
+    {
+      "id": "I100-R5",
+      "claim": "B0: holon audit gaps admits PAR_record_round_trip (L7 (c), the human's signature); red until the signature lands.",
+      "check": "tests_m3/test_par_record_i100.py::TestAdmission::test_b0_the_audit_admits_the_rule"
+    },
+    {
+      "id": "I100-R6",
+      "claim": "B1: Catalog holon-rules/1.16: holon-rules/1.15's rules by the same producer objects plus PAR's constant_read and record_round_trip; catalog_version(M3) is holon-rules/1.16.",
+      "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b1_the_catalog"
+    },
+    {
+      "id": "I100-R7",
+      "claim": "B2: holon.rules.par_record over the committed codec document is the instrument's computation, and gen/M3/par_record/basis.json is its document.",
+      "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b2_the_producer_is_the_instrument"
+    },
+    {
+      "id": "I100-R8",
+      "claim": "B3: Coverage reads the getter family: the m08-like plant obstructs (enc_sol, BatchHeaderBytes, 1) naming ParentBatchHash and SequencerSetVerifyHash and states neither law; the m06-like plant gives 12 conjuncts at version 1 and no obstruction; each as the instrument computes it.",
+      "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b3_coverage_reads_the_family"
+    },
+    {
+      "id": "I100-R9",
+      "claim": "B4: A conjunction decides: each record law's LAWS.bend is its exs telescope, and a planted wrong constant conjunct is REFUTED with that conjunct as the failing one.",
+      "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b4_a_conjunction_decides"
+    },
+    {
+      "id": "I100-R10",
+      "claim": "B5: The back-test pairs exactly L_rt_go_vN with L_par_rec_enc_sol_BatchHeaderBytes_vN under the record map and names the record map in its table.",
+      "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b5_the_backtest_pairs_by_the_record_map"
+    },
+    {
+      "id": "I100-R11",
+      "claim": "B6: No law id and no target name in the lines I100 adds under holon/.",
+      "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b6_target_agnostic"
+    },
+    {
+      "id": "I100-R12",
+      "claim": "B7: The par_record part is deterministic and reproduces the committed basis and law files byte for byte.",
+      "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b7_deterministic"
+    },
+    {
+      "id": "I100-R13",
+      "claim": "B8: CI runs the module's TestBuild in a job of its own.",
+      "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b8_ci_runs_this_module"
+    }
+  ]
+}

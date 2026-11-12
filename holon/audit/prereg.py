@@ -28,6 +28,8 @@ What is checked, for every iteration key K that appears in any committed version
    docs/STATUS.md and docs/M<n>_COMPARISON.md). Every landing regenerates them from the records on the
    merged tree (holon.land's regen step), so a parallel landing writes its own copy, computed without K's
    code. HEAD's copy is checked by their own ``--check`` commands. The prereg clause still covers them.
+   A parallel commit is licensed, one commit at a time, by a ``parallel_outcome`` amendment (rule 6) when the
+   files it writes under K's outcome paths are another key's outcomes: two keys whose outcome paths nest.
 5. Tests. Each file in K's ``tests`` exists at C_K and holds at least one test function there. What existed at
    C_K must be unchanged at HEAD; new test functions, helpers and constants may be added. Fingerprinted at C_K:
    - every function, keyed ``func`` at module level and ``Class.func`` in a module-level class. Methods are
@@ -53,6 +55,14 @@ What is checked, for every iteration key K that appears in any committed version
    ``{"iteration": K, "test": "<file>::<key>", "why": "..."}`` for it; it is printed as amended, with what
    changed, to be reported under Surprises. The file is append-only: every line of every committed version
    must still be present at HEAD, so emptying, deleting or renaming it fails.
+   A line ``{"iteration": K, "kind": "parallel_outcome", "commit": "<40-hex sha>", "paths": [files], "owner": L,
+   "why": "..."}`` licenses that one commit under rule 4's parallel clause. It is accepted only if all four hold:
+   (i) ``paths`` is exactly the set of files the commit changes under K's outcome paths (DERIVED aside);
+   (ii) the commit descends from C_L, L being another key of the same predictions file;
+   (iii) each path lies under one of L's outcome paths at C_L;
+   (iv) no path lies under an outcome path of K more specific than L's most specific one covering it.
+   An accepted line is printed as amended. A refused one fails with the reason. A line that names no parallel
+   outcome commit of K is a note.
 
 Notes (never failures): a prediction or regression ``check`` naming ``file.py::Class::method`` (several may be
 joined by `` and ``) that does not resolve to a test fingerprinted at C_K; and each sidecar input (a file C_K
@@ -73,7 +83,7 @@ Residual risk, stated plainly:
   freezes them (BUILD_PLAN 0.3, Q1). Until then the protocol is self-certified, and the audit prints which
   of those files are not listed in FROZEN.sha256.
 - Sidecar inputs (``spec/ledger/``, schemas, ...) are not immutable after the prereg; changes are only noted.
-- An amendment licenses every later change to what it names.
+- An amendment licenses every later change to what it names. A parallel_outcome line licenses one commit only.
 - Newly added sibling test modules or helpers, new classes (their bodies run at import) and decorators of new
   functions can still monkeypatch at import time. Modules outside the test package (``tests/``, ``holon/``)
   are not fingerprinted.
@@ -404,10 +414,16 @@ def describe(r0: list[dict], r1: list[dict]) -> str:
 
 
 # ------------------------------------------------------------------ amendments
-def load_amendments(git: Git, head: str, path: str) -> tuple[dict[tuple[str, str], list[str]], list[str]]:
-    """(iteration, "file::key") -> reasons, from HEAD; plus problems (malformed lines, broken append-only).
-    The append-only history check runs even when the file is gone at HEAD (deleted or renamed)."""
+_FULL_SHA = re.compile(r"[0-9a-f]{40}")
+
+
+def load_amendments(git: Git, head: str, path: str) -> tuple[dict[tuple[str, str], list[str]],
+                                                             dict[tuple[str, str], list[dict]], list[str]]:
+    """(iteration, "file::key") -> reasons, and (iteration, commit) -> parallel_outcome lines ({paths, owner,
+    why}), from HEAD; plus problems (malformed lines, broken append-only). The append-only history check runs even
+    when the file is gone at HEAD (deleted or renamed)."""
     amend: dict[tuple[str, str], list[str]] = {}
+    par: dict[tuple[str, str], list[dict]] = {}
     problems: list[str] = []
     data = git.blob(head, path)
     text = ""
@@ -425,6 +441,21 @@ def load_amendments(git: Git, head: str, path: str) -> tuple[dict[tuple[str, str
         except ValueError as e:
             problems.append(f"{path} line {i} is not JSON: {e}")
             continue
+        if isinstance(obj, dict) and obj.get("kind") == "parallel_outcome":
+            ps = obj.get("paths")
+            ok = (isinstance(obj.get("iteration"), str) and isinstance(obj.get("commit"), str)
+                  and _FULL_SHA.fullmatch(obj["commit"]) is not None and isinstance(ps, list) and ps
+                  and all(isinstance(q, str) and not bad_path(q) and not q.endswith("/") for q in ps)
+                  and isinstance(obj.get("owner"), str) and obj["owner"].strip()
+                  and isinstance(obj.get("why"), str) and obj["why"].strip())
+            if not ok:
+                problems.append(f"{path} line {i}: a parallel_outcome line needs string fields iteration, commit (a "
+                                "full 40-hex sha), owner and a non-empty why, and paths (a non-empty list of "
+                                "repo-relative files)")
+                continue
+            par.setdefault((obj["iteration"], obj["commit"]), []).append(
+                {"paths": sorted(set(ps)), "owner": obj["owner"], "why": obj["why"].strip()})
+            continue
         ok = (isinstance(obj, dict) and isinstance(obj.get("iteration"), str) and isinstance(obj.get("test"), str)
               and "::" in obj["test"] and isinstance(obj.get("why"), str) and obj["why"].strip())
         if not ok:
@@ -441,7 +472,7 @@ def load_amendments(git: Git, head: str, path: str) -> tuple[dict[tuple[str, str
                 seen.add(ln)
                 where = "gone at HEAD" if data is not None else f"gone: {path} does not exist at HEAD"
                 problems.append(f"{path} is append-only, but a line committed in {c[:SHA]} is {where}: {ln[:120]}")
-    return amend, problems
+    return amend, par, problems
 
 
 def frozen_paths(git: Git, head: str) -> set[str]:
@@ -463,6 +494,8 @@ class Ctx:
     head_its: dict
     amend: dict
     cohorts: dict[str, list]  # commit -> values of the keys introduced there
+    parallel: dict = field(default_factory=dict)  # (K, commit) -> parallel_outcome lines (rule 6)
+    intro: dict = field(default_factory=dict)  # key -> (C_K, value at C_K, unparsed)
 
 
 @dataclass
@@ -502,6 +535,46 @@ def _analyse_blob(r: KeyReport, data: bytes, f: str, where: str, test_module: bo
     except (SyntaxError, ValueError) as e:
         r.probs.append(f"{r.k}: {f} does not parse at {where}: {e}")
         return None
+
+
+def parallel_licence(x: Ctx, k: str, y: str, under: list[str], k_ops: list[str]) -> tuple[bool, str]:
+    """Rule 6's parallel_outcome lines for commit y of key K: (accepted, why). `under` is every file y changes under
+    K's outcome paths (DERIVED aside), sorted; k_ops is K's outcome paths at C_K."""
+    lines = x.parallel.get((k, y)) or []
+    if not lines:
+        return False, ""
+    why = []
+    for ln in lines:
+        owner = ln["owner"]
+        li = x.intro.get(owner)
+        if owner == k or li is None:
+            why.append(f"owner {owner} is {'K itself' if owner == k else 'no key of ' + x.pred}")
+            continue
+        cl, vl = li[0], li[1]
+        l_ops = [p for p in ((vl.get("outcome_paths") if isinstance(vl, dict) else None) or [])
+                 if isinstance(p, str) and not bad_path(p)]
+        if ln["paths"] != under:
+            miss, extra = sorted(set(under) - set(ln["paths"])), sorted(set(ln["paths"]) - set(under))
+            why.append(f"(i) the line must list exactly the {len(under)} file(s) {y[:SHA]} changes under {k}'s "
+                       f"outcome paths (missing {', '.join(miss[:3]) or 'none'}; extra {', '.join(extra[:3]) or 'none'})")
+            continue
+        if x.git.commits("--max-count=1", cl, f"^{y}"):
+            why.append(f"(ii) {y[:SHA]} does not descend from {owner}'s prereg commit {cl[:SHA]}")
+            continue
+        bad = []
+        for f in ln["paths"]:
+            lc = max((len(p) for p in l_ops if f.startswith(p)), default=-1)
+            kc = max((len(p) for p in k_ops if f.startswith(p)), default=-1)
+            if lc < 0:
+                bad.append(f"(iii) {f} lies under no outcome path of {owner}")
+            elif lc < kc:
+                bad.append(f"(iv) {f} lies under an outcome path of {k} more specific than {owner}'s")
+        if bad:
+            why.append("; ".join(bad[:3]) + (f" and {len(bad) - 3} more" if len(bad) > 3 else ""))
+            continue
+        return True, (f"owner {owner}: {plural(len(under), 'file')} under {owner}'s outcome paths, the commit descending "
+                      f"from {owner}'s prereg commit {cl[:SHA]}: {ln['why']}")
+    return False, "; ".join(why)
 
 
 def audit_key(x: Ctx, k: str, intro: tuple[str, object, list[str]] | None) -> tuple[str, KeyReport, list[str]]:
@@ -576,17 +649,30 @@ def audit_key(x: Ctx, k: str, intro: tuple[str, object, list[str]] | None) -> tu
             more = f" and {len(hit) - 1} more" if len(hit) > 1 else ""
             r.probs.append(f"{k}: prereg commit {cs} also changes outcome path {p} ({hit[0]}{more})")
     # order: outcome commits on branches parallel to the prereg commit
+    used: set[str] = set()
     if good_ops and c != head:
         after = set(git.commits("--ancestry-path", f"{c}..{head}"))
         for y in git.commits("--topo-order", "--reverse", head, f"^{c}"):
             if y in after:
                 continue
             ch = {f for f in git.changed(y, merges=False) if not DERIVED.fullmatch(f)}
+            under = sorted(f for f in ch if any(f.startswith(p) for p in good_ops))
+            if not under:
+                continue
+            used.add(y)
+            ok, why = parallel_licence(x, k, y, under, good_ops)
+            if ok:
+                r.amended.append(f"{k}: parallel outcome commit {y[:SHA]} amended ({why})")
+                continue
             for p in good_ops:
                 hit = sorted(f for f in ch if f.startswith(p))
                 if hit:
                     r.probs.append(f"{k}: commit {y[:SHA]} changes outcome path {p} ({hit[0]}) but does not descend "
-                                   f"from the prereg commit {cs}")
+                                   f"from the prereg commit {cs}" + (f" (parallel_outcome refused: {why})" if why else ""))
+    for (kk, y) in sorted(x.parallel):
+        if kk == k and y not in used:
+            r.notes.append(f"{k}: note: a parallel_outcome line names {y[:SHA]}, which is no parallel outcome commit of "
+                           f"{k} (it licenses nothing)")
 
     # tests, then the helper modules they import, then the package __init__.py files
     nfun = 0
@@ -717,11 +803,11 @@ def run_audit(root: Path, m: str) -> tuple[list[str], bool]:
     for c, v, _ in intro.values():
         cohorts.setdefault(c, []).append(v)
 
-    amend, aprobs = load_amendments(git, head, amend_path)
+    amend, par, aprobs = load_amendments(git, head, amend_path)
     glob.extend(aprobs)
     out.extend(f"prereg: FAIL {p}" for p in glob)
 
-    x = Ctx(git, head, pred, head_its, amend, cohorts)
+    x = Ctx(git, head, pred, head_its, amend, cohorts, par, intro)
     nfail = len(glob)
     test_files: set[str] = set()
     for k in keys:

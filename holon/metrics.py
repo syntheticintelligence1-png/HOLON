@@ -233,6 +233,11 @@ def compute(milestone: str, root: Path = ROOT, results: Path | None = None) -> d
                                      "preregistration" if milestone == "M1" else
                                      "no preregistered §11.8 prediction file for this milestone")
     doc["not_applicable"] = {k: v for k, v in sorted(na.items()) if k not in doc}
+    if milestone == "M5":
+        # I58: the M5 exit's metrics, L6, L9 and L10 by I54's definitions, computed from the committed records
+        # (holon.m5.report.metrics_block refuses rather than overstate); no other milestone's document changes
+        from .m5 import report as m5_report
+        doc.update(m5_report.metrics_block(root))
     return doc
 
 

@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "I54b: the corpus-truth labels (spec/M5/lib/truth_protocol.json run under key I54b)",
+  "doc": "answer_object: what a labeller's final message must parse to (truth_protocol.json answer; the value lists are checked by Q1, not here, so a value outside its list makes that answer undocumented instead of costing a retry). answer_file: spec/M5/truth/answers/<family>/<id>.<role>.json, one per entry and labeller, written only by tests_m5/_i54b.py (answer or run). truth_file: spec/M5/truth/corpus.json (family same) or corpus_different.json, truth_protocol.json output. packet_index: spec/M5/truth/packets/index.json.",
+  "type": "object",
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "one_answer": {
+      "type": "object",
+      "required": ["value", "quote"],
+      "additionalProperties": false,
+      "properties": {"value": {"type": "string"}, "quote": {"type": ["string", "null"]}}
+    },
+    "answer_object": {
+      "type": "object",
+      "required": ["trigger", "actor_flow", "doc_contradiction"],
+      "additionalProperties": false,
+      "properties": {
+        "trigger": {"$ref": "#/$defs/one_answer"},
+        "actor_flow": {"$ref": "#/$defs/one_answer"},
+        "doc_contradiction": {"$ref": "#/$defs/one_answer"}
+      }
+    },
+    "cli_output": {
+      "type": "object",
+      "required": ["is_error", "num_turns", "result", "session_id", "subtype"],
+      "additionalProperties": false,
+      "properties": {
+        "is_error": {}, "num_turns": {}, "result": {}, "session_id": {}, "subtype": {}
+      }
+    },
+    "attempt": {
+      "type": "object",
+      "required": ["outcome", "cli", "response", "session"],
+      "additionalProperties": false,
+      "properties": {
+        "outcome": {"enum": ["ok", "cli_error", "no_response", "turns", "unparsable", "invalid"]},
+        "cli": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/cli_output"}]},
+        "response": {},
+        "session": {"type": ["string", "null"]}
+      }
+    },
+    "answer_file": {
+      "type": "object",
+      "required": ["key", "entry", "role", "family", "model_tag", "invocation", "packet", "packet_sha256",
+                   "attempts", "answer"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {"const": "I54b"},
+        "entry": {"type": "string", "pattern": "^c[0-9]{2}$"},
+        "role": {"enum": ["a", "b"]},
+        "family": {"enum": ["same", "different"]},
+        "model_tag": {"enum": ["A", "B"]},
+        "invocation": {"enum": ["cli", "cloud_session", "external"]},
+        "packet": {"type": "string", "pattern": "^spec/M5/truth/packets/c[0-9]{2}\\.[ab]\\.txt$"},
+        "packet_sha256": {"$ref": "#/$defs/sha256"},
+        "attempts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/attempt"}},
+        "answer": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/answer_object"}]}
+      }
+    },
+    "checked_answer": {
+      "type": "object",
+      "required": ["value", "quote", "checked", "fails"],
+      "additionalProperties": false,
+      "properties": {
+        "value": {"type": "string"},
+        "quote": {"type": ["string", "null"]},
+        "checked": {"type": "string"},
+        "fails": {"enum": [null, "Q1", "Q2"]}
+      }
+    },
+    "checked_object": {
+      "type": "object",
+      "required": ["trigger", "actor_flow", "doc_contradiction"],
+      "additionalProperties": false,
+      "properties": {
+        "trigger": {"$ref": "#/$defs/checked_answer"},
+        "actor_flow": {"$ref": "#/$defs/checked_answer"},
+        "doc_contradiction": {"$ref": "#/$defs/checked_answer"}
+      }
+    },
+    "truth_entry": {
+      "type": "object",
+      "required": ["answers", "final", "l6", "l10"],
+      "additionalProperties": false,
+      "properties": {
+        "answers": {
+          "type": "object",
+          "required": ["a", "b"],
+          "additionalProperties": false,
+          "properties": {
+            "a": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/checked_object"}]},
+            "b": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/checked_object"}]}
+          }
+        },
+        "final": {
+          "type": "object",
+          "required": ["trigger", "actor_flow", "doc_contradiction"],
+          "additionalProperties": false,
+          "properties": {
+            "trigger": {"enum": ["untrusted", "trusted_only", "none", "undocumented"]},
+            "actor_flow": {"enum": ["gain", "none", "loss", "undocumented"]},
+            "doc_contradiction": {"enum": ["yes", "no", "undocumented"]}
+          }
+        },
+        "l6": {"enum": ["rational", "irrational", "undocumented"]},
+        "l10": {"enum": ["yes", "no", "undocumented"]}
+      }
+    },
+    "truth_file": {
+      "type": "object",
+      "required": ["protocol_sha256", "corpus_sha256", "entries"],
+      "additionalProperties": false,
+      "properties": {
+        "protocol_sha256": {"$ref": "#/$defs/sha256"},
+        "corpus_sha256": {"$ref": "#/$defs/sha256"},
+        "entries": {"type": "object", "additionalProperties": {"$ref": "#/$defs/truth_entry"}}
+      }
+    },
+    "packet_index": {
+      "type": "object",
+      "required": ["key", "corpus_sha256", "protocol_sha256", "prompt_sha256", "packets"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {"const": "I54b"},
+        "corpus_sha256": {"$ref": "#/$defs/sha256"},
+        "protocol_sha256": {"$ref": "#/$defs/sha256"},
+        "prompt_sha256": {"$ref": "#/$defs/sha256"},
+        "packets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["entry", "role", "path", "sha256", "text_sha256"],
+            "additionalProperties": false,
+            "properties": {
+              "entry": {"type": "string"}, "role": {"enum": ["a", "b"]}, "path": {"type": "string"},
+              "sha256": {"$ref": "#/$defs/sha256"}, "text_sha256": {"$ref": "#/$defs/sha256"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

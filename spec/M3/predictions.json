@@ -12134,6 +12134,341 @@
           "check": "tests_m3/test_g9_i99.py::TestBuild::test_b5_ci_runs_this_module"
         }
       ]
+    },
+    "I100": {
+      "title": "I100: rule PAR_record_round_trip: the record law over an encoder into a byte record and its getter family, the constant read-back laws, and the back-test's record bridges (L7 candidate; RG-M3-01 to RG-M3-03 and RG-M3-06; F-M3-08, F-M3-10)",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I100)",
+      "prompt": "prompts/I100_par_record_round_trip.md",
+      "tests": [
+        "tests_m3/test_par_record_i100.py"
+      ],
+      "outcome_paths": [
+        "docs/iterations/I100/",
+        "docs/iterations/I100.md"
+      ],
+      "thresholds": {
+        "base": "4fd64a52 (the lead after #131, which filed RG-M3-06), with BUILD_PLAN's row I100 (1d889c88)",
+        "base_commit": "4fd64a52f030438cac06595f8673840d6c5c6525",
+        "contract_docstring_sha256": "7c73f635eee9e4482540916c2afd3261b9eb9230e4c47d7ff754e746616cc811",
+        "pins": {
+          "instrument": {
+            "path": "tests_m3/_i100.py",
+            "sha256": "b8a165b44a84b3bede9a74637657b0dd334be7c255d979aabb67d4ec67db7994"
+          },
+          "record_map": {
+            "path": "spec/M3/lib/backtest_record_map.json",
+            "sha256": "1a410be857f8782a04482e494e984c61b745dba61421b604b8548b8469f8baa1"
+          }
+        },
+        "catalog_expected": "holon-rules/1.16",
+        "catalog_previous": "holon-rules/1.15",
+        "constant_read_laws": {
+          "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_Version_v2": "0x02",
+          "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_Version_v0": "0x00",
+          "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_Version_v1": "0x01",
+          "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v1": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "L_par_rt_enc_sol_BatchHeaderBytes_SequencerSetVerifyHash_v2": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "record_laws": {
+          "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2": 13,
+          "L_par_rec_BatchHeaderV0_Bytes_BatchHeaderBytes_v0": 12,
+          "L_par_rec_BatchHeaderV1_Bytes_BatchHeaderBytes_v1": 13,
+          "L_par_rec_enc_sol_BatchHeaderBytes_v0": 12,
+          "L_par_rec_enc_sol_BatchHeaderBytes_v1": 13,
+          "L_par_rec_enc_sol_BatchHeaderBytes_v2": 13
+        },
+        "exit_blockers_before": [
+          "gap:M0:L_par_hdr_v2",
+          "gap:M0:L_rt_go_v0",
+          "gap:M0:L_rt_go_v1",
+          "gap:M0:L_rt_go_v2"
+        ],
+        "exit_blockers_after": [
+          "gap:M0:L_par_hdr_v2"
+        ],
+        "mutations": {
+          "m05": "not_caught",
+          "m06": "refuted",
+          "m07": "obstructed",
+          "m08": "obstructed"
+        },
+        "reply": "I100 ready: PR #<n> <head sha>, 12 laws added, 0 statuses moved, back-test exit blockers 4 -> 1, B0 red (awaiting signature)"
+      },
+      "predictions": [
+        {
+          "id": "I100-P1",
+          "claim": "Obligation (2): six constant_read laws, exactly the instrument's: enc_sol's SequencerSetVerifyHash at versions 0, 1 and 2 (32 zero bytes, premise version = N) and the Version slot of BatchHeaderV0_Bytes (0x00, v0), BatchHeaderV1_Bytes (0x01, v1) and BatchCache_createBatchHeaderWithSequencerSetHash (0x02, v2), without premises; they are I25's six constant_read elements; each PROVED by open_refl, BendTT's verdict checked.",
+          "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p1_the_constant_read_back_laws"
+        },
+        {
+          "id": "I100-P2",
+          "claim": "Obligations (3) and (4): six record laws, exactly the instrument's, with 12 conjuncts (enc_sol v0, BatchHeaderV0_Bytes v0) or 13 (enc_sol v1 and v2, BatchHeaderV1_Bytes v1, BatchCache v2), each PROVED by open_refl, BendTT's verdict checked; the par_record basis at HEAD has no obstruction.",
+          "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p2_the_record_laws"
+        },
+        {
+          "id": "I100-P3",
+          "claim": "Obligation (1): every field conjunct of a record law is the claim, under the same premises, of the round_trip law L_par_rt_<e>_<d>_v<N>, PROVED at HEAD and at the base.",
+          "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p3_the_field_conjuncts_are_the_round_trips"
+        },
+        {
+          "id": "I100-P4",
+          "claim": "12 laws added and 0 statuses moved: the M3 registry at HEAD is the base's plus the 12 (every base hash kept) under holon-rules/1.16; every M3 record of the base keeps its status.",
+          "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p4_twelve_laws_added_none_moved"
+        },
+        {
+          "id": "I100-P5",
+          "claim": "Obligation (5): the back-test pairs L_rt_go_v0, _v1 and _v2 with L_par_rec_enc_sol_BatchHeaderBytes_v0, _v1 and _v2, bridges dec_go, enc_sol and view PROVED, acceptance bridges; the other five rows are the base's; the exit blockers go from 4 to 1 (gap:M0:L_par_hdr_v2).",
+          "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p5_the_backtest"
+        },
+        {
+          "id": "I100-P6",
+          "claim": "Round 3's m08 is caught, obstructed: (enc_sol, BatchHeaderBytes, N) for N = 0, 1 and 2, each missing exactly BatchHeaderBytes_ParentBatchHash and BatchHeaderBytes_SequencerSetVerifyHash; no instance dropped.",
+          "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p6_m08_obstructed"
+        },
+        {
+          "id": "I100-P7",
+          "claim": "Round 3's m06 is caught, refuted: no obstruction; the mutant's L_par_rec_enc_sol_BatchHeaderBytes_v1 has 12 conjuncts (no LastBlockNumber getter); the mutant's back-test pairs L_rt_go_v1 with it, its dec_go and view bridges REFUTED by Bend-checked counter-laws and its enc_sol bridge PROVED; gap:M0:L_rt_go_v1 is an exit blocker.",
+          "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p7_m06_refuted"
+        },
+        {
+          "id": "I100-P8",
+          "claim": "Round 3's m07 is caught, obstructed: (BatchHeaderV1_Bytes, BatchHeaderBytes, 1) and (BatchCache_createBatchHeaderWithSequencerSetHash, BatchHeaderBytes, 2), each missing exactly BatchHeaderBytes_LastBlockNumber and BatchHeaderBytes_ParentBatchHash; enc_sol's instances are HEAD's.",
+          "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p8_m07_obstructed"
+        },
+        {
+          "id": "I100-P9",
+          "claim": "Round 3's m05 is not caught: the block-context functions are in no linked codec document, so the mutant's instances are HEAD's and its verdict is not_caught.",
+          "check": "tests_m3/test_par_record_i100.py::TestOutcome::test_p9_m05_not_caught"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I100-R0",
+          "claim": "The contract docstring, the instrument and the record map keep the sha256 pinned in thresholds.",
+          "check": "tests_m3/test_par_record_i100.py::TestPrereg::test_r0_the_prereg_pins_hold"
+        },
+        {
+          "id": "I100-R1",
+          "claim": "holon audit prereg --milestone M3 prints PREREG OK.",
+          "check": "tests_m3/test_par_record_i100.py::TestPrereg::test_r1_the_prereg_audit_passes"
+        },
+        {
+          "id": "I100-R2",
+          "claim": "The instrument imports nothing from holon/ or tools/.",
+          "check": "tests_m3/test_par_record_i100.py::TestPrereg::test_r2_the_instrument_imports_nothing_from_holon_or_tools"
+        },
+        {
+          "id": "I100-R3",
+          "claim": "The record map spec/M3/lib/backtest_record_map.json is the instrument's computation (record_map_doc).",
+          "check": "tests_m3/test_par_record_i100.py::TestPrereg::test_r3_the_record_map_is_the_computation"
+        },
+        {
+          "id": "I100-R4",
+          "claim": "I100's own commits write no frozen root.",
+          "check": "tests_m3/test_par_record_i100.py::TestPrereg::test_r4_own_commits_write_no_frozen_root"
+        },
+        {
+          "id": "I100-R5",
+          "claim": "B0: holon audit gaps admits PAR_record_round_trip (L7 (c), the human's signature); red until the signature lands.",
+          "check": "tests_m3/test_par_record_i100.py::TestAdmission::test_b0_the_audit_admits_the_rule"
+        },
+        {
+          "id": "I100-R6",
+          "claim": "B1: Catalog holon-rules/1.16: holon-rules/1.15's rules by the same producer objects plus PAR's constant_read and record_round_trip; catalog_version(M3) is holon-rules/1.16.",
+          "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b1_the_catalog"
+        },
+        {
+          "id": "I100-R7",
+          "claim": "B2: holon.rules.par_record over the committed codec document is the instrument's computation, and gen/M3/par_record/basis.json is its document.",
+          "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b2_the_producer_is_the_instrument"
+        },
+        {
+          "id": "I100-R8",
+          "claim": "B3: Coverage reads the getter family: the m08-like plant obstructs (enc_sol, BatchHeaderBytes, 1) naming ParentBatchHash and SequencerSetVerifyHash and states neither law; the m06-like plant gives 12 conjuncts at version 1 and no obstruction; each as the instrument computes it.",
+          "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b3_coverage_reads_the_family"
+        },
+        {
+          "id": "I100-R9",
+          "claim": "B4: A conjunction decides: each record law's LAWS.bend is its exs telescope, and a planted wrong constant conjunct is REFUTED with that conjunct as the failing one.",
+          "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b4_a_conjunction_decides"
+        },
+        {
+          "id": "I100-R10",
+          "claim": "B5: The back-test pairs exactly L_rt_go_vN with L_par_rec_enc_sol_BatchHeaderBytes_vN under the record map and names the record map in its table.",
+          "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b5_the_backtest_pairs_by_the_record_map"
+        },
+        {
+          "id": "I100-R11",
+          "claim": "B6: No law id and no target name in the lines I100 adds under holon/.",
+          "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b6_target_agnostic"
+        },
+        {
+          "id": "I100-R12",
+          "claim": "B7: The par_record part is deterministic and reproduces the committed basis and law files byte for byte.",
+          "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b7_deterministic"
+        },
+        {
+          "id": "I100-R13",
+          "claim": "B8: CI runs the module's TestBuild in a job of its own.",
+          "check": "tests_m3/test_par_record_i100.py::TestBuild::test_b8_ci_runs_this_module"
+        }
+      ]
+    },
+    "I101": {
+      "title": "I101: the post-exit fixes of three M3 audit findings: the counted-round evidence rule reads each record's content and CI rebuilds the streak's A4 and packet records from their targets (F-M3-37, medium), the rendered audit prompts state the counting rule in force (F-M3-38, low), and a subset run keeps what it does not own (F-M3-42, low)",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I101)",
+      "prompt": "prompts/I101_post_exit_audit_fixes.md",
+      "tests": [
+        "tests_m3/test_audit_fixes_i101.py"
+      ],
+      "outcome_paths": [
+        "docs/iterations/I101/",
+        "docs/iterations/I101.md"
+      ],
+      "thresholds": {
+        "base": "a3666ec5 (the lead after #164, the M4 stack's landing)",
+        "base_commit": "a3666ec50b05269d0faa8c512d583f90a94f0a57",
+        "contract_docstring_sha256": "e7eba5d69294c25b2f6efa5bb4c3165440e291a591d18febe78f77edc5ff79c2",
+        "pins": {
+          "instrument": {
+            "path": "tests_m3/_i101.py",
+            "sha256": "1ac2c401b10b075e87ac5f90c0dc3b15750c5d4b96e05efb91775c22a012a863"
+          },
+          "a4_schema": {
+            "path": "spec/M3/lib/audit_a4.schema.json",
+            "sha256": "c746ca733c5d059489cfd04a4310ab01624f754caf259ad8c6c61b000738e720"
+          },
+          "packet_schema": {
+            "path": "spec/M3/lib/audit_packet.schema.json",
+            "sha256": "0980fd5962bbbb8a31b3061f1a190ff77d9c29568f2d93bd879eeaca68ea6917"
+          }
+        },
+        "findings": {
+          "F-M3-37": "medium",
+          "F-M3-38": "low",
+          "F-M3-42": "low"
+        },
+        "probe": {
+          "round": 8,
+          "target": "dadfb28040931f447d4b22e2760a6e2f8e54aeab",
+          "base_rule": {
+            "counted": true,
+            "clean": true,
+            "converged": true
+          },
+          "head_rule": {
+            "counted": false,
+            "converged": false,
+            "streak": 2
+          }
+        },
+        "tampers": [
+          "every A1 mutant refused",
+          "every A2 case unsupported",
+          "a4.json's laws emptied",
+          "a4.json without one of the packet's laws",
+          "a4.json's counts off by one",
+          "a4.json failing its schema",
+          "packet.json's laws emptied"
+        ],
+        "subset": {
+          "law": "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_Version_v0",
+          "pair": [
+            "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_Version_v0",
+            "L_par_rt_BatchHeaderV1_Bytes_BatchHeaderBytes_Version_v1"
+          ],
+          "base": {
+            "deleted": [
+              "gen/M3/model/blob_ops.bend",
+              "gen/M3/model/l1_counts.bend",
+              "gen/M3/model/own_batch_BatchData.bend",
+              "gen/M3/model/own_batch_BatchHeaderV0.bend",
+              "gen/M3/model/own_batch_BatchHeaderV1.bend"
+            ],
+            "summary_entries": 1,
+            "summary_entries_committed": 12
+          }
+        },
+        "status": {
+          "converged": true,
+          "streak": 4,
+          "counted": 7
+        },
+        "rebuild_early": {
+          "rounds": [
+            3,
+            4,
+            5
+          ],
+          "a4.json": "identical"
+        },
+        "observed_at_prereg": "At the prereg the lead ran, at the base: F-M3-42's reproduction (five model files deleted, summary.json 12 -> 1 entries, deps.json cut down); holon audit vacuity --round 9 --check (identical, 5m25s); holon audit hostile --round 3, 6 and 9 --check (identical, about 2.5 s each); both schemas against rounds 1-9's a4.json and packet.json (valid). None of these is counted as a prediction."
+      },
+      "predictions": [
+        {
+          "id": "I101-P1",
+          "claim": "F-M3-37 is fixed. On the finding's reproduction root (round 8's target dadfb280: its audit/, spec/M3/lib and spec/schemas trees, with the probe's hollow round 8), under the base's evidence rule the round is counted clean and M3 is reported converged: the finding, reproduced on HEAD's code. Under HEAD's rule, RD2 refuses round 8, CV1 does not count it, and M3 is not converged, with streak 2.",
+          "check": "tests_m3/test_audit_fixes_i101.py::TestOutcome::test_p1_f37_reproduced_and_fixed"
+        },
+        {
+          "id": "I101-P2",
+          "claim": "F-M3-38 is fixed. The rendered prompts of M3 round 9, for each type A1-A4: state HUMAN_ANSWERS Q9b's admission with auditor.ruling and each other condition of CV1; name the four evidence records with the content each must carry; and list the auditor fields session, family, ruling and counts_toward_convergence. None states Q9's sentence \"Only a `different`-family round\". A root without rulings or evidence renders I87's rule.",
+          "check": "tests_m3/test_audit_fixes_i101.py::TestOutcome::test_p2_f38_the_prompts"
+        },
+        {
+          "id": "I101-P3",
+          "claim": "F-M3-42 is fixed. In a detached worktree of HEAD, `holon run --milestone M3 --laws` with one law, and with two (the subset law and its v1 sibling), exits 0 with each law PROVED. It deletes no file, leaves results/M3/summary.json and deps.json byte-identical, and changes only the listed laws' records.",
+          "check": "tests_m3/test_audit_fixes_i101.py::TestOutcome::test_p3_f42_the_subset_runs"
+        },
+        {
+          "id": "I101-P4",
+          "claim": "Rounds 3, 4 and 5's a4.json, rebuilt from their own targets by `holon audit evidence --milestone M3 --rebuild --rounds 3,4,5`, are each identical to the committed file. The M3 exit record left them unchecked.",
+          "check": "tests_m3/test_audit_fixes_i101.py::TestOutcome::test_p4_the_early_rounds_rebuild"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I101-R0",
+          "claim": "The contract docstring, the instrument and the two schemas keep the sha256 pinned in thresholds.",
+          "check": "tests_m3/test_audit_fixes_i101.py::TestPrereg::test_r0_the_prereg_pins_hold"
+        },
+        {
+          "id": "I101-R1",
+          "claim": "holon audit prereg --milestone M3 prints PREREG OK.",
+          "check": "tests_m3/test_audit_fixes_i101.py::TestPrereg::test_r1_the_prereg_audit_passes"
+        },
+        {
+          "id": "I101-R2",
+          "claim": "The instrument imports nothing from holon/ or tools/.",
+          "check": "tests_m3/test_audit_fixes_i101.py::TestPrereg::test_r2_the_instrument_imports_nothing_from_holon_or_tools"
+        },
+        {
+          "id": "I101-R3",
+          "claim": "spec/M3/amendments/I101.jsonl holds one line for this module, pinning its docstring.",
+          "check": "tests_m3/test_audit_fixes_i101.py::TestPrereg::test_r3_the_amendment_pins_this_docstring"
+        },
+        {
+          "id": "I101-R4",
+          "claim": "M3 stays converged under the new rule: results/M3/audit_status.json is the base's byte for byte (converged, streak 4, 7 counted rounds), and every committed round of M3 is valid.",
+          "check": "tests_m3/test_audit_fixes_i101.py::TestOutcome::test_p5_m3_stays_converged"
+        },
+        {
+          "id": "I101-R5",
+          "claim": "F-M3-27's rule keeps holding (tests_m3/test_audit_evidence.py E1-E5), with its finding, its four records and their header fields unchanged.",
+          "check": "tests_m3/test_audit_evidence.py"
+        },
+        {
+          "id": "I101-R6",
+          "claim": "The streak's a4.json and packet.json (rounds 6-9) rebuild identically from their targets: the M3 exit record states it for a4.json, and the prereg's runs observed it for rounds 6 and 9's packet.json.",
+          "check": "holon audit evidence --milestone M3 --rebuild (the CI job audit-M3-evidence; tests_m3/test_audit_fixes_i101.py::TestBuild::test_b8_ci_runs_them checks that the job exists)"
+        },
+        {
+          "id": "I101-R7",
+          "claim": "No file of a generator closure differs from the base, so no committed record's generator_sha256 moves.",
+          "check": "tests_m3/test_audit_fixes_i101.py::TestBuild::test_b9_no_generator_closure_moves"
+        }
+      ]
     }
   }
 }

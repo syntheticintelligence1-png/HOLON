@@ -1,0 +1,25 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "note": "auditor's verification run (round 8): the mutant of a1_spec.json alone, its trees kept so that the re-derived laws can be run by hand",
+ "budget": {
+  "law_timeout_s": 900,
+  "max_law_runs": 0
+ },
+ "mutations": [
+  {
+   "id": "g_getter",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 97,
+    "old": "b[17:25]",
+    "new": "b[18:26]"
+   },
+   "laws": [
+    "L_par_rt_BatchHeaderV0_Bytes_BatchHeaderBytes_TotalL1MessagePopped_v0",
+    "L_par_rt_enc_sol_BatchHeaderBytes_TotalL1MessagePopped_v1"
+   ],
+   "expect": "off-by-one in the Go getter BatchHeaderBytes.TotalL1MessagePopped (reads bytes 18..25 instead of 17..24). Expected: the PROVED Go round trip (v0) and the PROVED Solidity-to-Go round trip (v1) move to REFUTED."
+  }
+ ]
+}

@@ -1,0 +1,92 @@
+{
+  "actions": [
+    "fee"
+  ],
+  "binding": {
+    "name": "amount",
+    "noun": "amount",
+    "percent": 1
+  },
+  "clauses": [
+    "8173dd8517e21792"
+  ],
+  "contract": "C46500c",
+  "control": "i_bound_right_1",
+  "facts": "gen/M5/intent/facts/C46500c.extracted.json",
+  "facts_sha256": "ed7b806a3948a50307cc0e02d2375c98c284fed66cbc1344debab398f06bfb93",
+  "file": "spec/M5/controls/intent/i_bound_right_1.sol",
+  "ir_version": "holon-intent/0.1",
+  "law_id": "L_intent_8173dd8517e21792",
+  "model": "gen/M5/intent/model/C46500c.bend",
+  "notes": "compiled by holon.intent.compile from the bound template; one clause, the atom 8173dd8517e21792",
+  "reading": "For every pre-transaction state of C46500c and every call of fee(amount) that does not revert, the value it returns, times 100, is at most 1 times its argument amount (exact integers).",
+  "statement": {
+    "binders": [
+      {
+        "name": "s",
+        "type": "St"
+      },
+      {
+        "name": "x",
+        "type": "X_fee"
+      }
+    ],
+    "holds": {
+      "args": [
+        {
+          "args": [
+            {
+              "args": [
+                {
+                  "act": "chk_fee",
+                  "args": [
+                    {
+                      "var": "s"
+                    },
+                    {
+                      "var": "x"
+                    }
+                  ]
+                },
+                {
+                  "u32": 0
+                }
+              ],
+              "fn": "U32.is_eq"
+            }
+          ],
+          "fn": "Bool.not"
+        },
+        {
+          "args": [
+            {
+              "act": "ret_fee",
+              "args": [
+                {
+                  "var": "s"
+                },
+                {
+                  "var": "x"
+                }
+              ]
+            },
+            {
+              "u32": 1
+            },
+            {
+              "args": [
+                {
+                  "var": "x"
+                }
+              ],
+              "m": "x_fee_p_amount"
+            }
+          ],
+          "m": "ip_le_pct"
+        }
+      ],
+      "fn": "Bool.or"
+    }
+  },
+  "template": "bound"
+}

@@ -1,0 +1,260 @@
+{
+  "L9": {
+    "base_coverage": {
+      "denominator": 222,
+      "numerator": 0,
+      "value": 0.0,
+      "wilson95": [
+        0.0,
+        0.017
+      ]
+    },
+    "base_dropped": [],
+    "by_category": {
+      "da": {
+        "covered": 0,
+        "dependent": 224,
+        "forms": {
+          "havoc": 222,
+          "module": 2
+        }
+      },
+      "fetcher": {
+        "covered": 1,
+        "dependent": 1,
+        "forms": {
+          "module": 1
+        }
+      },
+      "l1_chain": {
+        "covered": 0,
+        "dependent": 223,
+        "forms": {
+          "axiom": 4,
+          "havoc": 222,
+          "module": 1
+        }
+      }
+    },
+    "coverage": {
+      "denominator": 226,
+      "numerator": 1,
+      "value": 0.004425,
+      "wilson95": [
+        0.0008,
+        0.0246
+      ]
+    },
+    "modules": {
+      "env-da-retention": {
+        "admissible": [
+          "obs-da-beacon"
+        ],
+        "category": "da",
+        "rules": {
+          "R1": true,
+          "R2": true,
+          "R3": true,
+          "R4": false,
+          "R5": true,
+          "R6": true
+        },
+        "slices": [
+          {
+            "accuracy": 1.0,
+            "n": 50
+          },
+          {
+            "accuracy": 1.0,
+            "n": 50
+          },
+          {
+            "accuracy": 0.86,
+            "n": 50
+          },
+          {
+            "accuracy": 0.0,
+            "n": 50
+          },
+          {
+            "accuracy": 0.0,
+            "n": 50
+          },
+          {
+            "accuracy": 0.0,
+            "n": 50
+          },
+          {
+            "accuracy": 1.0,
+            "n": 50
+          },
+          {
+            "accuracy": 1.0,
+            "n": 50
+          }
+        ],
+        "validated": false,
+        "worst": 0.0
+      },
+      "env-fetch-archive": {
+        "admissible": [
+          "obs-fetch-archive"
+        ],
+        "category": "fetcher",
+        "rules": {
+          "R1": true,
+          "R2": true,
+          "R3": true,
+          "R4": true,
+          "R5": true,
+          "R6": true
+        },
+        "slices": [
+          {
+            "accuracy": 1.0,
+            "n": 50
+          },
+          {
+            "accuracy": 1.0,
+            "n": 50
+          },
+          {
+            "accuracy": 1.0,
+            "n": 50
+          },
+          {
+            "accuracy": 1.0,
+            "n": 50
+          },
+          {
+            "accuracy": 1.0,
+            "n": 50
+          },
+          {
+            "accuracy": 1.0,
+            "n": 50
+          },
+          {
+            "accuracy": 1.0,
+            "n": 50
+          },
+          {
+            "accuracy": 1.0,
+            "n": 50
+          }
+        ],
+        "validated": true,
+        "worst": 1.0
+      },
+      "env-l1-confirmations": {
+        "admissible": [
+          "obs-l1-depth"
+        ],
+        "category": "l1_chain",
+        "rules": {
+          "R1": true,
+          "R2": true,
+          "R3": true,
+          "R4": true,
+          "R5": false,
+          "R6": true
+        },
+        "slices": [
+          {
+            "accuracy": 1.0,
+            "n": 225
+          },
+          {
+            "accuracy": 1.0,
+            "n": 225
+          },
+          {
+            "accuracy": 1.0,
+            "n": 225
+          },
+          {
+            "accuracy": 1.0,
+            "n": 225
+          },
+          {
+            "accuracy": 1.0,
+            "n": 225
+          },
+          {
+            "accuracy": 1.0,
+            "n": 225
+          },
+          {
+            "accuracy": 1.0,
+            "n": 225
+          },
+          {
+            "accuracy": 1.0,
+            "n": 225
+          }
+        ],
+        "validated": false,
+        "worst": 1.0
+      }
+    },
+    "new_coverage": {
+      "denominator": 4,
+      "numerator": 1,
+      "value": 0.25,
+      "wilson95": [
+        0.0456,
+        0.6994
+      ]
+    },
+    "overall": "misses",
+    "sensitivity": {
+      "count": 3,
+      "counted": [
+        "L_env_fact_da_window",
+        "L_env_fact_fetch",
+        "L_env_undo_reorg"
+      ],
+      "to_unknown": [],
+      "unreplayed": []
+    },
+    "thresholds": {
+      "base_coverage": "misses",
+      "coverage": "misses",
+      "sensitivity_unreplayed": "meets",
+      "validated_categories": "misses"
+    },
+    "unclassified": [],
+    "validated_categories": [
+      "fetcher"
+    ]
+  },
+  "inputs": {
+    "base_dependent": 222,
+    "classification_sha256": "b7bd9f9b264a70a2f39c9ca18a44c821b8c1838d8db3ed1e18e63f9bf6d23aab",
+    "modules_sha256": "2c7b17cbafee63f1c045ae9311cd8e778214886dec46b5c8525fac8080e807fc",
+    "observation_sets": {
+      "obs-da-beacon": {
+        "admitted": true,
+        "sha256": "f14869f7136467ae109532cf6417406fe92f47b533ce3eef5e9dc15767581391",
+        "why": "admitted"
+      },
+      "obs-fetch-archive": {
+        "admitted": true,
+        "sha256": "3390d2d686ce95ef7b0cda29b7faad5d09f82dd0285e64aec969d12697c8719e",
+        "why": "admitted"
+      },
+      "obs-l1-depth": {
+        "admitted": true,
+        "sha256": "90b01581b9a663bba256f02eb95a4c1c46ab70199a3853f8d4c0b548b7a89f3a",
+        "why": "admitted"
+      }
+    },
+    "records": {
+      "M2_M3": 289,
+      "M5": 4
+    },
+    "sensitivity_sha256": "d8e3ba7a6df34f03571d14697784e02bf108176907dd760882419f356a788b79"
+  },
+  "key": "I57",
+  "measured_by": "I54 definitions.L9 (spec/M5/preregistration.json), holon.m5.metrics.l9"
+}

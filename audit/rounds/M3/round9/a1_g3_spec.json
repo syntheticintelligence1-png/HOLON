@@ -1,0 +1,27 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "budget": {
+  "law_timeout_s": 1800,
+  "max_law_runs": 8
+ },
+ "note": "round 9 supplement to a1.json: mutant g3 (incomplete in pass 1, max_law_runs 0) re-run on the laws it should move, baseline and mutant",
+ "mutations": [
+  {
+   "id": "g3",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 52,
+    "old": "len(b) != expectedLengthV2",
+    "new": "len(b) != expectedLengthV0"
+   },
+   "expect": "validate wants 249 bytes for v2: every v2 getter on a 257-byte header errors",
+   "laws": [
+    "L_par_rt_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_BatchIndex_v2",
+    "L_par_rt_enc_sol_BatchHeaderBytes_BatchIndex_v2",
+    "L_par_rec_BatchCache_createBatchHeaderWithSequencerSetHash_BatchHeaderBytes_v2",
+    "L_par_dom_BatchHeaderBytes_validate_ok_load_sol"
+   ]
+  }
+ ]
+}

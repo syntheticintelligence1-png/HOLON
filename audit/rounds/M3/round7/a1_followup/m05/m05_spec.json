@@ -1,0 +1,25 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "note": "M3 audit round 7, A1 follow-up of mutant m05 (run with --keep-trees and --out outside the round's a1.json) to inspect the mutant's re-derived laws",
+ "budget": {
+  "law_timeout_s": 600,
+  "max_law_runs": 2
+ },
+ "mutations": [
+  {
+   "id": "m05",
+   "file": "common/batch/batch_header.go",
+   "edit": {
+    "line": 90,
+    "old": "b[9:17]",
+    "new": "b[10:18]"
+   },
+   "laws": [
+    "L_par_cc_BatchHeaderV0_Bytes_enc_sol_v0_pinned"
+   ],
+   "expect": "follow-up of m05: under the mutant, does any law still state the L1MessagePopped round trip, and does the V0 cross-component codec law (statement changed) stay PROVED?",
+   "note": "not equivalent: the decoded value mixes l1MessagePopped's last 7 bytes with totalL1MessagePopped's first byte"
+  }
+ ]
+}

@@ -931,16 +931,19 @@ class TestFixtures(unittest.TestCase):
 # ---------------------------------------------------------------------------------------------- gate and regressions
 class TestGateAndRegressions(unittest.TestCase):
     def test_partial_gate_m3_passes(self):
-        """I25-R4 (part): holon gate --milestone M3 --checks G2,G3,G5,G9,G11,GEVID passes on a copy of the tree."""
+        """I25-R4 (part): holon gate --milestone M3 --checks G2,G3,G5,G9,G11,GEVID passes on a copy of the tree.
+        (Amended, spec/M3/amendments/I25.jsonl: G2 checks laws/STATEMENT_DIFF.jsonl's binding_change lines against
+        git history, which a copied tree does not have, so the gate runs on the checkout itself, which it never
+        writes to, with the report outside it.)"""
         need(OUT3 / f"{COMPONENT}.json")
-        repo = copy_repo()
+        tmp = Path(tempfile.mkdtemp(prefix="holon-gate-"))
         try:
-            rep = repo.parent / "gate_report_i25.json"
-            p = run_holon(["gate", "--milestone", "M3", "--root", str(repo), "--report", str(rep), "--checks",
-                           "G2,G3,G5,G9,G11,GEVID"], cwd=repo, timeout=3600)
+            rep = tmp / "gate_report_i25.json"
+            p = run_holon(["gate", "--milestone", "M3", "--report", str(rep), "--checks",
+                           "G2,G3,G5,G9,G11,GEVID"], timeout=3600)
             self.assertEqual(p.returncode, 0, p.stdout[-3000:] + p.stderr[-3000:])
         finally:
-            shutil.rmtree(repo.parent, ignore_errors=True)
+            shutil.rmtree(tmp, ignore_errors=True)
 
     def test_i25_outcome_commits_touch_no_frozen_or_earlier_output(self):
         """I25-R1, R2 and R4 (part): every commit of I25's that changes an I25 outcome path (gen/M3/par_lossy/,

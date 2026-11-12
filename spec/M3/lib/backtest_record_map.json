@@ -1,0 +1,83 @@
+{
+  "against": "M0",
+  "base": {
+    "path": "spec/M3/lib/backtest_map.json",
+    "sha256": "a725e8d06325c7d6dce77f7cb7e99fdbde0c3246ffca35535c40a185295cd873"
+  },
+  "doc": "I100's record map, fixed at the prereg (pinned in the key's thresholds): the back-test's name map (spec/M3/lib/backtest_map.json, rule B1) amended for a hand record round trip. The hand decoder maps to the getter family its getter slots name, in the slots' order; its projection maps to the getter tuple, each slot to the image of its field under B1's field map, or to the constant a record law states where the field map gives the slot no field. holon backtest reads it beside B1's map and never recomputes it; the derivation never reads it. Its content is tests_m3/_i100.py::record_map_doc.",
+  "hand": "facts/morph_header.json",
+  "inputs": [
+    {
+      "path": "facts/morph_header.json",
+      "sha256": "19eac3f0b028e870d84bf3fd389b99ca8ad1040702c1388a1a361fc7b33acc80"
+    },
+    {
+      "path": "spec/M3/lib/backtest_map.json",
+      "sha256": "a725e8d06325c7d6dce77f7cb7e99fdbde0c3246ffca35535c40a185295cd873"
+    },
+    {
+      "path": "gen/M3/codec/header_length.json",
+      "sha256": "9f7145b09c79a51db45d7481542ca82b763b210acb4c54f96fa2d5529a34b315"
+    }
+  ],
+  "map_version": "holon-backtest-record-map/0.1",
+  "records": [
+    {
+      "component": "header_length",
+      "decoder": "dec_go",
+      "document": "gen/M3/codec/header_length.json",
+      "family": "BatchHeaderBytes",
+      "projection": "view",
+      "slots": [
+        {
+          "getter": "BatchHeaderBytes_Version",
+          "slot": "version"
+        },
+        {
+          "getter": "BatchHeaderBytes_BatchIndex",
+          "slot": "batchIndex"
+        },
+        {
+          "getter": "BatchHeaderBytes_L1MessagePopped",
+          "slot": "l1MessagePopped"
+        },
+        {
+          "getter": "BatchHeaderBytes_TotalL1MessagePopped",
+          "slot": "totalL1MessagePopped"
+        },
+        {
+          "getter": "BatchHeaderBytes_DataHash",
+          "slot": "dataHash"
+        },
+        {
+          "getter": "BatchHeaderBytes_BlobCommitHash",
+          "slot": "blobVersionedHash"
+        },
+        {
+          "getter": "BatchHeaderBytes_PrevStateRoot",
+          "slot": "prevStateHash"
+        },
+        {
+          "getter": "BatchHeaderBytes_PostStateRoot",
+          "slot": "postStateHash"
+        },
+        {
+          "getter": "BatchHeaderBytes_WithdrawalRoot",
+          "slot": "withdrawRootHash"
+        },
+        {
+          "getter": "BatchHeaderBytes_SequencerSetVerifyHash",
+          "slot": "sequencerSetVerifyHash"
+        },
+        {
+          "getter": "BatchHeaderBytes_ParentBatchHash",
+          "slot": "parentBatchHash"
+        },
+        {
+          "getter": "BatchHeaderBytes_LastBlockNumber",
+          "slot": "lastBlockNumber"
+        }
+      ]
+    }
+  ]
+}

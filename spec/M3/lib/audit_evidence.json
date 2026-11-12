@@ -1,26 +1,53 @@
 {
  "counted_round_requires": {
+  "content": {
+   "finding": "F-M3-37",
+   "not_rebuilt": "a1.json and a2.json: holon audit mutation --check and hostile-input --check rerun the auditors' mutants and hostile cases on the real code and are never run unattended; their content is checked, not rebuilt",
+   "rebuilt": {
+    "a4.json": "holon audit vacuity --milestone <M> --round <n> --check",
+    "by": "holon audit evidence --milestone <M> --rebuild, over the rounds of the milestone's current streak (CI)",
+    "packet.json": "holon audit hostile --milestone <M> --round <n> --check"
+   },
+   "ruling": "the lead's triage of F-M3-37 (round 8: accepted, medium, fixed after the M3 exit), fixed by I101"
+  },
   "finding": "F-M3-27",
   "records": {
    "a1.json": {
     "auditor_type": "A1",
+    "ran": {
+     "items": "mutations",
+     "verdict_not": [
+      "refused"
+     ]
+    },
     "version_field": "a1_version"
    },
    "a2.json": {
     "auditor_type": "A2",
+    "ran": {
+     "items": "cases",
+     "verdict_not": [
+      "unsupported"
+     ]
+    },
     "version_field": "a2_version"
    },
    "a4.json": {
     "auditor_type": "A4",
+    "counts_of": "class",
+    "laws_of": "packet.json",
+    "schema": "spec/M3/lib/audit_a4.schema.json",
     "version_field": "a4_version"
    },
    "packet.json": {
+    "min_laws": 1,
     "packet": true,
+    "schema": "spec/M3/lib/audit_packet.schema.json",
     "version_field": "packet_version"
    }
   },
   "ruling": "the lead's triage of F-M3-27 (round 6, landed via #133): medium, and blocking for M3's exit until a round that claims to count carries its evidence"
  },
- "doc": "The evidence a round of M3 must carry to count toward convergence, read by holon/audit/rounds.py (evidence_problems, qualifies, RD2) and holon/audit/converge.py (CV1), beside I87's policy spec/M3/lib/audit_loop.json, which stays byte-identical to its prereg. F-M3-27 (round 6) showed that CV1 counted a round on its own attacks' run flags: a round file whose attacks cite no evidence passed RD1-RD5 and was counted clean. With this file, a round whose auditor.counts_toward_convergence is true qualifies only if its own directory audit/rounds/<M>/round<n>/ holds each record below: a JSON object carrying its version field and naming the round's milestone, number and target commit. Each record with an auditor_type is cited in the evidence of an attack of the round that ran with that auditor type. The packet record is the round's packet.path, with that sha256. A round that claims to count without its evidence does not qualify: RD2 refuses it and CV1 does not count it. A round that does not claim to count is not checked here. A milestone without this file keeps I87's rule.",
- "evidence_version": "holon-audit-evidence/0.1"
+ "doc": "The evidence a round of M3 must carry to count toward convergence, read by holon/audit/rounds.py (evidence_problems, qualifies, RD2) and holon/audit/converge.py (CV1), beside I87's policy spec/M3/lib/audit_loop.json, which stays byte-identical to its prereg. F-M3-27 (round 6) showed that CV1 counted a round on its own attacks' run flags: a round file whose attacks cite no evidence passed RD1-RD5 and was counted clean. With this file, a round whose auditor.counts_toward_convergence is true qualifies only if its own directory audit/rounds/<M>/round<n>/ holds each record below: a JSON object carrying its version field and naming the round's milestone, number and target commit. Each record with an auditor_type is cited in the evidence of an attack of the round that ran with that auditor type. The packet record is the round's packet.path, with that sha256. F-M3-37 (round 8) showed that those headers were all the rule read: a round whose records held nothing else counted clean. So each record also carries its content (I101): ran, a mutant or case whose verdict is none of verdict_not; schema, the record valid against that schema (read from this repository); laws_of, its laws exactly that record's; counts_of, its counts the tally of its laws' values of that field; min_laws, at least that many laws. content.rebuilt names the commands that rebuild a4.json and packet.json from the round's target, which CI runs over the current streak. A round that claims to count without its evidence does not qualify: RD2 refuses it and CV1 does not count it. A round that does not claim to count is not checked here. A milestone without this file keeps I87's rule.",
+ "evidence_version": "holon-audit-evidence/0.2"
 }

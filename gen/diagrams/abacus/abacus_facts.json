@@ -1,0 +1,506 @@
+{
+  "abstractions": [
+    {
+      "index": 0,
+      "ledger": [],
+      "text": "Counters are Nat."
+    }
+  ],
+  "base_types": {},
+  "carriers": [
+    {
+      "base_type": "Act",
+      "cls": "rep",
+      "doc": "the actions' inputs: everything any principal can submit (R^ext is the full input type)",
+      "id": "Act",
+      "interface": true,
+      "reach": "external",
+      "sort_ref": null,
+      "variants": {
+        "inc_a": [],
+        "inc_b": []
+      }
+    },
+    {
+      "base_type": "Obs",
+      "cls": "rep",
+      "doc": "observations: the outcome every step logs (O_Ok, or O_Rev with the failed guard's reason) and the observers' values",
+      "id": "Obs",
+      "interface": false,
+      "reach": "image",
+      "revert_variants": [],
+      "sort_ref": null
+    },
+    {
+      "base_type": "State",
+      "cls": "state",
+      "id": "State",
+      "initial": {
+        "doc": "both counters zero",
+        "pointer": "#/initial",
+        "sets": [
+          "a",
+          "b",
+          "log"
+        ]
+      },
+      "interface": false,
+      "product": [
+        "a",
+        "b",
+        "log"
+      ],
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Nat",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "first counter",
+      "ghost": false,
+      "id": "a",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "Nat",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "second counter",
+      "ghost": false,
+      "id": "b",
+      "interface": false,
+      "key_space": null,
+      "reach": "inductive",
+      "sort_ref": null
+    },
+    {
+      "base_type": "List<Obs>",
+      "cls": "state",
+      "component_of": "State",
+      "doc": "observations",
+      "ghost": false,
+      "id": "log",
+      "interface": false,
+      "key_space": "position",
+      "reach": "inductive",
+      "sort_ref": null
+    }
+  ],
+  "coverage": {
+    "modelled": [
+      "inc_a",
+      "inc_b"
+    ]
+  },
+  "coverage_debt": [
+    {
+      "kind": "LEDGER",
+      "source": "#/abstractions/0",
+      "what": "abstraction 0 is cited by no ledger entry: Counters are Nat."
+    },
+    {
+      "kind": "LEDGER",
+      "what": "no ledger bundle has facts_sha256 fe3e01a7099be2bba7fdf233774bf39ef28b6bd61789b15db9df5bfcc30c8a1a: no model assumption is linked"
+    }
+  ],
+  "defs": {},
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [
+          [
+            "a",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "a",
+      "env": false,
+      "id": "LOAD.a",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.a_of",
+        "LOAD.obs.a_small",
+        "TRANS.inc_a"
+      ],
+      "src": "a",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "b",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "component": "b",
+      "env": false,
+      "id": "LOAD.b",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [
+        "LOAD.obs.b_of",
+        "TRANS.inc_b"
+      ],
+      "src": "b",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "log",
+      "env": false,
+      "id": "LOAD.log",
+      "kind": "LOAD",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "readers": [],
+      "src": "log",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "a",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "body": "a",
+      "component": "a_of",
+      "defs": [],
+      "doc": "the first counter",
+      "env": false,
+      "id": "LOAD.obs.a_of",
+      "kind": "LOAD",
+      "model_fn": "a_of",
+      "observer": true,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "Obs",
+      "type": "Nat",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "a",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "body": "a<=2",
+      "component": "a_small",
+      "defs": [],
+      "doc": "planted false claim: the first counter never exceeds 2",
+      "env": false,
+      "id": "LOAD.obs.a_small",
+      "kind": "LOAD",
+      "model_fn": "a_small",
+      "observer": true,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "Obs",
+      "type": "Bool",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "b",
+            "*"
+          ]
+        ],
+        "writes": []
+      },
+      "body": "b",
+      "component": "b_of",
+      "defs": [],
+      "doc": "the second counter",
+      "env": false,
+      "id": "LOAD.obs.b_of",
+      "kind": "LOAD",
+      "model_fn": "b_of",
+      "observer": true,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "Obs",
+      "type": "Nat",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "a",
+            "*"
+          ]
+        ]
+      },
+      "component": "a",
+      "env": false,
+      "id": "STORE.a",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "a",
+      "version": null,
+      "writers": [
+        "TRANS.inc_a"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "b",
+            "*"
+          ]
+        ]
+      },
+      "component": "b",
+      "env": false,
+      "id": "STORE.b",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "b",
+      "version": null,
+      "writers": [
+        "TRANS.inc_b"
+      ]
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": [
+          [
+            "log",
+            "*"
+          ]
+        ]
+      },
+      "component": "log",
+      "env": false,
+      "id": "STORE.log",
+      "initial": true,
+      "kind": "STORE",
+      "model_fn": null,
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "src": "State",
+      "tgt": "log",
+      "version": null,
+      "writers": [
+        "TRANS.inc_a",
+        "TRANS.inc_b"
+      ]
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "a",
+            "*"
+          ]
+        ],
+        "writes": [
+          [
+            "a",
+            "*"
+          ],
+          [
+            "log",
+            "*"
+          ]
+        ]
+      },
+      "caller": null,
+      "component": "inc_a",
+      "cost": 0,
+      "defs": [],
+      "delay": null,
+      "effects": {
+        "a": "a+1"
+      },
+      "env": false,
+      "guards": [],
+      "id": "TRANS.inc_a",
+      "inputs": [],
+      "kind": "TRANS",
+      "label": "anyone",
+      "model_fn": "step_inc_a",
+      "partial": false,
+      "permissionless": true,
+      "principal_class": "anyone",
+      "pseudo": false,
+      "reverts": [],
+      "source": "abacus: inc_a()",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [
+          [
+            "b",
+            "*"
+          ]
+        ],
+        "writes": [
+          [
+            "b",
+            "*"
+          ],
+          [
+            "log",
+            "*"
+          ]
+        ]
+      },
+      "caller": null,
+      "component": "inc_b",
+      "cost": 0,
+      "defs": [],
+      "delay": null,
+      "effects": {
+        "b": "b+2"
+      },
+      "env": false,
+      "guards": [],
+      "id": "TRANS.inc_b",
+      "inputs": [],
+      "kind": "TRANS",
+      "label": "anyone",
+      "model_fn": "step_inc_b",
+      "partial": false,
+      "permissionless": true,
+      "principal_class": "anyone",
+      "pseudo": false,
+      "reverts": [],
+      "source": "abacus: inc_b()",
+      "src": "State",
+      "tgt": "State",
+      "version": null
+    }
+  ],
+  "explorer": {
+    "policy": "generic",
+    "search": {
+      "domains": {},
+      "maxPrefixes": 400,
+      "prefixDepth": 4
+    }
+  },
+  "facts": "targets/abacus/facts/abacus.facts.json",
+  "facts_sha256": "fe3e01a7099be2bba7fdf233774bf39ef28b6bd61789b15db9df5bfcc30c8a1a",
+  "facts_version": "holon-facts/0.2",
+  "index_terms": [],
+  "inputs": [
+    {
+      "path": "spec/ledger/assumptions.json",
+      "sha256": "37e311b2f16d5d7b708b33ceaecceaa216947e2d9e0b403655ab765ff1b6187e"
+    },
+    {
+      "path": "spec/lib/go_slices.lib.json",
+      "sha256": "f5ddbe0ad4c6be7e89802f497e4c826cd68dbd8925bac014f506fc1867292df4"
+    }
+  ],
+  "mapped_sections": {
+    "abstractions": "1 abstraction record with ledger links (1 cited by no ledger entry: LEDGER debt)",
+    "actions": "2 TRANS edges with index-sensitive read/write sets; 1 principal class (anyone)",
+    "coverage": "0 coverage-debt entries (UNMODELLED); 2 modelled components listed",
+    "defs": "no definitions",
+    "extraction": "provenance.extraction: how the facts were obtained",
+    "ghost_state": "no ghost state",
+    "initial": "S0: the initial state, generating Reach on carrier State",
+    "observers": "3 observation LOAD edges into Obs (LOAD.obs.<name>)",
+    "params": "no parameters",
+    "policy": "explorer.policy: the search-hint policy the refuter uses (configuration, not part of \ud835\udd07)",
+    "principals": "no concrete principals; the classes come from the actions",
+    "reasons": "no revert variants",
+    "search": "explorer.search: bounds of the refuter's prefix search (configuration, not part of \ud835\udd07)",
+    "state": "3 state carriers under the product carrier State, with a STORE/LOAD pair per field (STORE.<field>, LOAD.<field>)",
+    "target": "provenance.target: the code the facts describe",
+    "types": "no record types"
+  },
+  "model": "abacus.facts",
+  "principal_classes": [
+    {
+      "actions": [
+        "inc_a",
+        "inc_b"
+      ],
+      "caller": null,
+      "caller_input": null,
+      "guard_reasons": [],
+      "id": "anyone",
+      "labels": [
+        "anyone"
+      ],
+      "params": [],
+      "permissionless": true,
+      "predicate": null,
+      "predicate_text": null,
+      "reads": []
+    }
+  ],
+  "principals": [],
+  "provenance": {
+    "extraction": {
+      "date": "2026-11-11",
+      "method": "the target's facts extractor: the upstream's document, copied"
+    },
+    "target": {
+      "commit": "0000000000000000000000000000000000000000",
+      "repo": "holon/abacus",
+      "scope": "two counters: the toy second target of I47 (a non-Morph machine whose upstream holds its facts document)"
+    }
+  }
+}

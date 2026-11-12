@@ -1,0 +1,38 @@
+# Round 8 (M3), A6: generated files regenerated twice from C (git archive, gen/M3/refute and spec/heldout left out) in scratch; the two runs and the committed bytes compared (/tmp/audit-m3-r8/a6.sh).
+$ python -m holon codecs --milestone M3 --root <T> --out <X1>/codec --goops-out <X1>/goops
+blob_ops: <S>/X1/goops/blob_ops.json
+l1_counts: <S>/X1/goops/l1_counts.json
+$ python -m holon own --milestone M3 --root <T> --out <X1>/own
+holon own: batch_BatchHeaderV0.json
+holon own: batch_BatchHeaderV1.json
+$ python -m holon derive --milestone M3 --root <T> --out <X1>/laws --obstructions <X1>/obstructions.json
+holon derive: 1 contract law(s) of laws/CONTRACTS -> <S>/X1/laws
+  L_contract_C_o12_m3                                        spec/M2/facts/morph_rollup.extracted.json
+$ python -m holon codecs --milestone M3 --root <T> --out <X2>/codec --goops-out <X2>/goops
+blob_ops: <S>/X2/goops/blob_ops.json
+l1_counts: <S>/X2/goops/l1_counts.json
+$ python -m holon own --milestone M3 --root <T> --out <X2>/own
+holon own: batch_BatchHeaderV0.json
+holon own: batch_BatchHeaderV1.json
+$ python -m holon derive --milestone M3 --root <T> --out <X2>/laws --obstructions <X2>/obstructions.json
+holon derive: 1 contract law(s) of laws/CONTRACTS -> <S>/X2/laws
+  L_contract_C_o12_m3                                        spec/M2/facts/morph_rollup.extracted.json
+run 1 vs run 2, codec: byte-identical (1 files, digest 59dbf5ceb6d80444)
+run 1 vs run 2, goops: byte-identical (2 files, digest 0e9cb3866282b033)
+run 1 vs run 2, own: byte-identical (3 files, digest 2ac6d845487fad1f)
+run 1 vs run 2, laws: byte-identical (278 files, digest 83fd664eabb2c540)
+run 1 vs committed gen/M3/codec: 1 files compared, 0 differ
+run 1 vs committed gen/M3/goops: 2 files compared, 0 differ
+run 1 vs committed gen/M3/own: 3 files compared, 0 differ
+run 1 vs committed laws/M3: 278 files compared, 0 differ
+$ python -m holon sorts --milestone M3 --root <T> --out <X1>/sorts
+holon sorts: 0 conflicts, 148 unresolved variables -> <S>/X1/sorts
+$ python -m holon sorts --milestone M3 --root <T> --out <X2>/sorts
+holon sorts: 0 conflicts, 148 unresolved variables -> <S>/X2/sorts
+run 1 vs run 2, sorts: byte-identical (5 files, digest 9a3d789e53c1d0bf)
+run 1 vs committed gen/M3/sorts: 5 files compared, 0 differ
+$ python -m holon bundle model --milestone M3 --root <T> --check
+holon bundle model: whitelist: 0 actions in model debt
+holon bundle model: submitter: 0 actions in model debt
+holon bundle model: 9 files checked: up to date
+exit 0

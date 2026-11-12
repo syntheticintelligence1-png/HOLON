@@ -55,10 +55,12 @@ def run(milestone: str = "M2", root: Path = ROOT) -> dict:
     from . import target as TG
     from .checks import header_checks
     from .stepper import instrument
-    from ..replay import check_checkout, morph_path, replay_config
+    from ..replay import check_checkout, replay_config
+    from .. import targets as _targets   # the development target's checkout (I47)
+    checkout_path_of = _targets.adapter("checkout_path")
     inst = instrument(milestone, root)
     sm = inst["synthetic_smoke"]
-    checkout = morph_path(types.SimpleNamespace(), root)
+    checkout = checkout_path_of(types.SimpleNamespace(), root)
     sha = check_checkout(checkout, sm["commit"])
     data = (checkout / sm["path"]).read_bytes()
     if hashlib.sha256(data).hexdigest() != sm["sha256"]:

@@ -1,0 +1,26 @@
+{
+ "spec_version": "holon-audit-a1-spec/0.1",
+ "milestone": "M3",
+ "budget": {
+  "law_timeout_s": 1800,
+  "max_law_runs": 6
+ },
+ "note": "round 9 supplement to a1.json: mutant g11 (incomplete in pass 1, max_law_runs 0) re-run on the laws it should move, baseline and mutant",
+ "mutations": [
+  {
+   "id": "g11",
+   "file": "common/batch/blob.go",
+   "edit": {
+    "line": 48,
+    "old": "blob[i*32] != 0",
+    "new": "blob[i*32+1] != 0"
+   },
+   "expect": "RetrieveBlobBytes checks the wrong byte of each field element: blob_ops laws should move",
+   "laws": [
+    "L_par_tot_batch_RetrieveBlobBytes",
+    "L_par_dom_ok_batch_RetrieveBlobBytes_ok_blob_RetrieveBlobBytes",
+    "L_par_weak_batch_RetrieveBlobBytes_blob_RetrieveBlobBytes"
+   ]
+  }
+ ]
+}

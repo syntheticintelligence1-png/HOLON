@@ -13,7 +13,10 @@ docstring of tests_m3/test_audit_loop.py, "Coordinator".
         prompts/I<n>_<slug>.md; it refuses (exit 2) to write over any existing prompt of the key.
     python -m holon coordinator audit-prompt --milestone M --round n --type A<k> [--root R] [--out PATH]
         an auditor's prompt from audit/prompts/round.md and audit/prompts/A<k>.md, filled from the round's packet
-        (audit/rounds/<M>/round<n>/packet.json).
+        (audit/rounds/<M>/round<n>/packet.json). The counting rule, the auditor fields and the evidence a counted round
+        carries are rendered from the milestone's sidecars (spec/<M>/lib/audit_loop.json, audit_rulings.json and
+        audit_evidence.json; F-M3-38, I101), so the prompt states the rule holon audit round and converge apply. A
+        milestone without rulings or evidence gets I87's rule.
 
 Nothing here names a law or a target.
 """
@@ -199,6 +202,108 @@ def existing_prompts(root: Path, key: str) -> list[Path]:
 
 
 # ====================================================================== auditor prompts
+def _and(xs: list) -> str:
+    xs = [str(x) for x in xs]
+    if len(xs) < 2:
+        return xs[0] if xs else "none"
+    return ", ".join(xs[:-1]) + " and " + xs[-1]
+
+
+def _record_clause(name: str, want: dict) -> str:
+    """One evidence record of the milestone's rule (spec/<M>/lib/audit_evidence.json), as the prompt states it."""
+    parts = [f"carries `{want.get('version_field')}` and names the round's milestone, number and target commit"]
+    if want.get("auditor_type"):
+        parts.append(f"is cited in the evidence of an attack that ran with auditor type {want['auditor_type']}")
+    if want.get("packet"):
+        parts.append("is the round's `packet.path`, with that `sha256`")
+    ran = want.get("ran")
+    if isinstance(ran, dict):
+        parts.append(f"has at least one of its `{ran.get('items')}` that ran, with a verdict other than "
+                     f"{_and(sorted(ran.get('verdict_not') or []))}")
+    if want.get("schema"):
+        parts.append(f"is valid against `{want['schema']}`")
+    if want.get("laws_of"):
+        parts.append(f"has exactly the laws of `{want['laws_of']}`")
+    if want.get("counts_of"):
+        parts.append(f"has `counts` that are the tally of its laws' `{want['counts_of']}`")
+    if isinstance(want.get("min_laws"), int):
+        parts.append(f"holds at least {want['min_laws']} law(s)")
+    return f"    - `{name}` " + "; ".join(parts) + "."
+
+
+def _wrap(lines: list[str], width: int = 120) -> str:
+    """Each line wrapped at width, its continuation indented two spaces past its bullet, as the template is."""
+    import textwrap
+    out = []
+    for ln in lines:
+        lead = len(ln) - len(ln.lstrip(" "))
+        cont = " " * (lead + 2 if ln.lstrip(" ").startswith("- ") else lead)
+        out += textwrap.wrap(ln, width=width, subsequent_indent=cont, break_long_words=False,
+                             break_on_hyphens=False) or [ln]
+    return "\n".join(out)
+
+
+def counting_fields(root: Path, milestone: str, rnd: int | None = None) -> dict:
+    """The template fields that state when a round counts (F-M3-38, I101), rendered from the milestone's sidecars as
+    holon audit round and converge read them (holon.audit.rounds: the policy, the rulings and the evidence rule):
+    counting_rule (the bullet on the auditor's family and the round's counting), auditor_fields and rule_sources. A
+    milestone without rulings or an evidence rule gets I87's rule, word for word."""
+    from .audit import rounds as RD
+    policy, _p = RD.load_policy(root, milestone)
+    cv = policy["convergence"]
+    types = _and(cv["auditor_types"])
+    fam = cv["counted_family"]
+    try:
+        rulings = RD.load_rulings(root, milestone)
+        rule = RD.load_evidence_rule(root, milestone)
+    except RD.RoundError:
+        rulings, rule = {}, {}
+    adm = (rulings.get("same_family_admitted") or {}) if isinstance(rulings, dict) else {}
+    ruling = adm.get("ruling") if isinstance(adm.get("ruling"), str) and adm.get("ruling") else None
+    records = ((rule or {}).get("counted_round_requires") or {}).get("records") or {}
+    if not ruling and not records:
+        return {"counting_rule": (
+                    f"- **Your family.** Record your model family relative to the builders' family as `same` or "
+                    f"`{fam}`. Only a\n  `{fam}`-family round, with every auditor type "
+                    f"{cv['auditor_types'][0]}-{cv['auditor_types'][-1]}, a session no earlier round of {milestone} "
+                    f"used, and not a\n  dry run, counts toward convergence (`holon audit converge`, rules CV1-CV4). "
+                    f"A same-family round is still recorded,\n  and its high-priority findings still reset the "
+                    f"streak."),
+                "auditor_fields": "{session, family, counts_toward_convergence}",
+                "rule_sources": "HUMAN_ANSWERS Q9"}
+    lib = f"spec/{milestone}/lib"
+    lines = [f"- **Your family, and when a round counts.** Record your model family relative to the builders' family "
+             f"as `same` or `{fam}`. A round counts toward convergence (`holon audit converge`, rules CV1-CV4) only "
+             f"if all of these hold, and `holon audit round` refuses a round that sets `counts_toward_convergence` "
+             f"true without them (RD1, RD2):"]
+    if ruling:
+        lines.append(f"  - its family is `{fam}`, or it is `same` and its `auditor.ruling` is exactly \"{ruling}\" "
+                     f"(the human's ruling; {lib}/audit_rulings.json); a round so admitted keeps family `same`;")
+    else:
+        lines.append(f"  - its family is `{fam}` (a `same`-family round never counts: HUMAN_ANSWERS Q9);")
+    lines += [f"  - every auditor type {types} ran;",
+              f"  - its auditor session is one no earlier round of {milestone} used (a fresh context, L19);",
+              "  - it is not a dry run;"]
+    if records:
+        lines.append(f"  - it carries its evidence ({lib}/audit_evidence.json): its directory "
+                     f"`audit/rounds/{milestone}/round<n>/` holds each record below, a JSON object that")
+        lines += [_record_clause(nm, records[nm] or {}) for nm in sorted(records)]
+        reb = (((rule or {}).get("counted_round_requires") or {}).get("content") or {}).get("rebuilt") or {}
+        num = str(rnd) if rnd is not None else "<n>"
+        cmds = [f"`{reb[k].replace('<M>', milestone).replace('<n>', num)}`" for k in sorted(reb)
+                if k != "by" and isinstance(reb[k], str)]
+        if cmds:
+            lines.append(f"  The lead rebuilds {_and(sorted(k for k in reb if k != 'by'))} from the round's target "
+                         f"commit ({_and(cmds)}); a record that does not rebuild byte for byte is not evidence.")
+    lines.append("  A round that does not count is still recorded, and its high-priority findings still reset the "
+                 "streak.")
+    fields = "{session, family, ruling, counts_toward_convergence}" if ruling else \
+        "{session, family, counts_toward_convergence}"
+    srcs = ["HUMAN_ANSWERS Q9"] + ([ruling.replace("HUMAN_ANSWERS ", "")] if ruling else [])
+    return {"counting_rule": _wrap(lines), "auditor_fields": fields,
+            "rule_sources": _and(srcs) if len(srcs) > 1 else srcs[0]}
+
+
 def render_audit_prompt(root: Path, milestone: str, rnd: int, typ: str) -> str:
     root = Path(root)
     pk_rel = f"audit/rounds/{milestone}/round{rnd}/packet.json"
@@ -216,7 +321,8 @@ def render_audit_prompt(root: Path, milestone: str, rnd: int, typ: str) -> str:
         else (len(tg) if isinstance(tg, (list, dict)) else 0)
     fields = {"milestone": milestone, "round": str(rnd), "type": typ, "name": aud.get("name", ""),
               "what": aud.get("what", ""), "packet": pk_rel, "packet_sha256": hashlib.sha256(raw).hexdigest(),
-              "target_commit": pk.get("target_commit", ""), "targets": str(n), "laws": str(len(pk.get("laws") or {}))}
+              "target_commit": pk.get("target_commit", ""), "targets": str(n), "laws": str(len(pk.get("laws") or {})),
+              **counting_fields(root, milestone, rnd)}
     parts = []
     for name in ("round.md", f"{typ}.md"):
         p = root / "audit" / "prompts" / name

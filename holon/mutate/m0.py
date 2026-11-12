@@ -11,6 +11,7 @@ import shutil
 from pathlib import Path
 
 from .. import bend, ir
+from .. import targets as _targets
 from .. import refute as R
 from ..gen import laws as LG
 from ..gen import proofs as PG
@@ -19,7 +20,7 @@ from ..pipeline import law_names
 from . import common as C
 from . import decide as D
 
-MODEL_NAME = "morph_header"            # the M0 inhabit step imports model/<stem>.bend (facts/morph_header.json's stem)
+MODEL_NAME = Path(_targets.vocab("header_facts")).stem            # the M0 inhabit step imports model/<stem>.bend (facts/morph_header.json's stem)
 PROJECTION_KEY = C.PROJECTED.as_posix()
 
 

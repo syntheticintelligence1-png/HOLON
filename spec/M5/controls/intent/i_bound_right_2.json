@@ -1,0 +1,11 @@
+{
+  "clause": "@notice The fee charged is at most 2 percent of the amount.",
+  "family": "bound",
+  "file": "C61a079.sol",
+  "id": "i_bound_right_2",
+  "source": "// SPDX-License-Identifier: UNLICENSED\npragma solidity 0.8.24;\n\ncontract C61a079 {\n    /// @notice The fee charged is at most 2 percent of the amount.\n    function fee(uint256 amount) external pure returns (uint256) {\n        return (amount * 2) / 100;\n    }\n}\n",
+  "truth": {
+    "obstruction": false,
+    "why": "rate 2 percent against the documented bound 2"
+  }
+}

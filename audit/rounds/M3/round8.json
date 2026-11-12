@@ -1,0 +1,154 @@
+{
+ "round": 8,
+ "milestone": "M3",
+ "target_commit": "dadfb28040931f447d4b22e2760a6e2f8e54aeab",
+ "round_version": "holon-audit-round/0.2",
+ "dry_run": false,
+ "packet": {
+  "path": "audit/rounds/M3/round8/packet.json",
+  "sha256": "fd50948e42ad7e7ae60d524716a1759179677cf38f829d28566f3ceca46f3b1f"
+ },
+ "auditor": {
+  "session": "claude-subagent/M3-round8/2026-11-11",
+  "family": "same",
+  "ruling": "HUMAN_ANSWERS Q9b",
+  "counts_toward_convergence": true
+ },
+ "attacks": [
+  {
+   "auditor_type": "A1",
+   "category": "mutation_adequacy",
+   "evidence": [
+    "audit/rounds/M3/round8/a1.json",
+    "audit/rounds/M3/round8/a1_spec.json",
+    "audit/rounds/M3/round8/a1_verify_spec.json",
+    "audit/rounds/M3/round8/a1_verify.log"
+   ],
+   "findings": [
+    "F-M3-31",
+    "F-M3-32"
+   ],
+   "id": "A1",
+   "result": "finding",
+   "run": true,
+   "tried": "`python -m holon audit mutation --milestone M3 --round 8 --spec audit/rounds/M3/round8/a1_spec.json`: 7 mutant(s) of the auditor's choosing on morph-l2/morph@3e44e795586a; 5 detected, 2 missed, 0 incomplete, 0 refused; caps 900 s per law run, 0 runs per round (0 used). Each missed mutant is an extraction or rule gap unless the auditor judged it equivalent from its diff before the run; file the misses as findings and list their ids. Auditor's judgement. Mutants (each diff in a1.json; all chosen and adjudicated before the run): q_popcap (L1MessageQueueWithGasPriceOracle.sol:324, the pop bound '_count <= 256' -> '< 256': Rollup pops in chunks of 256, so a batch finalizing 256 or more L1 messages could never finalize), q_enqtime (line 377, the enqueue clock 'block.timestamp' -> 'block.timestamp - 1': at time 1 the sentinel 0 is stored), s_codec_store (BatchHeaderCodecV0.sol:166, totalL1MessagePopped stored at offset 18 instead of 17), g_getter (common/batch/batch_header.go:97, TotalL1MessagePopped read from b[18:26]), s_revert_noclear (Rollup.sol:447, revertBatch no longer clears committedBatches), s_revert_cursor (Rollup.sol:443, revertBatch rewinds lastFinalizedBatchIndex instead of lastCommittedBatchIndex), s_guard_equiv (Rollup.sol:132, 'revertReqIndex == 0' -> '0 == revertReqIndex', EQUIVALENT). Budget: max_law_runs 0. The driver re-runs only laws whose statement is unchanged; two earlier runs of the same mutants with caps 25 and 4 spent their cap on baseline runs of a FACT law of the 'names' group (over 10 minutes each) before any mutant's own law, and were stopped (not recorded): each mutant is judged on its extraction and derivation, and the re-derived laws of g_getter were run by hand (a1_verify.log). Verdicts judged: q_popcap and q_enqtime 'missed' are the driver's failure, not evidence about the factory: holon extract solidity refuses the bundle sidecar on both sides, and the driver reports 'the frontends extract the same content' (F-M3-31); whether the factory's bundle pipeline (holon bundle extract|model, holon symb sorts|sections) would see them was not established. s_codec_store and g_getter are 'detected' only as a derivation change: the round-trip laws over the mutated field are dropped (3 and 6), the cc laws restated without the field's premise, no law of the g_getter tree mentions the mutated getter, and the restated pinned cc law there is REFUTED on unequal inputs, an obstruction about nothing the mutant changed (F-M3-32, a rule gap RG-M3-08). s_revert_noclear: L_undo_res_Rollup_revertBatch_committedBatches is added (the residue's own law appears); s_revert_cursor: L_undo_res_Rollup_revertBatch_lastCommittedBatchIndex is added; neither new law was run. s_guard_equiv, equivalent: 'detected' (12 laws added, 7 dropped) because the DISCH laws of the nonReqRevert guard are keyed by the expression's hash (d953872f -> 8a3c7286) and the same expression in initialize4 (line 214), merged with line 132 at C, splits off under its own id: a false detection of the driver's heuristic (law identity is syntactic); no status moved and none was run. The baseline re-extractions of the 5 Solidity and Go documents the mutants touch reproduce the committed bytes; queue.json's is refused. Not covered: messenger.json and submitter.json (their sidecars are refused the same way), common/blob and the versions documents (out of reach), and the statuses of the two added residue laws."
+  },
+  {
+   "auditor_type": "A2",
+   "category": "model_vs_code",
+   "evidence": [
+    "audit/rounds/M3/round8/a2.json",
+    "audit/rounds/M3/round8/a2_spec.json",
+    "audit/rounds/M3/round8/a2_build_spec.py"
+   ],
+   "findings": [
+    "F-M3-33"
+   ],
+   "id": "A2",
+   "result": "finding",
+   "run": true,
+   "tried": "`python -m holon audit hostile-input --milestone M3 --round 8 --spec audit/rounds/M3/round8/a2_spec.json`: 54 hostile input(s) of the auditor's choosing; 49 agree, 5 disagree, 0 unsupported (reasons in the record). Each disagreement is the auditor's to judge (the model or the code is wrong); file the real defects as findings and list their ids. Auditor's judgement. Inputs (a2_build_spec.py): the header carrier through finalizeBatch, commitBatch, revertBatch, proveState, proveCommittedBatchState and challengeState of the Rollup (its step-harness binding replay/M2/fragments.json; deployment F=40, W=10, D=20): headers of length 0, 248, 249, 250, 257, 258 with version bytes 0, 1, 2, 3, 255, the genesis header with a trailing byte, a v2 commit without a blob and with two, a v0 commit with two blobs, version 3, a zero post root, a paused rollup, a revert count of 2^256-1, the proof oracle's accept and reject; hostile ABI encodings: nonzero padding, an offset and a length past the end, a length of 2^32, a non-canonical offset 0x40, a dirty uint64 and a dirty uint8 member, a struct offset past the end, the padding dropped; and the Go ops of gen/M3/goops/blob_ops.json (both RetrieveBlobBytes) on blobs with a nonzero high-order byte at field elements 0, 100, 3967, 3968, 4095, and low bytes only. The 5 disagreements: c09_raw_dirty_padding and f12_raw_dirty_padding, the model is wrong: solc's decoder accepts nonzero padding and the real calls run as their canonical twins, the model evaluates an empty header (F-M3-33). f13_raw_offset_past_end, f14_raw_length_past_end and c12_raw_bytes_length_huge: the code reverts in its ABI decoder with no data, the model with Error('Empty batch header'); this is the exclusion the ledger assumption A-implicit states (spec/M2/ledger.json, listed in every Rollup record's ledger_assumptions: the ABI decoding of dynamic calldata is not modelled), so it is not filed as a model defect beyond F-M3-33's suggested fix. The 49 agreements include the checked-arithmetic panics (finalizeBatch of the genesis header, a revert count of 2^256-1), every length and version refusal, the blob-count rules of v0 and v2, and all 14 Go cases, the batch decoder's panic for a nonzero high byte at element >= 3968 included. Not covered: the bundle members (no step-harness binding names their documents), l1_counts.json (a gocount document, not a Go-op document), the derivation document's entry points."
+  },
+  {
+   "id": "A3",
+   "category": "statement_fidelity",
+   "run": true,
+   "tried": "python -m holon audit regress --from ef39bed5897aa7e8a0a147cb369f190a9e6e3fcc (the packet's previous_target) --to dadfb28040931f447d4b22e2760a6e2f8e54aeab --json (48 s; a3_regress.json): no statement-hash change, no addition, no transition. No law file, record or registry changes between round 7's target and C: the 11 commits change holon/audit/rounds.py and converge.py with spec/M3/lib/audit_evidence.json (F-M3-27's evidence rule), holon/mutate/run.py, the CI workflow, the M2 amendments, tests and audit files. No dropped law, no premise change, no change of kernels or independence class in the window. Beyond the window, the same command over M3's whole law history (from the parent of fe1f88f2) and G2's own reading of it (holon.statement_diff.registry_changes; a3_history.py, a3_history.json): all 1368 registry changes since the log's introduction (d3f5d64) are covered by some laws/STATEMENT_DIFF.jsonl line; regress's 408 'uncovered' changes are its own pairing artefact, and it omits 627 real transitions (F-M3-34). Not checked: whether each covering line is accepted (scan re-proves the binding_change lines; CI's gate-M3-G2 does that).",
+   "result": "finding",
+   "findings": [
+    "F-M3-34"
+   ],
+   "evidence": [
+    "audit/rounds/M3/round8/a3_regress.json",
+    "audit/rounds/M3/round8/a3_history.py",
+    "audit/rounds/M3/round8/a3_history.json"
+   ],
+   "auditor_type": "A3"
+  },
+  {
+   "id": "A4",
+   "category": "vacuity",
+   "run": true,
+   "tried": "python -m holon audit vacuity --milestone M3 --round 8 --target dadfb28040931f447d4b22e2760a6e2f8e54aeab (6 min 45 s; rebuilt identically with --check, a6_checks.log): classes ok 27, degenerate 43, unreadable 8, no_premises 54, not_decided 107, counter_witness 37, vacuous 0; G11V's in-flight clause 8 of 8 edges inhabited; the 4 canaries detected; the oracle report as in A5. The 38 degenerate (D3) codec laws have a representative the instrument found (counting fill, bend2 and BendTT). The 5 degenerate state laws without one were searched by hand with each law's own G11V generator, narrowed so that it cannot return a D1 point (a4_rep.py, run in a scratch tree of C; a4_rep.log): L_sym_sentinel_Rollup_batchDataStore_originTimestamp_commitBatch_366 and ..._commitBatchWithProof_366 are inhabited after the prefix [commitBatch] (x commitBatch, resp. commitBatchWithProof), and L_disch_blk_rollup_228_79cc3e9a_onlyOwner after [setPause] with the owner's successful step addChallenger; each emitted nonvac PROOF.bend gives ALL PROOFS CHECK under bend and bend --verdict. L_disch_rev_rollup_228_79cc3e9a was decided PROVED (chain_revert) in 3.9 s, but its narrowed inhabitant search had returned nothing when stopped at its 16-minute time box: no representative, and no verdict on whether one exists. L_fact_kernel_Rollup_commitState_committedBatches_blobhash (D2): its generator pairs a run with itself and cannot state another inhabitant, while two different runs commit the same header by commitState on the real Rollup and on the model (a4_fact_pair.json, the A2 harness with --out) (F-M3-36). The stored DISCH inhabitants are unrepresentative a second way: the blocking law's step is finalizeBatch('0x'), which reverts, and the revert law's is importGenesisBatch('0x') by a non-owner, which reverts on onlyOwner, not on the blocked guard; and the DISCH and SYM generators write non_vacuity.degenerate false for these four D1 inhabitants. The 8 'unreadable' judged by hand: 2 have prefix 0, the member's initial state (D1; F-M3-35; not searched further: time); 3 have 1, 3 and 5 member steps; the 2 SORT payer laws sit at corpus frames 2 and 5; L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154 has x1 == x2 under a constant hash: its premises (CF of keccak256 on the two encodings, equal leaves) admit only pairs with equal encodings, and _encodeXDomainCalldata (abi.encodeWithSignature over all five fields) is injective, so identical pairs are its only inhabitants; that is inherent to a kernel-containment law over an injective commitment (the law is refuted exactly when the encoding loses the nonce), so it is not filed.",
+   "result": "finding",
+   "findings": [
+    "F-M3-35",
+    "F-M3-36"
+   ],
+   "evidence": [
+    "audit/rounds/M3/round8/a4.json",
+    "audit/rounds/M3/round8/a4_rep.py",
+    "audit/rounds/M3/round8/a4_rep.log",
+    "audit/rounds/M3/round8/a4_fact_pair_spec.json",
+    "audit/rounds/M3/round8/a4_fact_pair.json"
+   ],
+   "auditor_type": "A4"
+  },
+  {
+   "id": "A5",
+   "category": "bindings_ledger",
+   "run": true,
+   "tried": "python -m holon audit oracles --milestone M3 --json (a5_oracles.json; also a4.json's oracles): O1 {} (M3 has no oracle sidecar spec/M3/lib/oracles.json, so no hypothesis to test), O2 keccak256 of type Fn<Bytes,Word> in 89 laws, constrained by a premise in 1 (the CF premise of L_par_push_L1CrossDomainMessenger_proveAndRelayMessage_154), O3 383 keccak256 table entries, 0 mismatches. Independently of holon/keccak.py, every keccak256 entry of results/M3/L*.json was re-hashed with golang.org/x/crypto/sha3's NewLegacyKeccak256 (the Keccak go-ethereum uses): the 17 distinct 'hashes' entries O3 reads and the 39 distinct witness 'table' entries of the DISCH and bundle records, which O3 does not read: 0 mismatches (a5_keccak.go, a5_keccak.log). Model assumptions tested against the real code through A2: A-implicit holds as stated (the ABI decoder's own reverts are not modelled), except that nonzero padding, which the code accepts, is refused by HOLON's decoder (F-M3-33, filed under A2); the free external-call answers of A-env agree on the verifier oracle's accept and reject (p02, p04). Not tested: A-dirty, A-keccak-structural and the go-* assumptions beyond the A2 agreements.",
+   "result": "no_finding",
+   "findings": [],
+   "evidence": [
+    "audit/rounds/M3/round8/a5_oracles.json",
+    "audit/rounds/M3/round8/a5_keccak_entries.py",
+    "audit/rounds/M3/round8/a5_keccak.go",
+    "audit/rounds/M3/round8/a5_keccak.log"
+   ],
+   "auditor_type": "A4"
+  },
+  {
+   "id": "A6",
+   "category": "determinism",
+   "run": true,
+   "tried": "HOLON's checks, every record of this round rebuilt from the target by its own tool with --check (a6_checks.log): holon audit hostile (packet.json, 5 s), hostile-input (a2.json, 37 s; a4_fact_pair.json, 25 s), mutation (a1.json, 329 s) and vacuity (a4.json, 377 s): all byte-identical. The auditor's regenerations (a6_determinism.log): in a scratch tree of C (git archive), holon codecs (gen/M3/codec and gen/M3/goops: 3 files), holon own (gen/M3/own: 3), holon derive (laws/M3: 278 files, the registry, the derivation and the contract law included) and holon sorts (gen/M3/sorts: 5 files, the typed models included), each run twice into fresh directories: the two runs are byte-identical, and identical to the committed files; holon bundle model --check: 9 files up to date. A1's baseline re-extractions of the five Solidity and Go frontend documents it reaches reproduce the committed bytes (a1.json baseline.documents). Not regenerated: the 276 result records and their proofs (holon run over every law), the corpora and the refinement records, which only G1 regenerates and CI does not run for M3.",
+   "result": "no_finding",
+   "findings": [],
+   "evidence": [
+    "audit/rounds/M3/round8/a6_determinism.log",
+    "audit/rounds/M3/round8/a6_checks.log"
+   ]
+  },
+  {
+   "id": "A7",
+   "category": "gate_evasion",
+   "run": true,
+   "tried": "Gates attacked. (1) The audit loop's counting rule, the gate on M3's exit (CV1 with F-M3-27's evidence rule): a fabricated round 8 whose records are hollow passes RD1-RD5, is counted clean, and holon audit converge reports M3 converged (a7_hollow_round.py, a7_hollow_round.log; F-M3-37); the rendered per-attack prompts still state the pre-Q9b counting rule (F-M3-38). (2) python -m holon gate --milestone M3 --checks G3,G9,G10,G11,GEVID on a scratch tree of C: GATE PASSED (partial) in 2 min 33 s, with 4 GUNDO warnings 'static and kernel classes disagree' (a7_gate_partial.log). Read, not exploited: CI gates M3 in parts (G3,G5,G8,G9,G10,G11,G11V,GEVID; G7,G4,G6; G2) and never runs G1, so no CI job regenerates M3's outputs byte for byte (the workflow gives the job budget as the reason); G6 reads the committed replay reports and runs no replay, and no CI job re-runs M3's replays, so a replay entry is trusted input: the only record G6 holds UNKNOWN at C, L_par_cc_BatchCache_createBatchHeaderWithSequencerSetHash_enc_sol_v2, has a real obstruction at the ssvh field, so a forged entry there would carry no false claim, and none was planted. Not covered: a full holon gate run (G1 regenerates every M3 output), G2's tamper paths (STATEMENT_DIFF, the bindings) in a git worktree, and G5, G7 and G11V re-checks.",
+   "result": "finding",
+   "findings": [
+    "F-M3-37",
+    "F-M3-38"
+   ],
+   "evidence": [
+    "audit/rounds/M3/round8/a7_hollow_round.py",
+    "audit/rounds/M3/round8/a7_hollow_round.log",
+    "audit/rounds/M3/round8/a7_gate_partial.log"
+   ]
+  },
+  {
+   "id": "A8",
+   "category": "statement_fidelity",
+   "run": true,
+   "tried": "The back-test's open rule gaps: results/M3/backtest.json exit_blockers gap:M0:L_par_hdr_v2, gap:M0:L_rt_go_v0, gap:M0:L_rt_go_v1, gap:M0:L_rt_go_v2 (kind rule, status open), each examined (a8_backtest.json). gap:M0:L_par_hdr_v2 is not a defect: M0's obstruction (the Go v1 encoder writes version byte 1 where Solidity writes 2) is gone at the target: the only non-test Go path that builds a v2 header, BatchCache.createBatchHeaderWithSequencerSetHash (batch_cache.go:1727-1731), sets h[0] = BatchHeaderVersion2 after BatchHeaderV1.Bytes(), and M3's cc laws at v2 are over that function (pinned PROVED; unpinned UNKNOWN with a kernel-accepted counter-law at the ssvh field, held back by G6 for want of a replay); B2 finds no alpha-equivalent law because the encoder at v2 is another function. gap:M0:L_rt_go_v0/v1/v2 are not defects: M0's record round trip dec_go(enc_sol(h)) == Some(view(h)) is the conjunction of M3's per-field round trips L_par_rt_enc_sol_BatchHeaderBytes_<field>_v<k> (all 35 candidates PROVED; every getter is guarded by the same validate()), the ssvh field, which M3's Solidity Header no longer carries (Solidity writes bytes32(0)), being covered by the PROVED pinned cc law and the PROVED Go round trip of SequencerSetVerifyHash; B2 matches one law with one law and cannot see a conjunction. No finding.",
+   "result": "no_finding",
+   "findings": [],
+   "evidence": [
+    "audit/rounds/M3/round8/a8_backtest.json"
+   ],
+   "auditor_type": "A3"
+  }
+ ],
+ "findings": [
+  "F-M3-31",
+  "F-M3-32",
+  "F-M3-33",
+  "F-M3-34",
+  "F-M3-35",
+  "F-M3-36",
+  "F-M3-37",
+  "F-M3-38"
+ ],
+ "notes": "Same-family round under HUMAN_ANSWERS Q9b: the auditor is a fresh Claude agent session launched by HOLON's coordinator, of the builders' own model family, so its independence comes from a fresh context only (whitepaper \u00a79.5's disclosed deviation); auditor.ruling cites Q9b and counts_toward_convergence is true because A1-A4 each ran and the round carries its evidence (a1.json, a2.json, a4.json, packet.json, each rebuilt identically with --check). Fresh context: no earlier round's file, directory, findings or rule-gap lines, no docs/iterations, docs/STATUS.md or docs/M3_COMPARISON.md, no prediction file and no Preregister or Exit bullet of docs/BUILD_PLAN.md was read before this round's findings were written; the A7 probe (a7_hollow_round.py) necessarily ran holon audit converge over rounds 1-7 in a scratch root and so showed that M3 stands one counted clean round from convergence. Severity: F-M3-37 is rated medium because the counting rule is not one of the gates G1-G11 the severity definitions name; the PR asks the human whether a defect that can flip the convergence verdict should be high. Limitations, plainly: A1 ran with max_law_runs 0, after two longer attempts (caps 25 and 4) spent their caps on baseline runs of an unrelated FACT law and were stopped (not recorded); the driver cannot reach the bundle members and their own pipeline was not run on a mutant by hand; of the re-derived laws only g_getter's pinned cc law was run by hand. A2 reaches only the Rollup document (the one step-harness binding) and the Go-op document blob_ops.json. A3's window holds no law change; the whole-history reading takes every STATEMENT_DIFF line as accepted. A4: the narrowed search for L_disch_rev_rollup_228_79cc3e9a was stopped at 16 minutes without a result, the two prefix-0 bundle inhabitants were not searched, and the FACT pair was shown on the A2 harness, not through a kernel. A7: no full gate run (G1). The disk (about 2.4 GB free, shared with a builder) allowed one scratch tree at a time; every scratch tree was deleted after use, and nothing outside audit/rounds/M3/round8.json, audit/rounds/M3/round8/ and the two appended files was written. Cross-reference, made after this round's findings were written (the earlier lines of audit/M3_findings.jsonl and the directories of rounds 6 and 7 read then): F-M3-31 re-finds F-M3-09, F-M3-18, F-M3-23 and F-M3-28; F-M3-32 re-finds F-M3-10, F-M3-17, F-M3-22 and F-M3-29 (here for the Solidity store and the Go read of TotalL1MessagePopped); F-M3-33 re-finds F-M3-11 and F-M3-16; F-M3-34 re-finds F-M3-07 and F-M3-30; F-M3-35 re-finds F-M3-06 and F-M3-20; all of these are open at C and reproduce at C, independently. F-M3-36 is a new angle on the law of F-M3-26 and F-M3-01; F-M3-37 is the residue of F-M3-27's fix (fixed): the rule it added reads the records' headers only; F-M3-38 is new; A5's re-hash of the 'table' entries O3 does not read is F-M3-12's observation (open), confirmed with 0 mismatches. A4's push law: F-M3-05 filed its diagonal inhabitant as a defect; this round judges the diagonal inherent to the law's premise set and does not file it. Rounds 6 and 7, the other two rounds of the streak, carry substantive records (a1.json with 12 and 11 mutants, a2.json with 51 and 52 cases, full a4.json and packet.json), so the convergence this round completes does not rest on hollow evidence; the lines above are left 'open' for the lead's triage."
+}

@@ -1,0 +1,42 @@
+{
+  "run_version": "holon-heldout-run/0.1",
+  "doc": "I50 prereg instrument, written after I49's extraction and before derive or any rule ran on the held-out target (the seal protocol (e)). It fixes the route by which the pinned catalog (holon-rules/1.15, spec/M4/lib/heldout_catalog_pin.json) runs on the held-out document, the per-rule sidecars that route needs (each field taken by rule from the development milestone's sidecars or left out; nothing chosen for the target), and the gate's law checks. The predicted counts and classes are in the key (spec/M4/predictions/I50.json). The contract is the docstring of tests_m4/test_i50_heldout.py.",
+  "milestone": "T50",
+  "milestone_doc": "The held-out laws are derived and decided as the typed test milestone T50 in a scratch root (holon target derive|run), as I47's toy target runs as T11: a test milestone takes --catalog, its per-rule sidecars by flag, and writes nothing under laws/, results/M*, gen/M* or replay/. T50 is a name of the run, not of the target.",
+  "catalog": "holon-rules/1.15",
+  "document": "gen/targets/scroll/facts/ScrollChain.extracted.json",
+  "outputs": {
+    "sidecars": "gen/targets/scroll/lib/{sort_types,undo,disch,fact}.json",
+    "sorts": "gen/targets/scroll/sorts/ (holon sorts: assignment.json and the pass's other files)",
+    "disch": "gen/targets/scroll/disch/ (holon disch: closure.json, conjuncts.json)",
+    "laws": "gen/targets/scroll/laws/ (holon derive: one law per basis element, DERIVATION.json, REGISTRY.json)",
+    "gen": "gen/targets/scroll/run/ (the typed model and every law's LAWS.bend / PROOF.bend)",
+    "records": "results/targets/scroll/records/ (one result record per law, summary.json)",
+    "replay": "results/targets/scroll/replay.json (one entry per REFUTED law)",
+    "sizes": "results/targets/sizes.json (the held-out row's obligations: the derivation's laws over the document)"
+  },
+  "sidecar_rules": {
+    "doc": "Each generated sidecar has exactly these fields. 'M3's X' is the field X of the named development-milestone sidecar at the base commit, copied verbatim; every other field of those sidecars (documents, bindings, R0, hypotheses, verdicts, bases, back-tests, expected outputs) is about the development target and is left out.",
+    "Q1_sort_types": {"sort_types_version": "holon-sort-types/0.1", "documents": ["<document>"], "seeds": "M3's seeds (spec/M3/lib/sort_types.json: spec/M3/lib/sort_seeds.json, EVM semantics, names no target)", "binding": null, "search": "M3's search (spec/M3/lib/sort_types.json)"},
+    "Q2_undo": {"undo_version": "holon-undo/0.1", "sort_types": "<Q1's path>", "observation": "M3's observation (spec/M3/lib/undo.json)", "premise": "M3's premise", "search": "M3's search"},
+    "Q3_disch": {"disch_version": "holon-disch/0.1", "documents": ["<document>"], "binding": null, "model_sidecar": "<Q1's path>", "hypotheses": {}, "search": "M3's search (spec/M3/lib/disch.json)"},
+    "Q4_fact": {"fact_version": "holon-fact/0.1", "iteration": "I50", "documents": ["<document>"], "sort_types": "<Q1's path>", "binding": null, "hypotheses": {}, "search": "M3's search (spec/M3/lib/fact.json)", "measure": "M3's measure", "term_size": "M3's term_size"},
+    "binding_null": "No deployment of the held-out target exists in the repo, and building one would be a target-specific harness written after the seal. binding null is the typed machinery's own option (holon.sorts.typed_sidecar: 'null: the zero storage'): Reach starts from the zero storage, which for an upgradeable contract is the proxy's storage before initialize, and every initializer is an action. It is a model choice, disclosed on every record of the run; it is not the deployed chain state.",
+    "hypotheses_empty": "No external interface gets a hypothesis: Q23 forbids hand-writing an oracle's rule, and Q19 forbids hand facts. An external answer is whatever the model leaves free."
+  },
+  "route": [
+    "R1 holon target derive --target scroll: write Q1-Q4 into gen/targets/scroll/lib/, then in a scratch root holding the repo's holon/, config/, spec/ libraries and the document: holon sorts --milestone T50 --sidecar Q1; holon disch --milestone T50 --sidecar Q3; holon derive --milestone T50 --catalog holon-rules/1.15 --sidecar Q1 --undo-sidecar Q2 --disch Q3 --fact-sidecar Q4 --facts <document>; copy the outputs back. --check: a fresh derivation reproduces every output byte for byte.",
+    "R2 holon target run --target scroll: in a scratch root, holon model, then every law decided by the runner the M3 pipeline uses for its rule (holon run with the typed sidecar and the rule's sidecar flag), unchanged and with the sidecars' budgets; every record copied to results/targets/scroll/records/.",
+    "R3 replay: binding null gives no real deployment, so no witness can be replayed by the runners (holon.sorts.run3 step 4 needs the binding). Every REFUTED law gets an entry in results/targets/scroll/replay.json with status not_run and that reason; nothing is labelled passed without a run on the real contract.",
+    "R4 metrics: holon target sizes fills the held-out row from gen/targets/scroll/laws/DERIVATION.json."
+  ],
+  "gate_law_checks": {
+    "doc": "I50's checks of holon target gate, after I49's six and in this order. I49's checks stay as they are (G8 included).",
+    "L2": "the generated sidecars follow Q1-Q4, and a fresh derivation (R1 --check) reproduces gen/targets/scroll/laws/ (laws, DERIVATION.json, REGISTRY.json), sorts and disch byte for byte; every law's statement hash is the registry's; DERIVATION's rule_catalog_version is holon-rules/1.15",
+    "L9": "every law has a record that validates against the v1 and v2 result-record schemas, with one premise string per assume clause, and summary.json lists exactly the laws with their statuses",
+    "L3": "no escape hatch in any generated .bend file (holon.gate's G3 scan)",
+    "L5": "every PROVED or REFUTED record's PROOF.bend re-checks from scratch with the pinned checker: exit 0 and ALL PROOFS CHECK",
+    "L11": "every checked LAWS.bend states exactly its expected law (the law's name, or cl_ + it for a counter-law)",
+    "L6": "every REFUTED record has a replay entry; an entry that is not passed leaves the record labelled model-only pending replay (its final bin is not finding)"
+  }
+}
