@@ -103,6 +103,8 @@ def run(milestone: str, root: str | None, out: str | None, facts: list[str] | No
     out_p.mkdir(parents=True, exist_ok=True)
     for name in DOCUMENTS:
         (out_p / f"{name}.json").write_text(texts[name], encoding="utf-8")
+    if "coverage_debt" in texts:   # I103: holon-sort-types/0.3 only
+        (out_p / "coverage_debt.json").write_text(texts["coverage_debt"], encoding="utf-8")
     c = json.loads(texts["conflicts"])["conflicts"]
     u = json.loads(texts["unresolved"])["count"]
     print(f"holon sorts: {len(c)} conflicts, {u} unresolved variables -> {out_p}")

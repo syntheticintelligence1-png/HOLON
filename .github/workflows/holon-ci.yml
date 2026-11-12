@@ -206,6 +206,13 @@ jobs:
             # uncovered M3 change (B4). No target name (B5), this job (B6), no generator closure moves (B7).
             timeout: 60
             run: python -m unittest tests_m3.test_regress_parents_i102.TestBuild -v
+          - name: tests-m6-i103
+            # I103 (M6, frontend reach): the contracts F1-F6 (solc by pragma, the pinned sets in config/toolchains.json,
+            # go by directive, the go.work main-module rule, the total sort pass) and the regressions R1-R5 (Morph moves
+            # only by re-stamp, hand sidecars name their toolchain, pre-0.8 documents say unchecked, the coverage file
+            # re-walked and complete). TestPredictions is the key's measured outcome and is not run here (P2 and P6 missed).
+            timeout: 30
+            run: python -m unittest tests_m6.test_i103_frontend_reach.TestSolcSelection tests_m6.test_i103_frontend_reach.TestGoSelection tests_m6.test_i103_frontend_reach.TestGoWork tests_m6.test_i103_frontend_reach.TestTotalSortPass tests_m6.test_i103_frontend_reach.TestRegressions -v
           - name: tests-m3-par-record
             # I100 (rule PAR_record_round_trip): catalog holon-rules/1.16 (B1); the producer over the codec document is
             # the instrument's computation and gen/M3/par_record/basis.json its document (B2); an m08-like and an

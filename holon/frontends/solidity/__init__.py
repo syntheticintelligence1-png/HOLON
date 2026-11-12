@@ -106,11 +106,29 @@ def extract_document(side: dict, sidecar_path: Path, root: Path, source=None) ->
     transitions = "transitions" in side
     compiled = comp.compile_sources(cfg, side, Path(os.path.abspath(source)), storage_layout=transitions)
     sha = hashlib.sha256(Path(sidecar_path).read_bytes()).hexdigest()
-    if transitions:
-        from .transitions import build as build_transitions
-        doc = build_transitions(compiled, side, _relative(Path(sidecar_path), root), sha)
-    else:
-        doc = build(compiled, side, _relative(Path(sidecar_path), root), sha)
+    sel = getattr(compiled, "selection", None)
+    try:
+        if transitions:
+            from .transitions import build as build_transitions
+            doc = build_transitions(compiled, side, _relative(Path(sidecar_path), root), sha)
+        else:
+            doc = build(compiled, side, _relative(Path(sidecar_path), root), sha)
+    except ExtractionError as e:
+        if sel is None:
+            raise
+        raise ExtractionError(f"{e}\n[compiled by solc {compiled.version.split('+', 1)[0]} (selected by pragma "
+                              f"{sel['pragmas']})]") from e
+    except (KeyError, TypeError, AttributeError, IndexError, ValueError) as e:
+        # I103: only under a pragma selection (an AST of another compiler line than the walker was built on): an
+        # AST shape the walker does not read is a refusal that names the release, never a crash
+        if sel is None:
+            raise
+        import traceback
+        tb = traceback.extract_tb(e.__traceback__)[-1]
+        raise ExtractionError(f"the walker does not read this solc {compiled.version.split('+', 1)[0]} AST: "
+                              f"{type(e).__name__} {e} at {Path(tb.filename).name}:{tb.lineno} ({tb.name})\n"
+                              f"[compiled by solc {compiled.version.split('+', 1)[0]} (selected by pragma "
+                              f"{sel['pragmas']})]") from e
     _validate(doc, root)
     return doc
 
