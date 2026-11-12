@@ -960,7 +960,21 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             attempts.append(intake.attempt(agent[0]))
         rec["status"] = status
         rec["attempts"] = attempts
-        kbound["laws"][lid] = {"model": model_src.stem, "cone": law_cone(law, cm.facts, stmt_text, model_src, cfg)}
+        ub = CR.unbound_error(stmt_text, model_src, cfg) if law_cone_needed(law, cm.facts) else None
+        if ub is not None:   # I115 (--unbound unknown): a law whose statement cannot be bound is UNKNOWN, its decision
+            # (if any) dropped: no law or proof file, no witness, the binding error its last attempt
+            status = "UNKNOWN"
+            for x in {d, ld, pd}:
+                shutil.rmtree(x, ignore_errors=True)
+            rec.update({"scope": "bounded", "bound": CR.UNBOUND_BOUND.format(ub), "witness": None, "difference": None,
+                        "triage": "none", "checker": {"exit_code": None, "marker": "not_run"},
+                        "kernel": {**rec["kernel"], "verdict": "not_run"},
+                        "artifacts": {**rec["artifacts"], "laws": None, "proof": None, "law_name": None}})
+            rec.pop("triage_why", None)
+            attempts.append({"kind": "binding", "error": ub})
+            rec["status"] = status
+        kbound["laws"][lid] = {"model": model_src.stem, "cone": [] if ub is not None else
+                               law_cone(law, cm.facts, stmt_text, model_src, cfg)}
         rec.update(records.v2_fields(law, rec, stmt_text, model_src, law["facts"], cm.artifact, ROOT,
                                      lean_entry=lean_entry_of(law, rec),
                                      ledger_required=not test_milestone(milestone),
@@ -1213,6 +1227,12 @@ def reach_search(em, cm: CompiledMachine, imp: str, ld: Path, pd: Path, cfg: dic
         if ok:
             return rr
     return None
+
+
+def law_cone_needed(law: dict, facts: dict) -> bool:
+    """law_cone's empty-cone case: a holon-ir/0.3 statement naming no model definition needs no binding check."""
+    from .gen.mlaws import BUILTINS
+    return not (law.get("ir_version") == "holon-ir/0.3" and set(R.refs(law, facts)) <= set(BUILTINS))
 
 
 def law_cone(law: dict, facts: dict, stmt_text: str, model_src: Path, cfg: dict) -> list[str]:

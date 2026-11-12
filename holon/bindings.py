@@ -968,9 +968,45 @@ def dump(obj) -> str:
     return json.dumps(obj, indent=1, sort_keys=True) + "\n"
 
 
+def unbound_path(m: str, root: Path) -> Path:
+    return Path(root) / BINDINGS_DIR / f"{m}.unbound.json"
+
+
+def bind_unbound_skip(m: str, root: Path) -> int:
+    """I115 (Q88 (2)): `holon bind --unbound skip`, the composed route's binding of its own milestone. Every law is
+    bound by bind_law as derive binds it; a law whose bind_law raises BindingError (its statement names a definition
+    its model does not define) is left out of spec/bindings/<m>.json and listed in spec/bindings/<m>.unbound.json
+    {law: error}; the creation is logged as derive's is. Only a milestone with no bindings file is bound this way: an
+    existing binding changes only through the statement lifecycle (main_bind, unchanged)."""
+    root = Path(root)
+    p = path(m, root)
+    if p.exists():
+        print(f"refusing --unbound skip: {p.relative_to(root)} exists (an existing binding changes only through the "
+              "statement lifecycle)", file=sys.stderr)
+        return 1
+    cfg = bend.config(root)
+    out, unbound = {}, {}
+    for law in ir.load_laws_any(m, root):
+        try:
+            out[law["law_id"]] = bind_law(law, m, root, cfg)
+        except BindingError as e:
+            unbound[law["law_id"]] = str(e)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(dump({"milestone": m, "kernel": "bendtt", "laws": dict(sorted(out.items()))}))
+    unbound_path(m, root).write_text(dump({"milestone": m, "laws": dict(sorted(unbound.items()))}))
+    with (root / CHANGES).open("a") as fh:
+        fh.write(json.dumps({"milestone": m, "created": True, "laws": sorted(out), "unbound": sorted(unbound),
+                             "reason": "initial binding (--unbound skip)"}, sort_keys=True) + "\n")
+    print(f"wrote {p.relative_to(root)}: {len(out)} laws bound, {len(unbound)} unbound "
+          f"({unbound_path(m, root).relative_to(root)})")
+    return 0
+
+
 def main_bind(args) -> int:
     root = Path(getattr(args, "root", None) or ROOT).resolve()
     m = args.milestone
+    if getattr(args, "unbound", None) == "skip":
+        return bind_unbound_skip(m, root)
     new = derive(m, root)
     p = path(m, root)
     log = root / CHANGES

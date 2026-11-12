@@ -565,6 +565,11 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
             if getattr(R, "run_outputs", None) and VAULT is not None:   # I112: each runner's own output (law ids)
                 (VAULT / entry["id"]).mkdir(parents=True, exist_ok=True)
                 (VAULT / entry["id"] / "run_outputs.json").write_text(dumps(R.run_outputs))
+            bdir = S / "spec" / "bindings"
+            if proto.get("bind") == "derived" and VAULT is not None:   # I115: the bindings name law ids (vault only)
+                for q in sorted(bdir.glob(f"{M}*.json")):
+                    (VAULT / entry["id"] / "bindings").mkdir(parents=True, exist_ok=True)
+                    shutil.copy(q, VAULT / entry["id"] / "bindings" / q.name)
         # copy the outputs
         for sub, frm in (("sidecars", S / rel / "sidecars"), ("facts", S / rel / "facts"), ("laws", S / "laws" / M),
                          ("gen", S / "gen" / M), ("records", S / "results" / M)):
@@ -590,6 +595,8 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
         row["compose"] = True
     if isinstance(stages.get("run"), dict) and "runners" in stages["run"]:   # I112: per-runner aggregates
         row["run_runners"] = stages["run"].pop("runners")
+    if isinstance(stages.get("bind"), dict) and "aggregate" in stages["bind"]:   # I115: laws bound, unbound, refused
+        row["bind"] = stages["bind"].pop("aggregate")
     row["stages"] = stages
     row["laws"] = law_rows(edir, entry["files"], row["locus"])
     if compose:   # I110 (b): every derived record carries the source of the role sidecars it was derived with
@@ -885,7 +892,8 @@ def runner_args(runner: str, proto: dict, ts: str, ds: str, fs: str) -> list[str
         return ["--sidecar", ts, "--fact-sidecar", fs]
     if runner == "typed":
         return ["--sidecar", ts]
-    return []
+    # I115 (Q88 (2)): the milestone runner checks each law's binding first (holon run --unbound unknown)
+    return ["--unbound", proto["run_unbound"]] if proto.get("run_unbound") else []
 
 
 def _run_routed(R: Runner, S: Path, M: str, proto: dict, laws: list[str], stages: dict, ts: str, ds: str, fs: str,
@@ -912,12 +920,70 @@ def _run_routed(R: Runner, S: Path, M: str, proto: dict, laws: list[str], stages
                       1 for i in recs if k == "disch" and any(isinstance(a, dict) and a.get("kind") == "section"
                                                               for a in common.load_json(S / "results" / M / f"{i}.json")
                                                               .get("attempts") or []))}
+        if proto.get("run_unbound"):   # I115: the laws UNKNOWN because their statement cannot be bound (an aggregate)
+            res[k]["binding_unknown"] = sum(1 for i in recs if any(
+                isinstance(a, dict) and a.get("kind") == "binding"
+                for a in common.load_json(S / "results" / M / f"{i}.json").get("attempts") or []))
     still = [lid for lid in laws if not (S / "results" / M / f"{lid}.json").is_file()]
     stages["run"] = {"status": "ok" if all(v["status"] == "ok" for v in res.values()) else "failed", "exit": None,
                      "detail": "per runner: " + json.dumps(res, sort_keys=True) + f"; {len(still)} laws with no record"}
     stages["run"]["runners"] = res
+    if proto.get("bind") == "derived":   # I115 (Q88 (2)): the composed route binds its own milestone, then checks
+        _bind(R, S, M, laws, stages)
     stages["replay"] = {"status": "not_applicable", "exit": None, "detail": proto["replay"]}
     stages["filter"] = {"status": "ok", "exit": None, "detail": proto["filter"]}
+
+
+# ---------------------------------------------------------------------------------------------- I115 (1): binding
+def _bind(R: Runner, S: Path, M: str, laws: list[str], stages: dict) -> None:
+    """Stage bind (protocol bind "derived"): holon bind --unbound skip over every derived law and the models the run
+    generated, in the scratch root (route A's milestones are bound the same way, into spec/bindings/<M>.json, which G2
+    checks), then binding_check over every record. The detail is aggregates only (the bindings name law ids: the vault
+    keeps them)."""
+    r = R.holon("bind", ["bind", "--milestone", M, "--root", str(S), "--unbound", "skip"], timeout_key="derive")
+    bp, up = S / "spec" / "bindings" / f"{M}.json", S / "spec" / "bindings" / f"{M}.unbound.json"
+    bound = (common.load_json(bp).get("laws") or {}) if bp.is_file() else {}
+    unbound = (common.load_json(up).get("laws") or {}) if up.is_file() else {}
+    refused = binding_check(S, M, laws)
+    agg = {"laws": len(laws), "bound": sum(1 for x in laws if x in bound), "unbound": sum(1 for x in laws if x in unbound),
+           "refused": refused}
+    stages["bind"] = {"status": r["status"], "exit": r["exit"], "aggregate": agg,
+                      "detail": f"holon bind --unbound skip: {r['status']} (exit {r['exit']}); " + json.dumps(agg, sort_keys=True)}
+
+
+def binding_check(S: Path, M: str, laws: list[str]) -> int:
+    """I115 (Q88 (2)): a PROVED or REFUTED record is admitted only when its law is bound in the scratch root's
+    spec/bindings/<M>.json with the record's statement_hash and artifacts.model; any other decided record is rewritten
+    UNKNOWN with the reason (its verdict, witness and law files dropped from the record). It can only remove decisions.
+    Returns the number of records refused."""
+    bp = S / "spec" / "bindings" / f"{M}.json"
+    bound = (common.load_json(bp).get("laws") or {}) if bp.is_file() else {}
+    n = 0
+    for lid in sorted(laws):
+        rp = S / "results" / M / f"{lid}.json"
+        if not rp.is_file():
+            continue
+        rec = common.load_json(rp)
+        if rec.get("status") not in ("PROVED", "REFUTED"):
+            continue
+        b = bound.get(lid)
+        art = rec.get("artifacts") or {}
+        why = ("the law is not bound" if b is None else
+               "its binding names another model" if b.get("model") != art.get("model") else
+               "its binding's statement hash differs from the record's" if b.get("statement_hash") !=
+               rec.get("statement_hash") else None)
+        if why is None:
+            continue
+        n += 1
+        rec.update({"status": "UNKNOWN", "scope": "bounded", "witness": None, "difference": None, "triage": "none",
+                    "bound": f"not decided: the binding check refuses the record: {why}",
+                    "kernel": {**(rec.get("kernel") or {}), "verdict": "not_run"},
+                    "checker": {"exit_code": None, "marker": "not_run"},
+                    "artifacts": {**art, "laws": None, "proof": None, "law_name": None},
+                    "attempts": list(rec.get("attempts") or []) + [{"kind": "binding_check", "error": why}]})
+        rec.pop("triage_why", None)
+        rp.write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
+    return n
 
 
 def store_large(edir: Path, limit: int) -> list:
@@ -999,8 +1065,11 @@ def preflight(proto: dict, sets: dict) -> dict | None:
                     line = subprocess.run([go, "version"], capture_output=True, text=True, timeout=60).stdout.strip()
                 except (OSError, subprocess.TimeoutExpired):
                     line = None
-            bins.append({"tool": "go", "version": v, "path": go, "version_line": line,
-                         "ok": line == r.get("version_line")})
+            b = {"tool": "go", "version": v, "path": go, "version_line": line, "ok": line == r.get("version_line")}
+            if proto.get("preflight_go") == "bin_sha256":   # I115 (Q87): the installed bin/go by its pinned sha256 too
+                got = common.sha256_file(Path(go)) if Path(go).is_file() else None
+                b.update({"bin_sha256": got, "ok": b["ok"] and got is not None and got == r.get("bin_sha256")})
+            bins.append(b)
     count = lambda t: {"checked": sum(b["tool"] == t for b in bins), "ok": sum(b["tool"] == t and b["ok"] for b in bins)}   # noqa: E731
     return {"status": "ok" if all(b["ok"] for b in bins) else "failed", "solc": count("solc"), "go": count("go"),
             "binaries": bins}
@@ -1038,6 +1107,10 @@ def cli_holon(argv: list[str]) -> int:
     sets_p = Path(os.environ.get("HOLON_TOOLCHAINS") or root / "config" / "toolchains.json")
     pf = preflight(proto, common.load_json(sets_p) if sets_p.is_file() else {})
     if pf is not None and pf["status"] != "ok":
+        if proto.get("preflight_go") == "bin_sha256":   # I115 (Q87): the refusal is recorded, nothing else written
+            o = (Path(a.out) if Path(a.out).is_absolute() else root / a.out) if a.out else root / proto["out"]
+            o.mkdir(parents=True, exist_ok=True)
+            (o / "preflight.json").write_text(dumps(pf))
         for b in pf["binaries"]:
             if not b["ok"]:
                 print(f"holon eval holon: preflight: {b['tool']} {b['version']} at {b['path']} is missing or not its "

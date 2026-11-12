@@ -230,6 +230,9 @@ def run(milestone: str = "M0", facts_path: str | None = None, out: str | None = 
 def main_run(args) -> int:
     try:
         only = [x.strip() for x in args.laws.split(",") if x.strip()] if getattr(args, "laws", None) else None
+        if getattr(args, "unbound", None):   # I115: a law that cannot be bound is UNKNOWN (holon.codecrun.UNBOUND)
+            from . import codecrun
+            codecrun.UNBOUND = args.unbound
         run(args.milestone, args.facts, args.out, args.gen_dir, args.no_registry, core=getattr(args, "core", "import"),
             only=only)
     except RegistryMismatch as e:
