@@ -10,7 +10,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | M3 | 52 | 326 | 288 | 52 |
 | M4 | 9 | 54 | 54 | 9 |
 | M5 | 8 | 41 | 22 | 6 |
-| M6 | 11 | 93 | 34 | 10 |
+| M6 | 12 | 105 | 37 | 11 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
 
@@ -122,6 +122,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I111 | M6 | I111: types totality (HUMAN_ANSWERS Q77, Q78): (1) a per-document holon types fallback under the typed sidecar's opt-in… | `prompts/I111_types_totality.md` | 14 | 3 | 1 | `docs/iterations/I111.md` |
 | I112 | M6 | I112: the run wall (HUMAN_ANSWERS Q80-Q85): (1) the composed driver's run step routes every law to the runner of its ru… | `prompts/I112_run_wall.md` | 14 | 3 | 1 | `docs/iterations/I112.md` |
 | I113 | M6 | I113: fresh sealed targets, second draw, by commit-reveal (HUMAN_ANSWERS Q54, Q55, Q86): 2 of 9 preregistered public sy… | `prompts/I113_sealed_targets.md` | 2 | 1 | 1 | none |
+| I115 | M6 | I115: the binding wall (HUMAN_ANSWERS Q88 (2), Q87): (1) the milestone runner checks each law's binding (the kernel con… | `prompts/I115_binding_wall.md` | 12 | 3 | 1 | `docs/iterations/I115.md` |
 | I50b | M4 | Held-out target, a contaminated rerun (I50b): two generic producer changes (a sorts rule for the frontend's update term… | `prompts/I50b_heldout_rerun.md` | 5 | 6 | 1 | `docs/iterations/I50b.md` |
 | I52b | M4 | Baselines on the held-out target (I52's held-out half): the nine I52 baselines at I52's equal budget on ScrollChain (th… | `prompts/I52b_heldout_baselines.md` | 6 | 7 | 1 | `docs/iterations/I52b.md` |
 | I54b | M5 | I54b: the corpus-truth key: I54's frozen truth protocol run on I48's 20 entries by two fresh labellers per entry, every… | `prompts/I54b_m5_truth_key.md` | 5 | 3 | 1 | `docs/iterations/I54b.md` |
