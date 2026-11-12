@@ -1,0 +1,289 @@
+{
+  "baseline": "echidna",
+  "budget": {
+    "cpus": 1,
+    "setup_cap_s": 3600,
+    "wall_s": 60
+  },
+  "protocol_sha256": "2289c62bb90173f781320a9e65c3ac9452e2e192eea80dd2d451846fde117d27",
+  "schema": "holon-baseline-findings/0.1",
+  "system": "heldout",
+  "targets": {
+    "scroll": {
+      "adjudications": [],
+      "budget_exhausted": false,
+      "commands": [
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_L1MessageQueueV1 --test-mode assertion --workers 1 --timeout 8 --test-limit 1000000000000 --format text --crytic-args --ignore-compile",
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_L1MessageQueueV1WithGasPriceOracle --test-mode assertion --workers 1 --timeout 8 --test-limit 1000000000000 --format text --crytic-args --ignore-compile",
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_L1MessageQueueV2 --test-mode assertion --workers 1 --timeout 7 --test-limit 1000000000000 --format text --crytic-args --ignore-compile",
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_L2GasPriceOracle --test-mode assertion --workers 1 --timeout 7 --test-limit 1000000000000 --format text --crytic-args --ignore-compile",
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_MultipleVersionRollupVerifier --test-mode assertion --workers 1 --timeout 6 --test-limit 1000000000000 --format text --crytic-args --ignore-compile",
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_ScrollChain --test-mode assertion --workers 1 --timeout 5 --test-limit 1000000000000 --format text --crytic-args --ignore-compile",
+        "/root/.holon/tools/echidna-2.4.0/echidna . --contract H_ScrollChainCommitmentVerifier --test-mode assertion --workers 1 --timeout 3 --test-limit 1000000000000 --format text --crytic-args --ignore-compile"
+      ],
+      "commit": "42de954bee237cfa478a5b443ac0aeb900aca5ad",
+      "detected": [],
+      "findings": [],
+      "located": [],
+      "matches": [],
+      "reason": null,
+      "scope": {
+        "dirs": [
+          "src/L1/rollup"
+        ],
+        "files": [
+          "src/L1/rollup/IL1MessageQueueV1.sol",
+          "src/L1/rollup/IL1MessageQueueV2.sol",
+          "src/L1/rollup/IL1MessageQueueWithGasPriceOracle.sol",
+          "src/L1/rollup/IL2GasPriceOracle.sol",
+          "src/L1/rollup/IScrollChain.sol",
+          "src/L1/rollup/L1MessageQueueV1.sol",
+          "src/L1/rollup/L1MessageQueueV1WithGasPriceOracle.sol",
+          "src/L1/rollup/L1MessageQueueV2.sol",
+          "src/L1/rollup/L2GasPriceOracle.sol",
+          "src/L1/rollup/MultipleVersionRollupVerifier.sol",
+          "src/L1/rollup/ScrollChain.sol",
+          "src/L1/rollup/ScrollChainCommitmentVerifier.sol"
+        ],
+        "harness": {
+          "L1MessageQueueV1": {
+            "forward": {
+              "appendCrossDomainMessage(address,uint256,bytes)": "appendCrossDomainMessage(address,uint256,bytes)",
+              "appendEnforcedTransaction(address,address,uint256,uint256,bytes)": "appendEnforcedTransaction(address,address,uint256,uint256,bytes)",
+              "check_appendCrossDomainMessage_0": "appendCrossDomainMessage(address,uint256,bytes)",
+              "check_appendEnforcedTransaction_1": "appendEnforcedTransaction(address,address,uint256,uint256,bytes)",
+              "check_dropCrossDomainMessage_4": "dropCrossDomainMessage(uint256)",
+              "check_finalizePoppedCrossDomainMessage_7": "finalizePoppedCrossDomainMessage(uint256)",
+              "check_initialize_10": "initialize(address,address,address,address,uint256)",
+              "check_popCrossDomainMessage_20": "popCrossDomainMessage(uint256,uint256,uint256)",
+              "check_renounceOwnership_21": "renounceOwnership()",
+              "check_resetPoppedCrossDomainMessage_22": "resetPoppedCrossDomainMessage(uint256)",
+              "check_transferOwnership_24": "transferOwnership(address)",
+              "check_updateGasOracle_25": "updateGasOracle(address)",
+              "check_updateMaxGasLimit_26": "updateMaxGasLimit(uint256)",
+              "dropCrossDomainMessage(uint256)": "dropCrossDomainMessage(uint256)",
+              "finalizePoppedCrossDomainMessage(uint256)": "finalizePoppedCrossDomainMessage(uint256)",
+              "initialize(address,address,address,address,uint256)": "initialize(address,address,address,address,uint256)",
+              "popCrossDomainMessage(uint256,uint256,uint256)": "popCrossDomainMessage(uint256,uint256,uint256)",
+              "renounceOwnership()": "renounceOwnership()",
+              "resetPoppedCrossDomainMessage(uint256)": "resetPoppedCrossDomainMessage(uint256)",
+              "transferOwnership(address)": "transferOwnership(address)",
+              "updateGasOracle(address)": "updateGasOracle(address)",
+              "updateMaxGasLimit(uint256)": "updateMaxGasLimit(uint256)"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          },
+          "L1MessageQueueV1WithGasPriceOracle": {
+            "forward": {
+              "appendCrossDomainMessage(address,uint256,bytes)": "appendCrossDomainMessage(address,uint256,bytes)",
+              "appendEnforcedTransaction(address,address,uint256,uint256,bytes)": "appendEnforcedTransaction(address,address,uint256,uint256,bytes)",
+              "check_appendCrossDomainMessage_0": "appendCrossDomainMessage(address,uint256,bytes)",
+              "check_appendEnforcedTransaction_1": "appendEnforcedTransaction(address,address,uint256,uint256,bytes)",
+              "check_dropCrossDomainMessage_4": "dropCrossDomainMessage(uint256)",
+              "check_finalizePoppedCrossDomainMessage_7": "finalizePoppedCrossDomainMessage(uint256)",
+              "check_initializeV2_11": "initializeV2()",
+              "check_initializeV3_12": "initializeV3()",
+              "check_initialize_10": "initialize(address,address,address,address,uint256)",
+              "check_popCrossDomainMessage_23": "popCrossDomainMessage(uint256,uint256,uint256)",
+              "check_renounceOwnership_24": "renounceOwnership()",
+              "check_resetPoppedCrossDomainMessage_25": "resetPoppedCrossDomainMessage(uint256)",
+              "check_setL2BaseFee_27": "setL2BaseFee(uint256)",
+              "check_transferOwnership_28": "transferOwnership(address)",
+              "check_updateGasOracle_29": "updateGasOracle(address)",
+              "check_updateMaxGasLimit_30": "updateMaxGasLimit(uint256)",
+              "check_updateWhitelistChecker_31": "updateWhitelistChecker(address)",
+              "dropCrossDomainMessage(uint256)": "dropCrossDomainMessage(uint256)",
+              "finalizePoppedCrossDomainMessage(uint256)": "finalizePoppedCrossDomainMessage(uint256)",
+              "initialize(address,address,address,address,uint256)": "initialize(address,address,address,address,uint256)",
+              "initializeV2()": "initializeV2()",
+              "initializeV3()": "initializeV3()",
+              "popCrossDomainMessage(uint256,uint256,uint256)": "popCrossDomainMessage(uint256,uint256,uint256)",
+              "renounceOwnership()": "renounceOwnership()",
+              "resetPoppedCrossDomainMessage(uint256)": "resetPoppedCrossDomainMessage(uint256)",
+              "setL2BaseFee(uint256)": "setL2BaseFee(uint256)",
+              "transferOwnership(address)": "transferOwnership(address)",
+              "updateGasOracle(address)": "updateGasOracle(address)",
+              "updateMaxGasLimit(uint256)": "updateMaxGasLimit(uint256)",
+              "updateWhitelistChecker(address)": "updateWhitelistChecker(address)"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          },
+          "L1MessageQueueV2": {
+            "forward": {
+              "appendCrossDomainMessage(address,uint256,bytes)": "appendCrossDomainMessage(address,uint256,bytes)",
+              "appendEnforcedTransaction(address,address,uint256,uint256,bytes)": "appendEnforcedTransaction(address,address,uint256,uint256,bytes)",
+              "check_appendCrossDomainMessage_0": "appendCrossDomainMessage(address,uint256,bytes)",
+              "check_appendEnforcedTransaction_1": "appendEnforcedTransaction(address,address,uint256,uint256,bytes)",
+              "check_finalizePoppedCrossDomainMessage_7": "finalizePoppedCrossDomainMessage(uint256)",
+              "check_initialize_12": "initialize()",
+              "check_renounceOwnership_18": "renounceOwnership()",
+              "check_transferOwnership_21": "transferOwnership(address)",
+              "finalizePoppedCrossDomainMessage(uint256)": "finalizePoppedCrossDomainMessage(uint256)",
+              "initialize()": "initialize()",
+              "renounceOwnership()": "renounceOwnership()",
+              "transferOwnership(address)": "transferOwnership(address)"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          },
+          "L2GasPriceOracle": {
+            "forward": {
+              "check_initialize_2": "initialize(uint64,uint64,uint64,uint64)",
+              "check_renounceOwnership_6": "renounceOwnership()",
+              "check_setIntrinsicParams_7": "setIntrinsicParams(uint64,uint64,uint64,uint64)",
+              "check_setL2BaseFee_8": "setL2BaseFee(uint256)",
+              "check_transferOwnership_9": "transferOwnership(address)",
+              "check_updateWhitelist_10": "updateWhitelist(address)",
+              "initialize(uint64,uint64,uint64,uint64)": "initialize(uint64,uint64,uint64,uint64)",
+              "renounceOwnership()": "renounceOwnership()",
+              "setIntrinsicParams(uint64,uint64,uint64,uint64)": "setIntrinsicParams(uint64,uint64,uint64,uint64)",
+              "setL2BaseFee(uint256)": "setL2BaseFee(uint256)",
+              "transferOwnership(address)": "transferOwnership(address)",
+              "updateWhitelist(address)": "updateWhitelist(address)"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          },
+          "MultipleVersionRollupVerifier": {
+            "forward": {
+              "check_renounceOwnership_5": "renounceOwnership()",
+              "check_transferOwnership_6": "transferOwnership(address)",
+              "check_updateVerifier_7": "updateVerifier(uint256,uint64,address)",
+              "renounceOwnership()": "renounceOwnership()",
+              "transferOwnership(address)": "transferOwnership(address)",
+              "updateVerifier(uint256,uint64,address)": "updateVerifier(uint256,uint64,address)"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          },
+          "ScrollChain": {
+            "forward": {
+              "addProver(address)": "addProver(address)",
+              "addSequencer(address)": "addSequencer(address)",
+              "check_addProver_0": "addProver(address)",
+              "check_addSequencer_1": "addSequencer(address)",
+              "check_commitAndFinalizeBatch_2": "commitAndFinalizeBatch(uint8,bytes32,tuple)",
+              "check_commitBatches_3": "commitBatches(uint8,bytes32,bytes32)",
+              "check_disableEnforcedBatchMode_5": "disableEnforcedBatchMode()",
+              "check_finalizeBundlePostEuclidV2_6": "finalizeBundlePostEuclidV2(bytes,uint256,bytes32,bytes32,bytes)",
+              "check_importGenesisBatch_8": "importGenesisBatch(bytes,bytes32)",
+              "check_initializeV2_11": "initializeV2()",
+              "check_initialize_10": "initialize(address,address,uint256)",
+              "check_removeProver_23": "removeProver(address)",
+              "check_removeSequencer_24": "removeSequencer(address)",
+              "check_renounceOwnership_25": "renounceOwnership()",
+              "check_revertBatch_26": "revertBatch(bytes)",
+              "check_setPause_27": "setPause(bool)",
+              "check_transferOwnership_29": "transferOwnership(address)",
+              "commitAndFinalizeBatch(uint8,bytes32,tuple)": "commitAndFinalizeBatch(uint8,bytes32,tuple)",
+              "commitBatches(uint8,bytes32,bytes32)": "commitBatches(uint8,bytes32,bytes32)",
+              "disableEnforcedBatchMode()": "disableEnforcedBatchMode()",
+              "finalizeBundlePostEuclidV2(bytes,uint256,bytes32,bytes32,bytes)": "finalizeBundlePostEuclidV2(bytes,uint256,bytes32,bytes32,bytes)",
+              "importGenesisBatch(bytes,bytes32)": "importGenesisBatch(bytes,bytes32)",
+              "initialize(address,address,uint256)": "initialize(address,address,uint256)",
+              "initializeV2()": "initializeV2()",
+              "removeProver(address)": "removeProver(address)",
+              "removeSequencer(address)": "removeSequencer(address)",
+              "renounceOwnership()": "renounceOwnership()",
+              "revertBatch(bytes)": "revertBatch(bytes)",
+              "setPause(bool)": "setPause(bool)",
+              "transferOwnership(address)": "transferOwnership(address)"
+            },
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          },
+          "ScrollChainCommitmentVerifier": {
+            "forward": {},
+            "fuzz": true,
+            "halmos": true,
+            "skipped": []
+          }
+        },
+        "labelled_files": [
+          "src/L1/rollup/ScrollChain.sol"
+        ],
+        "submodules": [
+          {
+            "commit": "978ac6fadb62f5f0b723c996f64be52eddba6801",
+            "fetched": true,
+            "path": "lib/forge-std",
+            "url": "https://github.com/foundry-rs/forge-std"
+          },
+          {
+            "commit": "c892309933b25c03d32b1b0d674df7ae292ba925",
+            "fetched": true,
+            "path": "lib/solmate",
+            "url": "https://github.com/transmissions11/solmate"
+          },
+          {
+            "commit": "e282159d5170298eb2455a6c05280ab5a73a4ef0",
+            "fetched": true,
+            "path": "lib/ds-test",
+            "url": "https://github.com/dapphub/ds-test"
+          }
+        ]
+      },
+      "seeds": {
+        "echidna": "none: echidna 2.4.0 refuses --seed with --timeout (a wall-clock budget makes runs non-deterministic); the budget wins"
+      },
+      "status": "run",
+      "units": [
+        {
+          "exit": 0,
+          "name": "L1MessageQueueV1",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "L1MessageQueueV1WithGasPriceOracle",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "L1MessageQueueV2",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "L2GasPriceOracle",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "MultipleVersionRollupVerifier",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "ScrollChain",
+          "timed_out": false
+        },
+        {
+          "exit": 1,
+          "name": "ScrollChainCommitmentVerifier",
+          "timed_out": false
+        }
+      ]
+    }
+  },
+  "tool": {
+    "installed": true,
+    "missing_reason": null,
+    "model_tag": null,
+    "name": "echidna",
+    "pins": {
+      "archive": "a77a90501dd6269e12807156e9d409b160ce0c87fbb36fe323a896a4fb7a2d1d",
+      "binary": "a3f1ff5116839965524af797702c1fa4e57793ece8d9cd5365c0381fea1a6da4"
+    },
+    "same_family": null,
+    "version": "2.4.0"
+  }
+}

@@ -1,0 +1,1273 @@
+{
+  "baseline": "spec_mining",
+  "budget": {
+    "cpus": 1,
+    "setup_cap_s": 3600,
+    "wall_s": 10620
+  },
+  "protocol_sha256": "2289c62bb90173f781320a9e65c3ac9452e2e192eea80dd2d451846fde117d27",
+  "schema": "holon-baseline-findings/0.1",
+  "system": "morph",
+  "targets": {
+    "morph": {
+      "adjudications": [
+        {
+          "attempts": [
+            {
+              "is_error": false,
+              "num_turns": 1,
+              "outcome": "ok",
+              "result": "{\"describes\": []}"
+            }
+          ],
+          "confirmed": [],
+          "findings": [
+            "f0029",
+            "f0030",
+            "f0031",
+            "f0032"
+          ],
+          "label": "O1",
+          "prompt_sha256": "e93abdd70a67962682810c33e7da31261de7a9481dc7cf519c7664edb181735c"
+        },
+        {
+          "attempts": [
+            {
+              "is_error": false,
+              "num_turns": 1,
+              "outcome": "ok",
+              "result": "{\"describes\": []}"
+            }
+          ],
+          "confirmed": [],
+          "findings": [
+            "f0033"
+          ],
+          "label": "O4",
+          "prompt_sha256": "3147e2419781acdcf39962660fa0bae03d8dea841c2649205b28e7138383d57f"
+        },
+        {
+          "attempts": [
+            {
+              "is_error": false,
+              "num_turns": 1,
+              "outcome": "ok",
+              "result": "{\"describes\": []}"
+            }
+          ],
+          "confirmed": [],
+          "findings": [
+            "f0018"
+          ],
+          "label": "O6",
+          "prompt_sha256": "be87ed0b7fab3c45748a893cb43536fcfd93c1ebb7e819026e9b8b26dc02c6ef"
+        },
+        {
+          "attempts": [
+            {
+              "is_error": false,
+              "num_turns": 1,
+              "outcome": "ok",
+              "result": "{\"describes\": []}"
+            }
+          ],
+          "confirmed": [],
+          "findings": [
+            "f0033"
+          ],
+          "label": "O7",
+          "prompt_sha256": "4d7f95a85d5e1a7af3f62c2f3c86daa1288913a6cdd10ead1abd40fbfac155a3"
+        },
+        {
+          "attempts": [
+            {
+              "is_error": false,
+              "num_turns": 1,
+              "outcome": "ok",
+              "result": "{\"describes\": []}"
+            }
+          ],
+          "confirmed": [],
+          "findings": [
+            "f0033"
+          ],
+          "label": "O8",
+          "prompt_sha256": "e008e6646c4dc9b4d4480dffece581f11994345a180bd39849a765f94ff3c686"
+        },
+        {
+          "attempts": [
+            {
+              "is_error": false,
+              "num_turns": 1,
+              "outcome": "ok",
+              "result": "{\"describes\": []}"
+            }
+          ],
+          "confirmed": [],
+          "findings": [
+            "f0029",
+            "f0030",
+            "f0031",
+            "f0032"
+          ],
+          "label": "O9",
+          "prompt_sha256": "319852535d3f03c0f26c10a077e5e7d455b9853b0cd36fe59c0c45aaba213b15"
+        },
+        {
+          "attempts": [
+            {
+              "is_error": false,
+              "num_turns": 1,
+              "outcome": "ok",
+              "result": "{\"describes\": []}"
+            }
+          ],
+          "confirmed": [],
+          "findings": [
+            "f0033"
+          ],
+          "label": "O24",
+          "prompt_sha256": "bd0249744d5ef3b5d2a9507db494146220bf94e01e7f4b1d2de9acef39ca9a39"
+        }
+      ],
+      "budget_exhausted": false,
+      "commands": [
+        "i52-gotool mine <checkout> common/batch node/derivation",
+        "baselines-py/python solmine.py <unit project> <out>"
+      ],
+      "commit": "3e44e795586af3e11285b603ab642c67823add51",
+      "detected": [],
+      "findings": [
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "ci.Uint64 -> fmt.Errorf",
+            "support": 4
+          },
+          "id": "f0001",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.initFromRollupSnapshot",
+              "lines": [
+                222,
+                222
+              ]
+            }
+          ],
+          "message": "ci.Uint64 is followed by fmt.Errorf in 3 of the 4 functions calling it, but not in BatchCache.initFromRollupSnapshot",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "ci.Uint64 -> new(big.Int).SetUint64",
+            "support": 4
+          },
+          "id": "f0002",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.initFromRollupSnapshot",
+              "lines": [
+                222,
+                222
+              ]
+            }
+          ],
+          "message": "ci.Uint64 is followed by new(big.Int).SetUint64 in 3 of the 4 functions calling it, but not in BatchCache.initFromRollupSnapshot",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "bc.isInitialized -> new(big.Int).SetUint64",
+            "support": 4
+          },
+          "id": "f0003",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.InitFromRollupByRange",
+              "lines": [
+                305,
+                305
+              ]
+            }
+          ],
+          "message": "bc.isInitialized is followed by new(big.Int).SetUint64 in 3 of the 4 functions calling it, but not in BatchCache.InitFromRollupByRange",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "bc.rollupContract.CommittedBatches -> fmt.Errorf",
+            "support": 4
+          },
+          "id": "f0004",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.checkBatchHashCorrect",
+              "lines": [
+                816,
+                816
+              ]
+            }
+          ],
+          "message": "bc.rollupContract.CommittedBatches is followed by fmt.Errorf in 3 of the 4 functions calling it, but not in BatchCache.checkBatchHashCorrect",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "bc.rollupContract.CommittedBatches -> new(big.Int).SetUint64",
+            "support": 4
+          },
+          "id": "f0005",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.checkBatchHashCorrect",
+              "lines": [
+                816,
+                816
+              ]
+            }
+          ],
+          "message": "bc.rollupContract.CommittedBatches is followed by new(big.Int).SetUint64 in 3 of the 4 functions calling it, but not in BatchCache.checkBatchHashCorrect",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8,
+            "subject": "bytes.Equal -> fmt.Errorf",
+            "support": 10
+          },
+          "id": "f0006",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.checkBatchHashCorrect",
+              "lines": [
+                820,
+                820
+              ]
+            }
+          ],
+          "message": "bytes.Equal is followed by fmt.Errorf in 8 of the 10 functions calling it, but not in BatchCache.checkBatchHashCorrect",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8333,
+            "subject": "big.NewInt -> int64",
+            "support": 18
+          },
+          "id": "f0007",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.getBatchBlockRange",
+              "lines": [
+                1119,
+                1119
+              ]
+            }
+          ],
+          "message": "big.NewInt is followed by int64 in 15 of the 18 functions calling it, but not in BatchCache.getBatchBlockRange",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8333,
+            "subject": "bc.getBatchStatusFromContract -> bc.getLegacyTransitionStatus",
+            "support": 6
+          },
+          "id": "f0008",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.getUnFinalizeBlockRange",
+              "lines": [
+                1132,
+                1132
+              ]
+            }
+          ],
+          "message": "bc.getBatchStatusFromContract is followed by bc.getLegacyTransitionStatus in 5 of the 6 functions calling it, but not in BatchCache.getUnFinalizeBlockRange",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8333,
+            "subject": "bc.getBatchStatusFromContract -> fmt.Errorf",
+            "support": 6
+          },
+          "id": "f0009",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.getUnFinalizeBlockRange",
+              "lines": [
+                1132,
+                1132
+              ]
+            }
+          ],
+          "message": "bc.getBatchStatusFromContract is followed by fmt.Errorf in 5 of the 6 functions calling it, but not in BatchCache.getUnFinalizeBlockRange",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "bc.CalculateCapWithProposalBlock -> fmt.Errorf",
+            "support": 4
+          },
+          "id": "f0010",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.FetchAndCacheHeader",
+              "lines": [
+                1340,
+                1340
+              ]
+            }
+          ],
+          "message": "bc.CalculateCapWithProposalBlock is followed by fmt.Errorf in 3 of the 4 functions calling it, but not in BatchCache.FetchAndCacheHeader",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "bc.CalculateCapWithProposalBlock -> log.Info",
+            "support": 4
+          },
+          "id": "f0011",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.FetchAndCacheHeader",
+              "lines": [
+                1340,
+                1340
+              ]
+            }
+          ],
+          "message": "bc.CalculateCapWithProposalBlock is followed by log.Info in 3 of the 4 functions calling it, but not in BatchCache.FetchAndCacheHeader",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "bc.PackCurrentBlock -> fmt.Errorf",
+            "support": 4
+          },
+          "id": "f0012",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.FetchAndCacheHeader",
+              "lines": [
+                1346,
+                1346
+              ]
+            }
+          ],
+          "message": "bc.PackCurrentBlock is followed by fmt.Errorf in 3 of the 4 functions calling it, but not in BatchCache.FetchAndCacheHeader",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8333,
+            "subject": "bc.l2Clients.BlockByNumber -> fmt.Errorf",
+            "support": 6
+          },
+          "id": "f0013",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.FetchAndCacheHeader",
+              "lines": [
+                1354,
+                1354
+              ]
+            }
+          ],
+          "message": "bc.l2Clients.BlockByNumber is followed by fmt.Errorf in 5 of the 6 functions calling it, but not in BatchCache.FetchAndCacheHeader",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "int64 -> fmt.Errorf",
+            "support": 16
+          },
+          "id": "f0014",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.FetchAndCacheHeader",
+              "lines": [
+                1354,
+                1354
+              ]
+            }
+          ],
+          "message": "int64 is followed by fmt.Errorf in 12 of the 16 functions calling it, but not in BatchCache.FetchAndCacheHeader",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.9091,
+            "subject": "new(big.Int).SetUint64 -> fmt.Errorf",
+            "support": 11
+          },
+          "id": "f0015",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.SealBatch",
+              "lines": [
+                1388,
+                1388
+              ]
+            }
+          ],
+          "message": "new(big.Int).SetUint64 is followed by fmt.Errorf in 10 of the 11 functions calling it, but not in BatchCache.SealBatch",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "bc.isInitialized -> bc.getBatchStatusFromContract",
+            "support": 4
+          },
+          "id": "f0016",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.AssembleCurrentBatchHeader",
+              "lines": [
+                2176,
+                2176
+              ]
+            }
+          ],
+          "message": "bc.isInitialized is followed by bc.getBatchStatusFromContract in 3 of the 4 functions calling it, but not in BatchCache.AssembleCurrentBatchHeader",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "bc.isInitialized -> bc.getLegacyTransitionStatus",
+            "support": 4
+          },
+          "id": "f0017",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_cache.go",
+              "function": "BatchCache.AssembleCurrentBatchHeader",
+              "lines": [
+                2176,
+                2176
+              ]
+            }
+          ],
+          "message": "bc.isInitialized is followed by bc.getLegacyTransitionStatus in 3 of the 4 functions calling it, but not in BatchCache.AssembleCurrentBatchHeader",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8,
+            "subject": "int -> fmt.Errorf",
+            "support": 5
+          },
+          "id": "f0018",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_data.go",
+              "function": "BatchData.DataHash",
+              "lines": [
+                74,
+                74
+              ]
+            }
+          ],
+          "message": "int is followed by fmt.Errorf in 4 of the 5 functions calling it, but not in BatchData.DataHash",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "s.mu.Unlock -> encodeBatchHeaderKey",
+            "support": 8
+          },
+          "id": "f0019",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_storage.go",
+              "function": "BatchStorage.StoreSealedBatch",
+              "lines": [
+                43,
+                43
+              ]
+            }
+          ],
+          "message": "s.mu.Unlock is followed by encodeBatchHeaderKey in 6 of the 8 functions calling it, but not in BatchStorage.StoreSealedBatch",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "s.mu.Unlock -> encodeBatchHeaderKey",
+            "support": 8
+          },
+          "id": "f0020",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_storage.go",
+              "function": "BatchStorage.ForceDeleteAllSealedBatches",
+              "lines": [
+                362,
+                362
+              ]
+            }
+          ],
+          "message": "s.mu.Unlock is followed by encodeBatchHeaderKey in 6 of the 8 functions calling it, but not in BatchStorage.ForceDeleteAllSealedBatches",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8333,
+            "subject": "s.mu.RUnlock -> isKVNotFound",
+            "support": 6
+          },
+          "id": "f0021",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_storage.go",
+              "function": "BatchStorage.ValidateExactKeySet",
+              "lines": [
+                381,
+                381
+              ]
+            }
+          ],
+          "message": "s.mu.RUnlock is followed by isKVNotFound in 5 of the 6 functions calling it, but not in BatchStorage.ValidateExactKeySet",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "s.loadBatchIndices -> fmt.Errorf",
+            "support": 8
+          },
+          "id": "f0022",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_storage.go",
+              "function": "BatchStorage.indicesSnapshotWith",
+              "lines": [
+                417,
+                417
+              ]
+            }
+          ],
+          "message": "s.loadBatchIndices is followed by fmt.Errorf in 6 of the 8 functions calling it, but not in BatchStorage.indicesSnapshotWith",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8,
+            "subject": "isKVNotFound -> fmt.Errorf",
+            "support": 10
+          },
+          "id": "f0023",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_storage.go",
+              "function": "BatchStorage.indicesSnapshotWith",
+              "lines": [
+                419,
+                419
+              ]
+            }
+          ],
+          "message": "isKVNotFound is followed by fmt.Errorf in 8 of the 10 functions calling it, but not in BatchStorage.indicesSnapshotWith",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "s.loadBatchIndices -> fmt.Errorf",
+            "support": 8
+          },
+          "id": "f0024",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_storage.go",
+              "function": "BatchStorage.indicesSnapshotWithout",
+              "lines": [
+                442,
+                442
+              ]
+            }
+          ],
+          "message": "s.loadBatchIndices is followed by fmt.Errorf in 6 of the 8 functions calling it, but not in BatchStorage.indicesSnapshotWithout",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8,
+            "subject": "isKVNotFound -> fmt.Errorf",
+            "support": 10
+          },
+          "id": "f0025",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_storage.go",
+              "function": "BatchStorage.indicesSnapshotWithout",
+              "lines": [
+                444,
+                444
+              ]
+            }
+          ],
+          "message": "isKVNotFound is followed by fmt.Errorf in 8 of the 10 functions calling it, but not in BatchStorage.indicesSnapshotWithout",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "s.mu.Unlock -> s.db.WriteBatch",
+            "support": 8
+          },
+          "id": "f0026",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_storage.go",
+              "function": "BatchStorage.StoreSealedBatchHeader",
+              "lines": [
+                482,
+                482
+              ]
+            }
+          ],
+          "message": "s.mu.Unlock is followed by s.db.WriteBatch in 6 of the 8 functions calling it, but not in BatchStorage.StoreSealedBatchHeader",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "s.mu.Unlock -> s.db.WriteBatch",
+            "support": 8
+          },
+          "id": "f0027",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/batch_storage.go",
+              "function": "BatchStorage.DeleteSealedBatchHeader",
+              "lines": [
+                547,
+                547
+              ]
+            }
+          ],
+          "message": "s.mu.Unlock is followed by s.db.WriteBatch in 6 of the 8 functions calling it, but not in BatchStorage.DeleteSealedBatchHeader",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "binary.Read -> extractInnerTxFullBytes",
+            "support": 4
+          },
+          "id": "f0028",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "common/batch/blob.go",
+              "function": "extractInnerTxFullBytes",
+              "lines": [
+                234,
+                234
+              ]
+            }
+          ],
+          "message": "binary.Read is followed by extractInnerTxFullBytes in 3 of the 4 functions calling it, but not in extractInnerTxFullBytes",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8,
+            "subject": "Rollup.batchBlobVersionedHashes guarded by modifier nonReqRevert",
+            "support": 5
+          },
+          "id": "f0029",
+          "kind": "belief-B4",
+          "locations": [
+            {
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "function": "Rollup.importGenesisBatch",
+              "lines": [
+                226,
+                226
+              ]
+            }
+          ],
+          "message": "4 of the 5 public writers of Rollup.batchBlobVersionedHashes carry modifier nonReqRevert; importGenesisBatch writes it without",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8,
+            "subject": "Rollup.batchBlobVersionedHashes guarded by modifier whenNotPaused",
+            "support": 5
+          },
+          "id": "f0030",
+          "kind": "belief-B4",
+          "locations": [
+            {
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "function": "Rollup.importGenesisBatch",
+              "lines": [
+                226,
+                226
+              ]
+            }
+          ],
+          "message": "4 of the 5 public writers of Rollup.batchBlobVersionedHashes carry modifier whenNotPaused; importGenesisBatch writes it without",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8333,
+            "subject": "Rollup.batchDataStore guarded by modifier nonReqRevert",
+            "support": 6
+          },
+          "id": "f0031",
+          "kind": "belief-B4",
+          "locations": [
+            {
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "function": "Rollup.importGenesisBatch",
+              "lines": [
+                226,
+                226
+              ]
+            }
+          ],
+          "message": "5 of the 6 public writers of Rollup.batchDataStore carry modifier nonReqRevert; importGenesisBatch writes it without",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8333,
+            "subject": "Rollup.batchDataStore guarded by modifier whenNotPaused",
+            "support": 6
+          },
+          "id": "f0032",
+          "kind": "belief-B4",
+          "locations": [
+            {
+              "file": "contracts/contracts/l1/rollup/Rollup.sol",
+              "function": "Rollup.importGenesisBatch",
+              "lines": [
+                226,
+                226
+              ]
+            }
+          ],
+          "message": "5 of the 6 public writers of Rollup.batchDataStore carry modifier whenNotPaused; importGenesisBatch writes it without",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8333,
+            "subject": "big.NewInt -> int64",
+            "support": 18
+          },
+          "id": "f0033",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/batch_info.go",
+              "function": "BatchInfo.ParseBatch",
+              "lines": [
+                225,
+                225
+              ]
+            }
+          ],
+          "message": "big.NewInt is followed by int64 in 15 of the 18 functions calling it, but not in BatchInfo.ParseBatch",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8,
+            "subject": "bytes.Equal -> fmt.Errorf",
+            "support": 10
+          },
+          "id": "f0034",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/batch_info.go",
+              "function": "blockContentMatches",
+              "lines": [
+                280,
+                280
+              ]
+            }
+          ],
+          "message": "bytes.Equal is followed by fmt.Errorf in 8 of the 10 functions calling it, but not in blockContentMatches",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "string -> fmt.Errorf",
+            "support": 4
+          },
+          "id": "f0035",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/blob_type.go",
+              "function": "Uint64String.UnmarshalText",
+              "lines": [
+                141,
+                141
+              ]
+            }
+          ],
+          "message": "string is followed by fmt.Errorf in 3 of the 4 functions calling it, but not in Uint64String.UnmarshalText",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "d.l2Client.BlockNumber -> d.logger.Error",
+            "support": 4
+          },
+          "id": "f0036",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/derivation.go",
+              "function": "NewDerivationClient",
+              "lines": [
+                184,
+                184
+              ]
+            }
+          ],
+          "message": "d.l2Client.BlockNumber is followed by d.logger.Error in 3 of the 4 functions calling it, but not in NewDerivationClient",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "d.l2Client.BlockNumber -> int64",
+            "support": 4
+          },
+          "id": "f0037",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/derivation.go",
+              "function": "NewDerivationClient",
+              "lines": [
+                184,
+                184
+              ]
+            }
+          ],
+          "message": "d.l2Client.BlockNumber is followed by int64 in 3 of the 4 functions calling it, but not in NewDerivationClient",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "int64 -> fmt.Errorf",
+            "support": 16
+          },
+          "id": "f0038",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/derivation.go",
+              "function": "Derivation.derivationBlock",
+              "lines": [
+                332,
+                332
+              ]
+            }
+          ],
+          "message": "int64 is followed by fmt.Errorf in 12 of the 16 functions calling it, but not in Derivation.derivationBlock",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8333,
+            "subject": "big.NewInt -> int64",
+            "support": 18
+          },
+          "id": "f0039",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/derivation.go",
+              "function": "Derivation.fetchRollupLog",
+              "lines": [
+                536,
+                536
+              ]
+            }
+          ],
+          "message": "big.NewInt is followed by int64 in 15 of the 18 functions calling it, but not in Derivation.fetchRollupLog",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "uint -> fmt.Errorf",
+            "support": 4
+          },
+          "id": "f0040",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/derivation.go",
+              "function": "unpackModernRollupCall",
+              "lines": [
+                701,
+                701
+              ]
+            }
+          ],
+          "message": "uint is followed by fmt.Errorf in 3 of the 4 functions calling it, but not in unpackModernRollupCall",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "int64 -> fmt.Errorf",
+            "support": 16
+          },
+          "id": "f0041",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/derivation.go",
+              "function": "Derivation.withReactorsQuiesced",
+              "lines": [
+                837,
+                837
+              ]
+            }
+          ],
+          "message": "int64 is followed by fmt.Errorf in 12 of the 16 functions calling it, but not in Derivation.withReactorsQuiesced",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "d.l1Client.HeaderByNumber -> fmt.Errorf",
+            "support": 4
+          },
+          "id": "f0042",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/finalizer.go",
+              "function": "Derivation.finalizerTick",
+              "lines": [
+                37,
+                37
+              ]
+            }
+          ],
+          "message": "d.l1Client.HeaderByNumber is followed by fmt.Errorf in 3 of the 4 functions calling it, but not in Derivation.finalizerTick",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "int64 -> fmt.Errorf",
+            "support": 16
+          },
+          "id": "f0043",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/finalizer.go",
+              "function": "Derivation.finalizerTick",
+              "lines": [
+                37,
+                37
+              ]
+            }
+          ],
+          "message": "int64 is followed by fmt.Errorf in 12 of the 16 functions calling it, but not in Derivation.finalizerTick",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.75,
+            "subject": "d.l1Client.HeaderByNumber -> d.logger.Info",
+            "support": 4
+          },
+          "id": "f0044",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/reorg.go",
+              "function": "Derivation.recordL1Blocks",
+              "lines": [
+                153,
+                153
+              ]
+            }
+          ],
+          "message": "d.l1Client.HeaderByNumber is followed by d.logger.Info in 3 of the 4 functions calling it, but not in Derivation.recordL1Blocks",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8,
+            "subject": "d.l2Client.HeaderByNumber -> d.logger.Error",
+            "support": 5
+          },
+          "id": "f0045",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/verify_local.go",
+              "function": "Derivation.fetchLocalLastHeader",
+              "lines": [
+                245,
+                245
+              ]
+            }
+          ],
+          "message": "d.l2Client.HeaderByNumber is followed by d.logger.Error in 4 of the 5 functions calling it, but not in Derivation.fetchLocalLastHeader",
+          "severity": null
+        },
+        {
+          "evidence": {
+            "confidence": 0.8,
+            "subject": "d.l2Client.HeaderByNumber -> d.logger.Info",
+            "support": 5
+          },
+          "id": "f0046",
+          "kind": "belief-B3",
+          "locations": [
+            {
+              "file": "node/derivation/verify_local.go",
+              "function": "Derivation.fetchLocalLastHeader",
+              "lines": [
+                245,
+                245
+              ]
+            }
+          ],
+          "message": "d.l2Client.HeaderByNumber is followed by d.logger.Info in 4 of the 5 functions calling it, but not in Derivation.fetchLocalLastHeader",
+          "severity": null
+        }
+      ],
+      "located": [
+        "O1",
+        "O4",
+        "O6",
+        "O7",
+        "O8",
+        "O9",
+        "O24"
+      ],
+      "matches": [
+        {
+          "finding": "f0018",
+          "how": "location",
+          "label": "O6"
+        },
+        {
+          "finding": "f0029",
+          "how": "location",
+          "label": "O1"
+        },
+        {
+          "finding": "f0029",
+          "how": "location",
+          "label": "O9"
+        },
+        {
+          "finding": "f0030",
+          "how": "location",
+          "label": "O1"
+        },
+        {
+          "finding": "f0030",
+          "how": "location",
+          "label": "O9"
+        },
+        {
+          "finding": "f0031",
+          "how": "location",
+          "label": "O1"
+        },
+        {
+          "finding": "f0031",
+          "how": "location",
+          "label": "O9"
+        },
+        {
+          "finding": "f0032",
+          "how": "location",
+          "label": "O1"
+        },
+        {
+          "finding": "f0032",
+          "how": "location",
+          "label": "O9"
+        },
+        {
+          "finding": "f0033",
+          "how": "location",
+          "label": "O4"
+        },
+        {
+          "finding": "f0033",
+          "how": "location",
+          "label": "O7"
+        },
+        {
+          "finding": "f0033",
+          "how": "location",
+          "label": "O8"
+        },
+        {
+          "finding": "f0033",
+          "how": "location",
+          "label": "O24"
+        }
+      ],
+      "reason": null,
+      "scope": {
+        "dirs": [
+          "common/batch",
+          "contracts/contracts/l1",
+          "contracts/contracts/l1/rollup",
+          "contracts/contracts/libraries/codec",
+          "node/derivation"
+        ],
+        "files": [
+          "common/batch/batch_cache.go",
+          "common/batch/batch_data.go",
+          "common/batch/batch_header.go",
+          "common/batch/batch_query.go",
+          "common/batch/batch_storage.go",
+          "common/batch/blob.go",
+          "common/batch/encoding.go",
+          "common/batch/interfaces.go",
+          "common/batch/l2_gov.go",
+          "contracts/contracts/l1/IL1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/L1Sequencer.sol",
+          "contracts/contracts/l1/rollup/IL1MessageQueue.sol",
+          "contracts/contracts/l1/rollup/IL1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/IRollup.sol",
+          "contracts/contracts/l1/rollup/ISubmitter.sol",
+          "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol",
+          "contracts/contracts/l1/rollup/Rollup.sol",
+          "contracts/contracts/l1/rollup/Submitter.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV1.sol",
+          "node/derivation/base_client.go",
+          "node/derivation/batch_info.go",
+          "node/derivation/beacon.go",
+          "node/derivation/blob_type.go",
+          "node/derivation/blobs.go",
+          "node/derivation/config.go",
+          "node/derivation/database.go",
+          "node/derivation/derivation.go",
+          "node/derivation/finalizer.go",
+          "node/derivation/metrics.go",
+          "node/derivation/reorg.go",
+          "node/derivation/tag_advance.go",
+          "node/derivation/verify.go",
+          "node/derivation/verify_local.go"
+        ],
+        "labelled_files": [
+          "common/batch/batch_cache.go",
+          "common/batch/batch_data.go",
+          "common/batch/batch_header.go",
+          "common/batch/blob.go",
+          "contracts/contracts/l1/L1CrossDomainMessenger.sol",
+          "contracts/contracts/l1/rollup/L1MessageQueueWithGasPriceOracle.sol",
+          "contracts/contracts/l1/rollup/MultipleVersionRollupVerifier.sol",
+          "contracts/contracts/l1/rollup/Rollup.sol",
+          "contracts/contracts/l1/rollup/Submitter.sol",
+          "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol",
+          "node/derivation/batch_info.go",
+          "node/derivation/derivation.go"
+        ]
+      },
+      "seeds": {},
+      "status": "run",
+      "units": [
+        {
+          "exit": 0,
+          "name": "go",
+          "timed_out": false
+        },
+        {
+          "exit": 0,
+          "name": "solidity",
+          "timed_out": false
+        }
+      ]
+    }
+  },
+  "tool": {
+    "installed": true,
+    "missing_reason": null,
+    "model_tag": null,
+    "name": "holon belief miner (gotool + slither API)",
+    "pins": {
+      "requirements": "131fa966f30822418e9e0706c1fcbb9a5eb2518fefd298e4f8a6651bfb10474c"
+    },
+    "same_family": null,
+    "version": "holon gotool + slither 0.11.6"
+  }
+}

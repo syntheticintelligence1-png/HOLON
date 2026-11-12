@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "HOLON I52 common findings schema: one baseline on one system (results/eval/<system>/<baseline>.json)",
+  "type": "object",
+  "required": ["schema", "baseline", "system", "protocol_sha256", "tool", "budget", "targets"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "holon-baseline-findings/0.1"},
+    "baseline": {"enum": ["slither", "echidna", "medusa", "hevm", "halmos", "go_fuzz", "two_cycle", "spec_mining", "agent_review"]},
+    "system": {"enum": ["morph", "corpus", "heldout"]},
+    "protocol_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "tool": {"$ref": "#/$defs/tool"},
+    "budget": {"$ref": "#/$defs/budget"},
+    "targets": {"type": "object", "additionalProperties": {"$ref": "#/$defs/target"}}
+  },
+  "$defs": {
+    "tool": {
+      "type": "object",
+      "required": ["name", "version", "pins", "installed", "same_family"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "pattern": "\\S"},
+        "version": {"type": "string", "pattern": "\\S"},
+        "pins": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[0-9a-f]{64}$"}},
+        "installed": {"type": "boolean"},
+        "missing_reason": {"type": ["string", "null"]},
+        "same_family": {"type": ["boolean", "null"]},
+        "model_tag": {"type": ["string", "null"]}
+      }
+    },
+    "budget": {
+      "type": "object",
+      "required": ["wall_s", "cpus", "setup_cap_s"],
+      "additionalProperties": false,
+      "properties": {
+        "wall_s": {"type": "integer"},
+        "cpus": {"type": "integer"},
+        "setup_cap_s": {"type": "integer"}
+      }
+    },
+    "location": {
+      "type": "object",
+      "required": ["file", "lines"],
+      "additionalProperties": false,
+      "properties": {
+        "file": {"type": "string", "pattern": "^[^/].*\\.(go|sol)$"},
+        "lines": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer"}},
+        "function": {"type": ["string", "null"]}
+      }
+    },
+    "finding": {
+      "type": "object",
+      "required": ["id", "kind", "message", "locations"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^f[0-9]{4}$"},
+        "kind": {"type": "string", "pattern": "\\S"},
+        "severity": {"type": ["string", "null"]},
+        "message": {"type": "string"},
+        "locations": {"type": "array", "items": {"$ref": "#/$defs/location"}},
+        "evidence": {}
+      }
+    },
+    "match": {
+      "type": "object",
+      "required": ["finding", "label", "how"],
+      "additionalProperties": false,
+      "properties": {
+        "finding": {"type": "string", "pattern": "^f[0-9]{4}$"},
+        "label": {"type": "string", "pattern": "^(c[0-9]{2}|O[0-9]+)$"},
+        "how": {"enum": ["location"]}
+      }
+    },
+    "adjudication": {
+      "type": "object",
+      "required": ["label", "findings", "confirmed", "prompt_sha256", "attempts"],
+      "additionalProperties": false,
+      "properties": {
+        "label": {"type": "string", "pattern": "^(c[0-9]{2}|O[0-9]+)$"},
+        "findings": {"type": "array", "items": {"type": "string", "pattern": "^f[0-9]{4}$"}},
+        "confirmed": {"type": "array", "items": {"type": "string", "pattern": "^f[0-9]{4}$"}},
+        "prompt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "attempts": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "target": {
+      "type": "object",
+      "required": ["status", "reason", "scope", "commands", "seeds", "findings", "matches", "adjudications", "located", "detected"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {"enum": ["run", "not_applicable", "missing", "error"]},
+        "reason": {"type": ["string", "null"]},
+        "budget_exhausted": {"type": ["boolean", "null"]},
+        "commit": {"type": ["string", "null"]},
+        "scope": {"type": "object"},
+        "commands": {"type": "array", "items": {"type": "string"}},
+        "seeds": {"type": "object"},
+        "units": {"type": "array", "items": {"type": "object"}},
+        "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+        "matches": {"type": "array", "items": {"$ref": "#/$defs/match"}},
+        "adjudications": {"type": "array", "items": {"$ref": "#/$defs/adjudication"}},
+        "located": {"type": "array", "items": {"type": "string", "pattern": "^(c[0-9]{2}|O[0-9]+)$"}},
+        "detected": {"type": "array", "items": {"type": "string", "pattern": "^(c[0-9]{2}|O[0-9]+)$"}}
+      }
+    }
+  }
+}

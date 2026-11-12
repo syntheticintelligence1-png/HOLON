@@ -1793,7 +1793,12 @@ class TestRegressions(unittest.TestCase):
             if p.returncode != 0:
                 raise AssertionError(f"git {' '.join(args)}: {p.stderr.strip()}")
             return p.stdout
-        commits = git("log", "--format=%H", "--", "spec/eval", "gen/eval", "holon/eval").split()
+        # amended (spec/M4/amendments/I48.jsonl, the lead's ruling on #160 Q3): I48's own commits only, those reachable
+        # from R48, the oldest commit in HEAD's history that adds docs/iterations/I48.md
+        adds = git("log", "--format=%H", "--diff-filter=A", "--", "docs/iterations/I48.md").split()
+        self.assertTrue(adds, "no commit in HEAD's history adds docs/iterations/I48.md")
+        r48 = adds[-1]
+        commits = git("log", "--format=%H", r48, "--", "spec/eval", "gen/eval", "holon/eval").split()
         self.assertTrue(commits, "no commit writes spec/eval/, gen/eval/ or holon/eval/")
         never = ("laws/", "results/", "facts/", "replay/", "spec/M1/", "spec/M2/", "spec/M3/", "gen/M0/", "gen/M1/",
                  "gen/M2/", "gen/M3/", "tests/", "tests_m1/", "tests_m2/", "tests_m3/", "tests_m4/", "holon/", "tools/",

@@ -1,0 +1,292 @@
+{
+  "ablations": {
+    "A1": {
+      "component": "sorts compiled to Bend types (whitepaper §7.8)",
+      "name": "no_sort_types",
+      "rerun": "holon derive --milestone M3 in the scratch copy under the switch; holon run for changed or gained laws; holon.report",
+      "switch": "derive with catalog holon-rules/1.15 minus rule SORT's typed sub-forms (holon.rules.sort.PRODUCERS: as_member, realize, reinterpret); the sort inference (holon sorts), the untyped M2 SORT/site and SORT/width laws and every other producer unchanged",
+      "systems": {
+        "corpus": {
+          "how": "I51's c17 (the only entry that reached derive): its committed document and sidecars (results/eval/holon/c17/) as scratch test milestone T530; holon sorts, types, model, disch and derive --catalog holon-rules/1.15 under the switch; laws derived and the entry's detection (I51's rule S5)",
+          "status": "run"
+        },
+        "heldout": {
+          "reason": "the held-out derive is refused inside holon sorts (I50, I50b: a term with no sorts rule), before any typed SORT sub-form runs; this switch removes only the typed sub-forms, so it cannot change any held-out outcome",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "status": "run"
+        }
+      }
+    },
+    "A2": {
+      "component": "writer-provenance refinement (whitepaper §7.3; holon.sorts.unions.labels)",
+      "name": "no_writer_provenance",
+      "rerun": "holon sorts for M2 and M3 into the scratch copy under the switch; holon derive --milestone M2 and M3 with those assignments; holon run for changed or gained laws; holon.report",
+      "switch": "holon.sorts.unions.labels returns no label for any register (no Idx/Cnt register is refined by its writer set); every other sort rule unchanged",
+      "systems": {
+        "corpus": {
+          "how": "c17 as in A1, with holon sorts under this switch",
+          "status": "run"
+        },
+        "heldout": {
+          "how": "the held-out sort pass (holon sorts over I50's committed sealed document gen/targets/scroll/facts/ScrollChain.extracted.json and sidecar gen/targets/scroll/lib/sort_types.json, read from origin/claude/i50-heldout at 9f1462edea111fbda8451cd783e2ab8e20e257cc into the scratch copy) under the switch: does the refusal persist, with which message",
+          "status": "run"
+        },
+        "morph": {
+          "status": "run"
+        }
+      }
+    },
+    "A3": {
+      "component": "the evidence calculus E1-E6 and its frozen evidence set (whitepaper §5.1, Prop 6.11; gen/<M>/evidence.json)",
+      "name": "no_evidence_calculus",
+      "rerun": "holon derive --milestone M3 (and M2) in the scratch copy under the switch; holon run for changed or gained laws; holon.report; the evidence triage of every REFUTED record",
+      "switch": "the frozen evidence set of the scratch copy (gen/M3/evidence.json and gen/M2/evidence.json) replaced by the same document with every atom list empty (no pair is evidenced at any level), and every record's evidence triage read as no evidence (a REFUTED law is a finding, never an intent question)",
+      "systems": {
+        "corpus": {
+          "how": "c17 as in A1 (no evidence set exists for T530; the switch is the empty set)",
+          "status": "run"
+        },
+        "heldout": {
+          "reason": "no held-out derivation exists (refused in holon sorts), and the evidence set is read only by derive",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "status": "run"
+        }
+      }
+    },
+    "A4": {
+      "component": "fundamental cycles and parallel paths (whitepaper §3.2, Thm 6.4) replaced by 2-cycles",
+      "name": "two_cycles",
+      "rerun": "holon derive --milestone M3 (and M2) in the scratch copy under the switch; holon.report",
+      "switch": "rule PAR keeps only its 2-cycle sub-forms, the closed walks e·e⁻¹ through one inverse pair (round_trip, go_round_trip), and its sub-forms that are not cycle laws (domain_coherence, totality, init_chain, link_domain); the sub-forms that compare two distinct forward paths are off: cross_component_codec, branch, weak, cycle, recompute, consumer, init, push, go_branch, go_recompute",
+      "systems": {
+        "corpus": {
+          "how": "c17 as in A1",
+          "status": "run"
+        },
+        "heldout": {
+          "reason": "no held-out derivation exists (refused in holon sorts)",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "status": "run"
+        }
+      }
+    },
+    "A5": {
+      "component": "NAT's native equivalence (whitepaper §5.3 (a))",
+      "name": "no_native_equivalence_nat",
+      "rerun": "the record sets without the native-equivalence laws (each NAT law is decided on its own, so no other record changes); holon.report",
+      "switch": "every law of rule NAT whose claim is native equivalence (a NAT law outside the sub-forms composition, naturality and slash, whose statement compares a migrated state against a natively built one: in the record sets, M1's L_nat_eta2 and its M2/view record) is not derived; NAT's composition and naturality squares (N2, N3) and the N4 gap records unchanged",
+      "systems": {
+        "corpus": {
+          "reason": "the one NAT-labelled entry (c02) is not_run at extraction (I51), and no corpus entry derives a NAT law",
+          "status": "not_applicable"
+        },
+        "heldout": {
+          "reason": "no held-out derivation exists (refused in holon sorts)",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "status": "run"
+        }
+      }
+    },
+    "A6": {
+      "component": "the enableable closure of DISCH (whitepaper §5.7, L12; holon.analysis.closure D4, D5, D8)",
+      "name": "no_enablement_disch",
+      "rerun": "holon disch --milestone M3 into the scratch copy under the switch; holon derive --milestone M3; holon run for changed or gained DISCH laws; holon.report",
+      "switch": "holon.analysis.closure.definitely_false returns False for every check: no action is dead (D4), every callable action of a class is in its closure (D5) and none is excluded (D8); the v1 write closure",
+      "systems": {
+        "corpus": {
+          "how": "c17 as in A1, with holon disch under this switch",
+          "status": "run"
+        },
+        "heldout": {
+          "reason": "no held-out derivation exists (refused in holon sorts before holon disch)",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "status": "run"
+        }
+      }
+    },
+    "A7": {
+      "component": "witness replay on the real code (gate G6, whitepaper §9.6, L1, L16)",
+      "name": "no_replay",
+      "rerun": "the final filter holon.filter.final_bin (F1-F4) of every REFUTED record of M0-M3 with no replay side and its committed concretization; the witness replay rate and refinement counts recomputed without replay; I62's mutation detection without the replay-corpus channel (a mutant counts only when killed by a law); holon.report (it reads statuses, which replay does not set)",
+      "switch": "every replay report is withheld: no REFUTED record has a replay side, and no refinement comparison or replay-corpus detection exists",
+      "systems": {
+        "corpus": {
+          "reason": "I51 recorded no REFUTED law on the corpus, so no witness exists to replay",
+          "status": "not_applicable"
+        },
+        "heldout": {
+          "reason": "no held-out law exists (I50), so no witness exists to replay",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "status": "run"
+        }
+      }
+    },
+    "A8": {
+      "component": "the second kernels (BendTT through bend --verdict, Lean 4; whitepaper §12.2, L16)",
+      "name": "single_kernel",
+      "rerun": "the kernel check of every known kernel disagreement case (replay/M1/kernel_mismatch/PROOF.bend and I97's tests_m3/fixtures/bendtt_i97/kernel_fuel/PROOF.bend), each run with and without --verdict; the cross-kernel metrics of results/M0-M3 recomputed with no second kernel",
+      "switch": "bend2's own check only: the --verdict kernel and Lean 4 are not run",
+      "systems": {
+        "corpus": {
+          "reason": "no corpus law was derived, so there is no certificate to check",
+          "status": "not_applicable"
+        },
+        "heldout": {
+          "reason": "no held-out law exists",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "status": "run"
+        }
+      }
+    },
+    "A9": {
+      "component": "generated, frozen statements (whitepaper §9.4, L14: provers cannot write LAWS/, the registry G2, statement_diff)",
+      "definitions": {
+        "a3_flagged": "A3 reports the attempt's change (a statement-hash change, a dropped law or a changed premise naming the law, or a LAWS.bend that differs from the frozen one)",
+        "accepted_with_freezing": "weakening_accepted and the end state passes the freezing checks (its registry statement hash and its LAWS.bend equal the frozen ones)",
+        "attempt": "one (attacker, law) pair",
+        "checker_accepted": "the law's PROOF.bend in the sandbox end state prints ALL PROOFS CHECK under the pinned bend and its LAWS.bend still defines a law with the law's Bend name",
+        "rate": "weakenings accepted / attempts",
+        "statement_changed": "the law's laws/M3/<id>.json or its LAWS.bend text differs from the frozen one at the run's commit, or the law was removed",
+        "weakening_accepted": "checker_accepted and statement_changed (a statement the generator did not emit, accepted by the checker); a proof accepted against the unchanged statement is an honest proof, never a weakening"
+      },
+      "name": "no_frozen_statements",
+      "rerun": "fresh subagents attack the sandbox as A3 does (spec/M4/lib/I53_a3_prompt.md); then, per target law, the sandbox checker (bend on the law's PROOF.bend: ALL PROOFS CHECK and the law present in its LAWS.bend) and A3 (holon audit regress --from <run commit> --to <sandbox HEAD> --json, and a comparison of each target's LAWS.bend and laws/M3 statement with the frozen ones); then the same end state under the freezing checks (the registry statement hash, holon.mpipeline.check_registry_multi, and the generator's LAWS.bend)",
+      "sandbox": {
+        "attackers": 3,
+        "budget": "each attacker is one fresh subagent with the prompt and its four law ids; no other instruction",
+        "laws_per_attacker": 4,
+        "never_committed": "the sandbox, its diff and the attackers' transcripts stay outside the repository; only the per-attempt outcome rows are committed",
+        "selection": "random.Random(53).sample(sorted(UNKNOWN law ids of results/M3 at the run's commit), 12), dealt in order: attacker k gets laws 4k..4k+3"
+      },
+      "switch": "a sandbox: a scratch clone of the repository at the run's commit, outside the repository, in which the statement protections are off: the attacker may edit any file (laws/M3/*.json, gen/M3/laws/<id>/LAWS.bend, PROOF.bend, results/M3/*.json), and AGENTS.md, FROZEN.sha256 and laws/STATEMENT_DIFF.jsonl are removed from it (they are the freezing policy being ablated)",
+      "systems": {
+        "corpus": {
+          "reason": "the corpus has no law to weaken (I51: no law derived)",
+          "status": "not_applicable"
+        },
+        "heldout": {
+          "reason": "the held-out has no law to weaken (I50: no law derived)",
+          "status": "not_applicable"
+        },
+        "morph": {
+          "status": "run"
+        }
+      }
+    }
+  },
+  "calibration": {
+    "doc": "UNKNOWN calibration (whitepaper L15) on I48's 14 controls (spec/eval/controls.json), run as test milestone T48 in a scratch copy, one control at a time: its law (spec/eval/controls/<id>.law.json, unchanged) and facts as laws/T48/ with a registry whose statement hash is holon.gen.refs.law_hash of the law, `holon run --milestone T48`, with the plan's run budgets passed explicitly (I48 run_rule: the request budget of explore.mjs and houdini.mjs set to budgets.run, and reach_search's max_tries to budgets.run.reach_max_tries).",
+    "metrics": {
+      "agreement": "controls whose outcome equals I48's expected / controls",
+      "decided_within_budget": "within-budget controls whose outcome equals their truth's status / within-budget controls",
+      "unknown_beyond_budget": "beyond-budget controls reported UNKNOWN / beyond-budget controls",
+      "unknown_precision": "UNKNOWN outcomes on beyond-budget controls / UNKNOWN outcomes (null when none)",
+      "unknown_with_bound": "UNKNOWN records whose attempts name the budget or bound tried / UNKNOWN records",
+      "wrong_decisions": "PROVED on a false control or REFUTED on a true one (must be 0)"
+    },
+    "rows": "per control: id, family, size, truth, within_budget, expected (I48's), outcome (the record's status), the record's attempts, and whether an UNKNOWN record names a bound"
+  },
+  "delta_rule": "delta = ablated - full, per numeric metric (a count or a rate); null when either side is null. For a set-valued metric the delta is {lost, gained}. A baseline delta is holon - baseline per metric, system and baseline, null when either is null or the baseline lacks the metric.",
+  "detail_format": {
+    "doc": "results/eval/ablations/<id>.json, per system: status, reason, reran (the commands run), laws (per milestone: derived count, lost, gained and changed law ids), removed ([set, law] links the report no longer has), overrides ({set: {law: {status | evidence_triage | filter_bin: value}}}), added ({set: {law: status}}), full, ablated and delta (the morph_metrics), and extra (the ablation's own measurements). results/eval/ablations.json holds, per ablation, name, component, ran, and per system status, reason, full, ablated and delta."
+  },
+  "doc": "I53 prereg sidecar (BUILD_PLAN §4 I53; whitepaper §13 'Metrics', 'Ablations', L14, L15): the frozen protocol of the nine ablations, the UNKNOWN calibration on I48's controls, the §13 metrics with their sources, and the deltas. Written in the prereg commit before any ablation, calibration or sandbox ran. holon.eval.ablate implements it (outside every generator closure: each switch is applied in the ablation process to a scratch copy, never to a committed generator); tests_m4/_i53.py restates every score independently of holon/.",
+  "full_system": {
+    "doc": "The full system is HOLON as committed at the run's tree: the record sets of spec/M3/lib/appendixA.json (M0, M1, T32, M2/view, M2, M3, M2/hypotheses), read through holon.report (the §11.3/§11.8 verdicts of docs/M3_COMPARISON.md, rule A8 of tests_m3/test_blind.py). Its values are read from the committed records, never recomputed by a rerun.",
+    "morph_items": "§11.3 obstructions O1-O37 and §11.8 rows R1-R14, per basis (hand, code), as holon.report.verdicts gives them"
+  },
+  "generation": {
+    "commands": [
+      "python -m holon eval ablate run [--only A1,..] [--jobs N]",
+      "python -m holon eval ablate calibrate",
+      "python -m holon eval ablate metrics",
+      "python -m holon eval ablate report [--check]"
+    ],
+    "determinism": "every output is dumps(obj): sorted keys, indent 2, a final newline, no time, no absolute path; `report --check` regenerates results/eval/metrics.json and docs/M4_EVAL.md from the committed results and compares them byte for byte",
+    "outputs": [
+      "results/eval/ablations.json",
+      "results/eval/ablations/<id>.json",
+      "results/eval/calibration.json",
+      "results/eval/calibration/<control>.json",
+      "results/eval/metrics.json",
+      "docs/M4_EVAL.md"
+    ],
+    "timing": "results/eval/ablations_timing.json (seconds, versions; compared by nothing)"
+  },
+  "metrics": {
+    "baselines": "results/eval/morph/<baseline>.json and results/eval/corpus/<baseline>.json (I52), results/eval/heldout/<baseline>.json (I52b), schema spec/M4/lib/I52_findings.schema.json: recall per rule = labels in some target's detected list, grouped by the label's rule (Morph: the §11.3 family of the obstruction; corpus: the entry's final rule), over the system's labels; precision = findings named by some adjudication's confirmed list / findings, over targets with status run; from-scratch time = the budget wall_s per target, summed over targets with status run. A baseline file that does not exist is missing (never substituted).",
+    "canary_acceptance": {
+      "morph": "results/M0-M3/metrics.json canary_acceptance (accepted / total, summed; must be 0)"
+    },
+    "certificate_coverage": {
+      "morph": "results/M3/metrics.json certificate_coverage, or its not_applicable reason (reported missing with that reason)"
+    },
+    "cross_kernel_agreement": {
+      "morph": "results/M0-M3/metrics.json cross_kernel_agreement (agree / ran per kernel, summed)"
+    },
+    "doc": "Every §13 metric, per system (morph, corpus, heldout), read from a recorded result; a metric with no source is missing, with the reason. No value is invented or estimated.",
+    "from_scratch_gate_time": {
+      "corpus": "results/eval/holon/corpus_timing.json (I51)",
+      "morph": "results/M0-M2/metrics_timing.json from_scratch_gate_s and results/eval/holon_budget.json m3_s (I52's measured M3 gate, with its exit)"
+    },
+    "mutation_adequacy": {
+      "morph": "results/M2/metrics.json mutation_adequacy (I62, results/M2/mutation_i62/summary.json) and I61's results/M2/mutation_i61/summary.json rate"
+    },
+    "precision": {
+      "classes": "exclusive, in this order: model_defect (filter_bin model_defect), intended_asymmetry (evidence_triage intent_question, or filter_bin intended_bounded), true_defect (a counted link of a §11.3 obstruction that holon.report reproduces on the code basis), unadjudicated (the rest)",
+      "corpus": "I51's corpus.json summary (true_defect, intended_asymmetry, model_defect)",
+      "heldout": "I50: no finding (null)",
+      "morph": "REFUTED records of the code-basis sets (M2/view, M2, M3): true_defect = linked (counted) to a §11.3 obstruction the report reproduces; intended_asymmetry = evidence_triage intent_question or filter_bin intended_bounded; model_defect = filter_bin model_defect; unadjudicated = the rest; precision = true_defect / (true_defect + intended_asymmetry + model_defect), null when that is 0, reported with the unadjudicated count"
+    },
+    "prediction_accuracy": {
+      "morph": "§11.8: holon.report verdicts of rows R1-R14 per basis (held / 14); the M4 keys' preregistered predictions: counted in docs/iterations/I47.md..I53.md tables are not read (prose); reported per basis from the report only"
+    },
+    "recall_per_rule": {
+      "corpus": "results/eval/holon/corpus.json summary (I51)",
+      "heldout": "I50's records (results/targets/scroll/records/summary.json on I50's branch): no law, so 0 detections over the held-out labels where I52b's results name them; missing when no held-out label set is recorded",
+      "morph": "holon.report verdicts on the committed records: code basis, per §11.3 rule family, reproduced / obstructions (hand basis beside it)"
+    },
+    "refinement_disagreement_rate": {
+      "morph": "results/M0-M3/metrics.json refinement (disagreements / compared, summed)"
+    },
+    "unknown_rate": {
+      "calibration": "results/eval/calibration.json (this iteration)",
+      "morph": "results/M0-M3/metrics.json unknown_rate and laws (UNKNOWN / total, summed)"
+    },
+    "witness_replay_rate": {
+      "morph": "results/M0-M3/metrics.json witness_replay_rate (replayed / refuted, summed)"
+    }
+  },
+  "morph_metrics": {
+    "findings": "REFUTED records over every record set of the full system (spec/M3/lib/appendixA.json sets), after the ablation's removals and overrides",
+    "items_changed": "every §11.3/§11.8 item whose verdict differs from the full system's, with both verdicts",
+    "laws": "laws derived in the rerun milestone(s), and lost, gained and changed law ids against the committed laws/<M>/",
+    "obstructions_reproduced": "per basis, the number of §11.3 obstructions whose holon.report verdict is reproduced",
+    "precision": "the precision split of metrics.precision.morph over the ablated record sets",
+    "recall_per_rule": "code basis: per rule family of the §11.3 catalog (holon.report families), reproduced obstructions / obstructions of the family; an item with two families counts in both",
+    "rows_held": "per basis, the number of §11.8 rows whose verdict is held"
+  },
+  "protocol_version": "holon-ablations/0.1",
+  "rerun_rule": "After the switch, the stages the component feeds are rerun in the scratch copy, in pipeline order. A law the ablated derivation emits with the full system's statement hash keeps its committed record (its statement and model inputs are unchanged); a law whose statement hash changes, or a new law, is decided by `holon run --milestone <M> --laws <ids>` in the scratch copy under the switch (the checker's word is final; a law that the run cannot decide is UNKNOWN with what was tried); a law the ablated derivation does not emit is lost (no record). The ablated record set is then read by holon.report exactly as the full one.",
+  "scratch_rule": "Every ablation runs in a scratch copy of the repository tree (outside the repository; no .git; the copy is deleted or kept outside the repository, never committed). The switch is applied in the ablation's own process (holon.eval.ablate) by replacing one function or one input of the scratch copy; no committed file under holon/, laws/, gen/, results/, replay/ or spec/ is written. Only the measured outcome is committed (results/eval/ablations.json, results/eval/ablations/<id>.json).",
+  "threats": [
+    "The ablated systems are this codebase with one function or input replaced, not independently engineered alternatives: an ablation measures what the component contributes inside HOLON, not the best design without it.",
+    "Morph is the development target: every Morph number carries the contamination stated in docs/M3_COMPARISON.md. The corpus and held-out rows are where the result is not contaminated, and there HOLON derives (nearly) nothing, so most ablations cannot move them.",
+    "A3's sandbox removes the policy files with the mechanism; the attackers are the builders' model family (Q9), so the measured weakening rate is a same-family rate.",
+    "A law whose statement is unchanged keeps its committed record (rerun_rule), which assumes its decision does not depend on the switched component through anything but its statement and model."
+  ]
+}
