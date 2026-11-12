@@ -13,7 +13,7 @@ Machines. A machine is a named struct type declared in a document package with a
 there (value or pointer receiver). Its state is its fields, one family per field, at slot = field index, offset 0 (an
 abstract layout: the families are independent cells; the Go zero value of each field is the model's zero storage). A
 field on which an action calls Get/Has/Set/Delete over []byte keys, directly or on a value an opaque call derives from
-it (the keeper pattern), is a KV family: a mapping from the key bytes to the value bytes (Get reads it, Has compares
+it (a store handle held in a field), is a KV family: a mapping from the key bytes to the value bytes (Get reads it, Has compares
 the read with the empty value, Set and Delete write it, Iterator and ReverseIterator read it opaquely; A-kv). Its actions are its exported
 methods; static calls of functions of the document's packages are inlined to the config's inline_depth (no recursion).
 
@@ -357,6 +357,7 @@ class Walker:
         self.inline_depth = int(limits.get("inline_depth", 4))
         self.ends: list[End] = []
         self.npaths = 0
+        self.members: dict = {}
         self.nonnil = nonnil_error_globals(prog) if not hasattr(prog, "_nonnil") else prog._nonnil
         prog._nonnil = self.nonnil
 
@@ -735,44 +736,67 @@ class Walker:
             return set(self.fnames)
         return set()
 
-    def addr_root(self, fr: Frame, o, st: PState, loose=False) -> set:
-        """The families an operand's value reaches, by its definition chain (statically)."""
-        seen = 0
-        x = o
-        while x and seen < 32:
-            seen += 1
-            if "param" in x:
-                v = fr.params[x["param"]] if x["param"] < len(fr.params) else None
-                return self.reach(v, st) if v is not None else set()
-            if "free" in x:
-                v = fr.free[x["free"]] if x["free"] < len(fr.free) else None
-                return self.reach(v, st) if v is not None else set()
-            if "v" in x:
-                if x["v"] in fr.regs and not (isinstance(fr.regs[x["v"]], list)):
-                    return self.reach(fr.regs[x["v"]], st)
-                d = fr.fn.defs.get(x["v"])
-                if d is None:
-                    return set(self.fnames)
-                if d.op == "FieldAddr" or d.op == "Field":
-                    base = d.operands[0]
-                    r = self.addr_root(fr, base, st, loose)
-                    if r == set(self.fnames) and self._is_recv(fr, base, st):
-                        i = d.get("field")
-                        return {self.fnames[i]} if i is not None and i < len(self.fnames) else r
-                    return r
-                if d.op in ("UnOp", "IndexAddr", "Index", "Lookup", "Slice", "ChangeType", "MakeInterface",
-                            "Convert", "Phi", "Extract", "TypeAssert"):
-                    out = set()
-                    for oo in d.operands[:1] if d.op != "Phi" else d.operands:
-                        out |= self.addr_root(fr, oo, st, loose)
-                    return out
-                if d.op in ("Alloc", "MakeMap", "MakeSlice", "MakeChan", "BinOp"):
-                    return set()
-                return set(self.fnames) if not loose else set()
-            if "global" in x:
-                return set(self.fnames) if not loose else set()
+    def addr_root(self, fr: Frame, o, st: PState, loose=False, seen=None) -> set:
+        """The families an operand's value reaches, by its definition chain (statically). A definition met again (a
+        cycle of phis through a loop) adds nothing new. loose: an operand handed to a call, where a scalar reaches
+        nothing; strict (a store's or map update's address): an unresolved address reaches every family."""
+        seen = set() if seen is None else seen
+        if not o:
+            return set()
+        if "param" in o:
+            v = fr.params[o["param"]] if o["param"] < len(fr.params) else None
+            return self.reach(v, st) if v is not None else set()
+        if "free" in o:
+            v = fr.free[o["free"]] if o["free"] < len(fr.free) else None
+            return self.reach(v, st) if v is not None else set()
+        if "global" in o:
+            return set(self.fnames) if not loose else set()
+        if "v" not in o:
+            return set()
+        name = o["v"]
+        if name in seen:
+            return set()
+        seen.add(name)
+        if name in fr.regs and not isinstance(fr.regs[name], (list, int)) and fr.regs[name] is not None:
+            return self.reach(fr.regs[name], st)
+        d = fr.fn.defs.get(name)
+        if d is None:
+            return set(self.fnames)
+        if d.op in ("FieldAddr", "Field"):
+            base = d.operands[0]
+            r = self.addr_root(fr, base, st, loose, seen)
+            if self._is_recv(fr, base, st):
+                i = d.get("field")
+                return {self.fnames[i]} if i is not None and i < len(self.fnames) else set(self.fnames)
+            return r
+        if d.op in ("UnOp", "IndexAddr", "Index", "Lookup", "Slice", "ChangeType", "MakeInterface", "ChangeInterface",
+                    "Convert", "Phi", "Extract", "TypeAssert"):
+            out = set()
+            for oo in (d.operands if d.op == "Phi" else d.operands[:1]):
+                out |= self.addr_root(fr, oo, st, loose, seen)
+            return out
+        if d.op in ("Alloc", "MakeMap", "MakeSlice", "MakeChan", "BinOp", "Const"):
+            return set()
+        if loose and not self._ref_type(d.type):
             return set()
         return set(self.fnames)
+
+    def _ref_type(self, t: str) -> bool:
+        """A type whose values can reach memory (pointers, maps, slices, channels, functions, interfaces, structs and
+        tuples holding them)."""
+        T = self.tv.T
+        if not t:
+            return True
+        if T.is_tuple(t):
+            return any(self._ref_type(x) for x in T.tuple_elems(t))
+        k = T.kind(t)
+        if k == "basic":
+            return False
+        if k == "struct":
+            return any(self._ref_type(f["type"]) for f in self.tv.struct_fields(t))
+        if k == "array":
+            return self._ref_type(T.elem(t))
+        return True
 
     def sval(self, fr: Frame, o, st: PState, depth=0):
         """The value an operand holds, by its definition chain (statically; None when not resolved)."""
@@ -1100,7 +1124,10 @@ class Walker:
             return None
         if mode == "invoke" and isinstance(recv, KVRef) and c.get("method") in KV_READERS:
             # the KV interface's iterators read the store: an opaque value, no write
-            r = ["call", f".{c.get('method')}", ["storage", recv.fam], *[self.term(a, pos) for a in args]]
+            name = f"{_otype(fr.fn, c.get('value'))}.{c.get('method')}"
+            sig = self.tv.T.entry(c.get("signature") or "")
+            self.member(name, ["*"] + list(sig.get("params") or []), list(sig.get("results") or []))
+            r = ["call", name, ["unknown", span_of(pos) or "?", "kv-handle"], *[self.term(a, pos) for a in args]]
             self._ret(fr, ins, Tup([["at", i, r] for i in range(len(self.tv.T.tuple_elems(ins.type)))])
                       if self.tv.T.is_tuple(ins.type) else ["unknown", span_of(pos) or "?", "iterator"])
             return None
@@ -1124,14 +1151,18 @@ class Walker:
             for a in args:
                 hit |= self.reach(a, st)
         self.taint(st, hit)
-        name = callee or (f"{c.get('method')}" if mode == "invoke" else "dynamic")
-        r = ["call", name, *[self.term(a, pos) for a in args]]
-        if mode == "invoke" and recv is not None:
-            r = ["call", f".{c.get('method')}", self.term(recv, pos), *[self.term(a, pos) for a in args]]
-            if isinstance(recv, (KVRef,)):
-                r = ["call", f".{c.get('method')}", ["storage", recv.fam], *[self.term(a, pos) for a in args]]
+        sig = self.tv.T.entry(c.get("signature") or "")
+        if mode == "invoke":
+            name = f"{_otype(fr.fn, c.get('value'))}.{c.get('method')}"
+            r = ["call", name, self.term(recv, pos) if not isinstance(recv, KVRef) else
+                 ["unknown", span_of(pos) or "?", "kv-handle"], *[self.term(a, pos) for a in args]]
+            self.member(name, ["*"] + list(sig.get("params") or []), list(sig.get("results") or []))
+        else:
+            name = callee or f"dynamic.{c.get('signature')}"
+            r = ["call", name, *[self.term(a, pos) for a in args]]
+            self.member(name, list(sig.get("params") or []), list(sig.get("results") or []))
         res = self.tv.T.tuple_elems(ins.type) if self.tv.T.is_tuple(ins.type) else None
-        # a value that an opaque call derives from a KV family or a state field handle (the keeper pattern)
+        # a value that an opaque call derives from a KV family or a state field handle (a store handle held in a field)
         kvsrc = [x.fam for x in ([recv] + args) if isinstance(x, KVRef)]
         if res:
             out = Tup([["at", i, r] for i in range(len(res))])
@@ -1145,6 +1176,17 @@ class Walker:
                 out = KVRef(f)
         self._ret(fr, ins, out)
         return None
+
+    def member(self, name: str, params: list, results: list) -> None:
+        """The ABI signature of a function a call term names (info.members; the model encodes a call's arguments with
+        it): a receiver ("*") and every parameter and result as its scalar ABI shape (an opaque word when it has none);
+        the selector is the first four bytes of keccak256 of the name."""
+        from ...keccak import keccak256
+        ins = [dict({"type": "uint256"} if t == "*" else self.tv.abi_scalar(t), name=f"a{i}") for i, t in enumerate(params)]
+        outs = [dict(self.tv.abi_scalar(t), name="") for t in results]
+        self.members[name] = {"name": name, "kind": "function", "visibility": "external", "mutability": "nonpayable",
+                              "selector": "0x" + keccak256(name.encode("utf-8"))[:4].hex(), "inputs": ins,
+                              "outputs": outs}
 
     def _ret(self, fr: Frame, ins, r):
         if ins.name:
@@ -1340,7 +1382,7 @@ def machine_document(prog: Program, tv: TypeView, cfg: dict, prov: dict, typ: st
             fam["value"] = types[t["value"]]["label"]
         storage.append(fam)
         layout.append({"label": f["name"], "slot": str(i), "offset": 0, "type": tid, "contract": short})
-    actions, debt, functions = [], [], {}
+    actions, debt, functions, members = [], [], {}, {}
     for fn in methods:
         w = Walker(prog, tv, pkset, typ, fields, kv, cfg["limits"])
         w._loops = {}
@@ -1350,6 +1392,8 @@ def machine_document(prog: Program, tv: TypeView, cfg: dict, prov: dict, typ: st
         except PathLimit:
             ends, limit = w.ends, True
         rec, d = action_record(w, fn, ends, limit, tv, [t for t in fn.results if t != "error"])
+        for k, v in w.members.items():
+            members[k] = [v]
         actions.append(rec)
         debt.extend(d)
         functions[fn.name] = {"name": fn.name, "kind": "function", "visibility": "external",
@@ -1357,13 +1401,17 @@ def machine_document(prog: Program, tv: TypeView, cfg: dict, prov: dict, typ: st
                               "inputs": [dict(tv.abi(pt), name=pn) for pn, pt in fn.params[1:]],
                               "outputs": [dict(tv.abi(t), name="") for t in fn.results if t != "error"],
                               "declared_in": short}
+    sels: dict = {}
+    for k, (v,) in sorted(members.items()):
+        if sels.setdefault(v["selector"], k) != k:
+            raise ExtractionError(f"{typ}: calls {sels[v['selector']]} and {k} share the selector {v['selector']}")
     assumptions = [{"id": k, "text": v} for k, v in sorted(ASSUMPTIONS.items())]
     if kv:
         assumptions.append({"id": KV_ASSUMPTION[0], "text": KV_ASSUMPTION[1]})
         assumptions.sort(key=lambda a: a["id"])
     info = {"info_version": INFO_VERSION, "contract": short, "unit": prov["unit"], "linearization": [short],
             "layout": {"storage": layout, "types": dict(sorted(types.items()))},
-            "functions": dict(sorted(functions.items())), "members": {}, "errors": {}, "events": {},
+            "functions": dict(sorted(functions.items())), "members": dict(sorted(members.items())), "errors": {}, "events": {},
             "immutables": {}}
     return {
         "facts_version": FACTS_VERSION,
