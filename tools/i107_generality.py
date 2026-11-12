@@ -99,7 +99,11 @@ def safe_row(r: dict) -> dict:
             miss = {"stage": "extract", "status": "not_run", "reason": (r.get("reason") or "")[:600]}
         else:
             miss = furthest(st)
-            if miss and miss["stage"] in ("run", "replay", "filter", "score"):
+            if not laws and (st.get("derive") or {}).get("status") == "ok":
+                miss = {"stage": "derive", "status": "ok",
+                        "reason": "derive completed and derived 0 laws: no producer of the catalog gives a law over the "
+                                  "extracted document(s); nothing to run"}
+            elif miss and miss["stage"] in ("run", "replay", "filter", "score"):
                 miss["reason"] = "the run decided or left UNKNOWN the derived laws; no detection (verdicts bundled, Q56)"
     return {"id": r["id"], "system": r.get("system"), "label": r.get("label"),
             "reached_extraction": r["status"] == "run",
@@ -120,6 +124,14 @@ def safe_row(r: dict) -> dict:
 def publish(run: str, src: Path, vault: Path) -> None:
     """Move route A's per-law outputs and raw corpus.json into the vault; commit aggregates and commitments."""
     raw = load(src / "corpus.json")
+    if raw is None:   # re-aggregate from the vault's raw copy (rows only; the bundles are unchanged)
+        raw = load(vault / run / f"{src.name}_corpus.json")
+        (OUT / run / f"{src.name}_aggregates.json").write_text(dumps({
+            "doc": f"I107 {run} route A aggregates (Q56): per-law outputs are bundled outside the repo",
+            "rows": [safe_row(r) for r in raw["rows"]], "toolchain": raw.get("toolchain"),
+            "holon_sha256": raw.get("holon_sha256"), "protocol_sha256": raw.get("protocol_sha256"),
+            "corpus_sha256": raw.get("corpus_sha256")}))
+        return
     v = vault / run
     v.mkdir(parents=True, exist_ok=True)
     bundles = load(OUT / "bundles.json") or {}
