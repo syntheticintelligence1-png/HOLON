@@ -1,0 +1,37 @@
+{
+  "carrier": {
+    "id": "MsgReader",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "github.com/ethereum/go-ethereum/p2p.MsgReader"
+  },
+  "component": "msg_reader_ops",
+  "document": "results/M6/I115/holon/c09/facts/go_1.go.extracted.json",
+  "document_sha256": "5b9210f21590c7b4789f0f7309ea5823b72c991665aa76b264d93bafc7c82e07",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "p2p_readProtocolHandshake": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "rw",
+          "type": "github.com/ethereum/go-ethereum/p2p.MsgReader"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "not_codec",
+      "results": [
+        "*github.com/ethereum/go-ethereum/p2p.protoHandshake",
+        "error"
+      ],
+      "sites": [],
+      "source": "github.com/ethereum/go-ethereum/p2p.readProtocolHandshake",
+      "span": "p2p/transport.go:154"
+    }
+  },
+  "results": {
+    "R_PtrProtoHandshake_Error": [
+      "*github.com/ethereum/go-ethereum/p2p.protoHandshake",
+      "error"
+    ]
+  }
+}

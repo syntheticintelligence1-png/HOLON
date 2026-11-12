@@ -298,6 +298,15 @@ jobs:
             # reveal, which follows I114's prereg (Q54 (d)), so it is not run here. Nothing here reads a candidate.
             timeout: 10
             run: python -m unittest tests_m6.test_i113_sealed.TestDraw tests_m6.test_i113_sealed.TestCandidates tests_m6.test_i113_sealed.TestSeal -v
+          - name: tests-m6-i115
+            # I115 (M6, the binding wall): (1) the milestone runner's binding check (holon run --unbound unknown: a
+            # law whose statement cannot be bound to its model is UNKNOWN, every other law decided; P1), the composed
+            # route's bind stage (holon bind --unbound skip) and binding check over every family (P2, P4), the planted
+            # mis-bound controls (P3); (2) Q87's go pins in the preflight (P5); the regressions (P6, P12, R1). The
+            # corpus and sealed measures (P7-P11; results/M6/I115) are the key's measured outcome, not run here.
+            # Nothing here analyses a sealed target (Q56 (5)).
+            timeout: 60
+            run: python -m unittest tests_m6.test_i115_binding_wall.TestUnbound tests_m6.test_i115_binding_wall.TestBind tests_m6.test_i115_binding_wall.TestBindingCheck tests_m6.test_i115_binding_wall.TestGoPins tests_m6.test_i115_binding_wall.TestRegressions -v
           - name: tests-m6-i104
             # I104 (M6): holon roles. The contract R1-R6 (TestBuild: determinism and the committed Morph roles, evidence,
             # names as tie-breakers, the proposal channel and its model-free provenance, hand sidecars win, no target

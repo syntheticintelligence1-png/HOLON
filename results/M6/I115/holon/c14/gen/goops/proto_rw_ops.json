@@ -1,0 +1,45 @@
+{
+  "carrier": {
+    "id": "protoRW",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/p2p.protoRW"
+  },
+  "component": "proto_rw_ops",
+  "document": "results/M6/I115/holon/c14/facts/go_1.go.extracted.json",
+  "document_sha256": "5a3c7cdb7b4c0e3f4285e7a751c304829f0b9cd4e7e9be285e0c693fa8e5de60",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "p2p_protoRW_ReadMsg": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "rw",
+          "type": "*github.com/ethereum/go-ethereum/p2p.protoRW"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "not_codec",
+      "results": [
+        "github.com/ethereum/go-ethereum/p2p.Msg",
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": null,
+          "id": "p2p/peer.go:471:20:panic",
+          "kind": "panic",
+          "status": "open",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.protoRW).ReadMsg",
+      "span": "p2p/peer.go:471"
+    }
+  },
+  "results": {
+    "R_Msg_Error": [
+      "github.com/ethereum/go-ethereum/p2p.Msg",
+      "error"
+    ]
+  }
+}
