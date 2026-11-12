@@ -260,8 +260,14 @@ class TestPlanted(_Fixture):
                          strip((B / "gen" / M / "sorts" / "models" / mn).read_text(encoding="utf-8")))
         for d in ("laws", "results"):
             for p in sorted((B / d / M).rglob("*")):
-                if p.is_file():
-                    self.assertNotIn("bank.Wiper.extracted", p.read_text(encoding="utf-8"), p.name)
+                if not p.is_file():
+                    continue
+                if p.name in ("DERIVATION.json", "REGISTRY.json"):   # the index: its laws entries, not its provenance
+                    idx = json.loads(p.read_text(encoding="utf-8"))
+                    per_law = [idx.get("laws"), idx.get("statements")]   # DERIVATION's laws, REGISTRY's statements
+                    self.assertNotIn("bank.Wiper.extracted", json.dumps(per_law), p.name)
+                    continue
+                self.assertNotIn("bank.Wiper.extracted", p.read_text(encoding="utf-8"), p.name)
         for p in sorted((B / "gen" / M / "sorts" / "models").glob("*")):
             self.assertNotIn("bank.Wiper.extracted", p.name)
 

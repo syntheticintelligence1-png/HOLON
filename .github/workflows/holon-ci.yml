@@ -246,6 +246,15 @@ jobs:
             # results/M6/I110) are the key's measured outcome and are not run here.
             timeout: 30
             run: python -m unittest tests_m6.test_i110_scale_composed.TestSortBudget tests_m6.test_i110_scale_composed.TestByteIdentity tests_m6.test_i110_scale_composed.TestNilMapsRecorded.test_p1_go_machines_output_names_nil_maps tests_m6.test_i110_scale_composed.TestComposedUnits tests_m6.test_i110_scale_composed.TestRegressions tests_m6.test_i110_scale_composed.TestQ74SpeedupIdentity -v
+          - name: tests-m6-i111
+            # I111 (M6, types totality): (1) the per-document holon types fallback under types_fallback "opaque" (P1:
+            # O1, O5-O7), its planted soundness fixtures (P2 a law over an opaque document alone, P3 a cross-document
+            # milestone, P4 a law that holds only if the opaque state is constrained), a Go document's null coverage
+            # field (P5) and the regressions (P6, R1); (2) the torsor-role search's decomposition D1: the planted
+            # blow-up (P11) and HUMAN_ANSWERS Q74 (2) / Q75 old-versus-new byte identity and units (P12, P13). The
+            # corpus and sealed measures (P7-P10, P14; results/M6/I111) are the key's measured outcome, not run here.
+            timeout: 60
+            run: python -m unittest tests_m6.test_i111_types_totality.TestFallback tests_m6.test_i111_types_totality.TestPlanted tests_m6.test_i111_types_totality.TestGoCoverage tests_m6.test_i111_types_totality.TestSearch tests_m6.test_i111_types_totality.TestSearchIdentity tests_m6.test_i111_types_totality.TestRegressions -v
           - name: tests-m6-i104
             # I104 (M6): holon roles. The contract R1-R6 (TestBuild: determinism and the committed Morph roles, evidence,
             # names as tie-breakers, the proposal channel and its model-free provenance, hand sidecars win, no target

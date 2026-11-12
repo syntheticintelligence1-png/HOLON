@@ -31,6 +31,7 @@ import sys
 from pathlib import Path
 
 from . import extracted as X
+from . import opaque
 from .model3 import GHOST_MARKER, GenError, documents_of, generate, init_of, model_name
 
 TYPES_VERSION = "holon-types/0.1"
@@ -98,16 +99,27 @@ def compute(milestone: str, root: Path, sidecar: str | None = None, facts: list 
         assignment = json.loads(asg_p.read_text(encoding="utf-8"))
     except (OSError, ValueError) as e:
         raise OSError(f"{asg_p}: {e}") from None
-    rels = documents_of(milestone, root, sidecar, facts)
+    fallback = sc.types_fallback if not facts else None   # I111 (Q77): the per-document fallback, opt-in only
+    rels = documents_of(milestone, root, sidecar, facts, all_documents=fallback is not None)
     inputs = {asg_p.relative_to(root).as_posix(): sha256_file(asg_p), sc.rel: sha256_file(sc.path),
               sc.seeds.relative_to(root).as_posix(): sha256_file(sc.seeds)}
     if sc.binding:
         inputs[sc.binding] = sha256_file(root / sc.binding)
     tmodels, xmodels = {}, {}
+    misses, typed_rels = [], []
     for rel in rels:
         inputs[rel] = sha256_file(root / rel)
         init = init_of(milestone, root, sidecar, rel)
-        text, mm = generate(milestone, root, rel, typed=True, sidecar=sidecar, init=init, assignment=assignment)
+        try:
+            text, mm = generate(milestone, root, rel, typed=True, sidecar=sidecar, init=init, assignment=assignment)
+        except GenError as e:
+            if fallback is None:
+                raise
+            # I111 O1: an ill-sorted document is opaque, a recorded miss (no model, no state, no action, no law)
+            misses.append({"document": rel, "sha256": inputs[rel], "model": model_name(rel),
+                           "term": opaque.term_of(str(e)), "reason": str(e)})
+            continue
+        typed_rels.append(rel)
         name = model_name(rel)
         regs = sorted(mm.basis.unions)
         ghosts = {r: "gc_" + re.sub(r"[^A-Za-z0-9_]", "_", r) for r in regs}
@@ -131,7 +143,10 @@ def compute(milestone: str, root: Path, sidecar: str | None = None, facts: list 
              "sorts_sha256": assignment.get("sorts_sha256"), "inputs": ins, "models": tmodels}
     taint_doc = {"document": "taint", "types_version": TYPES_VERSION, "milestone": milestone, "inputs": ins,
                  "models": xmodels}
-    return types, taint_doc
+    if fallback is not None:   # I111: only under the opt-in (without it types.json is byte-identical to before)
+        types["opaque"] = sorted(m["document"] for m in misses)
+        return types, taint_doc, opaque.record(milestone, assignment.get("sorts_sha256"), misses, typed_rels)
+    return types, taint_doc, None
 
 
 def main(argv=None) -> int:
@@ -152,7 +167,7 @@ def main(argv=None) -> int:
         mp = Path(a.model)
         mp = mp if mp.is_absolute() else Path.cwd() / mp
     try:
-        types, taint_doc = compute(a.milestone, root, a.sidecar, a.facts, mp)
+        types, taint_doc, op = compute(a.milestone, root, a.sidecar, a.facts, mp)
     except GenError as e:
         print(f"holon types: ill-sorted: {e}", file=sys.stderr)
         return 2
@@ -168,6 +183,10 @@ def main(argv=None) -> int:
     out.mkdir(parents=True, exist_ok=True)
     (out / "types.json").write_text(dumps(types), encoding="utf-8")
     (out / "taint.json").write_text(dumps(taint_doc), encoding="utf-8")
+    if op is not None:   # I111 O1: the recorded misses (always written under the opt-in, empty or not)
+        (out / "opaque.json").write_text(dumps(op), encoding="utf-8")
+        for m in op["documents"]:
+            print(f"holon types: opaque: {m['model']}: {m['reason']}")
     for m, x in sorted(types["models"].items()):
         print(f"holon types: {m}: {len(x['types'])} types, {len(x['ops'])} typed operations, {len(x['coercions'])} "
               f"coercions, {len(x['ghosts'])} companions, {len(x['external_guards'])} external guards")

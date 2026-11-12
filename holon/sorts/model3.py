@@ -2697,13 +2697,15 @@ def generate(milestone: str, root: Path, doc_rel: str, *, typed: bool = True, si
     return text, mm
 
 
-def documents_of(milestone: str, root: Path, sidecar: str | None, facts: list | None = None) -> list[str]:
+def documents_of(milestone: str, root: Path, sidecar: str | None, facts: list | None = None,
+                 all_documents: bool = False) -> list[str]:
+    """The typed documents (I111: under types_fallback "opaque", without the opaque ones; all_documents: every one)."""
     from .typed_sidecar import load as load_sidecar, rel_of
     root = Path(root)
     if facts:
         return [rel_of((root / f) if not Path(f).is_absolute() else Path(f), root) for f in facts]
     sc = load_sidecar(milestone, root, sidecar)
-    return [rel_of(p, root) for p in sc.documents]
+    return [rel_of(p, root) for p in (sc.all_documents if all_documents else sc.documents)]
 
 
 def init_of(milestone: str, root: Path, sidecar: str | None, doc_rel: str) -> dict:

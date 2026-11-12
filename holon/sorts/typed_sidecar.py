@@ -42,10 +42,28 @@ class Sidecar:
     rel: str
     doc: dict
     root: Path
+    milestone: str | None = None
+
+    @property
+    def all_documents(self) -> list[Path]:
+        """Every document the sidecar names (the sort pass and holon types read these)."""
+        return [self.root / d for d in self.doc.get("documents") or []]
 
     @property
     def documents(self) -> list[Path]:
-        return [self.root / d for d in self.doc.get("documents") or []]
+        """The documents the typed part reads: every one the sidecar names, except (I111, only under the opt-in
+        types_fallback "opaque") those the milestone's holon types made opaque (holon.sorts.opaque)."""
+        docs = self.all_documents
+        if self.types_fallback is None or self.milestone is None:
+            return docs
+        from . import opaque
+        out = opaque.excluded(self.milestone, self.root)
+        return [p for p in docs if rel_of(p, self.root) not in out] if out else docs
+
+    @property
+    def types_fallback(self) -> str | None:
+        from . import opaque
+        return opaque.mode(self.doc)
 
     @property
     def version(self) -> str:
@@ -96,4 +114,9 @@ def load(milestone: str, root: Path, sidecar: str | None = None) -> Sidecar:
     for k in ("documents", "seeds"):
         if k not in doc:
             raise SidecarError(f"{p}: no {k!r}")
-    return Sidecar(p, rel_of(p, root), doc, root)
+    from . import opaque
+    try:
+        opaque.mode(doc)   # I111: the only fallback is "opaque"
+    except ValueError as e:
+        raise SidecarError(f"{p}: {e}") from None
+    return Sidecar(p, rel_of(p, root), doc, root, str(milestone) if milestone is not None else None)
