@@ -162,7 +162,9 @@ class TestBuild(unittest.TestCase):
         prop = self._proposal(
             link={static_link["id"]: {"solidity": {"document": TH["morph_documents"][0], "constant": "X"},
                                       "go": {"document": go_doc, "global": "Y"}}},
-            go_ops={"planted_ops": {"document": go_doc, "carrier": "*planted.T"}})
+            go_ops={"planted_ops": {"document": H.load(OUT / "morph" / "go_ops.json")["document"],
+                                    "carrier": "io.Reader"},
+                    "planted_unbuildable": {"document": go_doc, "carrier": "*planted.T"}})
         with tempfile.TemporaryDirectory() as t:
             pp = Path(t) / "roles_proposed.json"
             pp.write_text(json.dumps(prop))
@@ -175,6 +177,7 @@ class TestBuild(unittest.TestCase):
             self.assertEqual(by[("link", static_link["id"])]["roles_source"], "static")
             self.assertEqual(by[("go_ops", "planted_ops")]["roles_source"], "ai_proposal")
             self.assertIn(("link", static_link["id"]), {(d["sidecar"], d["id"]) for d in m["dropped"]})
+            self.assertIn(("go_ops", "planted_unbuildable"), {(d["sidecar"], d["id"]) for d in m["dropped"]})
             r2 = run_roles(Path(t) / "s", "--proposed", str(pp))
             self.assertEqual(r2.returncode, 0, r2.stderr)
             self.assertNotIn("ai_proposal", {r["roles_source"] for r in H.load(Path(t) / "s" / "roles.json")["roles"]})
@@ -254,9 +257,13 @@ class TestPredictions(unittest.TestCase):
         self.assertGreaterEqual(len(same) / max(len(dep), 1), TH["rederived_min"])
         other = [r for r in rows if not r["role_dependent"] and r["hand_status"] in ("PROVED", "REFUTED")]
         self.assertTrue(all(r["law_same"] for r in other), [r["law_id"] for r in other if not r["law_same"]][:10])
+        comps = set(H.load(OUT / "morph" / "go_ops.json")["components"])
         for r in rows:
             if r["auto_status"] is not None and r["role_dependent"]:
-                self.assertIn(r["roles_source"], SOURCES, r)
+                law = H.load(ROOT / "laws" / "M3" / f"{r['law_id']}.json") if r["in_hand"] else {}
+                count = str(law.get("facts", "")).startswith("gen/M3/goops/") and \
+                    Path(law["facts"]).stem not in comps or law.get("subform") == "link_domain"
+                self.assertIn(r["roles_source"], {"hand"} if count else SOURCES, r)
 
     def test_p3_planted_wrong_roles_are_never_findings(self):
         rec = H.load(OUT / "planted.json")
