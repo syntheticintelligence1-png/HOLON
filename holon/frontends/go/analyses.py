@@ -103,7 +103,7 @@ class Analysis:
         paths, reason = None, None
         if isinstance(r, str):
             reason = r
-        elif self.codec_shaped(fn):
+        elif self.codec_shaped(fn) or self.ctx.typed_ops:   # I117: under ops "typed", every enumerated function
             paths = [to_json(p) for p in r.paths]
         else:
             reason = "not_codec"
@@ -114,6 +114,11 @@ class Analysis:
                  "params": [{"name": n, "type": t} for n, t in fn.params], "results": list(fn.results),
                  "loop_free": self.ctx.loop_free(fid) if fn.has_body else True,
                  "paths": paths, "paths_reason": reason, "sites": self.sites(fid)}
+        if self.ctx.typed_ops and paths is not None:   # I117 (ops "typed"): the types of the paths' terms
+            entry["typed"] = {"stale": r.stale,
+                              "terms": [[json.loads(k), t] for k, t in sorted(r.term_types.items())],
+                              "lengths": {n: self.ty.array_len(self.ty.pointer_elem(t) if t.startswith("*") else t)
+                                          for n, t in fn.params}}
         if self.ctx.config_version in ("holon-go-frontend/0.2", "holon-go-frontend/0.3"):   # I67: loop-body paths
             lb = self.loop_bodies(fid)
             if lb is not None:

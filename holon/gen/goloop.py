@@ -38,6 +38,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .. import bend
+from . import goint, gostraight
 
 ALIAS = "M"
 ROOT = Path(__file__).resolve().parents[2]
@@ -408,14 +409,40 @@ def op_text(sh: Shape) -> str:
 
 
 def shapes(doc: dict) -> dict:
-    """{op: Shape | Unsupported} of every op of a Go-op document."""
+    """{op: Shape | gostraight.Straight | Unsupported} of every op of a Go-op document. An op the frontend enumerated
+    under ops "typed" (its "typed" key) with no loop is tried in the straight-line class (I117); every other op as
+    before."""
     out = {}
     for name, op in sorted(doc["ops"].items()):
         try:
             out[name] = shape(name, op)
         except Unsupported as e:
             out[name] = e
+            if "typed" in op and not op.get("loop_bodies"):
+                try:
+                    out[name] = _straight(name, op)
+                except gostraight.Unsupported as e2:
+                    out[name] = Unsupported(f"{name}: straight-line class: {e2}")
+    sts = [s for s in out.values() if isinstance(s, gostraight.Straight)]
+    if sts:   # the field leaves' cells are the component's (one carrier value for every op), then each op is checked
+        slots, n = gostraight.field_slots(sts)
+        for name in sorted(out):
+            if isinstance(out[name], gostraight.Straight):
+                try:
+                    gostraight.finalize(out[name], slots, n)
+                except gostraight.Unsupported as e2:
+                    out[name] = Unsupported(f"{name}: straight-line class: {e2}")
     return out
+
+
+def _straight(name: str, op: dict):
+    if name in RESERVED or not IDENT.match(name) or name.startswith("gw_"):
+        raise gostraight.Unsupported(f"op name {name!r} is reserved or not an identifier")
+    return gostraight.shape(name, op, _outcome)
+
+
+def _any_straight(shs: dict) -> bool:
+    return any(isinstance(s, gostraight.Straight) for s in shs.values())
 
 
 PRELUDE_DEFS = ("eq_out", "eq_bool", "is_true")
@@ -438,8 +465,15 @@ def declared_bundle(doc: dict, rel: str, sha: str, root: Path) -> dict:
     "assumptions"), each introduced by the ops' definitions, and the model's own A-goloop-cells, A-goloop-outcome and
     A-goloop-sites. Every definition generate() writes is classified once: by an entry, or the prelude's equality
     utilities by the one no_assumption group."""
-    per_op = [op_defs(sh) for sh in shapes(doc).values() if not isinstance(sh, Unsupported)]
+    shs = shapes(doc)
+    per_op = [(gostraight.op_defs(sh) if isinstance(sh, gostraight.Straight) else op_defs(sh))
+              for sh in shs.values() if not isinstance(sh, Unsupported)]
     own = {"A-goloop-cells": ["St", "Res"], "A-goloop-outcome": ["Out", "is_panic"], "A-goloop-sites": []}
+    if _any_straight(shs):   # I117: the Go integer semantics the straight-line ops are written in
+        own["A-goint"] = list(gostraight.PRELUDE_DEFS)
+    fops = [s.op for s in shs.values() if isinstance(s, gostraight.Straight) and s.kind == "fields"]
+    if fops:   # I117 (Q91 (1)): guards over the carrier's fields
+        own["A-goloop-fields"] = sorted(fops)
     for d in per_op:
         for k, names in d.items():
             own[k] += names
@@ -468,7 +502,15 @@ def declared_bundle(doc: dict, rel: str, sha: str, root: Path) -> dict:
                             "OErr, ORet); the error's value and the returned bytes are not modelled (rule Y6).",
         "A-goloop-sites": "An op panics only at the bound sites the Go frontend cannot prove safe, by its path "
                           "enumeration's rule; memory the loop writes is read as at the loop's entry, so per-iteration "
-                          "writes are not tracked, and a loop-carried value is opaque (rule Y1)."}
+                          "writes are not tracked, and a loop-carried value is opaque (rule Y1).",
+        "A-goloop-fields": "A guard over the carrier's fields reads the leaves the component's ops read (integer and "
+                           "bool fields, a field's nil-ness, a field's len), each free; a nil receiver is not a value "
+                           "of the model (a nil dereference is not modelled), and no other field or memory is (I117).",
+        "A-goint": "A straight-line op's terms are Go integer operations with the Go specification's semantics "
+                   "(holon.gen.goint: wraparound, truncated division, shifts, conversions, comparisons), on the "
+                   "pinned toolchain's linux/amd64, where int, uint and uintptr are 64 bits; an op whose terms could "
+                   "panic (a division by a non-constant, a shift by a signed non-constant count) is not modelled, "
+                   "because the frontend's paths do not record the panic (I117)."}
     for k in sorted(own):
         entries.append({"id": k, "kind": "abstraction", "source": f"{rel}#/ops", "text": texts[k],
                         "introduced_by": sorted(own[k])})
@@ -485,9 +527,14 @@ def generate(doc: dict, sha: str) -> str:
     head = [f"# GENERATED by holon.gen.goloop from the Go-op document {doc['component']} (sha256 {sha}); do not edit.",
             "import Base", "", PRELUDE]
     body = []
-    for name, sh in shapes(doc).items():
+    shs = shapes(doc)
+    if _any_straight(shs):   # I117: only a document with a straight-line op carries the Go integer semantics
+        head += [goint.PRELUDE, gostraight.CELL_DEF]
+    for name, sh in shs.items():
         if isinstance(sh, Unsupported):
             body.append(f"# {name}: unsupported ({sh})\n")
+        elif isinstance(sh, gostraight.Straight):
+            body.append(gostraight.op_text(sh))
         else:
             body.append(op_text(sh))
     return "\n".join(head) + "\n" + "\n".join(body)
@@ -654,10 +701,18 @@ def candidates(cm: CompiledModel, named: list[str], n: int) -> list[tuple[str, l
     for name, sh in sorted(cm.shapes.items()):
         if isinstance(sh, Unsupported):
             continue
+        if isinstance(sh, gostraight.Straight):   # I117: the first sample point of each outcome
+            for o in OUTS:
+                w = sh.witness(o)
+                if w is not None and len(w) == n:
+                    out.append((f"the first sample point where {name} is {o}", w))
+            continue
         w = panic_witness(sh)
         if w is not None and len(w) == n:
             out.append((f"the smallest panic witness of {name}", w))
     first = cm.shapes[sorted(named)[0]]
+    if isinstance(first, gostraight.Straight):
+        return out
     c = all_continue(first)
     if c is not None and len(c) == n:
         out.append((f"the continue values of {first.op}", c))
@@ -683,17 +738,21 @@ def decide(law: dict, cm: CompiledModel, ld: Path, pd: Path, model_import_l: str
         return Decision("UNKNOWN", statement=stmt, attempts=[{"kind": "model", "error": f"cell maps differ: {maps}"}],
                         bound="not searched: the ops the law names read different cells of the carrier (stride, base "
                               "or count), so no cell sequence is one carrier value for all of them (rule Y6)")
-    n = next(iter(maps.values()))[2]
+    n = next(iter(maps.values()))[-1]
     attempts, tried = [], []
     try:
         cands = candidates(cm, cem.ops, n)
     except Unsupported as e:
         return Decision("UNKNOWN", statement=stmt, attempts=[{"kind": "model", "error": str(e)}],
                         bound=f"not searched: no candidate could be built ({e})")
+    first = cm.shapes[sorted(cem.ops)[0]]
+    fields = isinstance(first, gostraight.Straight) and first.kind == "fields"
+    top = 0xffffffff if fields else 255   # a witness is n byte cells, or n U32 cells of field leaves (I117)
     for what, cells in cands:
         tried.append(what)
-        if len(cells) != n or any(not (0 <= v <= 255) for v in cells):   # a witness is n byte cells
-            attempts.append({"kind": "refute", "candidate": what, "error": f"not {n} byte cells"})
+        if len(cells) != n or any(not (0 <= v <= top) for v in cells):
+            attempts.append({"kind": "refute", "candidate": what, "error": f"not {n} {'U32' if fields else 'byte'} "
+                                                                         "cells"})
             continue
         for x in {ld, pd}:
             shutil.rmtree(x, ignore_errors=True)
@@ -707,13 +766,15 @@ def decide(law: dict, cm: CompiledModel, ld: Path, pd: Path, model_import_l: str
             b = cem.binder
             lhs_t, rhs_t = law["statement"]["claim"]["eq"]
             out = cm.outcomes(cem.ops, cells)   # the record's difference is the compiled model's (m5)
-            mirror = {o: evaluate(cm.shapes[o], cells) for o in cem.ops}
+            mirror = {o: (cm.shapes[o].evaluate(cells) if isinstance(cm.shapes[o], gostraight.Straight)
+                          else evaluate(cm.shapes[o], cells)) for o in cem.ops}
             if mirror != out:
                 attempts.append({"kind": "mirror", "error": f"the shapes' evaluation {mirror} differs from the "
                                                              f"compiled model's {out}"})
             diff = {"lhs": side_value(out, lhs_t), "rhs": side_value(out, rhs_t)}
             return Decision("REFUTED", em=cem, statement=stmt, check=rr,
-                            witness={b: "0x" + bytes(cells).hex()}, difference=diff, attempts=attempts)
+                            witness={b: first.witness_value(cells) if fields else "0x" + bytes(cells).hex()},
+                            difference=diff, attempts=attempts)
     for x in {ld, pd}:
         shutil.rmtree(x, ignore_errors=True)
     return Decision("UNKNOWN", statement=stmt, attempts=attempts,

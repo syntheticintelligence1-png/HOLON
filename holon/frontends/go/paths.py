@@ -13,7 +13,8 @@ from __future__ import annotations
 from .ctx import Ctx, binary_op, site_pos
 from .flow import Flow
 from .ssaload import Func, Instr
-from .terms import (C0, NIL, UNKNOWN_CELL, Lengths, Reasoner, const, fold_atom, is_const, negate, op, plus, unop, wrap)
+from .terms import (C0, CMP_OPS, NIL, UNKNOWN_CELL, Lengths, Reasoner, const, fold_atom, is_const, key, negate, op, plus,
+                    unop, wrap)
 
 
 class PathLimit(Exception):
@@ -107,17 +108,19 @@ class Frame:
 
 
 class PState:
-    __slots__ = ("frames", "cond", "mem", "_r", "looped", "updates")
+    __slots__ = ("frames", "cond", "mem", "_r", "looped", "updates", "tstore")
 
     def __init__(self, frames, cond, mem):
         self.frames, self.cond, self.mem, self._r = frames, cond, mem, None
         self.looped = False      # loop-body mode (I67): this path has entered the loop header once
         self.updates = None      # I93 (0.3): the carried variables' values at the back edge of a continue path
+        self.tstore = False      # I117 (ops "typed"): memory no Ptr models may have changed on this path
 
     def fork(self) -> "PState":
         p = PState([f.copy() for f in self.frames], list(self.cond), dict(self.mem))
         p.looped = self.looped
         p.updates = self.updates
+        p.tstore = self.tstore
         return p
 
 
@@ -129,6 +132,8 @@ class Result:
         self.extra_sites: dict = {}       # site id -> (kind, bound) met only on paths
         self.unsupported: list = []
         self.carried: dict = {}           # I93 (0.3), loop-body mode: carried name -> its entry value (header order)
+        self.term_types: dict = {}        # I117 (ops "typed"): key(term) -> its Go type, or None when two types meet
+        self.stale = False                # I117: some path loads a term after a store or call that may change it
 
 
 class Enumerator:
@@ -234,7 +239,7 @@ class Enumerator:
     # ------------------------------------------------------------------ path bookkeeping
     def reasoner(self, st: PState) -> Reasoner:
         if st._r is None:
-            st._r = Reasoner(st.cond, self.nonnil)
+            st._r = Reasoner(st.cond, self.nonnil, self.ctx.typed_ops)
         return st._r
 
     def assume(self, st: PState, atom) -> None:
@@ -644,6 +649,8 @@ class Enumerator:
                 if dead:
                     return out
             r = self.exec(fr, ins, st)
+            if self.ctx.typed_ops:
+                self.note_types(fr, ins, st)
             if r is None:
                 fr.pc += 1
                 continue
@@ -711,6 +718,42 @@ class Enumerator:
     def unsupported(self, fr: Frame, ins: Instr, what: str) -> None:
         if fr.depth == 0:
             self.res.unsupported.append((site_pos(ins), what))
+
+    UNTYPED = ("const", "bool", "str", "nil", "unknown", "zero")
+
+    def note_types(self, fr: Frame, ins: Instr, st: PState) -> None:
+        """I117 (ops "typed"): the Go type of each term an instruction makes (an arithmetic op, a unary op, a
+        conversion, a load, an element or a field) and of each operand of a comparison, by the term's key. A term met
+        with two types is recorded as None (ambiguous). Constants are untyped (their type is their context's)."""
+        tt = self.res.term_types
+        if ins.op == "Store" and not isinstance(self.val(fr, ins.operands[0], st), Ptr):
+            st.tstore = True   # a store through memory the enumerator does not model (a parameter's)
+            return
+        if ins.op == "Call":
+            c = ins.call or {}
+            if not (c.get("mode") == "builtin" and c.get("callee") in ("len", "cap")):
+                st.tstore = True   # a call may change memory reachable from its arguments or globals
+            return
+        if st.tstore and ((ins.op == "UnOp" and ins.get("unop") == "*") or ins.op == "Field"):
+            v = fr.env.get(ins.name)
+            if isinstance(v, tuple) and v[:1] not in (("const",), ("unknown",)):
+                self.res.stale = True   # a load whose term would read the memory as before the store or call
+
+        def note(t, typ):
+            if not (isinstance(t, tuple) and t) or t[0] in self.UNTYPED or not typ:
+                return
+            k = key(t)
+            tt[k] = typ if tt.get(k, typ) == typ else None
+        if ins.op == "BinOp" and ins.get("binop") in CMP_OPS:
+            for x in ins.operands[:2]:
+                v = self.val(fr, x, st)
+                if isinstance(v, tuple):
+                    note(self.render(st, v), self.ctx.operand_type(fr.fn, x))
+            return
+        if ins.op in ("BinOp", "UnOp", "Convert", "Index", "Field") and ins.name:
+            v = fr.env.get(ins.name)
+            if isinstance(v, tuple):
+                note(v, ins.type)
 
     def exec(self, fr: Frame, ins: Instr, st: PState):
         o = ins.op
