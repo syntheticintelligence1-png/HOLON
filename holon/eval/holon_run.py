@@ -42,6 +42,7 @@ RULES = ("PAR", "SORT", "DISCH", "UNDO", "NAT", "FACT", "SYM", "OWN")
 CLASSES = ("true_defect", "intended_asymmetry", "model_defect", "unreplayed")
 COPY_DIRS = ("holon", "config", "spec", "bend", "schemas")
 _IGNORE = shutil.ignore_patterns("__pycache__", "*.pyc", "node_modules", "heldout")
+VAULT: Path | None = None   # I110 (--vault DIR): where withhold() keeps the withheld per-law outputs, outside the repo
 
 
 # ---------------------------------------------------------------------------------------------- small helpers
@@ -688,6 +689,10 @@ def withhold(row: dict, edir: Path) -> None:
         f["derived"] += 1
         f["decided" if x.get("status") in ("PROVED", "REFUTED") else "unknown"] += 1
     lines = []
+    if VAULT is not None:   # I110: the withheld per-law outputs kept outside the repository (--vault), never committed
+        for sub in ("laws", "records", "gen"):
+            if (edir / sub).is_dir():
+                shutil.copytree(edir / sub, VAULT / edir.name / sub, dirs_exist_ok=True)
     for sub in ("laws", "records"):
         d = edir / sub
         if d.is_dir():
@@ -813,7 +818,11 @@ def cli_holon(argv: list[str]) -> int:
                     help="I110 opt-in: the composed route A (the protocol's compose key): Go machines, the inferred roles "
                          "installed where no hand sidecar exists (--roles, default static), codecs or Go-op documents, "
                          "diagram and evidence, then sorts .. derive, run and replay")
+    ap.add_argument("--vault", help="with --roles: a directory outside the repository that keeps each entry's withheld "
+                                    "laws/, records/ and gen/ (Q56: the plaintext stays in the session)")
     a = ap.parse_args(argv)
+    global VAULT
+    VAULT = Path(a.vault).resolve() if a.vault else None
     if a.compose and a.roles == "off":
         a.roles = "static"
     roles = None if a.roles == "off" else {"mode": a.roles, "proposed": a.proposed}
