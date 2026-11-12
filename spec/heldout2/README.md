@@ -1,8 +1,11 @@
-# spec/heldout2: I106's fresh sealed targets (sealed, not revealed)
+# spec/heldout2: I106's fresh sealed targets (revealed)
 
 HUMAN_ANSWERS Q54 (the lead's delegated ruling, 2026-11-12), docs/BUILD_PLAN.md §4 I106 and "M6: generality".
 
-## State: SEALED
+## State: REVEALED
+
+Sealed in `d89fb163`, revealed in `7d78b3b4` (2026-11-12) after I107's prereg `480516bb` and I108's landing `b65a863c`.
+`target.json` and `salt.txt` are here now, and `verify` prints VERIFY OK. After the reveal, only I107 reads the targets.
 
 | Item | Value |
 |---|---|
@@ -12,8 +15,9 @@ HUMAN_ANSWERS Q54 (the lead's delegated ruling, 2026-11-12), docs/BUILD_PLAN.md 
 | sha256(salt) | `8c0a8625bf8f60785a0dfdcdeff8f7c116d0a6afbdfc79021fb65ccaf50d3e3c` (the prereg key's) |
 | sha256(target.json) | `f74d45b02f0613f3a701beb24294df6fa53231bbd75ffb021ed5868696a78273` |
 
-`commitment.json` holds these values. The salt and `target.json` (2 targets drawn from the 9 candidates, each pinned by
-`git ls-remote` to a release tag or a default branch, with its commit) exist only in the sealer's session.
+`commitment.json` holds these values. Until the reveal, the salt and `target.json` (2 targets drawn from the 9
+candidates, each pinned by `git ls-remote` to a release tag or a default branch, with its commit) existed only in the
+sealer's session.
 
 ## The sole-reader rule
 

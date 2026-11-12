@@ -1,0 +1,116 @@
+{
+ "protocol_version": "holon-i107/0.1",
+ "iteration": "I107",
+ "doc": "I107 prereg instrument: the generality run's protocol, written before the reveal of I106's sealed targets (spec/heldout2/target.json and salt.txt), blind to them: the only things known of the sealed targets at this commit are spec/heldout2/commitment.json and I106's public candidate list (spec/M6/lib/I106_candidates.json, 9 contract-system repositories). The key is spec/M6/predictions/I107.json; the contract is the docstring of tests_m6/test_i107_generality.py. Every outcome is generated under results/eval/generality/. No number here is a gate: a miss is a result (BUILD_PLAN M6 exit).",
+ "base": {
+  "lead": "claude/holon-v2-bend2-c6z3cd at c2cd112c",
+  "merged": [
+   "claude/i53-ablations-metrics (with I52, I52b)",
+   "claude/i103-frontend-reach",
+   "claude/i104-role-inference",
+   "claude/i105-go-machines",
+   "claude/i106-sealed-targets (the commitment only, pre-reveal)"
+  ],
+  "rule": "the tools are the merged branches' tools, unchanged. No tool is tuned during the run: a tool bug that blocks a run is a miss with its stage and reason, and its fix belongs to a later key.",
+  "snapshot": {
+   "rule": "The measured runs use the M6 tools as landed on the lead after I108 (pipeline totality, pass 2: signed-operator sort rules, SP_b string/bytes-keyed mappings, foundry remappings and git submodules (Q59), SYM per model (Q58), Go machines' constructor state and nil maps (Q60)), merged into this branch. At run start, results/eval/generality/snapshot.json records the lead's sha, this branch's HEAD sha and the sha256 of every file under holon/ (sorted paths). From the reveal until the runs finish no M6 tool code changes; a blocking bug is a miss.",
+   "run_protocol_base": "spec/M6/lib/i108_run.json (A3, Q64), I108's landed corpus protocol; i107_corpus_run.json and i107_sealed_run.json are regenerated from it at the snapshot, differing only in corpus, doc, iteration and out, and so inherit its go_machines.nil_maps \"unknown\" and its Q59 remapping and submodule rules (read at the pinned commit only, nothing invented, each submodule's URL and commit recorded), for the corpus and the sealed targets alike.",
+   "rehearsal": "route A on the corpus and Morph's --roles auto were started on the pre-I108 tree (480516bb's base) before A2 arrived; those runs are rehearsals, kept in the session's scratch directory, never committed or counted.",
+   "run_protocol_base_path": "spec/M6/lib/i108_run.json",
+   "drop_keys": [
+    "stop_after"
+   ]
+  }
+ },
+ "routes": {
+  "doc": "No single driver of the merged tree composes I103, I104 and I105 end to end, so the measured route is the three drivers the keys built, each run unchanged, composed per entry by union of their outputs. tools/i107_generality.py (written after this prereg, before any measured run, touching nothing under holon/) only invokes them and assembles the outcomes.",
+  "A": "python -m holon eval holon --protocol <run protocol> --roles static: checkout, extraction (I103's pragma-selected solc set and go-directive go set, go.work rule main_module), holon roles over the stored documents (I104, recorded per row; holon eval holon does not install them, so derive reads the protocol's generic sidecars), sorts (I103's total pass, holon-sort-types/0.3), types, model, disch, derive (holon-rules/1.15), run, replay (binding null: not_applicable), filter and I51's scorer. Decided laws are route A's.",
+  "B": "python -m holon eval go-machines --entries <Go entries> --out results/eval/generality/corpus/go_machines.json: I105's Go machine frontend and its typed stages through derive, as I105's driver pins them (its own protocol). It derives and does not run: its laws are counted, not decided. Under A3 (Q64) it runs only with go_machines.nil_maps \"unknown\" (i108_run.json's); if its driver cannot take that key it is not run, and is recorded as a miss with that reason.",
+  "C": "the role-installing derive of I104's smoke route (tools/i104_roles_experiment.py smoke, its stage list unchanged), over the documents route A stored for the entry: holon roles --install (mode static) into a scratch milestone M9, codecs or goops, diagram, evidence, the typed stages when a transitions document exists, derive --catalog holon-rules/1.16. Its laws are counted, not decided; it is the only route in which inferred roles reach a rule producer.",
+  "union": "an entry's derived laws are the union over A, B and C (by law id within each route; routes are counted separately and summed); its decided laws are A's PROVED and REFUTED records."
+ },
+ "runs": {
+  "a_corpus": {
+   "label": "contaminated: post-I51",
+   "label_doc": "The builders of I103-I105 saw I51's per-entry failures, and this session read I51's, I103's, I104's and I105's corpus reports before the prereg. Nothing measured here on the corpus is a held-out result.",
+   "entries": "all 20 of spec/eval/corpus.json, in corpus order",
+   "protocol": "spec/M6/lib/i107_corpus_run.json (route A); routes B and C as above",
+   "outputs": "results/eval/generality/corpus/{holon/, go_machines.json, roles_derive.json}",
+   "roles": "static only. static+AI is not run on the corpus (token budget; reported under Not done).",
+   "report": "per entry: reached_extraction (at least one document extracted), reached_derive (a derive stage of any route ran on a document of the entry), laws derived (per route), decided laws (A), detected (I51's instrument: a REFUTED, localized law of the entry's label rule), and for every entry not detected, the furthest stage reached and its reason, per route."
+  },
+  "b_sealed": {
+   "label": "sealed in the repository (I106 commit-reveal), not sealed from the agent's priors",
+   "label_doc": "The targets are well-known public systems; the builder's model family has likely seen their code. The seal is on choice and tuning, not on prior knowledge (I49's caveat).",
+   "order": "the prereg is pushed; I108 lands and is merged (the snapshot); the coordinator tells the sealer 'reveal'; then (1) verify the commitment, (2) fetch each target only at its pin, (3) write the entries file, (4) run routes A and C, the AI channel and the baselines into the scratch directory, (5) adjudicate in the session, (6) commit only Q56's aggregates and commitments.",
+   "verify": "python3 spec/M6/lib/I106_draw.py verify --target spec/heldout2/target.json --salt spec/heldout2/salt.txt --commitment spec/heldout2/commitment.json must print VERIFY OK (sha256 of target.json's bytes, sha256(salt), the seed sha256(salt || blockhash) and the draw); the output is recorded in results/eval/generality/sealed/verify.json. A failed verify stops run (b): it is reported and nothing is run on the targets.",
+   "fetch": "each target is fetched only as target.json pins it: route A's own clone (holon.eval.common.repo_cache, a bare blob-less clone of target.json's repo, unchanged) and a worktree at pin.commit only; before any run, git ls-remote of the repo must still show pin.ref at pin.commit (recorded in verify.json; a moved ref is reported, and the pinned commit is used regardless). No other commit is checked out or read; submodules and package dependencies are not fetched (route A's sol_deps rule: an import the target's own tree does not hold fails the compile, a miss).",
+   "scope": {
+    "G1": "files: every path tracked at the pin's commit (git ls-tree -r) ending in .sol, except a path with a directory component, lowercased, in spec/M6/lib/i107_sealed_entries.py EXCLUDED_DIRS or starting with '.', and a file name ending with one of EXCLUDED_SUFFIXES or starting with one of EXCLUDED_PREFIXES; sorted. Go and every other language are out of scope on the sealed targets: every I106 candidate is a contract system, and the Go route is measured on the corpus.",
+    "G2": "one entry per target, in target.json order, id s1, s2: system the target's id, repo its repo, prefix_commit = fix_commit = pin.commit, label null, files G1's list.",
+    "G3": "no cap and no hand selection: every contract an in-scope file declares (route A's contract_pattern) is a document attempt. The run stage keeps route A's timeouts (spec/M6/lib/i103_run.json timeouts_s); a law with no record after the run is UNKNOWN not_decided.",
+    "G4": "nothing is written by hand for a target: no sidecar, role, fact, law, scope list or target file. targets/ and spec/ outside spec/M6/predictions, spec/M6/amendments and their aggregates gain no file in this key. Anything holon roles cannot infer is a miss."
+   },
+   "protocol": "spec/M6/lib/i107_sealed_run.json (route A); route C as above",
+   "ai_channel": {
+    "rule": "static+AI is reported separately from static. One fresh subagent, given only the target's code at the pin (never HOLON's outputs, documents, roles or this key's thresholds), writes a holon-roles-proposed/0.1 proposal per target; it is committed as data under results/eval/generality/sealed/proposals/<id>.json with its sha256, labelled same-family (the proposer is of the builder's model family). Route A is rerun with --roles static+ai --proposed <file> into results/eval/generality/sealed/static_ai.",
+    "applicability": "every role kind of holon-roles-proposed/0.1 (link, go_ops, recompute) names a Go document. Under G1 a sealed target has no Go document, so no proposed role can be merged: static+AI is then recorded as not_applicable with that reason and the subagent is not run. This is fixed here, before the reveal.",
+    "provenance": "the proposal file's proposer is \"agent\" and it holds no model key (holon.roles.propose); no model identifier appears in any committed file."
+   },
+   "baselines": {
+    "which": "slither (I52's stock invocation, spec/M4/lib/I52_baselines.json baselines.slither) on each sealed target's checkout as route A sees it (the pin, no dependency tree). The agent reviewer and the other I52 baselines are not run on the sealed targets: the session's token budget allows subagents only for the AI proposals and the adjudication, and the dynamic and symbolic baselines need harnesses I52 wrote per system, which would be hand-written target files. This is disclosed, and no HOLON-versus-agent claim is made on the sealed targets.",
+    "budget": "I52's rule: the primary wall clock is HOLON's measured wall clock on that target, 60 * ceil(route A's corpus_timing.json total for the entry / 60) seconds. If the primary tier is degenerate (slither ends in under 1% of the budget with a compile failure), a labelled secondary tier as in I52b runs slither with the same invocation and a 3600 s budget; its result is reported apart and never replaces the primary.",
+    "findings": "slither's results are counted by detector and impact only (raw tool-output counts). No slither finding's description or location on a sealed target is committed. High-impact items (at most 10 per target, the first by sorted (check, first location)) go to the adjudicator; its classes stay in the session (Q56 rule 2).",
+    "outputs": "results/eval/generality/sealed/slither.json"
+   },
+   "scoring": "There are no labels on the sealed targets. Reported (Q56 rule 1): per target and rule family, documents attempted and extracted, laws derived (A, C), decided (PROVED + REFUTED together) and UNKNOWN; derive's status; the bundle commitment; slither's raw counts. Compared with I50's held-out run (Scroll: derive refused, 0 laws) and I52b."
+  },
+  "c_morph_auto": {
+   "label": "contaminated: the development target",
+   "what": "I104's Morph measure recomputed on the merged tools: holon roles --mode static over I104's ten Morph documents against the hand sidecars (role precision and recall, tests_m6/_i104.py's item definition), and Morph under --roles auto in a scratch worktree (holon roles --install --roles auto for M3, then codecs, diagram, evidence, derive, and every law of the auto law set run, each role-dependent and each new law alone with its log), scored by tools/i104_roles_experiment.py morph, run in a scratch copy of the tree so that I104's outcomes (results/M6/I104/) are not written. Outputs copied to results/eval/generality/morph/ with a comparison against results/M6/I104/.",
+   "rule": "reported, never substituted for Morph's record: laws/M3, gen/M3 and results/M3 are not touched."
+  }
+ },
+ "adjudication": {
+  "who": "one fresh subagent, blinded as in I52: for each item it sees the claim (the law's statement and, for a REFUTED law, its witness), the cited source lines of the target at the pin, and the instruction; it does not see which tool produced the item, the item's id, HOLON's other outputs, or this key's predictions. Items from HOLON and slither are interleaved in sorted order of their sha256.",
+  "classes": {
+   "model_defect": "the witness does not describe a behaviour of the real code (the model is wrong: zero storage, a havoc, an opaque term, a missing guard)",
+   "intended_asymmetry": "the behaviour is real and is the code's documented or evident intent",
+   "potential_defect": "the behaviour is real and not evidently intended"
+  },
+  "corpus": "corpus findings are matched to I48's labels by I51's instrument (a REFUTED, localized law of the label rule). A corpus REFUTED law that is not localized is reported as detected_any and not adjudicated.",
+  "outputs": "none committed: the adjudicator's items and classes stay in the session transcript (Q56)."
+ },
+ "disclosure": {
+  "source": "HUMAN_ANSWERS Q56 (the lead's ruling, delegated), adopted verbatim in spec/M6/amendments/I107.jsonl; it replaces the brief's per-finding rule.",
+  "rule1_aggregates": "While a sealed target's embargo holds, the committed outcomes for it are only: per target and per rule family (the law's rule), documents extracted, laws derived, decided (PROVED + REFUTED together) and UNKNOWN; and one bundle commitment per target, always committed, findings or not. No per-law verdict (not even PROVED or UNKNOWN alone), law id, record, trace, witness, class, finding count or withheld count is committed. The summary never splits PROVED from REFUTED.",
+  "bundle": "A target's bundle is every deterministic per-law output of its run: route A's laws/, gen/ and records/ for the entry, route C's laws, the static+AI run's if any, and (for Morph) the new laws' files of the --roles auto worktree. Canonical form: the files' paths relative to the bundle root, '/'-separated, sorted by their UTF-8 bytes; one line per file '<sha256 of the file's bytes, 64 lowercase hex>  <path>\\n' (two spaces, as sha256sum prints it); the bundle commitment is sha256 of the UTF-8 bytes of the concatenated lines. Only the commitment is committed, never the list (its paths name laws). Timing files are not in the bundle. The bundle's files stay in the session's scratch directory, outside the repo, and regenerate from the pinned tree; the adjudications stay in the session transcript, not in the bundle.",
+  "predictions": "Every prediction whose outcome depends on refutations (I107-P8, and any split of decided into PROVED and REFUTED on a sealed target or among Morph's new laws) is recorded as \"withheld (embargo)\" with the target's commitment.",
+  "baselines": "Raw tool-output counts (by detector and impact) may be reported; adjudicated detections on a sealed target follow rule 1.",
+  "morph": "Verdicts already on the lead are unchanged and public. The new laws of the --roles auto run follow rule 1: their decided and UNKNOWN counts and one bundle commitment, until adjudicated and the human decides.",
+  "corpus": "The corpus exemption covers only a finding matched to the entry's known, fixed defect (I51's instrument: a REFUTED, localized law of the label rule); such a detection is reported with its law id. Any other refutation on a pre-fix commit follows rule 1, so route A's per-law outputs on the corpus are bundled per entry and only aggregates, detections and the commitment are committed.",
+  "channels": "No sealed-target analysis runs in CI (tests_m6/test_i107_generality.py reads committed aggregates only). No plaintext in commits, commit messages, PR bodies, comments or CI output. On a finding the adjudicator does not class model_defect or intended_asymmetry, the coordinator gets only the target id and the bundle commitment. The human decides when each bundle opens. The adjudicator's class is advisory: nothing on a sealed target is published on its say-so.",
+  "order": "Sealed outputs are written to the session's scratch directory; only the aggregates and commitments are copied into results/eval/generality/."
+ },
+ "comparisons": {
+  "I51": "results/eval/holon/corpus.json (route A of I51: 0 laws, 0 detected; 11 extracted; 9 not_run)",
+  "I103": "results/M6/i103/corpus.json (I103's measured corpus run)",
+  "I104": "results/M6/I104/{morph_roles,morph_auto,corpus_smoke}.json",
+  "I105": "results/M6/I105/corpus.json",
+  "I52": "results/eval/corpus/*.json and results/eval/morph/*.json (agent_review detects c15, c17-c20 and O13, O27, O31; slither detects c05)",
+  "I52b": "results/eval/heldout/ (the held-out baselines on Scroll, primary and secondary tiers)",
+  "I53": "docs/M4_EVAL.md (HOLON 12 of 37 on Morph, contaminated; the ablation deltas)",
+  "deltas": "per run: HOLON's detected count minus each baseline's on the same entries (corpus), and HOLON's decided-law and finding counts beside I50's and I52b's (sealed)."
+ },
+ "outputs": {
+  "summary": "results/eval/generality/summary.json, assembled by python tools/i107_generality.py assemble (and --check reproduces it byte for byte): one section per run with the quantities the key's predictions name",
+  "report": "docs/iterations/I107.md",
+  "bundles": "results/eval/generality/bundles.json: {\"<run>/<id>\": <bundle sha256>} for every corpus entry, sealed target and Morph's new-law set; always present."
+ },
+ "amendments": [
+  "A1 (2026-11-12, before the reveal): HUMAN_ANSWERS Q56, the lead's disclosure ruling relayed by the coordinator, replaces the disclosure section (adopted verbatim in spec/M6/amendments/I107.jsonl) and fixes the aggregates and the bundle below; it only withholds more and weakens no claim.",
+  "A2 (2026-11-12, before the reveal): the coordinator's order (the lead's condition 4): the reveal waits for I108's landing, and the measured runs use the M6 tools as landed after I108 (snapshot below). Runs before the snapshot are rehearsals: not counted, never committed.",
+  "A3 (2026-11-12, before any measured run and before the reveal): HUMAN_ANSWERS Q64, relayed by the coordinator. I108's nil-map rule (Q60) is opt-in in the landed tools, and on the default path a Go machine law over a step that writes a possibly nil map can be PROVED, which Q60 marks unsound. So the run protocols' base is spec/M6/lib/i108_run.json, whose go_machines.nil_maps \"unknown\" they inherit; every Go machine document extracted by any route (route B included) carries the same key. If route B's driver cannot take that key, route B is not run and is recorded as a miss with that reason. Stricter, never weaker. tests_m6/test_i107_generality.py::TestProtocol::test_nil_maps_unknown checks it.",
+  "A4 (2026-11-12, at the snapshot, before any measured run and before the reveal): spec/M6/lib/i108_run.json carries stop_after \"derive\" (I108's own smoke: 'no law is run (I107 scores)'). Route A as preregistered runs run, replay, filter and score, so the regenerated run protocols drop stop_after (and only that key, besides corpus, doc, iteration and out). This adds the decision stage the key's predictions need; it weakens no claim. Route B's go-machines --out overrides go_machines.out, which stays as inherited."
+ ]
+}

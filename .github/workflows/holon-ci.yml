@@ -245,6 +245,15 @@ jobs:
             # (results/M6/I108) are the key's measured outcome and are not run here; P1's law count is a recorded miss.
             timeout: 30
             run: python -m unittest tests_m6.test_i108_pipeline_totality.TestSymPerModel tests_m6.test_i108_pipeline_totality.TestNilMaps tests_m6.test_i108_pipeline_totality.TestLayout tests_m6.test_i108_pipeline_totality.TestStringKeys tests_m6.test_i108_pipeline_totality.TestRegressions tests_m6.test_i108_pipeline_totality.TestSigned.test_p1_fixture_has_signed_terms tests_m6.test_i108_pipeline_totality.TestSigned.test_p1_sorts_03_records_signed_debt tests_m6.test_i108_pipeline_totality.TestSigned.test_p1_sorts_04_has_no_signed_debt -v
+          - name: tests-m6-i107
+            # I107 (M6 exit, the generality run): the protocol's contract (the run protocols are regenerated from the
+            # landed base, scope rule G1, nil_maps "unknown", the protocol names its rules) and the regressions R1-R6
+            # (Morph's outputs untouched, the Q56 disclosure shape, no hand target files, the summary regenerates, no
+            # model identifiers, the reveal's commitment verified). TestPredictions is the key's measured outcome and is
+            # not run here: P5-P7 are recorded misses and P8 is withheld (embargo), docs/iterations/I107.md. Nothing in
+            # this job runs an analysis of a sealed target (Q56 (5)): it reads committed files only.
+            timeout: 30
+            run: python -m unittest tests_m6.test_i107_generality.TestProtocol tests_m6.test_i107_generality.TestRegressions -v
           - name: tests-m3-par-record
             # I100 (rule PAR_record_round_trip): catalog holon-rules/1.16 (B1); the producer over the codec document is
             # the instrument's computation and gen/M3/par_record/basis.json its document (B2); an m08-like and an

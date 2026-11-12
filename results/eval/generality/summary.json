@@ -1,0 +1,1448 @@
+{
+ "corpus": {
+  "label": "contaminated: post-I51",
+  "rows": [
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "",
+    "derive_status": null,
+    "detected": false,
+    "detection": null,
+    "document_failures": [
+     "holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/arbos||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import lookup disabled by -mod"
+    ],
+    "extracted": 0,
+    "id": "c01",
+    "label": "UNDO",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "no document extracted: github.com/offchainlabs/nitro/arbos: holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/arbos||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import lookup disabled by -mod=readonly;\n[go 1.25.14 (go directive 1.25 of go.mod)]",
+     "stage": "extract",
+     "status": "not_run"
+    },
+    "reached_derive": false,
+    "reached_extraction": false,
+    "roles": null,
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": null,
+     "laws": 0
+    },
+    "route_C": {
+     "derive": null,
+     "derive_ran": false,
+     "law_rules": {},
+     "laws": 0,
+     "reason": "no stored document (I51 stored none for this entry)",
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "extract": "failed"
+    },
+    "system": "arbitrum",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 10,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "holon derive: 0 laws, 0 obstructions -> laws/T510",
+    "derive_status": "ok",
+    "detected": false,
+    "detection": null,
+    "document_failures": [
+     "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.5.17 (selected by pragma ['^0.5.16'])]",
+     "holon extract solidity: extraction error: inline assembly at 20251:128:0 has no Yul AST (this compiler writes assembly as text): the walker cannot read it\n[compiled by solc 0.5.17 (selected by pragma ['^0.5.16'])]"
+    ],
+    "extracted": 7,
+    "id": "c02",
+    "label": "NAT",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "derive completed and derived 0 laws: no producer of the catalog gives a law over the extracted document(s); nothing to run",
+     "stage": "derive",
+     "status": "ok"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 1,
+     "kinds": {
+      "typed:static": 1
+     },
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": null,
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c02/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "ok",
+     "disch": "ok",
+     "extract": "ok",
+     "model": "ok",
+     "roles": "ok",
+     "run": "not_applicable",
+     "sorts": "ok",
+     "types": "ok"
+    },
+    "system": "compound",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "derive_status": "no_producer",
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 1,
+    "id": "c03",
+    "label": "SORT",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+     "stage": "derive",
+     "status": "no_producer"
+    },
+    "reached_derive": false,
+    "reached_extraction": true,
+    "roles": {
+     "count": 0,
+     "kinds": {},
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": {
+      "reason": "holon types: ill-sorted: AfterValidatorCreated: (github.com/cosmos/cosmos-sdk/types.DecCoins).IsZero takes 0 arguments, the term gives 1 (at x/distribution/keeper/hooks.go:31)",
+      "stage": "types"
+     },
+     "laws": 0
+    },
+    "route_C": {
+     "derive": null,
+     "derive_ran": false,
+     "law_rules": {},
+     "laws": 0,
+     "reason": "no stored document (I51 stored none for this entry)",
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "no_producer",
+     "extract": "ok",
+     "roles": "ok"
+    },
+    "system": "cosmos",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "derive_status": "no_producer",
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 1,
+    "id": "c04",
+    "label": "none",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+     "stage": "derive",
+     "status": "no_producer"
+    },
+    "reached_derive": false,
+    "reached_extraction": true,
+    "roles": {
+     "count": 0,
+     "kinds": {},
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": {
+      "reason": "holon types: ill-sorted: Ancient: a write of a whole mapping(string => bytes32) (tables) (at core/rawdb/freezer.go:195)",
+      "stage": "types"
+     },
+     "laws": 0
+    },
+    "route_C": {
+     "derive": null,
+     "derive_ran": false,
+     "law_rules": {},
+     "laws": 0,
+     "reason": "no stored document (I51 stored none for this entry)",
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "no_producer",
+     "extract": "ok",
+     "roles": "ok"
+    },
+    "system": "go-ethereum",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "",
+    "derive_status": null,
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 1,
+    "id": "c05",
+    "label": "PAR",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "holon types: ill-sorted: anchorStateRegistry: the length of a w value (at packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:122)",
+     "stage": "types",
+     "status": "failed"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 1,
+     "kinds": {
+      "typed:static": 1
+     },
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": null,
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c05/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "extract": "ok",
+     "roles": "ok",
+     "sorts": "ok",
+     "types": "failed"
+    },
+    "system": "optimism",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "derive_status": "no_producer",
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 1,
+    "id": "c06",
+    "label": "SORT",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+     "stage": "derive",
+     "status": "no_producer"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 2,
+     "kinds": {
+      "go_ops:static": 2
+     },
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": {
+      "reason": "holon types: ill-sorted: CheckPending: a write of a whole mapping(string => bytes32) (tokensByCoinGeckoId) (at node/pkg/governor/governor.go:501)",
+      "stage": "types"
+     },
+     "laws": 0
+    },
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c06/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {
+      "go_ops": 2
+     },
+     "roles": 2
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "no_producer",
+     "extract": "ok",
+     "roles": "ok"
+    },
+    "system": "wormhole",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "",
+    "derive_status": null,
+    "detected": false,
+    "detection": null,
+    "document_failures": [
+     " github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompiles"
+    ],
+    "extracted": 0,
+    "id": "c07",
+    "label": "PAR",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "no document extracted: github.com/offchainlabs/nitro/precompiles:  github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompilesgen\nssadump: github.com/offchainlabs/nitro/precompiles: undefined: precompiles",
+     "stage": "extract",
+     "status": "not_run"
+    },
+    "reached_derive": false,
+    "reached_extraction": false,
+    "roles": null,
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": null,
+     "laws": 0
+    },
+    "route_C": {
+     "derive": null,
+     "derive_ran": false,
+     "law_rules": {},
+     "laws": 0,
+     "reason": "no stored document (I51 stored none for this entry)",
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "extract": "failed"
+    },
+    "system": "arbitrum",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "derive_status": "no_producer",
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 1,
+    "id": "c08",
+    "label": "DISCH",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+     "stage": "derive",
+     "status": "no_producer"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 1,
+     "kinds": {
+      "go_ops:static": 1
+     },
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": {
+      "reason": "holon types: ill-sorted: CreateGroup: the length of a w value (at x/group/keeper/msg_server.go:99)",
+      "stage": "types"
+     },
+     "laws": 0
+    },
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c08/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {
+      "go_ops": 1
+     },
+     "roles": 1
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "no_producer",
+     "extract": "ok",
+     "roles": "ok"
+    },
+    "system": "cosmos",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "derive_status": "no_producer",
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 1,
+    "id": "c09",
+    "label": "none",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+     "stage": "derive",
+     "status": "no_producer"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 9,
+     "kinds": {
+      "go_ops:static": 9
+     },
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": {
+      "reason": "holon types: ill-sorted: Decode: (*github.com/ethereum/go-ethereum/rlp.Stream).Decode takes 1 arguments, the term gives 2 (at p2p/peer_error.go:42)",
+      "stage": "types"
+     },
+     "laws": 0
+    },
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c09/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {
+      "go_ops": 9
+     },
+     "roles": 9
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "no_producer",
+     "extract": "ok",
+     "roles": "ok"
+    },
+    "system": "go-ethereum",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 2,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "",
+    "derive_status": null,
+    "detected": false,
+    "detection": null,
+    "document_failures": [
+     "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]"
+    ],
+    "extracted": 0,
+    "id": "c10",
+    "label": "PAR",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "no document extracted: OPContractsManagerStandardValidator: holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]; StandardValidatorUtils: holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+     "stage": "extract",
+     "status": "not_run"
+    },
+    "reached_derive": false,
+    "reached_extraction": false,
+    "roles": null,
+    "route_B": null,
+    "route_C": {
+     "derive": null,
+     "derive_ran": false,
+     "law_rules": {},
+     "laws": 0,
+     "reason": "no stored document (I51 stored none for this entry)",
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "extract": "failed"
+    },
+    "system": "optimism",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "",
+    "derive_status": null,
+    "detected": false,
+    "detection": null,
+    "document_failures": [
+     "holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\n[go 1.24.7 (go directive 1.19 of go.work)]"
+    ],
+    "extracted": 0,
+    "id": "c11",
+    "label": "DISCH",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "no document extracted: github.com/certusone/wormhole/node/pkg/watchers/algorand: holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\n[go 1.24.7 (go directive 1.19 of go.work)]",
+     "stage": "extract",
+     "status": "not_run"
+    },
+    "reached_derive": false,
+    "reached_extraction": false,
+    "roles": null,
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": null,
+     "laws": 0
+    },
+    "route_C": {
+     "derive": null,
+     "derive_ran": false,
+     "law_rules": {},
+     "laws": 0,
+     "reason": "no stored document (I51 stored none for this entry)",
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "extract": "failed"
+    },
+    "system": "wormhole",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 2,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "derive_status": "no_producer",
+    "detected": false,
+    "detection": null,
+    "document_failures": [
+     "holon extract go: refused: ssadump: packages did not load or type-check (exit 2):\nssadump: packages did not load or type-check\n\ngo list -e: github.com/offchainlabs/nitro/daprovider/anytrust/util||cannot find module providing package github.com/offchainlabs/nitro/solgen/go/precompilesgen: import look"
+    ],
+    "extracted": 1,
+    "id": "c12",
+    "label": "PAR",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+     "stage": "derive",
+     "status": "no_producer"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 0,
+     "kinds": {},
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": null,
+     "laws": 0
+    },
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c12/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "no_producer",
+     "extract": "ok",
+     "roles": "ok"
+    },
+    "system": "arbitrum",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "derive_status": "no_producer",
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 1,
+    "id": "c13",
+    "label": "PAR",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+     "stage": "derive",
+     "status": "no_producer"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 0,
+     "kinds": {},
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": {
+      "reason": "holon types: ill-sorted: a r:S_tuple value used as a word (at modules/apps/transfer/module.go:69)",
+      "stage": "types"
+     },
+     "laws": 0
+    },
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c13/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "no_producer",
+     "extract": "ok",
+     "roles": "ok"
+    },
+    "system": "cosmos",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "derive_status": "no_producer",
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 1,
+    "id": "c14",
+    "label": "SORT",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+     "stage": "derive",
+     "status": "no_producer"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 10,
+     "kinds": {
+      "go_ops:static": 10
+     },
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": {
+      "reason": "holon types: ill-sorted: Decode: (*github.com/ethereum/go-ethereum/rlp.Stream).Decode takes 1 arguments, the term gives 2 (at p2p/peer_error.go:42)",
+      "stage": "types"
+     },
+     "laws": 0
+    },
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c14/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {
+      "go_ops": 10
+     },
+     "roles": 10
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "no_producer",
+     "extract": "ok",
+     "roles": "ok"
+    },
+    "system": "go-ethereum",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 2,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "",
+    "derive_status": null,
+    "detected": false,
+    "detection": null,
+    "document_failures": [
+     "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]"
+    ],
+    "extracted": 0,
+    "id": "c15",
+    "label": "FACT",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "no document extracted: OPContractsManagerStandardValidator: holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]; StandardValidatorUtils: holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+     "stage": "extract",
+     "status": "not_run"
+    },
+    "reached_derive": false,
+    "reached_extraction": false,
+    "roles": null,
+    "route_B": null,
+    "route_C": {
+     "derive": null,
+     "derive_ran": false,
+     "law_rules": {},
+     "laws": 0,
+     "reason": "no stored document (I51 stored none for this entry)",
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "extract": "failed"
+    },
+    "system": "optimism",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "derive_status": "no_producer",
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 1,
+    "id": "c16",
+    "label": "DISCH",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+     "stage": "derive",
+     "status": "no_producer"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 0,
+     "kinds": {},
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": {
+      "reason": "holon types: ill-sorted: GetCurrentGuardianSetIndex: a write of a whole string (networkName) (at node/pkg/watchers/evm/connectors/celo.go:74)",
+      "stage": "types"
+     },
+     "laws": 0
+    },
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c16/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "no_producer",
+     "extract": "ok",
+     "roles": "ok"
+    },
+    "system": "wormhole",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "holon derive: 0 laws, 0 obstructions -> laws/T510",
+    "derive_status": "ok",
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 1,
+    "id": "c17",
+    "label": "PAR",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "derive completed and derived 0 laws: no producer of the catalog gives a law over the extracted document(s); nothing to run",
+     "stage": "derive",
+     "status": "ok"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 1,
+     "kinds": {
+      "typed:static": 1
+     },
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": null,
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c17/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "ok",
+     "disch": "ok",
+     "extract": "ok",
+     "model": "ok",
+     "roles": "ok",
+     "run": "not_applicable",
+     "sorts": "ok",
+     "types": "ok"
+    },
+    "system": "arbitrum",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 3,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "derive_status": "no_producer",
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 3,
+    "id": "c18",
+    "label": "SORT",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+     "stage": "derive",
+     "status": "no_producer"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 1,
+     "kinds": {
+      "go_ops:static": 1
+     },
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": {
+      "reason": "holon types: ill-sorted: MarshalTo: a write of a whole string (Address) (at x/group/events.pb.go:646)",
+      "stage": "types"
+     },
+     "laws": 0
+    },
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c18/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {
+      "go_ops": 1
+     },
+     "roles": 1
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "no_producer",
+     "extract": "ok",
+     "roles": "ok"
+    },
+    "system": "cosmos",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 2,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+    "derive_status": "no_producer",
+    "detected": false,
+    "detection": null,
+    "document_failures": [],
+    "extracted": 2,
+    "id": "c19",
+    "label": "SORT",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+     "stage": "derive",
+     "status": "no_producer"
+    },
+    "reached_derive": true,
+    "reached_extraction": true,
+    "roles": {
+     "count": 1,
+     "kinds": {
+      "go_ops:static": 1
+     },
+     "mode": "static",
+     "proposed": null
+    },
+    "route_B": {
+     "derive_ran": false,
+     "first_failure": {
+      "reason": "holon types: ill-sorted: RequestStorageRanges: the length of a w value (at eth/protocols/snap/peer.go:89)",
+      "stage": "types"
+     },
+     "laws": 0
+    },
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Ccorpus/work/c19/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {
+      "go_ops": 1
+     },
+     "roles": 1
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "derive": "no_producer",
+     "extract": "ok",
+     "roles": "ok"
+    },
+    "system": "go-ethereum",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   },
+   {
+    "attempted": 1,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "",
+    "derive_status": null,
+    "detected": false,
+    "detection": null,
+    "document_failures": [
+     "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]"
+    ],
+    "extracted": 0,
+    "id": "c20",
+    "label": "PAR",
+    "laws": {
+     "A": 0,
+     "B": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "no document extracted: OPContractsManagerStandardValidator: holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.15 (selected by pragma ['0.8.15'])]",
+     "stage": "extract",
+     "status": "not_run"
+    },
+    "reached_derive": false,
+    "reached_extraction": false,
+    "roles": null,
+    "route_B": null,
+    "route_C": {
+     "derive": null,
+     "derive_ran": false,
+     "law_rules": {},
+     "laws": 0,
+     "reason": "no stored document (I51 stored none for this entry)",
+     "role_kinds": {},
+     "roles": 0
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "extract": "failed"
+    },
+    "system": "optimism",
+    "toolchain_refused": false,
+    "true_defect": 0,
+    "unknown": 0
+   }
+  ],
+  "totals": {
+   "decided_laws": 0,
+   "detected": 0,
+   "entries_with_law": 0,
+   "extracted": 14,
+   "laws": {
+    "A": 0,
+    "B": 0,
+    "C": 0
+   },
+   "reached_derive": 12,
+   "toolchain_refused": 0,
+   "true_defect": 0
+  }
+ },
+ "doc": "I107 summary (tools/i107_generality.py assemble) over results/eval/generality/; the protocol is spec/M6/lib/i107_protocol.json, the key spec/M6/predictions/I107.json. Q56: no per-law verdict.",
+ "morph": {
+  "auto_laws": 617,
+  "changed_by_family": {
+   "PAR/cross_component_codec": {
+    "changed": 1,
+    "decided": 1,
+    "unknown": 0
+   },
+   "PAR/go_branch": {
+    "changed": 2,
+    "decided": 0,
+    "unknown": 2
+   }
+  },
+  "hand_laws": 288,
+  "i104": {
+   "auto_laws": 617,
+   "hand_laws": 288,
+   "new_laws": 330,
+   "precision": [
+    4,
+    11
+   ],
+   "recall": [
+    4,
+    6
+   ],
+   "role_dependent_decided": 99,
+   "role_dependent_lost": 4,
+   "role_dependent_rederived": 95
+  },
+  "label": "contaminated: the development target; reported, never substituted for M3's record",
+  "lost": [
+   {
+    "auto_note": "withheld (HUMAN_ANSWERS Q56): the status differs from the lead's record",
+    "auto_status": null,
+    "hand_status": "REFUTED",
+    "law_id": "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3",
+    "rule": "PAR",
+    "subform": "go_branch"
+   },
+   {
+    "auto_note": "withheld (HUMAN_ANSWERS Q56): the status differs from the lead's record",
+    "auto_status": null,
+    "hand_status": "REFUTED",
+    "law_id": "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7",
+    "rule": "PAR",
+    "subform": "go_branch"
+   },
+   {
+    "auto_note": null,
+    "auto_status": null,
+    "hand_status": "REFUTED",
+    "law_id": "L_par_gorc_data_hash_BatchData_DataHash",
+    "rule": "PAR",
+    "subform": "go_recompute"
+   }
+  ],
+  "new_by_family": {
+   "PAR/domain_coherence": {
+    "decided": 0,
+    "derived": 202,
+    "not_run": 0,
+    "unknown": 202
+   },
+   "PAR/go_recompute": {
+    "decided": 0,
+    "derived": 1,
+    "not_run": 0,
+    "unknown": 1
+   },
+   "PAR/totality": {
+    "decided": 0,
+    "derived": 39,
+    "not_run": 0,
+    "unknown": 39
+   },
+   "PAR/weak": {
+    "decided": 0,
+    "derived": 88,
+    "not_run": 0,
+    "unknown": 88
+   }
+  },
+  "new_decided": 0,
+  "new_law_files_in_bundle": 331,
+  "new_laws": 330,
+  "new_not_run": 0,
+  "new_unknown": 330,
+  "other_decided_unchanged": 80,
+  "precision": [
+   4,
+   11
+  ],
+  "recall": [
+   4,
+   6
+  ],
+  "role_dependent_decided": 99,
+  "role_dependent_lost": [
+   "L_par_gobr_BatchData_EstimateCompressedSizeWithNewPayload_p0_p3",
+   "L_par_gobr_BatchData_WillExceedCompressedSizeLimit_p4_p7",
+   "L_par_gorc_data_hash_BatchData_DataHash"
+  ],
+  "role_dependent_rederived": 96,
+  "scorer_bundle_doc": "sha256 of the lines 'path sha256' (law IR and record files of every new law and every changed verdict, paths relative to the scratch worktree, sorted, one per line, each ending in a newline); the files stay outside the repository",
+  "scorer_bundle_sha256": "10b660bc65690bc922dc584ba6d65c001c71b803b5394e1317550db619badaa0"
+ },
+ "sealed": {
+  "P8": {
+   "commitments": {
+    "s1": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "s2": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+   },
+   "status": "withheld (embargo)"
+  },
+  "hand_written_target_files": [],
+  "label": "sealed in the repository (I106 commit-reveal), not sealed from the agent's priors",
+  "targets": [
+   {
+    "attempted": 53,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "",
+    "derive_status": null,
+    "document_failures": [
+     "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.38 (selected by pragma ['>=0.5.0', '^0.8.0', '^0.8.27', '^0.8.29'])]",
+     "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.38 (selected by pragma ['>=0.5.0', '^0.8.0', '^0.8.27'])]",
+     "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.38 (selected by pragma ['^0.8.0', '^0.8.27'])]",
+     "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.38 (selected by pragma ['^0.8.27'])]"
+    ],
+    "extracted": 48,
+    "id": "s1",
+    "laws": {
+     "A": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "timeout after 1800 s",
+     "stage": "sorts",
+     "status": "timeout"
+    },
+    "roles": {
+     "count": 1,
+     "kinds": {
+      "typed:static": 1
+     },
+     "mode": "static",
+     "proposed": null
+    },
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Csealed/work/s1/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {},
+     "roles": 0
+    },
+    "slither": {
+     "invocation": "slither . --json <out> --foundry-compile-all (I52 stock, no triage)",
+     "primary": {
+      "counts": {},
+      "error_kind": "no JSON",
+      "findings": 0,
+      "high": 0,
+      "status": "compile_failed",
+      "wall_budget_s": 1860
+     },
+     "secondary": null,
+     "status": "compile_failed"
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "extract": "ok",
+     "roles": "ok",
+     "sorts": "timeout"
+    },
+    "static_ai": "not_applicable",
+    "system": "eigenlayer",
+    "unknown": 0
+   },
+   {
+    "attempted": 42,
+    "by_family": {},
+    "decided": 0,
+    "derive_detail": "",
+    "derive_status": null,
+    "document_failures": [
+     "holon extract solidity: extraction error: a term exceeds the size budget of 400000 nodes\n[compiled by solc 0.8.38 (selected by pragma ['^0.8.0', '^0.8.10'])]"
+    ],
+    "extracted": 39,
+    "id": "s2",
+    "laws": {
+     "A": 0,
+     "C": 0
+    },
+    "miss": {
+     "reason": "timeout after 1800 s",
+     "stage": "sorts",
+     "status": "timeout"
+    },
+    "roles": {
+     "count": 1,
+     "kinds": {
+      "typed:static": 1
+     },
+     "mode": "static",
+     "proposed": null
+    },
+    "route_C": {
+     "derive": {
+      "detail": "holon derive: refused: the linked codec layer cannot be rebuilt: spec/M9/lib/link.json: unreadable (FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-HOLON/d4d4893d-46f3-5872-8fc7-603166d6662f/scratchpad/Csealed/work/s2/spec/M9/lib/link.json')",
+      "exit": 2
+     },
+     "derive_ran": true,
+     "law_rules": {},
+     "laws": 0,
+     "reason": null,
+     "role_kinds": {},
+     "roles": 0
+    },
+    "slither": {
+     "invocation": "slither . --json <out> --foundry-compile-all (I52 stock, no triage)",
+     "primary": {
+      "counts": {},
+      "error_kind": "no JSON",
+      "findings": 0,
+      "high": 0,
+      "status": "compile_failed",
+      "wall_budget_s": 1860
+     },
+     "secondary": {
+      "counts": {},
+      "error_kind": "no JSON",
+      "findings": 0,
+      "high": 0,
+      "status": "compile_failed",
+      "wall_budget_s": 3600
+     },
+     "status": "compile_failed"
+    },
+    "stage_status": {
+     "checkout": "ok",
+     "extract": "ok",
+     "roles": "ok",
+     "sorts": "timeout"
+    },
+    "static_ai": "not_applicable",
+    "system": "aave-v3",
+    "unknown": 0
+   }
+  ],
+  "verify": "VERIFY OK"
+ },
+ "snapshot": {
+  "doc": "I107 amendment A2: the tool snapshot of the measured runs, recorded at run start",
+  "head_sha": "b996365bb8495c68616a0295479a255e6e54c9da",
+  "holon_files": 480,
+  "holon_sha256": "44f04b59d39fa0c4c43cfe8c7f81569cbb4c6170b1c085f89d166deb089b0cb4",
+  "lead": "origin/claude/holon-v2-bend2-c6z3cd",
+  "lead_sha": "b65a863c9507d8c15a87b1e3112cb920dd707ac9",
+  "run_protocol_base": "spec/M6/lib/i108_run.json"
+ },
+ "summary_version": "holon-i107-summary/0.2"
+}
