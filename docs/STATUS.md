@@ -10,6 +10,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | M3 | 52 | 326 | 288 | 52 |
 | M4 | 6 | 29 | 35 | 6 |
 | M5 | 8 | 41 | 22 | 6 |
+| M6 | 0 | 0 | 0 | 0 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
 
