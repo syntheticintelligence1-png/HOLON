@@ -86,7 +86,7 @@ jobs:
       matrix:
         include:
           # one job per milestone with preregistered keys on the lead. M4 and M5 joined at M4's landing (PREREG OK on
-          # the merged tree); M6 joins with its first key, as an empty milestone fails by design ("an audit of nothing").
+          # the merged tree); M6 joined with its first key, I106 (an empty milestone fails by design: "an audit of nothing").
           - name: prereg-M2
             timeout: 30
             run: python -m holon audit prereg --milestone M2
@@ -99,6 +99,9 @@ jobs:
           - name: prereg-M5
             timeout: 30
             run: python -m holon audit prereg --milestone M5
+          - name: prereg-M6
+            timeout: 30
+            run: python -m holon audit prereg --milestone M6
           - name: tests-prereg
             # I1's prereg audit on synthetic histories (rules 1-6), and rule 6's parallel_outcome lines: a parallel
             # commit licensed one at a time when its files under K's outcome paths are another key's (I57/I56).
