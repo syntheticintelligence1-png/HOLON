@@ -400,6 +400,59 @@
           "holon/frontends/solidity/trees.py": "2c50405f17a726e718b6cbefc1dabebf209656d30e4a342c50a6b03e9717288a"
         }
       }
+    },
+    "I106": {
+      "title": "I106: fresh sealed targets by commit-reveal: 2 of 9 preregistered public systems drawn by sha256(salt || blockhash) over the first Ethereum mainnet block at or after T, pinned by ls-remote, and sealed in spec/heldout2/commitment.json until the reveal after I107's prereg",
+      "plan": "docs/BUILD_PLAN.md#m6-generality",
+      "prompt": "prompts/I106_sealed_targets.md",
+      "tests": [
+        "tests_m6/test_i106_sealed.py"
+      ],
+      "outcome_paths": [
+        "spec/heldout2/"
+      ],
+      "predictions": [
+        {
+          "id": "I106-P1",
+          "claim": "The seal (c): spec/heldout2/commitment.json is committed with sha256(target.json), the salt_sha256 of this key, T, and the beacon block (number, hash, timestamp, source), the block being the first Ethereum mainnet block whose timestamp is >= T; spec/heldout2/README.md states the sealed state and the sole-reader rule. Neither the salt nor the plaintext is committed before the reveal.",
+          "check": "tests_m6/test_i106_sealed.py::TestSeal::test_s1_commitment and tests_m6/test_i106_sealed.py::TestSeal::test_s1_readme",
+          "expected": {
+            "beacon_timestamp_at_least": 1794459600
+          }
+        },
+        {
+          "id": "I106-P2",
+          "claim": "The reveal (d), after I107's prereg: spec/heldout2/target.json and salt.txt are committed; sha256(target.json) and sha256(salt bytes) equal the commitment's and this key's; `python3 spec/M6/lib/I106_draw.py verify` recomputes the seed, the order and the draw of 2 from the committed script and candidates and prints VERIFY OK.",
+          "check": "tests_m6/test_i106_sealed.py::TestReveal::test_r1_verify and tests_m6/test_i106_sealed.py::TestReveal::test_r1_targets",
+          "expected": {
+            "verify": "VERIFY OK",
+            "targets": 2
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I106-R1",
+          "claim": "The draw script imports only the standard library and is deterministic on a fixed test vector; the pin rule behaves as its docstring states; the candidate list meets its form rules; the key pins both sidecars by sha256.",
+          "check": "tests_m6/test_i106_sealed.py::TestDraw::test_d1_stdlib_only and tests_m6/test_i106_sealed.py::TestDraw::test_d1_test_vector and tests_m6/test_i106_sealed.py::TestDraw::test_d2_pin_rule and tests_m6/test_i106_sealed.py::TestCandidates::test_c1_candidates and tests_m6/test_i106_sealed.py::TestCandidates::test_k1_key_pins_the_sidecars"
+        }
+      ],
+      "thresholds": {
+        "counting": "P1 and P2 are construction checks of the procedure (they state that the sealer follows it, not a measured property of HOLON); they are reported, and do not count toward prediction accuracy.",
+        "seal": {
+          "T_unix": 1794459600,
+          "T_utc": "2026-11-12T05:00:00Z",
+          "beacon_rule": "the hash of the first Ethereum mainnet block whose timestamp is >= T_unix",
+          "seed_rule": "sha256(salt bytes || blockhash bytes), as spec/M6/lib/I106_draw.py defines",
+          "k": 2,
+          "salt_sha256": "8c0a8625bf8f60785a0dfdcdeff8f7c116d0a6afbdfc79021fb65ccaf50d3e3c",
+          "candidates": "spec/M6/lib/I106_candidates.json",
+          "candidates_sha256": "41a78687d769aa9341525a7908c5f42922297c6a8dd17ff7ddcdb1968b7cc9c0",
+          "draw": "spec/M6/lib/I106_draw.py",
+          "draw_sha256": "ff9a3c5d9aae126955654a9fa262a0a9929f42107566f918fc4f357e1be2c93d",
+          "sole_reader": "Before the reveal nobody reads the plaintext, not the lead and not a builder; after it, only I107 reads the targets (docs/iterations/I49.md's rule)."
+        }
+      }
     }
   }
 }
