@@ -10,7 +10,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | M3 | 52 | 326 | 288 | 52 |
 | M4 | 9 | 54 | 54 | 9 |
 | M5 | 8 | 41 | 22 | 6 |
-| M6 | 7 | 55 | 24 | 6 |
+| M6 | 7 | 55 | 24 | 7 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
 
@@ -114,7 +114,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I103 | M6 | I103: frontend reach: a pinned solc set chosen by pragma, go 1.25 next to 1.24.7 chosen by the go directive, a determin… | `prompts/I103_frontend_reach.md` | 6 | 6 | 1 | `docs/iterations/I103.md` |
 | I104 | M6 | I104: role inference. | `prompts/I104_role_inference.md` | 4 | 3 | 1 | `docs/iterations/I104.md` |
 | I105 | M6 | I105: Go state machines: the Go frontend emits transitions documents in the Solidity frontend's IR (struct-field machin… | `prompts/I105_go_machines.md` | 8 | 1 | 1 | `docs/iterations/I105.md` |
-| I106 | M6 | I106: fresh sealed targets by commit-reveal: 2 of 9 preregistered public systems drawn by sha256(salt \|\| blockhash) ove… | `prompts/I106_sealed_targets.md` | 2 | 1 | 1 | none |
+| I106 | M6 | I106: fresh sealed targets by commit-reveal: 2 of 9 preregistered public systems drawn by sha256(salt \|\| blockhash) ove… | `prompts/I106_sealed_targets.md` | 2 | 1 | 1 | `docs/iterations/I106.md` |
 | I107 | M6 | I107 (M6 exit): the generality run. | `prompts/I107_generality_run.md` | 12 | 7 | 1 | `docs/iterations/I107.md` |
 | I108 | M6 | I108: pipeline totality, pass 2: sort rules S1-S3 for the IR's signed operators (holon-sort-types/0.4) and their typed-… | `prompts/I108_pipeline_totality.md` | 10 | 2 | 1 | `docs/iterations/I108.md` |
 | I109 | M6 | I109: pipeline totality, pass 3: the Go machine rendering's types gaps (method-call arity with the receiver, len of a w… | `prompts/I109_pipeline_totality_3.md` | 13 | 4 | 1 | `docs/iterations/I109.md` |
