@@ -223,7 +223,9 @@ jobs:
             run: python -m unittest tests_m6.test_i105_go_machines.TestStructMachines tests_m6.test_i105_go_machines.TestSoundness tests_m6.test_i105_go_machines.TestKVMachines tests_m6.test_i105_go_machines.TestDeterminism tests_m6.test_i105_go_machines.TestRegressions tests_m6.test_i105_go_machines.TestGuardSoundness tests_m6.test_i105_go_machines.TestDemo -v
           - name: tests-m6-i109
             # I109 (M6, pipeline totality pass 3): the Go rendering's types gaps A1-A4 (P1), the go-directive rule
-            # without the key (P2; the 1.25 selection needs tools/install_toolchain_sets.sh, run locally), D9's SG1
+            # without the key (P2; TestGoToolchain.test_p2_go_directive_selects_the_lowest_release_at_or_above needs the
+            # go 1.25.14 set, which CI does not install: run by the lead at landing with tools/install_toolchain_sets.sh,
+            # HUMAN_ANSWERS Q70), D9's SG1
             # (P3), Q61's opaque keys (P4), the recorded term budget (P5), Q60's constructor rule and Q64's default
             # (P6), Q62 (P7), remapped pragmas (f, not a prediction) and the regressions R1-R4. The corpus smoke
             # measures P8-P13 (results/M6/I109) are the key's measured outcome and are not run here.
