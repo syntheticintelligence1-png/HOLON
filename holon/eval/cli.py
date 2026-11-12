@@ -19,6 +19,7 @@ USAGE = """usage: python -m holon eval <command> [options]
   renaming   [--root DIR] [--cache DIR] [--check]            gen/eval/renaming/<entry>.json (rule N3)
   controls   [--root DIR] [--check]                          the unsolved controls (rules K1-K2)
   holon      [--root DIR] [--entries ID,..] [--check]       HOLON on the corpus pre-fix commits (I51)
+  go-machines [--root DIR] [--entries ID,..] [--out PATH]   the Go machine frontend's smoke measure (I105)
 """
 
 COMMANDS = {
@@ -33,6 +34,7 @@ COMMANDS = {
     "renaming": ("holon.eval.renaming", "cli_renaming"),
     "controls": ("holon.eval.controls", "cli_controls"),
     "holon": ("holon.eval.holon_run", "cli_holon"),
+    "go-machines": ("holon.eval.go_machines_run", "cli"),
 }
 
 

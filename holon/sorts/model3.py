@@ -1325,6 +1325,10 @@ class Gen:
         return "z:" + json.dumps(vals, sort_keys=True), "z"
 
     def t_unknown(self, t, sc):
+        if ((self.m.doc.get("extraction") or {}).get("frontend")) == "go":
+            # I105: in a Go machine document (holon.frontends.go_machines) an unknown term is a havoc, a value the
+            # frontend leaves free: an environment member of the step, keyed by the term (A-env)
+            return self.leaf(self.ge("go.unknown." + canonical(t), sc), "env:go.unknown." + canonical(t), t)
         raise GenError(f"{sc.action}: an unknown term {canonical(t)[:100]} (its value is no environment member)")
 
 
