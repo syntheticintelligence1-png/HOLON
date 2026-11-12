@@ -33,6 +33,7 @@ aggregates only (results/M6/I110/sealed.json; Q56, Q72).
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import shutil
@@ -391,6 +392,120 @@ class TestRegressions(unittest.TestCase):
             if "compose" in d or "sort_budget" in (d.get("typed") or {}):
                 found.append(p.name)
         self.assertEqual(found, [])
+
+
+
+# ------------------------------------------------------------------------------------- Q74 / Q75 (added after the prereg)
+@contextlib.contextmanager
+def old_strategy(extra: list | None = None):
+    """The sort pass's pre-I110 evaluation strategy, in process: find_conflicts' System is built again for solve (the
+    old code's `self.system = System(self.active)`), and constraint texts are rendered without the per-build cache.
+    `extra` collects the work units each repeated System costs (holon.sorts.budget), so the unit counts of the two
+    strategies can be related exactly."""
+    from holon.sorts import assign as A
+    from holon.sorts import budget as B
+    from holon.sorts import extracted as X
+    from holon.sorts.solve import System
+    new_find, new_text = A.find_conflicts, X.text
+
+    def find_old(model, cs):
+        active, conflicts, _system = new_find(model, cs)
+        m = B._CURRENT
+        u0 = m.used if m else 0
+        system = System(active)
+        if extra is not None and m is not None:
+            extra.append(m.used - u0)
+        return active, conflicts, system
+    A.find_conflicts = find_old
+    X.text = lambda t, memo=None: new_text(t, None)
+    try:
+        yield
+    finally:
+        A.find_conflicts, X.text = new_find, new_text
+
+
+def pass_texts(root: Path, rel: str, budget: int | None) -> dict:
+    """holon.sorts.assign.run_pass over one document under spec/M6/lib/i110_run.json's typed settings: its outputs as
+    the bytes holon sorts writes, with the sidecar's own input entry removed (it is a scratch file)."""
+    from holon.sorts import assign as A
+    typed = json.loads((ROOT / PROTO).read_text(encoding="utf-8"))["typed"]
+    sc = {"sort_types_version": typed["sort_types_version"], "seeds": typed["seeds"], "binding": None,
+          "search": typed["search"], "doc": "I110 Q74 check", "documents": [rel]}
+    if budget is not None:
+        sc["sort_budget"] = budget
+    tmp = Path(tempfile.mkdtemp(prefix="holon-i110-q74-", dir=root))
+    try:
+        sp = tmp / "st.json"
+        sp.write_text(json.dumps(sc))
+        out = A.run_pass([root / rel], root, "T510", seeds_path=root / sc["seeds"], sidecar_path=sp)
+        texts = {}
+        for name, doc in out.items():
+            doc = dict(doc, inputs=[x for x in doc.get("inputs") or [] if not x["path"].endswith("/st.json")])
+            texts[name] = A.dumps(doc)
+        return texts
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+class TestQ74SpeedupIdentity(unittest.TestCase):
+    """HUMAN_ANSWERS Q74 (2) and Q75 (1), added after the prereg (new tests, no prereg claim): the old and the new
+    evaluation strategy of the sort pass give byte-identical outputs on every committed transitions document (the
+    holon.sorts.coverage set), Morph's M2 and M3 passes and the two planted documents; and their holon.sorts.budget
+    unit counts differ by exactly the units of the System the old strategy builds a second time, and by nothing
+    else (the text cache does no metered work)."""
+
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(ROOT / "tools"))
+        import i110_sort_profile as SP
+        cls.tmp = Path(tempfile.mkdtemp(prefix="holon-i110-q74-planted-"))
+        cls.planted = [SP.planted(cls.tmp, d, 4) for d in (6, 10)]
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.tmp, ignore_errors=True)
+
+    def compare(self, root: Path, rel: str) -> tuple[int, int, int]:
+        new = pass_texts(root, rel, 10 ** 15)
+        extra: list = []
+        with old_strategy(extra):
+            old = pass_texts(root, rel, 10 ** 15)
+        wn = json.loads(new.pop("budget"))["documents"][0]["work"]
+        wo = json.loads(old.pop("budget"))["documents"][0]["work"]
+        self.assertEqual(old, new, rel)
+        self.assertEqual(wo - wn, sum(extra), rel)
+        return wo, wn, sum(extra)
+
+    def test_q74_coverage_set_identical(self):
+        from holon.sorts import coverage as CV
+        docs = CV.documents(ROOT)
+        self.assertGreaterEqual(len(docs), 50)
+        for rel in docs:
+            self.compare(ROOT, rel)
+
+    def test_q74_morph_passes_identical(self):
+        from holon import sorts as S
+        tmp = Path(tempfile.mkdtemp(prefix="holon-i110-q74-morph-"))
+        try:
+            for m in ("M2", "M3"):
+                self.assertEqual(S.run(m, str(ROOT), str(tmp / "new" / m), None), 0)
+                with old_strategy():
+                    self.assertEqual(S.run(m, str(ROOT), str(tmp / "old" / m), None), 0)
+                self.assertEqual(tree(tmp / "new" / m), tree(tmp / "old" / m), m)
+                self.assertEqual(tree(tmp / "new" / m), {k: v for k, v in tree(ROOT / "gen" / m / "sorts").items()
+                                                         if k in tree(tmp / "new" / m)}, m)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_q75_planted_and_morph_units(self):
+        """The unit counts, old and new, on the planted documents and Morph's transitions document. They differ
+        (the old strategy meters its repeated System); the report states them and the tier's derivation."""
+        rows = {}
+        for d in self.planted:
+            rows[d.name] = self.compare(d, "deep.extracted.json")
+        rows["morph_rollup"] = self.compare(ROOT, "spec/M2/facts/morph_rollup.extracted.json")
+        self.assertEqual(rows["deep_d10_a4"][1], 737121)   # the final pass's count the tier was derived with
+        print("\nQ75 units (old, new, repeated System):", json.dumps(rows, sort_keys=True))
 
 
 if __name__ == "__main__":
