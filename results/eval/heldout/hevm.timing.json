@@ -1,0 +1,49 @@
+{
+  "baseline": "hevm",
+  "note": "timings only (wall clock and CPU of each unit, setup outside the budget); never compared for determinism",
+  "system": "heldout",
+  "targets": {
+    "scroll": {
+      "cpu_s": 26.608,
+      "cpus": 1,
+      "setup_s": 55.017,
+      "units": [
+        {
+          "cpu_s": 1.425,
+          "name": "L1MessageQueueV1",
+          "wall_s": 8.82
+        },
+        {
+          "cpu_s": 1.259,
+          "name": "L1MessageQueueV1WithGasPriceOracle",
+          "wall_s": 8.817
+        },
+        {
+          "cpu_s": 0.517,
+          "name": "L1MessageQueueV2",
+          "wall_s": 8.81
+        },
+        {
+          "cpu_s": 2.114,
+          "name": "L2GasPriceOracle",
+          "wall_s": 2.407
+        },
+        {
+          "cpu_s": 0.992,
+          "name": "MultipleVersionRollupVerifier",
+          "wall_s": 10.614
+        },
+        {
+          "cpu_s": 10.383,
+          "name": "ScrollChain",
+          "wall_s": 10.613
+        },
+        {
+          "cpu_s": 9.918,
+          "name": "ScrollChainCommitmentVerifier",
+          "wall_s": 10.215
+        }
+      ]
+    }
+  }
+}

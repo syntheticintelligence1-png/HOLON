@@ -1,0 +1,151 @@
+{
+  "artifacts": {
+    "law_name": "cl_l_i48_depth_2",
+    "laws": ".ablate/cal/depth_2_gen/laws/L_i48_depth_2/LAWS.bend",
+    "model": ".ablate/cal/depth_2_gen/model/depth_2_facts.bend",
+    "proof": ".ablate/cal/depth_2_gen/proofs/L_i48_depth_2/PROOF.bend"
+  },
+  "attempts": [
+    {
+      "error": "SOME PROOFS FAIL\nError:\n- expected : False{}\n- observed : True{}\nContext:\n- c    : Nat\n- flag : Bool\n- log  : List<&2, M.HObs>\n- h0   : {Bool.not(flag) == True{} : Bool}\nLocation: l_i48_depth_2_ri_exec_fire\n28 |     case M.D_fire_Ok{}:\n29>|       {==}\n   |       ^^^^\n30 |",
+      "exit_code": 1,
+      "generator": "reach_invariant",
+      "kind": "proof",
+      "marker": "SOME PROOFS FAIL",
+      "mode": "plain",
+      "strengthening": [],
+      "tries": 2
+    },
+    {
+      "bound": "prefixes: BFS depth 3 over policy actions (<= 3000 states); suffixes: divergence BFS depth 4; Nat binders 0..5 plus premise-solved values",
+      "engine": "compiled-model trace search",
+      "hit": true,
+      "kind": "refute",
+      "tried": 11
+    },
+    {
+      "exit_code": 0,
+      "generator": "counter",
+      "kind": "counter-law",
+      "marker": "ALL PROOFS CHECK"
+    },
+    {
+      "exit_code": 0,
+      "kernel": "BendTT (Lean-proven)",
+      "kind": "verdict",
+      "marker": "ALL PROOFS CHECK"
+    }
+  ],
+  "checker": {
+    "exit_code": 0,
+    "marker": "ALL PROOFS CHECK"
+  },
+  "compiled_sha256": "1eeef783caad2c593b3be3ae99b88e36319a4d9c668a0d1bb779cc3ac0e5f990",
+  "cone": [
+    "Dec_fire",
+    "Dec_inc",
+    "HAct",
+    "HObs",
+    "HSt",
+    "Reach",
+    "dec_fire_0",
+    "decide_fire",
+    "decide_inc",
+    "exec_fire",
+    "exec_inc",
+    "flag_down",
+    "s0",
+    "step",
+    "step_fire",
+    "step_inc"
+  ],
+  "coverage": null,
+  "difference": {
+    "lhs": false,
+    "rhs": true
+  },
+  "evidence_levels": null,
+  "evidence_override": null,
+  "evidence_triage": "finding",
+  "facts_sha256": "385373159eba23e3546f06ef8106b69195410218c0e4dcd812e783bd01591e71",
+  "filter_bin": "pending",
+  "generator_sha256": "f35aa2fce433af0f1aaff61d6e969a70600ae6fb9a627991acee2f02a6cec59c",
+  "independence_class": "I1-shared",
+  "kernel": {
+    "name": "bend",
+    "verdict": "checked",
+    "version": "2.0.36"
+  },
+  "kernels": [
+    {
+      "name": "bend2",
+      "result": "checked",
+      "role": "primary",
+      "version": "2.0.36"
+    },
+    {
+      "name": "bendtt",
+      "note": "BendTT (--verdict) re-checks bend2's elaboration of the same file: it shares the front end, so agreement is not independent evidence (class I1-shared, not I2)",
+      "result": "checked",
+      "role": "second",
+      "shares_frontend_with": "bend2",
+      "version": "2.0.36"
+    }
+  ],
+  "law_id": "L_i48_depth_2",
+  "ledger_assumptions": [
+    "abs-depth-2-control"
+  ],
+  "ledger_match": "exact",
+  "maps_to": null,
+  "model_assumptions": [],
+  "model_sha256": "40d6ba214d1a0c3e9c07bce15826c03d6d4318a760a2e6f42153b05fde0f8638",
+  "non_vacuity": {
+    "bound": "the accepted counter-law inhabits the premises",
+    "degenerate": null,
+    "law": ".ablate/cal/depth_2_gen/laws/L_i48_depth_2/LAWS.bend",
+    "parent_statement_hash": "sha256:474b76d3d47cc90f95b8b414d10b15a6dce3f685c86567880765f3fec4297383",
+    "reachable": null,
+    "status": "counter_witness",
+    "witness": null
+  },
+  "premises": [],
+  "prover": "generator",
+  "record_version": "holon-record/0.2",
+  "refinement_refs": [],
+  "replay": {
+    "detail": "no replay report entry",
+    "status": "not_run"
+  },
+  "rule": "SORT",
+  "scope": "unbounded",
+  "scope_v2": {
+    "at_state": null,
+    "horizon": null,
+    "kind": "unbounded"
+  },
+  "statement": "∀ s: Reach. flag_down(s) == true",
+  "statement_hash": "sha256:474b76d3d47cc90f95b8b414d10b15a6dce3f685c86567880765f3fec4297383",
+  "statement_scope": {
+    "kind": "unbounded"
+  },
+  "status": "REFUTED",
+  "subform": null,
+  "triage": "finding",
+  "witness": {
+    "s": {
+      "run": [
+        {
+          "op": "inc"
+        },
+        {
+          "op": "inc"
+        },
+        {
+          "op": "fire"
+        }
+      ]
+    }
+  },
+  "witness_provenance": {}
+}

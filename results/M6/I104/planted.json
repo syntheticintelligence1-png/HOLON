@@ -1,0 +1,108 @@
+{
+  "cases": [
+    {
+      "aggregate": {
+        "decided": 0,
+        "derived": 0,
+        "findings": 0,
+        "replay_confirmed": 0,
+        "roles_source": [],
+        "unknown": 0
+      },
+      "bundle_sha256": null,
+      "id": "planted_link_proxy_slot_blob_commit",
+      "kind": "link",
+      "laws": [],
+      "laws_doc": "per-law rows withheld (HUMAN_ANSWERS Q56); see aggregate and bundle_sha256",
+      "outcome": "no law derived",
+      "planted": {
+        "go": {
+          "document": "spec/M2/facts/morph_batch.go.extracted.json",
+          "global": "morph-l2/common/batch.emptyBlobCommit"
+        },
+        "solidity": {
+          "constant": "EIP1967_PROXY_ADMIN_SLOT",
+          "document": "spec/M2/facts/morph_rollup.extracted.json"
+        }
+      }
+    },
+    {
+      "aggregate": {
+        "decided": 0,
+        "derived": 0,
+        "findings": 0,
+        "replay_confirmed": 0,
+        "roles_source": [],
+        "unknown": 0
+      },
+      "bundle_sha256": null,
+      "id": "planted_bytes_ops",
+      "kind": "go_ops",
+      "laws": [],
+      "laws_doc": "per-law rows withheld (HUMAN_ANSWERS Q56); see aggregate and bundle_sha256",
+      "outcome": "dropped: the producer refuses it: LinkedError: Go type '[]byte' gives the carrier id '[]byte', which is not an identifier",
+      "planted": {
+        "carrier": "[]byte",
+        "document": "spec/M3/facts/morph_blob.go.extracted.json",
+        "reach": "planted: a byte slice is not an interface carrier of this document"
+      }
+    },
+    {
+      "aggregate": {
+        "decided": 0,
+        "derived": 1,
+        "findings": 0,
+        "replay_confirmed": 0,
+        "roles_source": [
+          "ai_proposal"
+        ],
+        "unknown": 1
+      },
+      "bundle_sha256": "4774b8561ca7561a8d4adba5902aa05a8b9c3ca7e9a1c9eb5b30db13f1c5fac7",
+      "id": "planted_reader_ops",
+      "kind": "go_ops",
+      "laws": [],
+      "laws_doc": "per-law rows withheld (HUMAN_ANSWERS Q56); see aggregate and bundle_sha256",
+      "outcome": "laws",
+      "planted": {
+        "carrier": "io.Reader",
+        "document": "spec/M3/facts/morph_blob.go.extracted.json",
+        "reach": "planted: a standard-library reader is not this document's carrier"
+      }
+    },
+    {
+      "aggregate": {
+        "decided": 0,
+        "derived": 0,
+        "findings": 0,
+        "replay_confirmed": 0,
+        "roles_source": [],
+        "unknown": 0
+      },
+      "bundle_sha256": null,
+      "id": "planted_recompute_v2",
+      "kind": "recompute",
+      "laws": [],
+      "laws_doc": "per-law rows withheld (HUMAN_ANSWERS Q56); see aggregate and bundle_sha256",
+      "outcome": "dropped: the producer refuses it: GoxError: contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:229: the stored value is not keccak256 over a memory slice",
+      "planted": {
+        "go": {
+          "document": "spec/M3/facts/morph_go03.go.extracted.json",
+          "functions": [
+            "(*morph-l2/common/batch.BatchData).DataHashV2",
+            "(*morph-l2/common/batch.BatchData).Bytes"
+          ]
+        },
+        "solidity": {
+          "action": "commitState",
+          "document": "spec/M2/facts/morph_rollup.extracted.json",
+          "store": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:229"
+        }
+      }
+    }
+  ],
+  "findings": 0,
+  "i104_version": "holon-i104/0.1",
+  "proposal": "results/M6/I104/planted_proposal.json",
+  "proposal_sha256": "2fd373bbe47825fe2407e733c55615374bc09786c06700dfe4e25eef81eab034"
+}

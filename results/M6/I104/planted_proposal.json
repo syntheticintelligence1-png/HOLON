@@ -1,0 +1,45 @@
+{
+  "doc": "I104 planted wrong roles (P3), written by hand to be wrong: each pairs facts of different meaning. Fed through the proposal channel in mode static+ai over Morph's documents; the checker decides, and none may count as a finding.",
+  "go_ops": {
+    "planted_bytes_ops": {
+      "carrier": "[]byte",
+      "document": "spec/M3/facts/morph_blob.go.extracted.json",
+      "reach": "planted: a byte slice is not an interface carrier of this document"
+    },
+    "planted_reader_ops": {
+      "carrier": "io.Reader",
+      "document": "spec/M3/facts/morph_blob.go.extracted.json",
+      "reach": "planted: a standard-library reader is not this document's carrier"
+    }
+  },
+  "link": {
+    "planted_link_proxy_slot_blob_commit": {
+      "go": {
+        "document": "spec/M2/facts/morph_batch.go.extracted.json",
+        "global": "morph-l2/common/batch.emptyBlobCommit"
+      },
+      "solidity": {
+        "constant": "EIP1967_PROXY_ADMIN_SLOT",
+        "document": "spec/M2/facts/morph_rollup.extracted.json"
+      }
+    }
+  },
+  "proposer": "agent",
+  "recompute": {
+    "planted_recompute_v2": {
+      "go": {
+        "document": "spec/M3/facts/morph_go03.go.extracted.json",
+        "functions": [
+          "(*morph-l2/common/batch.BatchData).DataHashV2",
+          "(*morph-l2/common/batch.BatchData).Bytes"
+        ]
+      },
+      "solidity": {
+        "action": "commitState",
+        "document": "spec/M2/facts/morph_rollup.extracted.json",
+        "store": "contracts/contracts/libraries/codec/BatchHeaderCodecV0.sol:229"
+      }
+    }
+  },
+  "roles_proposed_version": "holon-roles-proposed/0.1"
+}
