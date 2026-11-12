@@ -252,6 +252,13 @@ def toolchain_info(doc: dict, doc_sha: str, root: Path, source=None) -> dict:
     from .frontends import Refused, ExtractionError, load_sidecar
     from .frontends.solidity import compile as comp
     ext = doc.get("extraction") or {}
+    if ext.get("frontend") == "go":
+        # I105: a Go machine document (holon.frontends.go_machines) has no compiler; the frontend writes the view the
+        # model reads (layout, action inputs) into the document itself, under "info", in compiler_info's format
+        info = doc.get("info")
+        if not isinstance(info, dict) or info.get("info_version") != INFO_VERSION:
+            raise ModelError(f"the Go document carries no info of version {INFO_VERSION}")
+        return info
     side_ref = ext.get("sidecar") or {}
     rel = side_ref.get("path")
     if not isinstance(rel, str) or rel.startswith("<outside>"):
