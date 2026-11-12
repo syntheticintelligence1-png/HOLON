@@ -379,7 +379,7 @@ def summarize(rows: list[dict]) -> dict:
 
 
 # ---------------------------------------------------------------------------------------------- one entry
-def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dict) -> dict:
+def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dict, roles: dict | None = None) -> dict:
     """Run one entry; write its <id>/ directory into stage_dir; return its row."""
     rel = f"{proto['out']}/{entry['id']}"
     edir = stage_dir / entry["id"]
@@ -448,6 +448,21 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
                              "detail": f"{len(ext)} of {len(docs)} documents extracted"}
         sol = [d for d in ext if d["language"] == "solidity"]
         M = proto["milestone"]
+        if roles and ext:   # I104 opt-in (--roles): the role sidecars holon roles infers from the stored documents
+            rels = [f"{rel}/facts/{d['file']}" for d in ext if (S / rel / "facts" / d["file"]).is_file()]
+            args = ["roles", "--milestone", M, "--root", str(S), "--documents", ",".join(rels), "--out-dir",
+                    str(S / rel / "sidecars" / "roles"), "--mode", roles["mode"]]
+            if roles.get("proposed"):
+                args += ["--proposed", roles["proposed"]]
+            stages["roles"] = R.holon("roles", args)
+            mp = S / rel / "sidecars" / "roles" / "roles.json"
+            if mp.is_file():
+                man = json.loads(mp.read_text())
+                kinds: dict = {}
+                for x in man["roles"]:
+                    kinds[f"{x['sidecar']}:{x['roles_source']}"] = kinds.get(f"{x['sidecar']}:{x['roles_source']}", 0) + 1
+                row["roles"] = {"mode": roles["mode"], "count": len(man["roles"]), "kinds": dict(sorted(kinds.items())),
+                                "proposed": man.get("proposed")}
         if ext and not sol:
             stages["derive"] = {"status": "no_producer", "exit": None, "detail": proto["go_rules_doc"]}
         if sol:
@@ -572,7 +587,11 @@ def cli_holon(argv: list[str]) -> int:
     ap.add_argument("--root", default=str(common.ROOT))
     ap.add_argument("--entries")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--roles", choices=("off", "static", "static+ai"), default="off",
+                    help="I104 opt-in: also run holon roles over each entry's stored documents (default off: I51's run)")
+    ap.add_argument("--proposed", help="with --roles static+ai: the proposal file (holon-roles-proposed/0.1)")
     a = ap.parse_args(argv)
+    roles = None if a.roles == "off" else {"mode": a.roles, "proposed": a.proposed}
     root = Path(a.root).resolve()
     proto = common.load_json(root / PROTOCOL_REL)
     cpath = root / proto["corpus"]
@@ -593,7 +612,7 @@ def cli_holon(argv: list[str]) -> int:
                 continue
             print(f"holon eval holon: {e['id']} ({e['repo']} {e['prefix_commit'][:12]})", flush=True)
             t = {}
-            new_rows[e["id"]] = run_entry(e, proto, root, stage, t)
+            new_rows[e["id"]] = run_entry(e, proto, root, stage, t, roles)
             timing[e["id"]] = t
             r = new_rows[e["id"]]
             print(f"  {r['status']}: {sum(d['status'] == 'extracted' for d in r['documents'])}/{len(r['documents'])} "
