@@ -8,14 +8,23 @@ not a gate check: what it reports is for a human to judge, and it exits 0 whenev
 history.
 
 Reported:
-  hash_changes  every statement-hash change of a law file laws/<M>/L*.json between A and B: for each commit
-                in A..B that changes the file, the hash before and after it. Hashes are holon.ir.statement_hash
-                of each version (0.3 laws with their refs into the facts file, the target library and the oracle
-                sidecar at that commit). A law added in A..B is not a change (see additions); a law deleted in A..B
-                is reported with new = null; a version that does not parse hashes as "invalid:<sha256 of its
-                bytes>". covered_by: the laws/STATEMENT_DIFF.jsonl lines at B whose entry carries exactly the two
-                statements (holon.statement_diff.covers; a catalog_rederivation line also carries the two hashes
-                reported here, F30); [] when no entry covers the change (since the M2/1 audit, F-M2-34).
+  hash_changes  every statement-hash change of a law file laws/<M>/L*.json, or of a law set's laws/<M>/<set>/L*.json
+                (the derivation law set, the bounded games), between A and B, each against the commit's own
+                parents (F-M3-07, F-M3-30; I102). The commits are those of A..B that touch laws/
+                (`git rev-list A..B -- laws/`), with every merge of A..B. A law file changes at commit C when its
+                version at C (its statement hash, or absent) is none of the versions its parents (`git rev-parse
+                C^@`) hold. A file that no parent of C holds is an addition, not a change (see additions). A file
+                deleted at C is reported with new = null. Each change names the parent it is measured against
+                ("parent": the first parent of C that holds the file), with old the hash there. A merge whose other
+                parents hold the file under other hashes also lists each such edge in other_parents ({"parent",
+                "old", "covered_by"}). Hashes are holon.ir.statement_hash of each version (0.3 laws with their refs
+                into the facts file, the target library and the oracle sidecar at that commit); a version that does
+                not parse hashes as "invalid:<sha256 of its bytes>". covered_by: the laws/STATEMENT_DIFF.jsonl lines
+                at B whose entry carries exactly the two statements of that edge (holon.statement_diff.covers; a
+                catalog_rederivation line also carries the two hashes reported here, F30); [] when no entry covers
+                the change (since the M2/1 audit, F-M2-34). Before I102 each version was compared with the previous
+                commit of a path-limited log, which on branchy history is often another branch's commit: changes no
+                commit made were reported, and changes commits made were left out.
   additions     every law file added in A..B: {"milestone", "law_id", "commit"} (the law set grows; no hash change)
   transitions   per law, what its result record says at A and at B, where it differs: status, the kernels and
                 their results ("name:result"), independence_class and premises (whitepaper §9.5 A3: law sets,
@@ -56,6 +65,9 @@ from .prereg import Fatal, Git, parse_json, preflight
 DEFAULT_ROOT = Path(__file__).resolve().parents[2]
 SHORT = 7
 _LAW_FILE = re.compile(r"^laws/(M[0-9]+)/(L[^/]*)\.json$")
+# I102: hash_changes also reads a milestone's law sets in subdirectories (laws/M3/derivation, laws/M5/games), whose
+# statements law_hash hashes the same way; additions, laws and transitions keep laws/<M>/L*.json
+_ANY_LAW_FILE = re.compile(r"^laws/(M[0-9]+)/(?:[a-z][a-z0-9_]*/)?(L[^/]*)\.json$")
 FLAGS = ("no_prediction", "no_result", "prediction_first", "result_same_commit_prediction_later_or_together",
          "result_later_prediction_later_or_together")
 
@@ -175,29 +187,63 @@ def statement_entries(hist: History) -> list[tuple[int, dict]]:
 
 
 def hash_changes(hist: History, frm: str) -> list[dict]:
+    """Every statement-hash change of a law file in frm..to, each against its commit's own parents (F-M3-07,
+    F-M3-30; I102; the module docstring's hash_changes). Blobs are compared first: only a file whose blob at C is
+    none of its parents' blobs is hashed, at C and at each parent holding it."""
     from ..statement_diff import covers
     git, to = hist.git, hist.to
     entries = statement_entries(hist)
+    trees: dict[str, dict[str, str]] = {}
+    hashes: dict[tuple[str, str], str | None] = {}
 
-    def law_paths(rev: str) -> set[str]:
-        return {p for p in git.out("ls-tree", "-r", "--name-only", rev, "--", "laws/").splitlines() if _LAW_FILE.match(p)}
-    touched = {p for p in git.out("log", "--no-renames", "--format=", "--name-only", f"{frm}..{to}", "--", "laws/").splitlines()
-               if _LAW_FILE.match(p)}
-    out = []
-    for path in sorted(law_paths(frm) | law_paths(to) | touched):
-        m, lid = _LAW_FILE.match(path).groups()
-        b = hist.blob(frm, path)
-        prev = law_hash(hist, frm, path, b) if b is not None else None
-        prev_ir = _ir(b)
-        for c in hist.log(f"{frm}..{to}", "--", path):
-            data = hist.blob(c, path)
-            h = law_hash(hist, c, path, data) if data is not None else None
-            if prev is not None and h != prev:
-                ch = {"law_id": lid, "old": prev_ir, "new": _ir(data), "old_hash": prev, "new_hash": h}
-                cov = [n for n, e in entries if ch["old"] is not None and covers(e, ch)]
-                out.append({"milestone": m, "law_id": lid, "old": prev, "new": h, "commit": c[:SHORT], "covered_by": cov})
-            prev, prev_ir = h, _ir(data)
-    return out
+    def tree(rev: str) -> dict[str, str]:
+        """path -> blob id of every law file at rev."""
+        if rev not in trees:
+            d = {}
+            for ln in git.out("ls-tree", "-r", rev, "--", "laws/").splitlines():
+                meta, _tab, path = ln.partition("\t")
+                if _ANY_LAW_FILE.match(path):
+                    d[path] = meta.split()[2]
+            trees[rev] = d
+        return trees[rev]
+
+    def hash_of(rev: str, path: str) -> str | None:
+        if (rev, path) not in hashes:
+            data = hist.blob(rev, path)
+            hashes[(rev, path)] = law_hash(hist, rev, path, data) if data is not None else None
+        return hashes[(rev, path)]
+
+    def edge(lid: str, parent: str, c: str, path: str) -> tuple[str | None, list[int]]:
+        old, new = hash_of(parent, path), hash_of(c, path)
+        ch = {"law_id": lid, "old": _ir(hist.blob(parent, path)), "new": _ir(hist.blob(c, path)), "old_hash": old,
+              "new_hash": new}
+        return old, [n for n, e in entries if ch["old"] is not None and covers(e, ch)]
+
+    commits = list(dict.fromkeys(hist.log(f"{frm}..{to}", "--", "laws/")
+                                 + git.out("rev-list", "--topo-order", "--reverse", "--merges", f"{frm}..{to}").split()))
+    commits.sort(key=lambda c: hist.order.get(c, len(hist.order)))
+    found: list[tuple[str, int, dict]] = []
+    for c in commits:
+        parents = git.out("rev-parse", f"{c}^@").split()
+        tc, tps = tree(c), [tree(p) for p in parents]
+        for path in sorted(set(tc).union(*tps)):
+            blob_c, blobs_p = tc.get(path), [tp.get(path) for tp in tps]
+            if blob_c in blobs_p or all(b is None for b in blobs_p):
+                continue    # the version of some parent, or an addition (no parent holds the file)
+            h = hash_of(c, path)
+            holding = [p for p, b in zip(parents, blobs_p) if b is not None]
+            if any(hash_of(p, path) == h for p in holding):
+                continue    # a new blob, the same statement as a parent's
+            m, lid = _ANY_LAW_FILE.match(path).groups()
+            first, rest = holding[0], holding[1:]
+            old, cov = edge(lid, first, c, path)
+            item = {"milestone": m, "law_id": lid, "old": old, "new": h, "commit": c[:SHORT], "parent": first[:SHORT],
+                    "covered_by": cov}
+            if rest:
+                item["other_parents"] = [dict(zip(("parent", "old", "covered_by"), (p[:SHORT], *edge(lid, p, c, path))))
+                                         for p in rest]
+            found.append((path, hist.order.get(c, len(hist.order)), item))
+    return [item for _path, _i, item in sorted(found, key=lambda x: (x[0], x[1]))]
 
 
 def _ir(data: bytes | None):
@@ -323,7 +369,8 @@ def main(argv: list[str]) -> int:
     print(f"A3 {rep['from']}..{rep['to']}: {len(rep['hash_changes'])} statement-hash changes")
     for h in rep["hash_changes"]:
         cov = f"covered by STATEMENT_DIFF line(s) {h['covered_by']}" if h["covered_by"] else "NOT covered by any entry"
-        print(f"  {h['milestone']}/{h['law_id']} at {h['commit']}: {h['old']} -> {h['new']} ({cov})")
+        print(f"  {h['milestone']}/{h['law_id']} at {h['commit']} (against parent {h['parent']}): {h['old']} -> "
+              f"{h['new']} ({cov})")
     print(f"{len(rep['additions'])} law files added: "
           + ", ".join(f"{x['milestone']}/{x['law_id']}@{x['commit']}" for x in rep["additions"][:40])
           + (" ..." if len(rep["additions"]) > 40 else ""))
