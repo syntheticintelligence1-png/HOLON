@@ -1,0 +1,246 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.seekError",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Error",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "abi.encodePacked",
+        [
+          "str",
+          "7365656b206572726f723a20"
+        ],
+        [
+          "call",
+          "error.Error",
+          [
+            "storage",
+            "err"
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:149",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/trie.seekError",
+  "debt": [],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I110/holon/c19/sidecars/go_2_machines.json",
+      "sha256": "46d66033903a4f1cdb31cea366e21b18e4b065adc45e3cbe33b8ea7e17da15fe"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "415a3d65effe7ccbd299a138fab0551b1553d581ebaf64d9fd6b26a1afd514b2",
+        "unit": "trie/committer.go"
+      },
+      {
+        "sha256": "909e0fc61e18b06cb50895705a152423dc55586e98740cabf2d853aaf845d458",
+        "unit": "trie/database.go"
+      },
+      {
+        "sha256": "0465eca93af8b3a5c296462f8f9a0f47d513b4c31c97d486a0549498d82bd8c8",
+        "unit": "trie/encoding.go"
+      },
+      {
+        "sha256": "ded31351c610a31c44b32cd65d66367175bc44f2b6499465e5b8bd88be5c578a",
+        "unit": "trie/errors.go"
+      },
+      {
+        "sha256": "996bafb781716fe4f3f58d73e901d33180b04b3ab1f34c05b5a0b90216037707",
+        "unit": "trie/hasher.go"
+      },
+      {
+        "sha256": "0c8d11dd6bbfd980986fb867e1035a9a3cd1ce51399c55ed4d59f4b403bef94e",
+        "unit": "trie/iterator.go"
+      },
+      {
+        "sha256": "7d1471d4e564d12c364c34b3b61bebf75b66b47017562adb96257b7abc8bae6b",
+        "unit": "trie/node.go"
+      },
+      {
+        "sha256": "eb9cfbd7f15079e81bc9f06aaf2bb0411fa705ada6a80ac52d6f0093a7b07c14",
+        "unit": "trie/proof.go"
+      },
+      {
+        "sha256": "cd43a4788d9a3c0c7701f60c725384a8951c1dcc42aba2c4997c291cc4d34088",
+        "unit": "trie/secure_trie.go"
+      },
+      {
+        "sha256": "0aafc8edcff2a1de3880ea901e14d956683c0cf4f69511eb2f2f22a0cea14dfb",
+        "unit": "trie/stacktrie.go"
+      },
+      {
+        "sha256": "6324ca30e0bcb6851beee5d3b2b560081f4cc437e759669d5c96b64b6d0e4e4d",
+        "unit": "trie/sync.go"
+      },
+      {
+        "sha256": "2e7f468eeec986cda27570a66a8c76fe51a0a0039201d2c52753395216c4be99",
+        "unit": "trie/sync_bloom.go"
+      },
+      {
+        "sha256": "cb060c3ba2dd61b3ff6b08972891b185dccd8f5b188c11c23113019841cce2e3",
+        "unit": "trie/trie.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "trie.seekError",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "Error": {
+        "declared_in": "trie.seekError",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Error",
+        "outputs": [
+          {
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "trie.seekError",
+          "label": "key",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes_storage"
+        },
+        {
+          "contract": "trie.seekError",
+          "label": "err",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        },
+        "t_bytes_storage": {
+          "encoding": "bytes",
+          "label": "bytes",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "trie.seekError"
+    ],
+    "members": {
+      "error.Error": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "error.Error",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "selector": "0xfe4702ab",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "trie/committer.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "key",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes"
+    },
+    {
+      "kind": "scalar",
+      "name": "err",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "42bc1944a17260d75dc1e33e1571c804b9a4a88a",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/trie.seekError"
+  }
+}

@@ -1,0 +1,1758 @@
+{
+  "document": "assignment",
+  "inputs": [
+    {
+      "path": "results/M6/I110/holon/c05/facts/superpermissioneddisputegame.extracted.json",
+      "sha256": "d3ba8900621dc753bb5886b74e0965875c091248713882a0272516e696f51224"
+    },
+    {
+      "path": "results/M6/I110/holon/c05/sidecars/sort_types.json",
+      "sha256": "f0c6730bab30f004d66341428841b33526401da5cbe5629bea85dbecaf45be00"
+    },
+    {
+      "path": "spec/M3/lib/sort_seeds.json",
+      "sha256": "74701ad8e12a64e63396a88d755c091ddffa6342cf4c5292870115dcfde2b12a"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "superpermissioneddisputegame.extracted": {
+      "assignment": {
+        "call:IAnchorStateRegistry.getAnchorRoot": "Nat (unrefined)",
+        "createdAt": "Nat (unrefined)",
+        "env:msg.data": "Nat (unrefined)",
+        "env:msg.data.length": "Nat (unrefined)",
+        "env:msg.value": "Nat (unrefined)",
+        "env:tx.origin": "Nat (unrefined)",
+        "initialized": "Bool",
+        "loop:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:77-79:count": "Nat (unrefined)",
+        "loop:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:77-79:i": "Nat (unrefined)",
+        "loop:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:77-79:iter": "Nat (unrefined)",
+        "loop:packages/contracts-bedrock/src/libraries/Encoding.sol:297-300:encoded": "Nat (unrefined)",
+        "loop:packages/contracts-bedrock/src/libraries/Encoding.sol:297-300:i": "Nat (unrefined)",
+        "loop:packages/contracts-bedrock/src/libraries/Encoding.sol:297-300:iter": "Nat (unrefined)",
+        "loop:packages/contracts-bedrock/src/libraries/Encoding.sol:333-342:count": "Nat (unrefined)",
+        "loop:packages/contracts-bedrock/src/libraries/Encoding.sol:333-342:i": "Nat (unrefined)",
+        "loop:packages/contracts-bedrock/src/libraries/Encoding.sol:333-342:iter": "Nat (unrefined)",
+        "loop:packages/contracts-bedrock/src/libraries/Encoding.sol:333-342:offset": "Nat (unrefined)",
+        "loop:packages/contracts-bedrock/src/libraries/Encoding.sol:333-342:outputRoots": "Nat (unrefined)",
+        "resolvedAt": "Nat (unrefined)",
+        "rootClaimByChainId._chainId": "Nat (unrefined)",
+        "status": "Nat (unrefined)",
+        "wasRespectedGameTypeWhenCreated": "Bool"
+      },
+      "facts": "results/M6/I110/holon/c05/facts/superpermissioneddisputegame.extracted.json",
+      "provenance": {}
+    }
+  },
+  "sites": [
+    {
+      "checked": false,
+      "entry_points": [
+        "extraData",
+        "gameData",
+        "initialize",
+        "rootClaimByChainId"
+      ],
+      "expr": [
+        "-",
+        [
+          "-",
+          [
+            "len",
+            [
+              "env",
+              "msg.data"
+            ]
+          ],
+          [
+            "-",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            [
+              ">>",
+              [
+                "calldataload",
+                [
+                  "-",
+                  [
+                    "env",
+                    "msg.data.length"
+                  ],
+                  2
+                ]
+              ],
+              240
+            ]
+          ]
+        ],
+        130
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/lib/solady/src/utils/Clone.sol:34:36bdc805",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "extraData",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "extraData",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "extraData",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "initialize",
+          "where": "calls[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "calls[1]"
+        },
+        {
+          "action": "initialize",
+          "where": "guards[9]"
+        },
+        {
+          "action": "initialize",
+          "where": "loops[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[20]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[21]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[26]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "loops[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[2]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/lib/solady/src/utils/Clone.sol:34"
+    },
+    {
+      "checked": false,
+      "entry_points": [
+        "anchorStateRegistry"
+      ],
+      "expr": [
+        "-",
+        [
+          "-",
+          [
+            "len",
+            [
+              "env",
+              "msg.data"
+            ]
+          ],
+          [
+            "-",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            [
+              ">>",
+              [
+                "calldataload",
+                [
+                  "-",
+                  [
+                    "env",
+                    "msg.data.length"
+                  ],
+                  2
+                ]
+              ],
+              240
+            ]
+          ]
+        ],
+        130
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:122:36bdc805",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[4]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:122"
+    },
+    {
+      "checked": false,
+      "entry_points": [
+        "proposer"
+      ],
+      "expr": [
+        "-",
+        [
+          "-",
+          [
+            "len",
+            [
+              "env",
+              "msg.data"
+            ]
+          ],
+          [
+            "-",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            [
+              ">>",
+              [
+                "calldataload",
+                [
+                  "-",
+                  [
+                    "env",
+                    "msg.data.length"
+                  ],
+                  2
+                ]
+              ],
+              240
+            ]
+          ]
+        ],
+        130
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:127:36bdc805",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "proposer",
+          "where": "panics[4]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[5]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:127"
+    },
+    {
+      "checked": true,
+      "entry_points": [
+        "anchorStateRegistry",
+        "extraData",
+        "gameData",
+        "initialize",
+        "proposer",
+        "rootClaimByChainId"
+      ],
+      "expr": [
+        "-",
+        [
+          "-",
+          [
+            "len",
+            [
+              "env",
+              "msg.data"
+            ]
+          ],
+          [
+            "-",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            [
+              ">>",
+              [
+                "calldataload",
+                [
+                  "-",
+                  [
+                    "env",
+                    "msg.data.length"
+                  ],
+                  2
+                ]
+              ],
+              240
+            ]
+          ]
+        ],
+        2
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:132:dde4e6f7",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[1]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[2]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[1]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[2]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[1]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[2]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[17]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[18]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[23]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[24]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[4]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[5]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[1]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[2]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[1]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[2]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:132"
+    },
+    {
+      "checked": false,
+      "entry_points": [
+        "anchorStateRegistry",
+        "extraData",
+        "gameData",
+        "initialize",
+        "proposer",
+        "rootClaimByChainId"
+      ],
+      "expr": [
+        "-",
+        [
+          "env",
+          "msg.data.length"
+        ],
+        2
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:132:c563b2d6",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[0]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[1]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[2]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[3]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[4]"
+        },
+        {
+          "action": "extraData",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "extraData",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "extraData",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[0]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[1]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[2]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[3]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[0]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[1]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[2]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[3]"
+        },
+        {
+          "action": "initialize",
+          "where": "calls[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "calls[1]"
+        },
+        {
+          "action": "initialize",
+          "where": "guards[10]"
+        },
+        {
+          "action": "initialize",
+          "where": "guards[9]"
+        },
+        {
+          "action": "initialize",
+          "where": "loops[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[16]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[17]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[18]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[19]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[20]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[21]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[22]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[23]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[24]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[25]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[26]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[3]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[4]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[5]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[6]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[0]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[1]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[2]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[3]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[4]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[5]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "loops[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[1]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[2]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[3]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:132"
+    },
+    {
+      "checked": false,
+      "entry_points": [
+        "anchorStateRegistry",
+        "extraData",
+        "gameData",
+        "initialize",
+        "proposer",
+        "rootClaimByChainId"
+      ],
+      "expr": [
+        "-",
+        [
+          "env",
+          "msg.data.length"
+        ],
+        [
+          ">>",
+          [
+            "calldataload",
+            [
+              "-",
+              [
+                "env",
+                "msg.data.length"
+              ],
+              2
+            ]
+          ],
+          240
+        ]
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:132:362d976c",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[0]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[1]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[2]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[3]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[4]"
+        },
+        {
+          "action": "extraData",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "extraData",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "extraData",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[0]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[1]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[2]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[3]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[0]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[1]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[2]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[3]"
+        },
+        {
+          "action": "initialize",
+          "where": "calls[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "calls[1]"
+        },
+        {
+          "action": "initialize",
+          "where": "guards[10]"
+        },
+        {
+          "action": "initialize",
+          "where": "guards[9]"
+        },
+        {
+          "action": "initialize",
+          "where": "loops[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[16]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[17]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[18]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[19]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[20]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[21]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[22]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[23]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[24]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[25]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[26]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[3]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[4]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[5]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[6]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[0]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[1]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[2]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[3]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[4]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[5]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "loops[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[1]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[2]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[3]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:132"
+    },
+    {
+      "checked": true,
+      "entry_points": [
+        "anchorStateRegistry",
+        "extraData",
+        "gameData",
+        "initialize",
+        "proposer",
+        "rootClaimByChainId"
+      ],
+      "expr": [
+        "-",
+        [
+          "len",
+          [
+            "env",
+            "msg.data"
+          ]
+        ],
+        [
+          "-",
+          [
+            "env",
+            "msg.data.length"
+          ],
+          [
+            ">>",
+            [
+              "calldataload",
+              [
+                "-",
+                [
+                  "env",
+                  "msg.data.length"
+                ],
+                2
+              ]
+            ],
+            240
+          ]
+        ]
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:132:6dc84902",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[0]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[1]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[2]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[3]"
+        },
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[4]"
+        },
+        {
+          "action": "extraData",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "extraData",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "extraData",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[0]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[1]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[2]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[3]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "gameData",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[0]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[1]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[2]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[3]"
+        },
+        {
+          "action": "initialize",
+          "where": "calls[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "calls[1]"
+        },
+        {
+          "action": "initialize",
+          "where": "guards[9]"
+        },
+        {
+          "action": "initialize",
+          "where": "loops[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "initialize",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[16]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[17]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[18]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[19]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[20]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[21]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[22]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[23]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[24]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[25]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[26]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[3]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[4]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[5]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[6]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[0]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[1]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[2]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[3]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[4]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[5]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "loops[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[1]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "mstores[2]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[1]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[2]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[3]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:132"
+    },
+    {
+      "checked": true,
+      "entry_points": [
+        "anchorStateRegistry",
+        "extraData",
+        "gameData",
+        "initialize",
+        "proposer",
+        "rootClaimByChainId"
+      ],
+      "expr": [
+        "-",
+        [
+          "-",
+          [
+            "-",
+            [
+              "len",
+              [
+                "env",
+                "msg.data"
+              ]
+            ],
+            [
+              "-",
+              [
+                "env",
+                "msg.data.length"
+              ],
+              [
+                ">>",
+                [
+                  "calldataload",
+                  [
+                    "-",
+                    [
+                      "env",
+                      "msg.data.length"
+                    ],
+                    2
+                  ]
+                ],
+                240
+              ]
+            ]
+          ],
+          2
+        ],
+        88
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:133:45ea545e",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[2]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[2]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[2]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[18]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[24]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[5]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[2]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[2]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:133"
+    },
+    {
+      "checked": true,
+      "entry_points": [
+        "anchorStateRegistry",
+        "extraData",
+        "gameData",
+        "initialize",
+        "proposer",
+        "rootClaimByChainId"
+      ],
+      "expr": [
+        "-",
+        [
+          "-",
+          [
+            "-",
+            [
+              "len",
+              [
+                "env",
+                "msg.data"
+              ]
+            ],
+            [
+              "-",
+              [
+                "env",
+                "msg.data.length"
+              ],
+              [
+                ">>",
+                [
+                  "calldataload",
+                  [
+                    "-",
+                    [
+                      "env",
+                      "msg.data.length"
+                    ],
+                    2
+                  ]
+                ],
+                240
+              ]
+            ]
+          ],
+          90
+        ],
+        40
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:133:b94c2201",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[3]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[3]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[3]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[19]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[25]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[6]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[3]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[3]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:133"
+    },
+    {
+      "checked": false,
+      "entry_points": [
+        "anchorStateRegistry",
+        "extraData",
+        "gameData",
+        "initialize",
+        "proposer",
+        "rootClaimByChainId"
+      ],
+      "expr": [
+        "-",
+        [
+          "-",
+          [
+            "len",
+            [
+              "env",
+              "msg.data"
+            ]
+          ],
+          [
+            "-",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            [
+              ">>",
+              [
+                "calldataload",
+                [
+                  "-",
+                  [
+                    "env",
+                    "msg.data.length"
+                  ],
+                  2
+                ]
+              ],
+              240
+            ]
+          ]
+        ],
+        90
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:133:53d32622",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "anchorStateRegistry",
+          "where": "panics[3]"
+        },
+        {
+          "action": "extraData",
+          "where": "panics[3]"
+        },
+        {
+          "action": "gameData",
+          "where": "panics[3]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[19]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[25]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[6]"
+        },
+        {
+          "action": "proposer",
+          "where": "panics[3]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[3]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:133"
+    },
+    {
+      "checked": true,
+      "entry_points": [
+        "initialize"
+      ],
+      "expr": [
+        "-",
+        [
+          "len",
+          [
+            "env",
+            "msg.data"
+          ]
+        ],
+        94
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:151:9909422c",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "initialize",
+          "where": "guards[1]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[1]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[2]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:151"
+    },
+    {
+      "checked": true,
+      "entry_points": [
+        "initialize"
+      ],
+      "expr": [
+        "-",
+        [
+          "-",
+          [
+            "len",
+            [
+              "env",
+              "msg.data"
+            ]
+          ],
+          94
+        ],
+        40
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:154:fc92eb16",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "initialize",
+          "where": "panics[1]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:154"
+    },
+    {
+      "checked": true,
+      "entry_points": [
+        "initialize"
+      ],
+      "expr": [
+        "-",
+        [
+          "-",
+          [
+            "len",
+            [
+              "env",
+              "msg.data"
+            ]
+          ],
+          134
+        ],
+        9
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:157:b03da4dd",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "initialize",
+          "where": "panics[2]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:157"
+    },
+    {
+      "checked": false,
+      "entry_points": [
+        "initialize"
+      ],
+      "expr": [
+        "-",
+        [
+          "len",
+          [
+            "env",
+            "msg.data"
+          ]
+        ],
+        134
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:157:cd479d0a",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "initialize",
+          "where": "guards[1]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[2]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:157"
+    },
+    {
+      "checked": false,
+      "entry_points": [
+        "initialize"
+      ],
+      "expr": [
+        "-",
+        [
+          "len",
+          [
+            "env",
+            "msg.data"
+          ]
+        ],
+        143
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:48:8929e25b",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "initialize",
+          "where": "guards[1]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:48"
+    },
+    {
+      "checked": true,
+      "entry_points": [
+        "initialize"
+      ],
+      "expr": [
+        "-",
+        [
+          "len",
+          [
+            "ptr",
+            [
+              "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:49",
+              "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:112",
+              "packages/contracts-bedrock/lib/solady/src/utils/Clone.sol:33"
+            ],
+            0
+          ]
+        ],
+        9
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/libraries/Encoding.sol:327:0d23cca5",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "initialize",
+          "where": "guards[5]"
+        },
+        {
+          "action": "initialize",
+          "where": "loops[0]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[10]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[8]"
+        },
+        {
+          "action": "initialize",
+          "where": "panics[9]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/libraries/Encoding.sol:327"
+    },
+    {
+      "checked": true,
+      "entry_points": [
+        "rootClaimByChainId"
+      ],
+      "expr": [
+        "-",
+        [
+          "len",
+          [
+            "ptr",
+            [
+              "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:74",
+              "packages/contracts-bedrock/src/dispute/SuperPermissionedDisputeGame.sol:112",
+              "packages/contracts-bedrock/lib/solady/src/utils/Clone.sol:33"
+            ],
+            0
+          ]
+        ],
+        9
+      ],
+      "id": "superpermissioneddisputegame.extracted:packages/contracts-bedrock/src/libraries/Encoding.sol:327:b893aed7",
+      "model": "superpermissioneddisputegame.extracted",
+      "obligation": null,
+      "occurrences": [
+        {
+          "action": "rootClaimByChainId",
+          "where": "guards[3]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "loops[0]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[5]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[6]"
+        },
+        {
+          "action": "rootClaimByChainId",
+          "where": "panics[7]"
+        }
+      ],
+      "op": "-",
+      "realized_in": "Mach(256)",
+      "sort": "Nat (unrefined)",
+      "span": "packages/contracts-bedrock/src/libraries/Encoding.sol:327"
+    }
+  ],
+  "sorts_sha256": "180902d132f1ac7c1383c579d1ddeb68d05691605bd3280e2a9f87b709740c9a",
+  "sorts_version": "holon-sorts/0.1"
+}

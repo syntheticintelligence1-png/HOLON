@@ -22,6 +22,7 @@ the entry carry that member.
 """
 from __future__ import annotations
 
+from . import budget as _B
 from . import grammar as G
 
 
@@ -50,6 +51,7 @@ def members(constraints: list[dict]) -> dict[str, frozenset]:
     todo = sorted(mem)
     while todo:
         v = todo.pop()
+        _B.tick(1 + len(succ.get(v, ())))   # I110 (a): one propagation step and the edges it reads
         for w in succ.get(v, ()):
             cur = mem.setdefault(w, set())
             if not mem[v] <= cur:
@@ -166,6 +168,7 @@ def union_entries(model: str, var_members: dict[str, frozenset], keys: set, cons
     out = []
     for ks, ms in sorted(groups, key=lambda g: (g[0][0], sorted(g[1]))):
         kset = set(ks)
+        _B.tick(1 + len(ms) * len(writes))   # I110 (a): the writes each member's writer scan reads
         wmap = {}
         for m in sorted(ms):
             wmap[m] = sorted({actor for actor, reg, var in writes

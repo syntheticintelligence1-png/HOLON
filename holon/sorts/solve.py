@@ -32,6 +32,7 @@ solution gives the variable (None when two solutions differ, or nothing constrai
 """
 from __future__ import annotations
 
+from . import budget as _B
 from . import grammar as G
 
 TABLES = {"+": frozenset({("P", "G", "P"), ("G", "P", "P"), ("G", "G", "G")}),
@@ -81,6 +82,7 @@ def _propagate(doms: dict, cons: list) -> bool:
     while changed:
         changed = False
         for tab, trip in cons:
+            _B.tick(len(tab))   # I110 (a): the rows this sweep reads
             sup = []
             for t in tab:
                 ok = True
@@ -104,6 +106,7 @@ def _propagate(doms: dict, cons: list) -> bool:
 
 
 def _search(doms: dict, cons: list) -> bool:
+    _B.tick()   # I110 (a): one search node
     doms = {v: set(d) for v, d in doms.items()}
     if not _propagate(doms, cons):
         return False
@@ -169,6 +172,7 @@ class Component:
 
 class System:
     def __init__(self, constraints: list):
+        _B.tick(len(constraints) + 1)   # I110 (a): one unit per constraint read
         self.uf = UF()
         fix_items, affine = [], []
         for c in constraints:

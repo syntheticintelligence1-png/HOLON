@@ -1,0 +1,1173 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.protoRW",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  1
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "p2p/peer.go:477",
+                "load"
+              ],
+              0
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "&&",
+                    [
+                      "!",
+                      [
+                        "==",
+                        [
+                          "unknown",
+                          "?",
+                          "extract"
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      1
+                    ]
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "p2p/peer.go:477",
+                    "load"
+                  ],
+                  0
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "p2p/peer.go:477"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  1
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "blocking select matched no case",
+          "src": "p2p/peer.go:471"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "ReadMsg",
+      "order": [
+        [
+          "guard",
+          "p2p/peer.go:477",
+          0
+        ],
+        [
+          "guard",
+          "p2p/peer.go:471",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "==",
+          [
+            "unknown",
+            "?",
+            "extract"
+          ],
+          0
+        ],
+        [
+          "unknown",
+          "p2p/peer.go:475",
+          "structv"
+        ],
+        0
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:471",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.protoRW",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  ">=",
+                  [
+                    "unknown",
+                    "p2p/peer.go:449",
+                    "member"
+                  ],
+                  [
+                    "unknown",
+                    "p2p/peer.go:449",
+                    "member"
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/peer_error.go:40",
+                  "ok"
+                ],
+                [
+                  "!=",
+                  [
+                    "keccak256",
+                    [
+                      "str",
+                      "6e6f742068616e646c6564"
+                    ]
+                  ],
+                  [
+                    "keccak256",
+                    [
+                      "str",
+                      ""
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "p2p/peer.go:450",
+                "ptr"
+              ],
+              0
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "&&",
+                    [
+                      ">=",
+                      [
+                        "unknown",
+                        "p2p/peer.go:449",
+                        "member"
+                      ],
+                      [
+                        "unknown",
+                        "p2p/peer.go:449",
+                        "member"
+                      ]
+                    ],
+                    [
+                      "unknown",
+                      "p2p/peer_error.go:40",
+                      "ok"
+                    ],
+                    [
+                      "!=",
+                      [
+                        "keccak256",
+                        [
+                          "str",
+                          "6e6f742068616e646c6564"
+                        ]
+                      ],
+                      [
+                        "keccak256",
+                        [
+                          "str",
+                          ""
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "p2p/peer.go:450",
+                    "ptr"
+                  ],
+                  0
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            },
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "&&",
+                    [
+                      ">=",
+                      [
+                        "unknown",
+                        "p2p/peer.go:449",
+                        "member"
+                      ],
+                      [
+                        "unknown",
+                        "p2p/peer.go:449",
+                        "member"
+                      ]
+                    ],
+                    [
+                      "unknown",
+                      "p2p/peer_error.go:40",
+                      "ok"
+                    ],
+                    [
+                      "!",
+                      [
+                        "!=",
+                        [
+                          "keccak256",
+                          [
+                            "str",
+                            "6e6f742068616e646c6564"
+                          ]
+                        ],
+                        [
+                          "keccak256",
+                          [
+                            "str",
+                            ""
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "p2p/peer.go:450",
+                    "ptr"
+                  ],
+                  0
+                ]
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "p2p/peer.go:450"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                ">=",
+                [
+                  "unknown",
+                  "p2p/peer.go:449",
+                  "member"
+                ],
+                [
+                  "unknown",
+                  "p2p/peer.go:449",
+                  "member"
+                ]
+              ],
+              [
+                "!",
+                [
+                  "unknown",
+                  "p2p/peer_error.go:40",
+                  "ok"
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    ">=",
+                    [
+                      "unknown",
+                      "p2p/peer.go:449",
+                      "member"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/peer.go:449",
+                      "member"
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "unknown",
+                      "p2p/peer_error.go:40",
+                      "ok"
+                    ]
+                  ]
+                ]
+              ],
+              "seq": 2,
+              "stack": []
+            }
+          ],
+          "reason": "invalid error code",
+          "src": "p2p/peer_error.go:42"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    ">=",
+                    [
+                      "unknown",
+                      "p2p/peer.go:449",
+                      "member"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/peer.go:449",
+                      "member"
+                    ]
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/p2p.MsgWriter.WriteMsg",
+                [
+                  "storage",
+                  "w"
+                ],
+                [
+                  "unknown",
+                  "p2p/peer.go:459",
+                  "structv"
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "&&",
+                    [
+                      "!",
+                      [
+                        ">=",
+                        [
+                          "unknown",
+                          "p2p/peer.go:449",
+                          "member"
+                        ],
+                        [
+                          "unknown",
+                          "p2p/peer.go:449",
+                          "member"
+                        ]
+                      ]
+                    ],
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/p2p.MsgWriter.WriteMsg",
+                    [
+                      "storage",
+                      "w"
+                    ],
+                    [
+                      "unknown",
+                      "p2p/peer.go:459",
+                      "structv"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              "seq": 3,
+              "stack": []
+            },
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      ">=",
+                      [
+                        "unknown",
+                        "p2p/peer.go:449",
+                        "member"
+                      ],
+                      [
+                        "unknown",
+                        "p2p/peer.go:449",
+                        "member"
+                      ]
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    1
+                  ]
+                ]
+              ],
+              "seq": 4,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "p2p/peer.go:468"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  ">=",
+                  [
+                    "unknown",
+                    "p2p/peer.go:449",
+                    "member"
+                  ],
+                  [
+                    "unknown",
+                    "p2p/peer.go:449",
+                    "member"
+                  ]
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  1
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      ">=",
+                      [
+                        "unknown",
+                        "p2p/peer.go:449",
+                        "member"
+                      ],
+                      [
+                        "unknown",
+                        "p2p/peer.go:449",
+                        "member"
+                      ]
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "seq": 5,
+              "stack": []
+            }
+          ],
+          "reason": "blocking select matched no case",
+          "src": "p2p/peer.go:448"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "WriteMsg",
+      "order": [
+        [
+          "guard",
+          "p2p/peer.go:450",
+          0
+        ],
+        [
+          "guard",
+          "p2p/peer.go:450",
+          1
+        ],
+        [
+          "guard",
+          "p2p/peer_error.go:42",
+          0
+        ],
+        [
+          "guard",
+          "p2p/peer.go:468",
+          0
+        ],
+        [
+          "guard",
+          "p2p/peer.go:468",
+          1
+        ],
+        [
+          "guard",
+          "p2p/peer.go:448",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "msg",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "p2p/peer.go:448",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/p2p.protoRW",
+  "debt": [
+    {
+      "action": "ReadMsg",
+      "kind": "channel",
+      "src": "p2p/peer.go:472",
+      "what": "select"
+    },
+    {
+      "action": "WriteMsg",
+      "kind": "channel",
+      "src": "p2p/peer.go:457",
+      "what": "select"
+    },
+    {
+      "action": "WriteMsg",
+      "kind": "channel",
+      "src": "p2p/peer.go:464",
+      "what": "send"
+    }
+  ],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I110/holon/c09/sidecars/go_1_machines.json",
+      "sha256": "cdfde66025f71e6319e618bcdb620d032d9916a57832a5c32aa24d8c84b86c5e"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "552aafb2f900a4cfd4fd0f1abaf860ab28d07a4d5624d26824710f9913488548",
+        "unit": "p2p/dial.go"
+      },
+      {
+        "sha256": "9ed3661b0aa04ae025f40bf140bcd7373029ea3903476d27b8f9c4ab9ca94a4e",
+        "unit": "p2p/message.go"
+      },
+      {
+        "sha256": "bcbd485ed0a843602e73fdafcf88c4e8c700dd0f2ae006d5aae33d751c5a8f93",
+        "unit": "p2p/metrics.go"
+      },
+      {
+        "sha256": "c55cf31f788e70baa25b7bf5d35354b5be0aabb0ed4673b5ea55fda72d804a4f",
+        "unit": "p2p/peer.go"
+      },
+      {
+        "sha256": "0a8e6b992ea1df69f413055d172edfe15fdcc547bebdd2cd5bc0dcd4157b3e69",
+        "unit": "p2p/peer_error.go"
+      },
+      {
+        "sha256": "0d9a72573ce3b1e7c30bcfa14d34138dd4097b19ff18908e40c560ee5efae42e",
+        "unit": "p2p/protocol.go"
+      },
+      {
+        "sha256": "c4238dc625c78fd462bd45b76aede8d0db4267dca8661d354a2bd7893bbbad01",
+        "unit": "p2p/server.go"
+      },
+      {
+        "sha256": "2e0a158e585224e2c80c791e13d63ddb7c1427f882d16c6481c70a8263c3f250",
+        "unit": "p2p/server_nat.go"
+      },
+      {
+        "sha256": "2c81a97d985e7d181b64b2cf6356897092c246d2ca8f0d2182aa6a1fad629474",
+        "unit": "p2p/transport.go"
+      },
+      {
+        "sha256": "346bf0e408e7d39c8cbbe0b75d433400a3ba653ab5f40d3cb8aaab47c272fdcf",
+        "unit": "p2p/util.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "p2p.protoRW",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "ReadMsg": {
+        "declared_in": "p2p.protoRW",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "ReadMsg",
+        "outputs": [
+          {
+            "components": [
+              {
+                "name": "Code",
+                "type": "uint64"
+              },
+              {
+                "name": "Size",
+                "type": "uint32"
+              },
+              {
+                "name": "Payload",
+                "type": "uint256"
+              },
+              {
+                "name": "ReceivedAt",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCap",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCode",
+                "type": "uint64"
+              },
+              {
+                "name": "meterSize",
+                "type": "uint32"
+              }
+            ],
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "WriteMsg": {
+        "declared_in": "p2p.protoRW",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "Code",
+                "type": "uint64"
+              },
+              {
+                "name": "Size",
+                "type": "uint32"
+              },
+              {
+                "name": "Payload",
+                "type": "uint256"
+              },
+              {
+                "name": "ReceivedAt",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCap",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCode",
+                "type": "uint64"
+              },
+              {
+                "name": "meterSize",
+                "type": "uint32"
+              }
+            ],
+            "name": "msg",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "WriteMsg",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "p2p.protoRW",
+          "label": "Protocol",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.protoRW",
+          "label": "in",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.protoRW",
+          "label": "closed",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.protoRW",
+          "label": "wstart",
+          "offset": 0,
+          "slot": "3",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.protoRW",
+          "label": "werr",
+          "offset": 0,
+          "slot": "4",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.protoRW",
+          "label": "offset",
+          "offset": 0,
+          "slot": "5",
+          "type": "t_uint64"
+        },
+        {
+          "contract": "p2p.protoRW",
+          "label": "w",
+          "offset": 0,
+          "slot": "6",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        },
+        "t_uint64": {
+          "encoding": "inplace",
+          "label": "uint64",
+          "numberOfBytes": "8"
+        }
+      }
+    },
+    "linearization": [
+      "p2p.protoRW"
+    ],
+    "members": {
+      "fmt.Sprintf": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "string"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "fmt.Sprintf",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "selector": "0x0d8b86cf",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/p2p.MsgWriter.WriteMsg": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/p2p.MsgWriter.WriteMsg",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xee0a9fcf",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "p2p/dial.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "Protocol",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "in",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "closed",
+      "offset": 0,
+      "slot": 2,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "wstart",
+      "offset": 0,
+      "slot": 3,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "werr",
+      "offset": 0,
+      "slot": 4,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "offset",
+      "offset": 0,
+      "slot": 5,
+      "value": "uint64"
+    },
+    {
+      "kind": "scalar",
+      "name": "w",
+      "offset": 0,
+      "slot": 6,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "e13fa32cea3497aa311226c62daf21c5847c8e4f",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/p2p.protoRW"
+  }
+}
