@@ -62,6 +62,8 @@ def run(vault: Path) -> int:
 
 def publish(vault: Path) -> int:
     raw = json.loads((vault / "out" / "corpus.json").read_text())
+    tp = vault / "out" / "corpus_timing.json"
+    timing = json.loads(tp.read_text()) if tp.is_file() else {}
     targets = []
     for r in raw["rows"]:
         docs = r.get("documents") or []
@@ -85,6 +87,9 @@ def publish(vault: Path) -> int:
             "documents_sorted": sb.get("documents", 0),
             "documents_under_tier": sb.get("documents", 0) - len(sb.get("over_budget") or []),
             "documents_over_tier": len(sb.get("over_budget") or []),
+            "sort_work_max_under_tier": max([w for w in (sb.get("work") or {}).values() if w <= sb.get("sort_budget", 0)],
+                                            default=None),
+            "seconds": timing.get(r["id"], {}),   # a measurement (machine-dependent), not an outcome
             "roles_sources": r.get("roles_sources"),
             "laws_derived": sum(f["derived"] for f in agg.values()),
             "laws_decided": sum(f["decided"] for f in agg.values()),
