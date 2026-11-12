@@ -261,6 +261,17 @@ jobs:
             # this job runs an analysis of a sealed target (Q56 (5)): it reads committed files only.
             timeout: 30
             run: python -m unittest tests_m6.test_i107_generality.TestProtocol tests_m6.test_i107_generality.TestRegressions -v
+          - name: tests-m6-i106
+            # I106 (M6, fresh sealed targets): the draw script and the candidates (R1), the seal (P1) and the reveal
+            # (P2, with its independent recompute). Committed files only: no sealed target is analysed (Q56 (5)).
+            # Added at the M6 exit (HUMAN_ANSWERS Q67: no test is left out of CI).
+            timeout: 30
+            run: python -m unittest tests_m6.test_i106_sealed -v
+          - name: tests-m6-exit
+            # The M6 exit record (docs/M6_EXIT.md): X1-X6 recomputed from committed files and the git history, and
+            # the record's table and decision line checked against them (X7).
+            timeout: 30
+            run: python -m unittest tests_m6.test_m6_exit -v
           - name: tests-m3-par-record
             # I100 (rule PAR_record_round_trip): catalog holon-rules/1.16 (B1); the producer over the codec document is
             # the instrument's computation and gen/M3/par_record/basis.json its document (B2); an m08-like and an
