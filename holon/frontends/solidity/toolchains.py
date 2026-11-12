@@ -137,10 +137,28 @@ def checked_arithmetic(version: str) -> bool:
     return vkey(version) >= (0, 8, 0)
 
 
-def unit_pragmas(source: Path, units: list[str], include: Path | None) -> dict:
+def remap(unit: str, imp: str, remappings: list) -> str:
+    """I109 (f): a non-relative import path after solc's import remappings ([context:]prefix=target): among the
+    remappings whose context is a prefix of the importing unit and whose prefix is a prefix of the import, the longest
+    context wins, then the longest prefix (solc's rule); the import's prefix is replaced by the target. No match: the
+    path is unchanged."""
+    best = None
+    for r in remappings or []:
+        if not isinstance(r, str) or "=" not in r:
+            continue
+        lhs, tgt = r.split("=", 1)
+        ctx, pre = lhs.split(":", 1) if ":" in lhs else ("", lhs)
+        if pre and unit.startswith(ctx) and imp.startswith(pre):
+            key = (len(ctx), len(pre))
+            if best is None or key > best[0]:
+                best = (key, tgt + imp[len(pre):])
+    return best[1] if best else imp
+
+
+def unit_pragmas(source: Path, units: list[str], include: Path | None, remappings: list | None = None) -> dict:
     """{unit: [expr]} over the sidecar's units and the units they import (resolved as solc resolves them: relative to
-    the importing unit's directory for ./ and ../, else against the base path (the source tree) and the include path);
-    an import neither holds is skipped (the compile reports it)."""
+    the importing unit's directory for ./ and ../, else through the sidecar's remappings (I109 (f)) against the base
+    path (the source tree) and the include path); an import neither holds is skipped (the compile reports it)."""
     seen, todo = {}, list(units)
     while todo:
         u = todo.pop(0)
@@ -167,7 +185,7 @@ def unit_pragmas(source: Path, units: list[str], include: Path | None) -> dict:
                     parts.append(seg)
                 todo.append("/".join(parts))
             else:
-                todo.append(imp)
+                todo.append(remap(u, imp, remappings))
     return {u: seen[u] for u in sorted(seen)}
 
 
@@ -182,14 +200,14 @@ def load_sets(root: Path) -> dict:
         raise Refused(f"cannot read {p}: {e}") from e
 
 
-def choose(cfg: dict, source: Path, units: list[str], include: Path | None) -> dict:
+def choose(cfg: dict, source: Path, units: list[str], include: Path | None, remappings: list | None = None) -> dict:
     """{version, path, sha256, pragmas, rule} of the pinned release a "pragma" sidecar compiles with; Refused when no
     pinned release satisfies the units' pragmas or the set is not configured."""
     s = cfg.get("solc_set") or {}
     rel = s.get("releases") or {}
     if not rel or not s.get("dir"):
         raise Refused("compiler.version \"pragma\": config/toolchains.json has no solc_set")
-    by_unit = unit_pragmas(source, units, include)
+    by_unit = unit_pragmas(source, units, include, remappings)
     exprs = sorted({e for es in by_unit.values() for e in es})
     v = select_solc(exprs, rel)
     if v is None:

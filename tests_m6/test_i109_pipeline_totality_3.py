@@ -371,6 +371,32 @@ class TestNoLinkSidecar(unittest.TestCase):
             L.load_sidecars(tmp, "lib/ad.json", "lib/link.json")
 
 
+class TestRemappedPragmas(unittest.TestCase):
+    """Added after the prereg (not a prediction; (f) is a stretch item): pragma selection follows the sidecar's
+    remappings as solc resolves them (holon.frontends.solidity.toolchains.remap: the longest context, then the longest
+    prefix)."""
+
+    def test_f_remap_rule(self):
+        from holon.frontends.solidity.toolchains import remap
+        r = ["@dep/=lib/dep/src/", "app/ctx/:@dep/=lib/other/", "@d/=a/", "@d/e/=b/"]
+        self.assertEqual(remap("app/A.sol", "@dep/D.sol", r), "lib/dep/src/D.sol")
+        self.assertEqual(remap("app/ctx/B.sol", "@dep/D.sol", r), "lib/other/D.sol")   # the longer context wins
+        self.assertEqual(remap("z.sol", "@d/e/f.sol", r), "b/f.sol")                   # then the longer prefix
+        self.assertEqual(remap("z.sol", "x/y.sol", r), "x/y.sol")                      # no match: unchanged
+
+    def test_f_unit_pragmas_follow_remapped_imports(self):
+        from holon.frontends.solidity.toolchains import unit_pragmas
+        tmp = Path(tempfile.mkdtemp(prefix="holon-i109-remap-"))
+        self.addCleanup(shutil.rmtree, tmp, True)
+        (tmp / "src").mkdir()
+        (tmp / "lib" / "dep").mkdir(parents=True)
+        (tmp / "src" / "A.sol").write_text('pragma solidity ^0.8.0;\nimport "@dep/D.sol";\ncontract A {}\n')
+        (tmp / "lib" / "dep" / "D.sol").write_text("pragma solidity 0.8.15;\ncontract D {}\n")
+        got = unit_pragmas(tmp, ["src/A.sol"], None, ["@dep/=lib/dep/"])
+        self.assertEqual(got, {"lib/dep/D.sol": ["0.8.15"], "src/A.sol": ["^0.8.0"]})
+        self.assertEqual(unit_pragmas(tmp, ["src/A.sol"], None), {"src/A.sol": ["^0.8.0"]})
+
+
 class TestCorpusSmoke(unittest.TestCase):
     """P8-P12: smoke measures on I51's 20 entries (contaminated by I51/I103/I105/I108; I107 scores)."""
 
