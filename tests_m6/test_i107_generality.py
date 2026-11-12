@@ -111,6 +111,19 @@ class TestProtocol(unittest.TestCase):
         for f in drop:
             self.assertFalse(m.in_scope(f), f)
 
+    def test_nil_maps_unknown(self):
+        # A3 (HUMAN_ANSWERS Q64): the run protocols' base is i108_run.json and they inherit go_machines.nil_maps
+        # "unknown", so no measured run decides a Go machine law on the default (unsound) nil-map path.
+        snap = load(ROOT / th()["protocol"])["base"]["snapshot"]
+        self.assertEqual(snap["run_protocol_base_path"], "spec/M6/lib/i108_run.json")
+        t = th()["run_protocols"]
+        for k in ("corpus", "sealed"):
+            p = load(ROOT / t[k])
+            self.assertEqual(p.get("go_machines", {}).get("nil_maps"), "unknown", k)
+        gm = OUT / "corpus" / "go_machines.json"
+        if gm.is_file():
+            self.assertEqual(load(gm).get("nil_maps"), "unknown")
+
     def test_protocol_names_the_rules(self):
         p = load(ROOT / th()["protocol"])
         self.assertEqual(sorted(p["runs"]), ["a_corpus", "b_sealed", "c_morph_auto"])
