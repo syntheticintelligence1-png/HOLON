@@ -620,7 +620,7 @@ def _main(argv: list) -> int:
                                       "`audit hostile|vacuity --milestone M2 --round 2 [--check]` are auditors A2 "
                                       "and A4 of audit round M2/2 (I21)")
     au.add_argument("what", choices=["prereg", "status", "regress", "hostile", "vacuity", "round", "converge",
-                                     "oracles", "gaps", "mutation", "hostile-input"])
+                                     "oracles", "gaps", "mutation", "hostile-input", "evidence"])
     au.add_argument("rest", nargs=argparse.REMAINDER)
     co = sub.add_parser("coordinator", help="the coordinator (I87): `coordinator status` renders docs/STATUS.md, "
                                             "`coordinator prompt --key I<n>` a session prompt from BUILD_PLAN, "
@@ -704,10 +704,11 @@ def _main(argv: list) -> int:
         if a.what == "vacuity":
             from .audit import vacuity
             return vacuity.main(a.rest)
-        if a.what in ("round", "converge", "oracles", "gaps", "mutation", "hostile-input"):   # I87; A1 and A2 drivers
+        if a.what in ("round", "converge", "oracles", "gaps", "mutation", "hostile-input", "evidence"):
+            # I87; A1 and A2 drivers; I101: the counted rounds' a4.json and packet.json rebuilt from their targets
             import importlib
             mod = {"round": "rounds", "converge": "converge", "oracles": "oracles", "gaps": "gaps",
-                   "mutation": "mutation", "hostile-input": "hostile_input"}[a.what]
+                   "mutation": "mutation", "hostile-input": "hostile_input", "evidence": "evidence"}[a.what]
             return importlib.import_module(f".audit.{mod}", __package__).main(a.rest)
         from .audit import prereg
         return prereg.main(a.rest)
@@ -738,5 +739,17 @@ def _main(argv: list) -> int:
     return 1
 
 
+def cli(argv=None) -> int:
+    """The command line, `python -m holon ...`: main, with a run that names its laws (--laws) inside holon.subset's
+    keep(). F-M3-42 (audit M3/9; I101): such a run keeps the gen/<M>/model and core files it does not regenerate, and
+    merges summary.json and deps.json, from outside the pipeline, whose bytes the committed records hash."""
+    argv = sys.argv[1:] if argv is None else list(argv)
+    from . import subset
+    if subset.is_subset(argv):
+        with subset.keep(argv, Path(__file__).resolve().parents[1]):
+            return main(argv)
+    return main(argv)
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli())

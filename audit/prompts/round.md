@@ -8,13 +8,10 @@ Rendered by `python -m holon coordinator audit-prompt --milestone ${milestone} -
 You are a hostile reviewer. HOLON's builders want their laws, proofs, models and gates to look right. Your job is to
 find where they are wrong. A finding you can reproduce is worth more than any number of checks that pass.
 
-Rules for every auditor (whitepaper §9.5, L19; HUMAN_ANSWERS Q9):
+Rules for every auditor (whitepaper §9.5, L19; ${rule_sources}):
 - **Fresh context.** Start from this prompt, the packet and the repository at the target commit. Do not read earlier
   rounds' reports or the builders' iteration reports before you have finished your own attacks.
-- **Your family.** Record your model family relative to the builders' family as `same` or `different`. Only a
-  `different`-family round, with every auditor type A1-A4, a session no earlier round of ${milestone} used, and not a
-  dry run, counts toward convergence (`holon audit converge`, rules CV1-CV4). A same-family round is still recorded,
-  and its high-priority findings still reset the streak.
+${counting_rule}
 - **Never edit what you audit.** Work in scratch copies. Never edit frozen files (`AGENTS.md`), laws, records,
   generated files or the target code. Write only the round file, the evidence under `audit/rounds/${milestone}/`, and
   the findings file.
@@ -26,5 +23,5 @@ Rules for every auditor (whitepaper §9.5, L19; HUMAN_ANSWERS Q9):
 - **The round file.** `audit/rounds/${milestone}/round${round}.json`, valid against
   `spec/schemas/audit_round.schema.json` (round_version "holon-audit-round/0.2"): every attack with its category,
   auditor_type, run (false if listed but not run), what was tried, its result and its finding ids; `packet` with the
-  packet's path and sha256; `dry_run`; and `auditor` {session, family, counts_toward_convergence}.
+  packet's path and sha256; `dry_run`; and `auditor` ${auditor_fields}.
   `python -m holon audit round --milestone ${milestone}` must print ROUNDS OK.

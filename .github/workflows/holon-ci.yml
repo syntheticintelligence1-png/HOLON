@@ -175,6 +175,20 @@ jobs:
             # Left out: TestVacuity (P1 is I87's preregistered miss; R5 rebuilds round 1's a4.json with the checker).
             timeout: 30
             run: python -m unittest tests_m3.test_audit_evidence tests_m3.test_audit_q9b tests_m3.test_audit_q42 tests_m3.test_exit_rulings tests_m3.test_m3_exit tests_m3.test_audit_loop.TestRounds tests_m3.test_audit_loop.TestConverge tests_m3.test_audit_loop.TestGaps tests_m3.test_audit_loop.TestCoordinator tests_m3.test_audit_loop.TestPacket tests_m3.test_audit_loop.TestOracles tests_m3.test_audit_loop.TestHonesty -v
+          - name: tests-m3-i101
+            # I101 (audit M3/8-9: F-M3-37, F-M3-38, F-M3-42): a hollow round and each one-at-a-time content change to
+            # round 9 refused by RD2 and not counted (B1-B2); the committed rounds valid, the status byte for byte (B3);
+            # a changed packet does not rebuild (B4); the rendered prompts state Q9b's rule and the evidence (B5); a
+            # subset run in a detached worktree deletes nothing and leaves summary.json and deps.json as committed (B6);
+            # no target name in I101's holon/ lines (B7); these jobs (B8); no generator closure moves (B9).
+            timeout: 30
+            run: python -m unittest tests_m3.test_audit_fixes_i101.TestBuild -v
+          - name: audit-M3-evidence
+            # I101 (F-M3-37): the a4.json and packet.json of every round of M3's current streak, rebuilt from the
+            # round's own target commit (holon audit vacuity|hostile --check), each byte for byte. The A1 and A2
+            # records are not rebuilt: mutation --check and hostile-input --check are never run unattended.
+            timeout: 60
+            run: python -m holon audit evidence --milestone M3 --rebuild
           - name: tests-m3-par-record
             # I100 (rule PAR_record_round_trip): catalog holon-rules/1.16 (B1); the producer over the codec document is
             # the instrument's computation and gen/M3/par_record/basis.json its document (B2); an m08-like and an

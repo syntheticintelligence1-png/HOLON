@@ -21,7 +21,10 @@ run), so every earlier round stays valid. A round's auditor types are the audito
        round's file that ran, of the record's auditor type and category; an attack citing one that is missing fails
   RD2 with evidence (F-M3-27, the lead's triage in #133): when the root has spec/<M>/lib/audit_evidence.json, a round
        that claims to count qualifies only if it carries the evidence that file requires (evidence_problems): a round
-       whose attacks claim to have run but whose directory lacks its driver records or packet is refused, not counted
+       whose attacks claim to have run but whose directory lacks its driver records or packet is refused, not counted;
+       and (F-M3-37, I101) each record's content as the file asks (content_problems): a mutant and a case that ran,
+       the A4 record and the packet valid against their schemas, the A4 laws the packet's and its counts their tally,
+       a packet with laws. A round of headers only is refused, not counted
 
 Schemas are read from this repository; rounds and the policy from the root. The policy is spec/<M>/lib/audit_loop.json
 of the root, or I87's spec/M3/lib/audit_loop.json (the root's, else this repository's) for a milestone without one.
@@ -213,6 +216,50 @@ def evidence_problems(root: Path, milestone: str, n: int, r: dict, rule: dict | 
                 out.append(f"{path}: the round's packet.path is {pk.get('path')!r}")
             elif pk.get("sha256") != file_sha256(d / fname):
                 out.append(f"{path}: its sha256 is not the round's packet.sha256")
+        out += content_problems(d, path, rec, want)
+    return out
+
+
+def content_problems(d: Path, path: str, rec: dict, want: dict) -> list[str]:
+    """F-M3-37 (audit M3/8; I101): what a required record lacks of the content the rule asks of it, beside its header.
+    ran: some item of rec[ran.items] has a verdict none of ran.verdict_not (a mutant or a case that ran); schema: rec
+    is valid against that schema of this repository; min_laws: rec holds at least that many laws; laws_of: rec's laws
+    are exactly those of that record of the round's directory; counts_of: rec's counts are the tally of its laws'
+    values of that field. [] when the rule asks none of these."""
+    out = []
+    ran = want.get("ran")
+    if isinstance(ran, dict):
+        items = rec.get(ran.get("items"))
+        skip = set(ran.get("verdict_not") or [])
+        if not any(isinstance(x, dict) and x.get("verdict") not in skip for x in (items if isinstance(items, list)
+                                                                                  else [])):
+            out.append(f"{path}: none of its {ran.get('items')} ran: every verdict is one of {sorted(skip)} (F-M3-37)")
+    if want.get("schema"):
+        from ..schema import errors
+        errs = errors(rec, json.loads((ROOT / want["schema"]).read_text(encoding="utf-8")))
+        if errs:
+            return out + [f"{path}: not valid against {want['schema']} (F-M3-37): {'; '.join(errs[:3])}"]
+    laws = rec.get("laws") if isinstance(rec.get("laws"), dict) else {}
+    if isinstance(want.get("min_laws"), int) and len(laws) < want["min_laws"]:
+        out.append(f"{path}: it holds {len(laws)} law(s), fewer than {want['min_laws']} (F-M3-37)")
+    if want.get("laws_of"):
+        try:
+            other = json.loads((d / want["laws_of"]).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            other = None
+        theirs = other.get("laws") if isinstance(other, dict) and isinstance(other.get("laws"), dict) else {}
+        if set(laws) != set(theirs):
+            out.append(f"{path}: its laws are not {want['laws_of']}'s: {len(set(theirs) - set(laws))} of its "
+                       f"{len(theirs)} missing, {len(set(laws) - set(theirs))} not there (F-M3-37)")
+    if want.get("counts_of"):
+        f = want["counts_of"]
+        tally: dict = {}
+        for v in laws.values():
+            if isinstance(v, dict):
+                tally[v.get(f)] = tally.get(v.get(f), 0) + 1
+        counts = rec.get("counts") if isinstance(rec.get("counts"), dict) else {}
+        if any(counts.get(k, 0) != tally.get(k, 0) for k in set(counts) | set(tally)):
+            out.append(f"{path}: its counts are not the tally of its laws' {f} (F-M3-37)")
     return out
 
 
