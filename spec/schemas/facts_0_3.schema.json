@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "holon-facts/0.3",
-  "description": "holon-facts/0.3: the shared envelope of every extracted fact document (holon extract <frontend>, *.extracted.json) and the closed shapes of the Solidity frontend's documents (contracts: the docstrings of tests_m2/test_extract_solidity_layout.py and tests_m2/test_extract_transitions.py). The top level is a oneOf of one branch per document kind, told apart by extraction.frontend and, for Solidity, extraction.kind: \"solidity\" (I17 layout documents, closed; no kind), \"solidity_transitions\" (I19 transitions documents, closed; kind \"transitions\") and \"go\" (I18: envelope keys plus an open \"go\" object, closed by spec/schemas/facts_0_3_go.schema.json). A later frontend adds its branch. Every branch requires facts_version, target {repo, commit, scope} and extraction {method \"extracted\", frontend, frontend_version, inputs}; assumptions are objects with at least id and text. Only the mini-schema keywords are used (type, required, properties, additionalProperties, enum, const, pattern, items, oneOf, allOf, $ref).",
+  "description": "holon-facts/0.3: the shared envelope of every extracted fact document (holon extract <frontend>, *.extracted.json) and the closed shapes of the Solidity frontend's documents (contracts: the docstrings of tests_m2/test_extract_solidity_layout.py and tests_m2/test_extract_transitions.py). The top level is a oneOf of one branch per document kind, told apart by extraction.frontend and, for Solidity, extraction.kind: \"solidity\" (I17 layout documents, closed; no kind), \"solidity_transitions\" (I19 transitions documents, closed; kind \"transitions\") and \"go\" (I18: envelope keys plus an open \"go\" object, closed by spec/schemas/facts_0_3_go.schema.json). A later frontend adds its branch: \"go_transitions\" (I105: Go machine transitions documents, extraction.frontend \"go\" and kind \"transitions\", closed). Every branch requires facts_version, target {repo, commit, scope} and extraction {method \"extracted\", frontend, frontend_version, inputs}; assumptions are objects with at least id and text. Only the mini-schema keywords are used (type, required, properties, additionalProperties, enum, const, pattern, items, oneOf, allOf, $ref).",
   "oneOf": [
     {
       "$ref": "#/$defs/solidity"
@@ -11,6 +11,9 @@
     },
     {
       "$ref": "#/$defs/go"
+    },
+    {
+      "$ref": "#/$defs/go_transitions"
     }
   ],
   "$defs": {
@@ -536,7 +539,264 @@
           "properties": {
             "const": {
               "type": "integer",
-              "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255]
+              "enum": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+                38,
+                39,
+                40,
+                41,
+                42,
+                43,
+                44,
+                45,
+                46,
+                47,
+                48,
+                49,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                56,
+                57,
+                58,
+                59,
+                60,
+                61,
+                62,
+                63,
+                64,
+                65,
+                66,
+                67,
+                68,
+                69,
+                70,
+                71,
+                72,
+                73,
+                74,
+                75,
+                76,
+                77,
+                78,
+                79,
+                80,
+                81,
+                82,
+                83,
+                84,
+                85,
+                86,
+                87,
+                88,
+                89,
+                90,
+                91,
+                92,
+                93,
+                94,
+                95,
+                96,
+                97,
+                98,
+                99,
+                100,
+                101,
+                102,
+                103,
+                104,
+                105,
+                106,
+                107,
+                108,
+                109,
+                110,
+                111,
+                112,
+                113,
+                114,
+                115,
+                116,
+                117,
+                118,
+                119,
+                120,
+                121,
+                122,
+                123,
+                124,
+                125,
+                126,
+                127,
+                128,
+                129,
+                130,
+                131,
+                132,
+                133,
+                134,
+                135,
+                136,
+                137,
+                138,
+                139,
+                140,
+                141,
+                142,
+                143,
+                144,
+                145,
+                146,
+                147,
+                148,
+                149,
+                150,
+                151,
+                152,
+                153,
+                154,
+                155,
+                156,
+                157,
+                158,
+                159,
+                160,
+                161,
+                162,
+                163,
+                164,
+                165,
+                166,
+                167,
+                168,
+                169,
+                170,
+                171,
+                172,
+                173,
+                174,
+                175,
+                176,
+                177,
+                178,
+                179,
+                180,
+                181,
+                182,
+                183,
+                184,
+                185,
+                186,
+                187,
+                188,
+                189,
+                190,
+                191,
+                192,
+                193,
+                194,
+                195,
+                196,
+                197,
+                198,
+                199,
+                200,
+                201,
+                202,
+                203,
+                204,
+                205,
+                206,
+                207,
+                208,
+                209,
+                210,
+                211,
+                212,
+                213,
+                214,
+                215,
+                216,
+                217,
+                218,
+                219,
+                220,
+                221,
+                222,
+                223,
+                224,
+                225,
+                226,
+                227,
+                228,
+                229,
+                230,
+                231,
+                232,
+                233,
+                234,
+                235,
+                236,
+                237,
+                238,
+                239,
+                240,
+                241,
+                242,
+                243,
+                244,
+                245,
+                246,
+                247,
+                248,
+                249,
+                250,
+                251,
+                252,
+                253,
+                254,
+                255
+              ]
             }
           }
         },
@@ -2051,6 +2311,230 @@
         }
       },
       "description": "A loop record (A19-04)."
+    },
+    "go_transitions": {
+      "type": "object",
+      "required": [
+        "facts_version",
+        "target",
+        "extraction",
+        "contract",
+        "constants",
+        "storage",
+        "actions",
+        "assumptions",
+        "inherited_storage",
+        "debt",
+        "info"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "facts_version": {
+          "const": "holon-facts/0.3"
+        },
+        "target": {
+          "type": "object",
+          "required": [
+            "repo",
+            "commit",
+            "scope"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "repo": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{40}$"
+            },
+            "scope": {
+              "type": "string"
+            }
+          }
+        },
+        "extraction": {
+          "$ref": "#/$defs/go_transitions_extraction"
+        },
+        "contract": {
+          "type": "string"
+        },
+        "constants": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string",
+                "pattern": "^(0x[0-9a-f]*|-?[0-9]+)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "storage": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_family"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/tr_action"
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "text"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^A-(env|implicit|kv|loop|reach|reentrancy)$"
+              },
+              "text": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "inherited_storage": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/tr_family"
+              },
+              {
+                "required": [
+                  "declared_in"
+                ]
+              }
+            ]
+          }
+        },
+        "debt": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "action",
+              "kind",
+              "src",
+              "what"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "channel",
+                  "defer",
+                  "goroutine",
+                  "loop",
+                  "path_limit"
+                ]
+              },
+              "src": {
+                "type": "string"
+              },
+              "what": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "info": {
+          "type": "object",
+          "required": [
+            "info_version",
+            "contract",
+            "layout",
+            "functions"
+          ],
+          "properties": {
+            "info_version": {
+              "const": "holon-extracted-info/0.2"
+            }
+          }
+        }
+      },
+      "description": "A Go machine transitions document (I105, holon.frontends.go_machines): the Solidity transitions document's keys and shapes (tr_family, tr_action, the same term language), an extraction of frontend go and kind transitions, and two keys of its own: debt (what the walk did not model: loops, goroutines, channels, defers, path limits; every such write is havocked) and info (the view the model reads in place of a compiler: holon.machine.toolchain_info)."
+    },
+    "go_transitions_extraction": {
+      "type": "object",
+      "required": [
+        "method",
+        "frontend",
+        "kind",
+        "frontend_version",
+        "config",
+        "tool",
+        "inputs"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "const": "extracted"
+        },
+        "frontend": {
+          "const": "go"
+        },
+        "kind": {
+          "const": "transitions"
+        },
+        "frontend_version": {
+          "type": "string",
+          "pattern": "^holon-go-machines/[0-9]+\\.[0-9]+$"
+        },
+        "config": {
+          "type": "object",
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "tool": {
+          "type": "object"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "unit",
+              "sha256"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "unit": {
+                "type": "string"
+              },
+              "sha256": {
+                "$ref": "#/$defs/sha256"
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

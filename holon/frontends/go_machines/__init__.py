@@ -13,7 +13,8 @@ Machines. A machine is a named struct type declared in a document package with a
 there (value or pointer receiver). Its state is its fields, one family per field, at slot = field index, offset 0 (an
 abstract layout: the families are independent cells; the Go zero value of each field is the model's zero storage). A
 field on which an action calls Get/Has/Set/Delete over []byte keys, directly or on a value an opaque call derives from
-it (the keeper pattern), is a KV family: a mapping from the key bytes to the value bytes. Its actions are its exported
+it (the keeper pattern), is a KV family: a mapping from the key bytes to the value bytes (Get reads it, Has compares
+the read with the empty value, Set and Delete write it, Iterator and ReverseIterator read it opaquely; A-kv). Its actions are its exported
 methods; static calls of functions of the document's packages are inlined to the config's inline_depth (no recursion).
 
 The walk. Each action is walked path by path over its SSA form (depth first, the true successor first), with a symbolic
@@ -70,6 +71,7 @@ FRONTEND_VERSION = "holon-go-machines/0.1"
 FACTS_VERSION = "holon-facts/0.3"
 INFO_VERSION = "holon-extracted-info/0.2"
 KV_METHODS = ("Delete", "Get", "Has", "Set")
+KV_READERS = ("Iterator", "ReverseIterator")
 WORD = 1 << 256
 
 ASSUMPTIONS = {
@@ -89,7 +91,11 @@ KV_ASSUMPTION = ("A-kv", "A KV store maps key bytes to value bytes; Get of an ab
 
 
 class Refused(Exception):
-    pass
+    """An input is refused (exit 2): nothing written."""
+
+
+class ExtractionError(Exception):
+    """The extraction failed (exit 3): nothing written."""
 
 
 # ------------------------------------------------------------------------------------------------ symbolic values
@@ -148,6 +154,38 @@ class Clo:
 
     def __init__(self, fid, binds):
         self.fid, self.binds = fid, list(binds)
+
+
+class NonNilErr:
+    """An error value that is non-nil by the language's library semantics: the result of errors.New or fmt.Errorf, or
+    a package variable of type error that a package initializer assigns from one of them (and nothing else)."""
+    __slots__ = ("name",)
+
+    def __init__(self, name):
+        self.name = name
+
+
+NONNIL_CALLS = ("errors.New", "fmt.Errorf")
+
+
+def nonnil_error_globals(prog: Program) -> dict:
+    """{global id: reason} of every package variable of type error whose only stores, in package initializers, are of
+    a value that errors.New or fmt.Errorf returns."""
+    good, bad = {}, set()
+    for fn in prog.funcs.values():
+        for ins in fn.instrs:
+            if ins.op != "Store" or not ins.operands or "global" not in (ins.operands[0] or {}):
+                continue
+            g = ins.operands[0]["global"]
+            v = ins.operands[1] if len(ins.operands) > 1 else None
+            d = fn.defs.get(v["v"]) if v and "v" in v else None
+            c = d.call if d is not None and d.op == "Call" else None
+            if fn.name == "init" and c and c.get("mode") == "static" and c.get("callee") in NONNIL_CALLS:
+                arg = c.get("args")[0] if c.get("args") else None
+                good[g] = (arg.get("const") or {}).get("value") if arg and "const" in arg else None
+            else:
+                bad.add(g)
+    return {g: r for g, r in good.items() if g not in bad and (prog.globals.get(g) or {}).get("type") == "*error"}
 
 
 class PathLimit(Exception):
@@ -306,6 +344,7 @@ class Frame:
 class End:
     def __init__(self, st: PState, kind: str, src: str, rets, reason):
         self.st, self.kind, self.src, self.rets, self.reason = st, kind, src, rets, reason
+        self.err = None
 
 
 class Walker:
@@ -318,6 +357,8 @@ class Walker:
         self.inline_depth = int(limits.get("inline_depth", 4))
         self.ends: list[End] = []
         self.npaths = 0
+        self.nonnil = nonnil_error_globals(prog) if not hasattr(prog, "_nonnil") else prog._nonnil
+        prog._nonnil = self.nonnil
 
     # ---------------------------------------------------------------- values
     def unknown(self, ins_or_pos, what: str):
@@ -796,7 +837,11 @@ class Walker:
             u = ins.get("unop")
             x = val(0)
             if u == "*":
-                fr.regs[ins.name] = self.load(st, x, ins)
+                g = (ops[0] or {}).get("global") if ops else None
+                if g is not None and g in self.nonnil:
+                    fr.regs[ins.name] = NonNilErr(self.nonnil[g] or g.rsplit(".", 1)[-1])
+                else:
+                    fr.regs[ins.name] = self.load(st, x, ins)
             elif u == "<-":
                 st.debt.append({"kind": "channel", "src": span_of(ins.pos) or fr.fn.span(), "what": "receive"})
                 fr.regs[ins.name] = ["unknown", span_of(ins.pos) or "?", "recv"]
@@ -933,11 +978,18 @@ class Walker:
                 return [st]
             return [self.finish(st, fr, ins, rets)]
         if op == "Panic":
+            if any(f.fn.recover >= 0 for f in st.frames):
+                # a deferred recover may stop the panic: the path may return normally (its results unknown)
+                st.debt.append({"kind": "defer", "src": span_of(ins.pos) or fr.fn.span(),
+                                "what": "panic under a deferred recover: not a guard"})
+                return [self.end(st, "ok", span_of(ins.pos) or fr.fn.span(), None, None)]
             return [self.end(st, "panic", span_of(ins.pos) or fr.fn.span(), None, self.reason_of(val(0)))]
         fr.regs[ins.name] = ["unknown", span_of(ins.pos) or "?", op.lower()] if ins.name else None
         return None
 
     def reason_of(self, v):
+        if isinstance(v, NonNilErr):
+            return v.name
         if isinstance(v, list) and v[:1] == ["str"]:
             try:
                 return bytes.fromhex(v[1]).decode("utf-8")
@@ -956,10 +1008,21 @@ class Walker:
             if t == "error":
                 v = rets[k] if k < len(rets) else 0
                 err = v
-        if err is not None and err != 0:
-            return self.end(st, "error", span_of(ins.pos) or fr.fn.span(), [r for t, r in zip(res, rets) if t != "error"],
-                            self.reason_of(err) if not isinstance(err, Ptr) else None)
-        return self.end(st, "ok", span_of(ins.pos) or fr.fn.span(), [r for t, r in zip(res, rets) if t != "error"], None)
+        vals = [r for t, r in zip(res, rets) if t != "error"]
+        src = span_of(ins.pos) or fr.fn.span()
+        if err is None or err == 0:
+            return self.end(st, "ok", src, vals, None)
+        if self.definitely_error(err):
+            return self.end(st, "error", src, vals, self.reason_of(err))
+        # an error that may be nil: the path fails when it is not (a free value), else it succeeds
+        e = self.end(st, "maybe", src, vals, self.reason_of(err))
+        e.err = self.term(err, ins.pos)
+        return e
+
+    def definitely_error(self, v) -> bool:
+        if isinstance(v, NonNilErr):
+            return True
+        return isinstance(v, list) and v[:1] == ["call"] and len(v) > 1 and v[1] in NONNIL_CALLS
 
     def call(self, st: PState, fr: Frame, ins):
         c = ins.call or {}
@@ -1034,6 +1097,12 @@ class Walker:
             elif ins.type == "error":
                 r = ["unknown", span_of(pos) or "?", "kv-error"]
             self._ret(fr, ins, r)
+            return None
+        if mode == "invoke" and isinstance(recv, KVRef) and c.get("method") in KV_READERS:
+            # the KV interface's iterators read the store: an opaque value, no write
+            r = ["call", f".{c.get('method')}", ["storage", recv.fam], *[self.term(a, pos) for a in args]]
+            self._ret(fr, ins, Tup([["at", i, r] for i in range(len(self.tv.T.tuple_elems(ins.type)))])
+                      if self.tv.T.is_tuple(ins.type) else ["unknown", span_of(pos) or "?", "iterator"])
             return None
         callee = c.get("callee") if mode == "static" else None
         clo = self.operand(fr, c.get("value"), st) if mode in ("static", "dynamic") else None
@@ -1183,13 +1252,16 @@ def action_record(w: Walker, fn: Func, ends: list, limit: bool, tv: TypeView, re
             debt.append(d)
         if limit:
             continue
-        if e.kind in ("error", "panic") and not e.st.writes and not e.st.taint:
-            g = guards.setdefault(e.src, {"src": e.src, "kind": "revert", "reason": e.reason, "expr": neg(K),
+        if e.kind in ("error", "panic", "maybe") and not e.st.writes and not e.st.taint:
+            # a maybe-error path fails only where its error is not nil (a free value), and succeeds otherwise
+            x = neg(K) if e.kind != "maybe" else (["==", e.err, 0] if K == 1 else ["||", neg(K), ["==", e.err, 0]])
+            g = guards.setdefault(e.src, {"src": e.src, "kind": "revert", "reason": e.reason, "expr": x,
                                           "reaches": []})
-            g["reaches"].append({"seq": seq, "stack": [], "expr": neg(K)})
+            g["reaches"].append({"seq": seq, "stack": [], "expr": x})
             order.append(["guard", e.src, len(g["reaches"]) - 1])
             seq += 1
-            continue
+            if e.kind != "maybe":
+                continue
         ok_paths.append((K, e))
         for (src, stack, f, path, val) in e.st.writes:
             writes.append({"seq": seq, "src": src, "stack": stack, "family": f, "path": path, "value": val, "cond": K})
@@ -1357,11 +1429,25 @@ def extract(config_path, src=None, root=None) -> dict:
                 "inputs": [{"unit": f, "sha256": hashes[f]} for f in files], "unit": files[0] if files else ""}
         for typ, methods in machines_of(prog, pkset):
             doc = machine_document(prog, tv, cfg, prov, typ, methods, pkset)
+            _validate(doc, root)
             name = f"{stem}.{typ.rsplit('/', 1)[-1].split('.', 1)[-1]}.extracted.json"
             if name in out:
                 raise Refused(f"two machines write {name}")
             out[name] = doc
     return out
+
+
+def _validate(doc: dict, root: Path) -> None:
+    """The document validates against spec/schemas/facts_0_3.schema.json (branch go_transitions) when the root holds
+    it; a document that does not is an extraction error (exit 3), nothing written."""
+    from ...schema import errors
+    p = Path(root) / "spec" / "schemas" / "facts_0_3.schema.json"
+    if not p.exists():
+        return
+    errs = errors(doc, json.loads(p.read_text(encoding="utf-8")))
+    if errs:
+        raise ExtractionError(f"{doc['contract']}: the document does not validate against "
+                              "spec/schemas/facts_0_3.schema.json: " + "; ".join(errs[:5]))
 
 
 def render(doc: dict) -> str:
@@ -1382,6 +1468,9 @@ def main(argv=None) -> int:
     except Refused as e:
         print(f"holon extract go_machines: refused: {e}", file=sys.stderr)
         return 2
+    except ExtractionError as e:
+        print(f"holon extract go_machines: extraction failed: {e}", file=sys.stderr)
+        return 3
     out = Path(a.out_dir)
     out.mkdir(parents=True, exist_ok=True)
     for name in sorted(docs):

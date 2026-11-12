@@ -252,6 +252,70 @@ class TestTypedPipeline(_Docs):
         self.assertGreaterEqual(len(laws), 1, stages["derive"]["detail"])
 
 
+class TestDemo(unittest.TestCase):
+    """Not a prediction (added after the prereg; docs/iterations/I105.md): Bank's shape with integer keys
+    (tests_m6/fixtures/i105_demo), which the typed model's structural mode compiles, runs sorts through derive and
+    derives DISCH laws from a Go-only machine."""
+
+    def test_demo_vault_end_to_end(self):
+        from holon.eval import common, holon_run as H
+        demo = ROOT / "tests_m6" / "fixtures" / "i105_demo"
+        tmp = Path(tempfile.mkdtemp(prefix="holon-i105-demo-"))
+        try:
+            p = run_holon(["extract", "go_machines", "--root", str(ROOT), "--config", str(demo / "go_config.json"),
+                           "--src", str(demo / "src"), "--out-dir", str(tmp / "docs")])
+            self.assertEqual(p.returncode, 0, p.stderr[-3000:])
+            (doc,) = sorted((tmp / "docs").glob("*.extracted.json"))
+            proto = common.load_json(ROOT / "spec" / "M4" / "lib" / "i51_run.json")
+            S = H.scratch_root(ROOT, tmp, "holon/i105-demo", demo / "src")
+            rel = "results/eval/holon/i105demo"
+            (S / rel / "sidecars").mkdir(parents=True)
+            (S / rel / "facts").mkdir(parents=True)
+            shutil.copy(doc, S / rel / "facts" / doc.name)
+            stages: dict = {}
+            R = H.Runner(H.Ctx(tmp, demo / "src"), S, proto, {})
+            H._rules(R, S, rel, proto["milestone"], proto, [{"file": doc.name}], stages)
+            for st in ("sorts", "types", "model", "disch", "derive"):
+                self.assertEqual(stages[st]["status"], "ok", f"{st}: {stages[st]['detail'][-2000:]}")
+            laws = sorted(x.stem for x in (S / "laws" / proto["milestone"]).glob("L*.json"))
+            self.assertTrue(any(x.startswith("L_disch_") for x in laws), laws)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+
+class TestGuardSoundness(unittest.TestCase):
+    """Added after the prereg (not a prediction): a guard never removes a behaviour the code has
+    (tests_m6/fixtures/i105_extra)."""
+
+    @classmethod
+    def setUpClass(cls):
+        extra = ROOT / "tests_m6" / "fixtures" / "i105_extra"
+        cls.tmp = Path(tempfile.mkdtemp(prefix="holon-i105-extra-"))
+        cls.proc = run_holon(["extract", "go_machines", "--root", str(ROOT), "--config", str(extra / "go_config.json"),
+                              "--src", str(extra / "src"), "--out-dir", str(cls.tmp)])
+        cls.acts = {}
+        if cls.proc.returncode == 0:
+            (p,) = sorted(cls.tmp.glob("*.extracted.json"))
+            cls.acts = {a["name"]: a for a in json.loads(p.read_text(encoding="utf-8"))["actions"]}
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.tmp, ignore_errors=True)
+
+    def test_maybe_nil_error_keeps_success(self):
+        self.assertEqual(self.proc.returncode, 0, self.proc.stderr[-3000:])
+        (g,) = self.acts["Parse"]["guards"]
+        # the guard passes where the opaque call's error is nil (a free value)
+        self.assertTrue(has_tag(g["expr"], "==") and (has_tag(g["expr"], "at") or has_tag(g["expr"], "call")), g)
+        self.assertNotIn(g["expr"], (0, ["!", 1]))
+
+    def test_recovered_panic_is_no_guard(self):
+        self.assertEqual(self.proc.returncode, 0, self.proc.stderr[-3000:])
+        a = self.acts["Safe"]
+        self.assertFalse(any("zero" == (g.get("reason") or "") for g in a["guards"]), a["guards"])
+        self.assertIn("N", {w["family"] for w in a["writes"]})
+
+
 class TestCorpusSmoke(unittest.TestCase):
     """P6-P8: the smoke measures on I51's Go entries (results/M6/I105/corpus.json, holon eval go-machines)."""
 

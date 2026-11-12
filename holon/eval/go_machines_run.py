@@ -97,8 +97,8 @@ def summarize(doc: dict, data: bytes, name: str) -> dict:
             "kv_families": sorted(f["name"] for f in doc.get("storage") or [] if f["kind"] == "mapping"
                                   and f.get("key") == "bytes" and f.get("value") == "bytes"),
             "guards": sum(len(a["guards"]) for a in acts), "writes": sum(len(a["writes"]) for a in acts),
-            "havoc": sum(1 for a in acts for w in a["writes"] if w["value"][:1] == ["unknown"]
-                         if isinstance(w["value"], list)),
+            "havoc": sum(1 for a in acts for w in a["writes"]
+                         if isinstance(w["value"], list) and w["value"][:1] == ["unknown"]),
             "debt": dict(sorted(debt.items())), "sha256": hashlib.sha256(data).hexdigest()}
 
 
