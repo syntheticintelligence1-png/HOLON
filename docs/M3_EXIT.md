@@ -63,3 +63,11 @@ These land after this record, in order:
 1. #152, the prereg audit's `parallel_outcome` licence;
 2. the test_derive_par / test_par_outcomes fix;
 3. the M4 and M5 PRs.
+
+Landed since, in order:
+- #152, #162, the M5 stack (#163) and the M4 stack (#164).
+- #165, I101: the post-exit fixes of F-M3-37 (the counted-round evidence rule reads each record's content, and CI rebuilds the streak's a4.json and packet.json from their targets: `audit-M3-evidence`), F-M3-38 (the rendered audit prompts state Q9b's rule) and F-M3-42 (a subset run keeps what it does not own).
+- #166, I102: `holon audit regress` compares each commit with its own parents (F-M3-07 and its duplicate F-M3-30).
+- With the lead's records PR: F-M3-08 marked fixed by I100, whose record laws and constant read-backs closed the back-test gaps `gap:M0:L_rt_go_v0`, `_v1` and `_v2` (the only exit blocker left is `gap:M0:L_par_hdr_v2`, closed by HUMAN_ANSWERS Q44).
+
+None of these changes a clause of the decision above. E3 stays converged, with `results/M3/audit_status.json` byte for byte as at the exit. Open findings now: high 0, medium 15, low 3.
