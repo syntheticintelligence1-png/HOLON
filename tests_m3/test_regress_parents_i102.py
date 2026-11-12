@@ -199,8 +199,15 @@ class TestBuild(unittest.TestCase):
         self.assertIn("tests_m3.test_regress_parents_i102.TestBuild", wf)
 
     def test_b7_no_generator_closure_moves(self):
-        base = _th()["base_commit"]
-        changed = set(I.git(ROOT, "diff", "--name-only", f"{base}..HEAD").split())
+        # Amended (spec/M3/amendments/I102.jsonl, test_defect): the files I102's own commits change, the first-parent
+        # non-merge commits from the base to I102's landed head (the second parent of the lead's merge 95c9ef34, #166),
+        # against the closure as it stood at that head. Diffing base..HEAD judged every later key's commits too.
+        base, landed = _th()["base_commit"], "1f209ff7c3bad4bdd6a1dd9db9eccbfa9cf81be1"
+        own = I.git(ROOT, "rev-list", "--first-parent", "--no-merges", f"{base}..{landed}").split()
+        self.assertTrue(own)
+        changed = set()
+        for c in own:
+            changed |= set(I.git(ROOT, "diff-tree", "--no-commit-id", "--name-only", "-r", c).split())
         code = (
             "import json\nfrom pathlib import Path\nfrom holon import records, profile\nfrom holon.bundle import lawrun\n"
             "from holon.records import _holon_imports\nfrom holon.sorts.run3 import GEN3\nroot = Path('.')\nfs = set()\n"
@@ -209,7 +216,13 @@ class TestBuild(unittest.TestCase):
             "while todo:\n    r = todo.pop()\n    if r in seen or not (root / r).is_file():\n        continue\n"
             "    seen.add(r)\n    if r.endswith('.py'):\n        todo.extend(sorted(_holon_imports(r, root) - seen))\n"
             "print(json.dumps(sorted(fs | seen)))\n")
-        p = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, text=True, timeout=600)
+        with tempfile.TemporaryDirectory(prefix="i102-b7-") as tmp:
+            wt = Path(tmp) / "landed"
+            I.git(ROOT, "worktree", "add", "-q", "--detach", str(wt), landed)
+            try:
+                p = subprocess.run([sys.executable, "-c", code], cwd=wt, capture_output=True, text=True, timeout=600)
+            finally:
+                I.git(ROOT, "worktree", "remove", "--force", str(wt))
         self.assertEqual(p.returncode, 0, p.stderr[-1500:])
         closure = set(json.loads(p.stdout))
         self.assertTrue(closure)

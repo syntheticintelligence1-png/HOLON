@@ -21,6 +21,7 @@ USAGE = """usage: python -m holon eval <command> [options]
   holon      [--root DIR] [--entries ID,..] [--check]       HOLON on the corpus pre-fix commits (I51)
   ablate     run|a9|calibrate|metrics|report ...             the I53 ablations, calibration and metrics
   baselines  budget|run|agent|adjudicate|assemble|heldout ...   the I52 baselines (holon.eval.baselines.cli)
+  go-machines [--root DIR] [--entries ID,..] [--out PATH]   the Go machine frontend's smoke measure (I105)
 """
 
 COMMANDS = {
@@ -37,6 +38,7 @@ COMMANDS = {
     "holon": ("holon.eval.holon_run", "cli_holon"),
     "ablate": ("holon.eval.ablate", "cli_ablate"),
     "baselines": ("holon.eval.baselines.cli", "cli_baselines"),
+    "go-machines": ("holon.eval.go_machines_run", "cli"),
 }
 
 

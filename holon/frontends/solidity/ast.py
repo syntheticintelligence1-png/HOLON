@@ -55,6 +55,9 @@ class Index:
         self.asts = compiled.asts
         self.units = compiled.units
         self.file_ids = compiled.file_ids
+        # I103: a compiler below 0.8.0 checks no arithmetic: every operation wraps, as inside an unchecked block
+        sel = getattr(compiled, "selection", None)
+        self.wrapping = bool(sel) and sel.get("arithmetic") == "unchecked"
         self.nodes: dict[int, dict] = {}
         self._lines = {u: [0] + [i + 1 for i, b in enumerate(data) if b == 0x0A] for u, data in compiled.units.items()}
         for unit in sorted(self.asts):

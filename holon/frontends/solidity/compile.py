@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .. import ExtractionError, Refused
+from . import toolchains as T
 
 
 @dataclass
@@ -34,14 +35,25 @@ class Compiled:
     units: dict = field(default_factory=dict)      # unit -> bytes
     file_ids: dict = field(default_factory=dict)   # solc source id -> unit
     layouts: dict = field(default_factory=dict)    # (unit, contract name) -> solc storageLayout (transitions only)
+    selection: dict | None = None                  # I103: the pragma selection (compiler.version "pragma"), else None
 
 
 def load_config(root: Path) -> dict:
     p = Path(root) / "config" / "holon.json"
     try:
-        return json.loads(p.read_text(encoding="utf-8"))
+        cfg = json.loads(p.read_text(encoding="utf-8"))
     except (OSError, ValueError) as e:
         raise Refused(f"cannot read {p}: {e}") from e
+    _ROOTS[id(cfg)] = Path(root)
+    return cfg
+
+
+_ROOTS: dict = {}   # id(config dict) -> the root it was read from (the pragma rule reads <root>/config/toolchains.json)
+
+
+def cfg_root(cfg: dict) -> Path:
+    from .. import ROOT
+    return _ROOTS.get(id(cfg), ROOT)
 
 
 def _sha256(p: Path) -> str:
@@ -60,15 +72,21 @@ def _clean_env() -> dict:
     return env
 
 
-def check_solc(cfg: dict, want_version: str) -> tuple[str, str, str]:
-    """(solc path, sha256, version text) of the pinned compiler; Refused unless it is the pin."""
+def check_solc(cfg: dict, want_version: str, chosen: dict | None = None) -> tuple[str, str, str]:
+    """(solc path, sha256, version text) of the pinned compiler; Refused unless it is the pin (replay.solc, or the
+    solc_set release a "pragma" sidecar chose)."""
     rep = cfg.get("replay") or {}
     solc, pin = rep.get("solc"), rep.get("solc_sha256")
+    where = "config replay.solc_sha256"
+    if chosen is not None:
+        solc, pin, where = chosen["path"], chosen["sha256"], f"config solc_set.releases[{chosen['version']!r}]"
     if not solc or not Path(solc).is_file():
-        raise Refused(f"solc missing: config replay.solc = {solc!r}")
+        raise Refused(f"solc missing: {solc!r}" + (f" (solc {chosen['version']}, selected by pragma "
+                                                  f"{chosen['pragmas']}; tools/install_toolchain_sets.sh installs it)"
+                                                  if chosen else " (config replay.solc)"))
     got = _sha256(Path(solc))
     if not pin or got != pin:
-        raise Refused(f"solc {solc}: sha256 {got} is not the pin config replay.solc_sha256 = {pin}")
+        raise Refused(f"solc {solc}: sha256 {got} is not the pin {where} = {pin}")
     p = subprocess.run([solc, "--version"], capture_output=True, text=True, timeout=120)
     text = next((ln.split("Version: ", 1)[1].strip() for ln in p.stdout.splitlines() if "Version: " in ln), None)
     if p.returncode != 0 or not text:
@@ -112,12 +130,42 @@ WITH_STORAGE_LAYOUT = {"*": {"*": ["storageLayout"], "": ["ast"]}}
 
 
 def compile_sources(cfg: dict, side: dict, source: Path, storage_layout: bool = False) -> Compiled:
+    """See _compile; under a pragma selection every error also names the release and the pragmas, at its end (a
+    recorded reason keeps a message's tail)."""
+    try:
+        return _compile(cfg, side, source, storage_layout)
+    except (ExtractionError, Refused) as e:
+        sel = getattr(e, "_i103_selection", None)
+        if sel is None:
+            raise
+        raise type(e)(f"{e}\n[compiled by solc {sel['version']} (selected by pragma {sel['pragmas']})]") from e
+
+
+def _compile(cfg: dict, side: dict, source: Path, storage_layout: bool = False) -> Compiled:
     """Run the pinned solc on the sidecar's units (rule W1); storage_layout also selects every contract's
     storageLayout (I19 transitions sidecars)."""
     comp = side.get("compiler") or {}
-    solc, sha, version = check_solc(cfg, comp.get("version"))
-    check_checkout(source, side["target"]["commit"])
+    deps = (cfg.get("replay") or {}).get("sol_deps")
+    include = Path(deps) / "node_modules" if deps else None
+    if include is not None and not include.is_dir():
+        include = None
+    chosen = None
     settings = dict(comp.get("settings") or {})
+    if comp.get("version") == T.PRAGMA_WORD:
+        # I103: the newest pinned release the units' pragmas admit; evmVersion is that release's own default
+        chosen = T.choose(T.load_sets(cfg_root(cfg)), source, list(side["sources"]), include)
+        settings.pop("evmVersion", None)
+    try:
+        return _compile_with(cfg, side, source, storage_layout, comp, include, chosen, settings)
+    except (ExtractionError, Refused) as e:
+        if chosen is not None:
+            e._i103_selection = chosen
+        raise
+
+
+def _compile_with(cfg, side, source, storage_layout, comp, include, chosen, settings) -> Compiled:
+    solc, sha, version = check_solc(cfg, chosen["version"] if chosen else comp.get("version"), chosen)
+    check_checkout(source, side["target"]["commit"])
     settings["outputSelection"] = json.loads(json.dumps(WITH_STORAGE_LAYOUT if storage_layout else AST_ONLY))
     sources = {}
     for u in side["sources"]:
@@ -127,12 +175,15 @@ def compile_sources(cfg: dict, side: dict, source: Path, storage_layout: bool = 
         except (OSError, UnicodeDecodeError) as e:
             raise ExtractionError(f"source unit {u}: cannot read {p}: {e}") from e
     cmd = [solc, "--standard-json", "--base-path", "."]   # run in the source tree (cwd below)
-    deps = (cfg.get("replay") or {}).get("sol_deps")
-    include = Path(deps) / "node_modules" if deps else None
-    if include is not None and include.is_dir():
+    if chosen is not None and T.vkey(chosen["version"]) < (0, 6, 9):
+        # I103: --base-path exists from 0.6.9; before it solc resolves a non-relative import against its working
+        # directory, the source tree here, which is the same base
+        cmd = [solc, "--standard-json", "--allow-paths", "."]
+    if include is not None:
+        if chosen is not None and T.vkey(chosen["version"]) < (0, 8, 8):
+            raise Refused(f"solc {chosen['version']} has no --include-path (from 0.8.8): the dependency tree "
+                          f"{include} cannot be searched")
         cmd += ["--include-path", str(include)]
-    else:
-        include = None
     inp = json.dumps({"language": "Solidity", "sources": sources, "settings": settings}, sort_keys=True)
     p = subprocess.run(cmd, input=inp, capture_output=True, text=True, timeout=1800, cwd=str(source))
     try:
@@ -144,6 +195,9 @@ def compile_sources(cfg: dict, side: dict, source: Path, storage_layout: bool = 
         raise ExtractionError("compile errors:\n" + "\n".join(e.get("formattedMessage") or e.get("message", "")
                                                              for e in errs)[:4000])
     res = Compiled(version=version, solc_sha256=sha, settings=settings)
+    if chosen is not None:
+        res.selection = {"rule": chosen["rule"], "pragmas": chosen["pragmas"],
+                         "arithmetic": "checked" if T.checked_arithmetic(chosen["version"]) else "unchecked"}
     from_tree = []
     for unit in sorted(out.get("sources", {})):
         s = out["sources"][unit]

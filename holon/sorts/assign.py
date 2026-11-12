@@ -226,6 +226,9 @@ class Model:
                                      sort_types_version=sort_types_version or X.SORT_TYPES_0_1)
             except X.ExtractedError as e:
                 raise PassError(f"{self.rel}: {e}") from e
+            if self.walk03.refusals:   # 0.3: every construct the walk could not map, in one refusal
+                raise PassError(f"{self.rel}: {len(self.walk03.refusals)} constructs the sort pass cannot map: "
+                                + "; ".join(self.walk03.refusals))
             self.prog = self.walk03.prog
             self.keys = self.prog.keys
             self.raw = X.build(self.name, self.walk03)
@@ -349,7 +352,18 @@ def run_pass(docs: list[Path], root: Path, milestone: str | None, seeds_path: Pa
     body = {k: v for k, v in assignment.items() if k != "inputs"}
     assignment["sorts_sha256"] = hashlib.sha256(canonical(body)).hexdigest()
     unresolved = [u for m in models for u in m.unresolved]
-    return {
+    extra = {}
+    if stv == "holon-sort-types/0.3":
+        # I103 (T1): the coverage debt of the total pass, every unknown construct of every document
+        debt = []
+        for m in models:
+            ds = (m.walk03.debt if m.walk03 is not None else [])
+            heads: dict = {}
+            for e in ds:
+                heads[e["head"]] = heads.get(e["head"], 0) + e["count"]
+            debt.append({"model": m.name, "facts": m.rel, "debt_heads": dict(sorted(heads.items())), "debt": ds})
+        extra["coverage_debt"] = doc("coverage_debt", {"sort_types_version": stv, "documents": debt})
+    return {**extra,
         "constraints": doc("constraints", {"constraints": numbered}),
         "assignment": assignment,
         "conflicts": doc("conflicts", {"conflicts": conflicts}),

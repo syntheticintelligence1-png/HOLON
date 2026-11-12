@@ -70,6 +70,7 @@ from .flow import Program
 SEEDS_VERSION = "holon-sort-seeds/0.2"
 SORT_TYPES_0_1 = "holon-sort-types/0.1"   # the pinned pass (holon.sorts.typed_sidecar.VERSION)
 SORT_TYPES_0_2 = "holon-sort-types/0.2"   # 0.1 plus rules U1-U3 (I50b)
+SORT_TYPES_0_3 = "holon-sort-types/0.3"   # 0.2 plus rule T1, the total pass (I103)
 KAPPA = "kappa"          # an obstruction's antecedent (I15's R11 format)
 TAG_HEAD = "tag"         # a companion read in a tag term (rule G2): ["tag", family, key]
 CMP = ("<", "<=", ">", ">=", "==", "!=")
@@ -126,6 +127,8 @@ class Walk:
     holders: dict = field(default_factory=dict)         # (action, ckey(node)) -> [(seq, where, src)]
     families: dict = field(default_factory=dict)        # family -> {"kind", "value", "fields"}
     params: dict = field(default_factory=dict)          # action -> {param: param record}
+    debt: list = field(default_factory=list)            # 0.3 (T1): [{head, actor, where, count}] sorted
+    refusals: list = field(default_factory=list)        # 0.3: every non-term construct the walk could not map
 
 
 # ------------------------------------------------------------------------------------------------ helpers
@@ -240,9 +243,11 @@ def resolve_member(x, m: str):
 # ------------------------------------------------------------------------------------------------ the walk
 class Walker:
     def __init__(self, model: str, doc: dict, seeds: dict, sort_types_version: str = SORT_TYPES_0_1):
-        if sort_types_version not in (SORT_TYPES_0_1, SORT_TYPES_0_2):
+        if sort_types_version not in (SORT_TYPES_0_1, SORT_TYPES_0_2, SORT_TYPES_0_3):
             raise ExtractedError(f"sort_types_version {sort_types_version!r} has no sorts adapter")
-        self.update_rules = sort_types_version == SORT_TYPES_0_2   # rules U1-U3
+        self.update_rules = sort_types_version in (SORT_TYPES_0_2, SORT_TYPES_0_3)   # rules U1-U3
+        self.total = sort_types_version == SORT_TYPES_0_3                          # rule T1
+        self.debt_count: dict = {}
         self.model = model
         self.doc = doc
         self.seeds = seeds
@@ -266,6 +271,19 @@ class Walker:
         cur = self.p.keys.get(name)
         if cur is None:
             self.p.keys[name] = {"type": ty, "binder": binder, "ghost": False}
+
+    def owe(self, head: str, ctx: Ctx) -> None:
+        """T1: one occurrence of a construct with no sorts rule, at (head, action, record)."""
+        k = (head, ctx.actor, ctx.where)
+        self.debt_count[k] = self.debt_count.get(k, 0) + 1
+
+    def opaque(self, head: str, operands, ctx: Ctx):
+        """T1: an unknown term is an opaque fresh variable (nothing flows in or out, no seed grounds it, so its sort is
+        the least informative one), its operands walked as the documented opaque heads' are; one debt occurrence."""
+        self.owe(head, ctx)
+        reads = self.walk_all([x for x in operands if not isinstance(x, str)], ctx) if isinstance(operands, list) \
+            else frozenset()
+        return self.fresh(), reads
 
     def fresh(self) -> str:
         self.n += 1
@@ -411,6 +429,8 @@ class Walker:
         if isinstance(t, list) and not t:
             return None, frozenset()
         if not isinstance(t, list):
+            if self.total:
+                return self.opaque(f"<{type(t).__name__}>", None, ctx)
             raise ExtractedError(f"{ctx.actor} ({ctx.where}): bad term {t!r}")
         h = t[0]
         if all(isinstance(x, str) for x in t) and len(t) > 1 and (":" in h or "/" in h):
@@ -437,6 +457,8 @@ class Walker:
             return None, self.walk_all(a, ctx)
         if h == "?":
             if len(a) != 3:
+                if self.total:
+                    return self.opaque(f"?/{len(a)}", a, ctx)
                 raise ExtractedError(f"{ctx.actor} ({ctx.where}): ? takes three operands")
             _, rc = self.ex(a[0], ctx)
             (vx, rx), (vy, ry) = self.ex(a[1], ctx), self.ex(a[2], ctx)
@@ -562,6 +584,8 @@ class Walker:
                      "input"):
                 return None, reads
             return self.fresh(), reads
+        if self.total:
+            return self.opaque(h, a, ctx)
         raise ExtractedError(f"{ctx.actor} ({ctx.where}): term {h!r} has no sorts rule")
 
     @staticmethod
@@ -621,6 +645,11 @@ class Walker:
         rec = r.rec
         fam = rec.get("family")
         if not isinstance(fam, str):
+            if self.total:
+                # not a term: a write the walk cannot attribute could change any family, so no opaque value
+                # stands in for it; the walk goes on to report everything, and the pass refuses the document
+                self.w.refusals.append(f"{a['name']} ({ctx.where}): a write without a family")
+                return
             raise ExtractedError(f"{a['name']} ({ctx.where}): a write without a family")
         path = rec.get("path") or []
         reads = self.walk_all([x[1] for x in path if isinstance(x, list) and len(x) > 1 and x[0] != "member"], ctx)
@@ -737,6 +766,8 @@ class Walker:
                     continue
                 if re.search(s["pattern"], var.partition(".")[0]):
                     self.ground(var, f"lexical:{s['id']}", G.canonical(s["sort"]))
+        self.w.debt = [{"head": h, "actor": ac, "where": wh, "count": n}
+                       for (h, ac, wh), n in sorted(self.debt_count.items())]
         return self.w
 
     def _holders(self, action: str, t, r: Record) -> None:

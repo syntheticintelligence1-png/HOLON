@@ -34,6 +34,7 @@ import time
 from pathlib import Path
 
 from . import common
+from . import gowork
 from .gitfacts import DIFF_OPTIONS
 
 PROTOCOL_REL = "spec/M4/lib/i51_run.json"
@@ -139,6 +140,11 @@ def locus(clone: Path, entry: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------------------------- H2: extraction inputs
+def tag(proto: dict) -> str:
+    """'<iteration>: ... (<protocol path>' of the generated inputs' doc strings (I51's text under I51's protocol)."""
+    return f"{proto['iteration']}", proto.get("_path", PROTOCOL_REL)
+
+
 def contracts_of(text: str, pattern: str) -> list[str]:
     rx = re.compile(pattern)
     return [m.group(1) for line in text.splitlines() for m in [rx.match(line)] if m]
@@ -163,7 +169,7 @@ def solidity_sidecars(entry: dict, proto: dict, ck: Path, base_rel: str) -> list
             stem = low if seen[low] == 1 else f"{low}_{seen[low]}"
             fname = f"{stem}.extracted.json"
             side = {"sidecar_version": 1, "frontend": "solidity",
-                    "doc": f"I51: generated from corpus entry {entry['id']} by holon eval holon (spec/M4/lib/i51_run.json "
+                    "doc": f"{tag(proto)[0]}: generated from corpus entry {entry['id']} by holon eval holon ({tag(proto)[1]} "
                            "solidity): the contract a file of the entry declares",
                     "target": {"repo": f"{owner}/{name}", "commit": entry["prefix_commit"],
                                "scope": f"contract {c} of {f}"},
@@ -227,9 +233,10 @@ def go_inputs(entry: dict, proto: dict, ck: Path) -> list[dict]:
     return out + fails
 
 
-def go_source(ck: Path, module_dir: Path, scratch: Path) -> tuple[Path, str]:
+def go_source(ck: Path, module_dir: Path, scratch: Path, rule: str | None = None) -> tuple[Path | None, str]:
     """The source the frontend copies (protocol go.source): the module directory, or a scratch copy of the checkout
-    with a generated go.work when a relative replace leaves the module."""
+    with a generated go.work when a relative replace leaves the module (rule main_module, I103: holon.eval.gowork;
+    (None, reason) when it records a conflict)."""
     gm = _gomod(module_dir)
     leaves = [t for t in gm["rel"] if module_dir not in (module_dir / t).resolve().parents
               and (module_dir / t).resolve() != module_dir]
@@ -240,6 +247,13 @@ def go_source(ck: Path, module_dir: Path, scratch: Path) -> tuple[Path, str]:
         shutil.copytree(ck, src, symlinks=True, ignore=shutil.ignore_patterns(".git"))
     if (ck / "go.work").is_file():
         return src, "checkout go.work"
+    if rule is not None:
+        g = gowork.generate(ck, module_dir, rule)
+        if g["text"] is None:
+            return None, gowork.conflict_reason(g)
+        (src / "go.work").write_text(g["text"])
+        return src, "generated go.work: " + " ".join(g["uses"]) + "".join(
+            f"; replace {r['line']} (from {r['from']})" for r in g["replaces"])
     uses, todo = [], [module_dir.resolve()]
     while todo:
         d = todo.pop()
@@ -251,6 +265,34 @@ def go_source(ck: Path, module_dir: Path, scratch: Path) -> tuple[Path, str]:
     text = f"go {gm['go'] or '1.21'}\n\nuse (\n" + "".join(f"\t{r}\n" for r in rels) + ")\n"
     (src / "go.work").write_text(text)
     return src, "generated go.work: " + " ".join(rels)
+
+
+_SOLC_SEL = re.compile(r"solc (\d+\.\d+\.\d+) \(selected by pragma (\[[^\]]*\])\)")
+_GO_SEL = re.compile(r"go (\d+\.\d+\.\d+) \(go directive (\S+) of (\S+)\)")
+
+
+def toolchain_text(d: dict, facts: Path) -> str | None:
+    """I103 (F7): the toolchain a document's frontend selected and why, from the document (extracted) or the
+    frontend's reason; None when no selection was reached (or the protocol selects none)."""
+    if d.get("status") == "extracted" and d.get("file") and (facts / d["file"]).is_file():
+        ext = json.loads((facts / d["file"]).read_text(encoding="utf-8")).get("extraction") or {}
+        sol = (ext.get("toolchain") or {}).get("solc")
+        if sol and sol.get("selected_by"):
+            return (f"solc {sol['version'].split('+', 1)[0]} (selected by pragma {sol['selected_by']['pragmas']}; "
+                    f"arithmetic {sol['arithmetic']})")
+        tool = ext.get("tool") or {}
+        if tool.get("selected_by"):
+            sb = tool["selected_by"]
+            return f"go {tool['go'].removeprefix('go')} (go directive {sb['directive']} of {sb['file']})"
+        return None
+    r = d.get("reason") or ""
+    m = _SOLC_SEL.search(r)
+    if m:
+        return f"solc {m.group(1)} (selected by pragma {m.group(2)})"
+    m = _GO_SEL.search(r)
+    if m:
+        return f"go {m.group(1)} (go directive {m.group(2)} of {m.group(3)})"
+    return None
 
 
 # ---------------------------------------------------------------------------------------------- stage runner
@@ -379,7 +421,7 @@ def summarize(rows: list[dict]) -> dict:
 
 
 # ---------------------------------------------------------------------------------------------- one entry
-def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dict) -> dict:
+def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dict, roles: dict | None = None) -> dict:
     """Run one entry; write its <id>/ directory into stage_dir; return its row."""
     rel = f"{proto['out']}/{entry['id']}"
     edir = stage_dir / entry["id"]
@@ -423,12 +465,17 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
             if "stem" not in d:
                 docs.append(d)
                 continue
-            src, how = go_source(ck, d.pop("module_dir"), tmp)
+            src, how = go_source(ck, d.pop("module_dir"), tmp, proto["go"].get("work_replace"))
+            if src is None:   # rule main_module: a replace conflict the package's own module does not settle
+                d.update({"status": "failed", "exit": None, "reason": how, "source": "generated go.work: none"})
+                docs.append(d)
+                continue
             cfg = {"config_version": proto["go"]["config_version"],
-                   "doc": f"I51: generated from corpus entry {entry['id']} by holon eval holon (spec/M4/lib/i51_run.json go)",
+                   "doc": f"{tag(proto)[0]}: generated from corpus entry {entry['id']} by holon eval holon ({tag(proto)[1]} go)",
                    "target": {"repo": f"{owner}/{name}", "commit": entry["prefix_commit"]},
                    "source": {"path": "<given by --src>"}, "documents": {d["stem"]: [d["unit"]]},
-                   "primitives": dict(proto["go"]["primitives"]), "limits": dict(proto["go"]["limits"])}
+                   "primitives": dict(proto["go"]["primitives"]), "limits": dict(proto["go"]["limits"]),
+                   **({"toolchain": proto["go"]["toolchain"]} if proto["go"].get("toolchain") else {})}
             cp = S / rel / "sidecars" / f"{d['stem']}.json"
             cp.write_text(dumps(cfg))
             res = R.holon("extract", ["extract", "go", "--root", str(S), "--config", str(cp), "--src", str(src),
@@ -437,6 +484,7 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
                       "reason": None if res["status"] == "ok" else res["detail"], "source": how})
             docs.append(d)
         for d in docs:
+            d["toolchain"] = toolchain_text(d, S / rel / "facts")
             if d.get("status") == "extracted":
                 b = (S / rel / "facts" / d["file"]).read_bytes()
                 d["sha256"], d["bytes"] = sha256_bytes(b), len(b)
@@ -448,6 +496,21 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
                              "detail": f"{len(ext)} of {len(docs)} documents extracted"}
         sol = [d for d in ext if d["language"] == "solidity"]
         M = proto["milestone"]
+        if roles and ext:   # I104 opt-in (--roles): the role sidecars holon roles infers from the stored documents
+            rels = [f"{rel}/facts/{d['file']}" for d in ext if (S / rel / "facts" / d["file"]).is_file()]
+            args = ["roles", "--milestone", M, "--root", str(S), "--documents", ",".join(rels), "--out-dir",
+                    str(S / rel / "sidecars" / "roles"), "--mode", roles["mode"]]
+            if roles.get("proposed"):
+                args += ["--proposed", roles["proposed"]]
+            stages["roles"] = R.holon("roles", args)
+            mp = S / rel / "sidecars" / "roles" / "roles.json"
+            if mp.is_file():
+                man = json.loads(mp.read_text())
+                kinds: dict = {}
+                for x in man["roles"]:
+                    kinds[f"{x['sidecar']}:{x['roles_source']}"] = kinds.get(f"{x['sidecar']}:{x['roles_source']}", 0) + 1
+                row["roles"] = {"mode": roles["mode"], "count": len(man["roles"]), "kinds": dict(sorted(kinds.items())),
+                                "proposed": man.get("proposed")}
         if ext and not sol:
             stages["derive"] = {"status": "no_producer", "exit": None, "detail": proto["go_rules_doc"]}
         if sol:
@@ -462,8 +525,11 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
         if clone is not None:
             drop_worktree(clone, ck)
         shutil.rmtree(tmp, ignore_errors=True)
-    row["documents"] = [{k: d.get(k) for k in ("stem", "file", "language", "source_file", "unit", "status", "exit",
-                                               "reason", "sha256", "bytes", "stored", "source")} for d in docs]
+    keys = ("stem", "file", "language", "source_file", "unit", "status", "exit", "reason", "sha256", "bytes", "stored",
+            "source")
+    if proto["run_version"] != "holon-corpus-run/0.1":
+        keys += ("toolchain",)
+    row["documents"] = [{k: d.get(k) for k in keys} for d in docs]
     row["stages"] = stages
     row["laws"] = law_rows(edir, entry["files"], row["locus"])
     ext = [d for d in docs if d.get("status") == "extracted"]
@@ -475,7 +541,35 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
     row["detected"] = any(x["rule"] == entry["label"] for x in ref)
     row["detected_any"] = bool(ref)
     row["label_rule_laws"] = sum(1 for x in row["laws"] if x["rule"] == entry["label"])
+    if roles:
+        withhold(row, edir)
     return row
+
+
+def withhold(row: dict, edir: Path) -> None:
+    """I104 under HUMAN_ANSWERS Q56 (the --roles opt-in): no per-law verdict, law id or class of a law derived through
+    generated roles is written until a person adjudicates it. The row keeps per-family aggregates that never split
+    PROVED from REFUTED, and one commitment: the sha256 of the sorted lines "<path> <sha256>" (each ending in a newline)
+    of every file under the entry's laws/ and records/, which are then removed from the written output."""
+    fam: dict = {}
+    for x in row["laws"]:
+        k = f"{x.get('rule')}/{x.get('subform')}"
+        f = fam.setdefault(k, {"derived": 0, "decided": 0, "unknown": 0})
+        f["derived"] += 1
+        f["decided" if x.get("status") in ("PROVED", "REFUTED") else "unknown"] += 1
+    lines = []
+    for sub in ("laws", "records"):
+        d = edir / sub
+        if d.is_dir():
+            lines += [f"{sub}/{q.relative_to(d).as_posix()} {sha256_bytes(q.read_bytes())}"
+                      for q in sorted(d.rglob("*")) if q.is_file()]
+            shutil.rmtree(d)
+    row["laws_aggregate"] = dict(sorted(fam.items()))
+    row["laws_bundle_sha256"] = sha256_bytes(("".join(f"{x}\n" for x in sorted(lines))).encode())
+    row["laws_bundle_files"] = len(lines)
+    row["laws"] = []
+    for k in ("detected", "detected_any", "label_rule_laws"):
+        row[k] = None   # withheld with the verdicts (Q56); the adjudicator's run decides them
 
 
 def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages: dict) -> None:
@@ -483,18 +577,18 @@ def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages:
     sd = S / rel / "sidecars"
     docs = [f"{rel}/facts/{d['file']}" for d in sol]
     typed = {"sort_types_version": proto["typed"]["sort_types_version"],
-             "doc": "I51: generated by holon eval holon (spec/M4/lib/i51_run.json typed)", "documents": docs,
+             "doc": f"{tag(proto)[0]}: generated by holon eval holon ({tag(proto)[1]} typed)", "documents": docs,
              "seeds": proto["typed"]["seeds"], "binding": proto["typed"]["binding"], "search": proto["typed"]["search"]}
     disch = {**{k: proto["disch"][k] for k in ("disch_version", "binding", "hypotheses", "hypothesis_verdicts", "r0",
                                                 "search")},
-             "doc": "I51: generated by holon eval holon (spec/M4/lib/i51_run.json disch)", "documents": docs,
+             "doc": f"{tag(proto)[0]}: generated by holon eval holon ({tag(proto)[1]} disch)", "documents": docs,
              "model_sidecar": f"{rel}/sidecars/sort_types.json"}
     undo = {**{k: proto["undo"][k] for k in ("undo_version", "observation", "premise", "search")},
-            "doc": "I51: generated by holon eval holon (spec/M4/lib/i51_run.json undo)",
+            "doc": f"{tag(proto)[0]}: generated by holon eval holon ({tag(proto)[1]} undo)",
             "sort_types": f"{rel}/sidecars/sort_types.json"}
     fact = {**{k: proto["fact"][k] for k in ("fact_version", "binding", "hypotheses", "verdicts", "search", "measure",
                                               "term_size")},
-            "doc": "I51: generated by holon eval holon (spec/M4/lib/i51_run.json fact)", "documents": docs,
+            "doc": f"{tag(proto)[0]}: generated by holon eval holon ({tag(proto)[1]} fact)", "documents": docs,
             "sort_types": f"{rel}/sidecars/sort_types.json"}
     for n, v in (("sort_types", typed), ("disch", disch), ("undo", undo), ("fact", fact)):
         (sd / f"{n}.json").write_text(dumps(v))
@@ -572,9 +666,16 @@ def cli_holon(argv: list[str]) -> int:
     ap.add_argument("--root", default=str(common.ROOT))
     ap.add_argument("--entries")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--protocol", default=PROTOCOL_REL, help="the run protocol (default I51's)")
+    ap.add_argument("--roles", choices=("off", "static", "static+ai"), default="off",
+                    help="I104 opt-in: also run holon roles over each entry's stored documents (default off: I51's run)")
+    ap.add_argument("--proposed", help="with --roles static+ai: the proposal file (holon-roles-proposed/0.1)")
     a = ap.parse_args(argv)
+    roles = None if a.roles == "off" else {"mode": a.roles, "proposed": a.proposed}
     root = Path(a.root).resolve()
-    proto = common.load_json(root / PROTOCOL_REL)
+    proto = common.load_json(root / a.protocol)
+    if a.protocol != PROTOCOL_REL:
+        proto["_path"] = a.protocol
     cpath = root / proto["corpus"]
     entries = common.load_json(cpath)["entries"]
     want = [x for x in (a.entries or "").split(",") if x] or [e["id"] for e in entries]
@@ -593,7 +694,7 @@ def cli_holon(argv: list[str]) -> int:
                 continue
             print(f"holon eval holon: {e['id']} ({e['repo']} {e['prefix_commit'][:12]})", flush=True)
             t = {}
-            new_rows[e["id"]] = run_entry(e, proto, root, stage, t)
+            new_rows[e["id"]] = run_entry(e, proto, root, stage, t, roles)
             timing[e["id"]] = t
             r = new_rows[e["id"]]
             print(f"  {r['status']}: {sum(d['status'] == 'extracted' for d in r['documents'])}/{len(r['documents'])} "
@@ -622,7 +723,7 @@ def cli_holon(argv: list[str]) -> int:
             if (stage / i).is_dir():
                 shutil.copytree(stage / i, out / i)
         doc = {"run_version": proto["run_version"], "corpus_sha256": common.sha256_file(cpath),
-               "protocol_sha256": common.sha256_file(root / PROTOCOL_REL), "holon_sha256": holon_sha256(root),
+               "protocol_sha256": common.sha256_file(root / a.protocol), "holon_sha256": holon_sha256(root),
                "toolchain": toolchain(root), "rows": rows, "summary": summarize(rows)}
         common.write_or_check(out / "corpus.json", dumps(doc), False)
         tp = out / "corpus_timing.json"

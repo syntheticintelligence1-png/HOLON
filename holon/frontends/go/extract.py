@@ -54,6 +54,7 @@ from pathlib import Path
 from .analyses import Analysis
 from .ctx import Ctx
 from .ssaload import DumpError, Program
+from . import toolchains as TC
 
 FRONTEND_VERSION = "holon-go/0.1"
 # I67: 0.2 is a superset of 0.1 — it adds the additive `loop_bodies` section (loop-free paths over a counted loop's
@@ -122,6 +123,8 @@ def load_config(path: Path) -> dict:
     if not isinstance(lim, dict) or not all(isinstance(lim.get(k), int) and lim.get(k) > 0
                                             for k in ("max_paths", "inline_depth", "flow_depth")):
         raise Refused(f"config {path}: limits need max_paths, inline_depth and flow_depth")
+    if "toolchain" in cfg and cfg["toolchain"] != TC.RULE:
+        raise Refused(f"config {path}: toolchain must be {TC.RULE!r} (or absent: replay.go_version's toolchain)")
     src = cfg.get("source")
     if not isinstance(src, dict) or not (isinstance(src.get("path"), str) or (
             isinstance(src.get("config"), str) and isinstance(src.get("key"), list))):
@@ -158,6 +161,57 @@ def go_binary() -> str:
     if Path("/usr/local/go/bin/go").is_file():
         return "/usr/local/go/bin/go"
     raise Refused("no go toolchain: neither `go` on PATH nor /usr/local/go/bin/go")
+
+
+def check_chosen(chosen: dict) -> tuple[str, str]:
+    """(go binary, version token) of the go_set release a go_directive config chose; Refused unless its `go version`
+    prints the pinned version line."""
+    go = str(Path(chosen["goroot"]) / "bin" / "go") if chosen.get("goroot") else go_binary()
+    if not Path(go).is_file():
+        raise Refused(f"go {chosen['version']} (go directive {chosen['directive']} of {chosen['file']}) is not "
+                      f"installed at {go} (tools/install_toolchain_sets.sh installs it)")
+    try:
+        p = subprocess.run([go, "version"], capture_output=True, text=True, timeout=120, cwd=tempfile.gettempdir(),
+                           env=go_env(GOTOOLCHAIN="local", **_goroot_env(chosen)))
+    except OSError as e:
+        raise Refused(f"`{go} version` failed: {e}")
+    if p.stdout.strip() != chosen["version_line"]:
+        raise Refused(f"`{go} version` prints {p.stdout.strip()!r}, the pinned line is {chosen['version_line']!r} "
+                      f"(config/toolchains.json go_set)")
+    return go, p.stdout.split()[2]
+
+
+def choose_go(root: Path, src: Path) -> dict:
+    """The go_set release a go_directive config runs (holon.frontends.go.toolchains), Refused as this frontend's."""
+    from .. import Refused as FrontendRefused
+    try:
+        return TC.choose(_load_json(root / "config" / "toolchains.json", "config/toolchains.json"), src)
+    except FrontendRefused as e:
+        raise Refused(str(e))
+
+
+def go_list_causes(go: str, ws: Path, patterns: list[str], chosen: dict) -> str:
+    """I103, a go_directive config only: when ssadump names no cause, `go list -e` names each pattern's own error and
+    its dependencies' errors (diagnostics of a refusal; nothing here reaches a document)."""
+    fmt = "{{.ImportPath}}|{{with .Error}}{{.Err}}{{end}}|{{range .DepsErrors}}{{.Err}};{{end}}"
+    try:
+        p = subprocess.run([go, "list", "-e", "-f", fmt, *patterns], cwd=ws, capture_output=True, text=True,
+                           timeout=1800, env=go_env(GOFLAGS="-mod=readonly", GOTOOLCHAIN="local",
+                                                    **_goroot_env(chosen)))
+    except (OSError, subprocess.TimeoutExpired) as e:
+        return f"\ngo list -e: {e}"
+    lines = [ln for ln in p.stdout.splitlines() if ln.split("|", 1)[-1].strip("|;")]
+    if not lines and not p.stdout.strip():
+        return f"\ngo list -e matched no package (exit {p.returncode}): {p.stderr.strip()[-800:]}"
+    return "".join(f"\ngo list -e: {ln}" for ln in lines)[:1500]
+
+
+def _goroot_env(chosen: dict | None) -> dict:
+    """PATH and GOROOT for a chosen release with its own goroot (go/packages runs `go list` from PATH)."""
+    if not chosen or not chosen.get("goroot"):
+        return {}
+    return {"PATH": str(Path(chosen["goroot"]) / "bin") + os.pathsep + os.environ.get("PATH", ""),
+            "GOROOT": str(chosen["goroot"])}
 
 
 def check_go(root: Path) -> tuple[str, str]:
@@ -204,13 +258,16 @@ def go_env(**extra) -> dict:
     return env
 
 
-def build_ssadump(go: str, digest: str) -> Path:
-    out = Path.home() / ".holon" / "tools" / "ssadump" / digest[:16] / "ssadump"
+def build_ssadump(go: str, digest: str, chosen: dict | None = None) -> Path:
+    # a chosen release with its own goroot builds its own helper (go/types checks a module's language version
+    # against the release it was built with); the default toolchain keeps its cache directory
+    sub = digest[:16] + (f"-go{chosen['version']}" if chosen and chosen.get("goroot") else "")
+    out = Path.home() / ".holon" / "tools" / "ssadump" / sub / "ssadump"
     if out.is_file() and os.access(out, os.X_OK):
         return out
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = out.parent / f"ssadump.tmp{os.getpid()}"
-    env = go_env(GOWORK="off", GOFLAGS="-mod=readonly", GOTOOLCHAIN="local")
+    env = go_env(GOWORK="off", GOFLAGS="-mod=readonly", GOTOOLCHAIN="local", **_goroot_env(chosen))
     try:
         p = subprocess.run([go, "build", "-trimpath", "-o", str(tmp), "."], cwd=SSADUMP_DIR, env=env,
                            capture_output=True, text=True, timeout=1800)
@@ -259,8 +316,8 @@ def make_workspace(src: Path, dst: Path) -> None:
         shutil.copytree(src, dst, symlinks=True, ignore=_ignore, dirs_exist_ok=True)
 
 
-def run_ssadump(binary: Path, ws: Path, patterns: list[str]) -> dict:
-    env = go_env(GOFLAGS="-mod=readonly", GOTOOLCHAIN="local")
+def run_ssadump(binary: Path, ws: Path, patterns: list[str], chosen: dict | None = None) -> dict:
+    env = go_env(GOFLAGS="-mod=readonly", GOTOOLCHAIN="local", **_goroot_env(chosen))
     try:
         p = subprocess.run([str(binary), "-dir", str(ws), *patterns], cwd=ws, env=env, capture_output=True,
                            timeout=3600)
@@ -304,17 +361,29 @@ def extract(config_path, src=None, root=None) -> dict:
     src = Path(src) if src else resolve_src(cfg, root)
     if not src.is_dir():
         raise Refused(f"source tree {src} is missing")
-    go, go_ver = check_go(root)
+    chosen = None
+    if cfg.get("toolchain") == TC.RULE:
+        # I103: the lowest pinned release at or above the source's go directive
+        chosen = choose_go(root, src)
+        go, go_ver = check_chosen(chosen)
+    else:
+        go, go_ver = check_go(root)
     digest = ssadump_digest()
     xt = x_tools_version()
-    binary = build_ssadump(go, digest)
+    binary = build_ssadump(go, digest, chosen)
     patterns = sorted({p for pk in cfg["documents"].values() for p in pk})
     ws_parent = Path(tempfile.mkdtemp(prefix="holon-go-ws-"))
     try:
         ws = ws_parent / "src"
         ws.mkdir()
         make_workspace(src, ws)
-        dump = run_ssadump(binary, ws.resolve(), patterns)
+        try:
+            dump = run_ssadump(binary, ws.resolve(), patterns, chosen)
+        except Refused as e:
+            if chosen is None:
+                raise
+            raise Refused(f"{e}{go_list_causes(go, ws.resolve(), patterns, chosen)}\n"
+                          f"[go {chosen['version']} (go directive {chosen['directive']} of {chosen['file']})]")
         try:
             prog = Program(dump)
         except DumpError as e:
@@ -353,7 +422,9 @@ def extract(config_path, src=None, root=None) -> dict:
                        "scope": "go packages: " + ", ".join(pks)},
             "extraction": {"method": "extracted", "frontend": "go",
                            "frontend_version": FRONTEND_VERSION_OF[cfg["config_version"]],
-                           "tool": {"go": go_ver, "x_tools": xt, "ssadump_sha256": digest},
+                           "tool": {"go": go_ver, "x_tools": xt, "ssadump_sha256": digest,
+                                    **({"selected_by": {"rule": chosen["rule"], "directive": chosen["directive"],
+                                                        "file": chosen["file"]}} if chosen else {})},
                            "config": {"path": rel_to(config_path, root), "sha256": cfg_sha},
                            "inputs": [{"path": f, "sha256": hashes[f]} for f in files]},
             "assumptions": assumptions,
