@@ -31,6 +31,8 @@ jobs:
     timeout-minutes: 60
     outputs:
       key: ${{ steps.key.outputs.key }}
+      toolsets: ${{ steps.setskey.outputs.key }}
+      toolsets_paths: ${{ steps.setskey.outputs.paths }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -76,6 +78,31 @@ jobs:
             ~/.bend
             ~/holon-work
 
+      # I103's toolchain sets (config/toolchains.json: solc_set, go_set) in a cache of their own, keyed on the set
+      # file and its installer, so the main key above never moves for them (HUMAN_ANSWERS Q70). The paths come from
+      # the config, mapped as link_paths.sh maps /root/.holon and /root/work. Only a job with `toolsets: true` restores it.
+      - name: Cache key and paths of the I103 toolchain sets
+        id: setskey
+        run: |
+          echo "key=holon-toolsets-v1-${{ hashFiles('config/toolchains.json', 'tools/install_toolchain_sets.sh') }}" >> "$GITHUB_OUTPUT"
+          {
+            echo "paths<<HOLON_TOOLSETS_EOF"
+            python3 -c "import json,os; c=json.load(open('config/toolchains.json')); h=os.environ['HOME']; m=lambda p: p.replace('/root/.holon', h+'/.holon').replace('/root/work', h+'/holon-work'); print(m(c['solc_set']['dir'])); [print(m(r['goroot'])) for v, r in sorted(c['go_set']['releases'].items()) if r.get('url')]"
+            echo "HOLON_TOOLSETS_EOF"
+          } >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        id: setsrestore
+        with:
+          key: ${{ steps.setskey.outputs.key }}
+          path: ${{ steps.setskey.outputs.paths }}
+      - name: Install the I103 toolchain sets (every binary sha256-checked by the script)
+        if: steps.setsrestore.outputs.cache-hit != 'true'
+        run: bash tools/install_toolchain_sets.sh
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: steps.setsrestore.outputs.cache-hit != 'true'
+        with:
+          key: ${{ steps.setskey.outputs.key }}
+          path: ${{ steps.setskey.outputs.paths }}
   check:
     name: ${{ matrix.name }}
     needs: toolchain
@@ -230,14 +257,14 @@ jobs:
             run: python -m unittest tests_m6.test_i105_go_machines.TestStructMachines tests_m6.test_i105_go_machines.TestSoundness tests_m6.test_i105_go_machines.TestKVMachines tests_m6.test_i105_go_machines.TestDeterminism tests_m6.test_i105_go_machines.TestRegressions tests_m6.test_i105_go_machines.TestGuardSoundness tests_m6.test_i105_go_machines.TestDemo -v
           - name: tests-m6-i109
             # I109 (M6, pipeline totality pass 3): the Go rendering's types gaps A1-A4 (P1), the go-directive rule
-            # without the key (P2; TestGoToolchain.test_p2_go_directive_selects_the_lowest_release_at_or_above needs the
-            # go 1.25.14 set, which CI does not install: run by the lead at landing with tools/install_toolchain_sets.sh,
-            # HUMAN_ANSWERS Q70), D9's SG1
+            # (P2, both tests: the go 1.25.14 selection runs on I103's sets, restored from the toolchain job's sets cache
+            # by `toolsets: true`, HUMAN_ANSWERS Q70), D9's SG1
             # (P3), Q61's opaque keys (P4), the recorded term budget (P5), Q60's constructor rule and Q64's default
             # (P6), Q62 (P7), remapped pragmas (f, not a prediction) and the regressions R1-R4. The corpus smoke
             # measures P8-P13 (results/M6/I109) are the key's measured outcome and are not run here.
+            toolsets: true
             timeout: 30
-            run: python -m unittest tests_m6.test_i109_pipeline_totality_3.TestTypesGaps tests_m6.test_i109_pipeline_totality_3.TestGoToolchain.test_p2_without_the_rule_the_pin_runs tests_m6.test_i109_pipeline_totality_3.TestSignedSign tests_m6.test_i109_pipeline_totality_3.TestStringKeys tests_m6.test_i109_pipeline_totality_3.TestTermBudget tests_m6.test_i109_pipeline_totality_3.TestNilMapDefault tests_m6.test_i109_pipeline_totality_3.TestNoLinkSidecar tests_m6.test_i109_pipeline_totality_3.TestRemappedPragmas tests_m6.test_i109_pipeline_totality_3.TestRegressions -v
+            run: python -m unittest tests_m6.test_i109_pipeline_totality_3.TestTypesGaps tests_m6.test_i109_pipeline_totality_3.TestGoToolchain tests_m6.test_i109_pipeline_totality_3.TestSignedSign tests_m6.test_i109_pipeline_totality_3.TestStringKeys tests_m6.test_i109_pipeline_totality_3.TestTermBudget tests_m6.test_i109_pipeline_totality_3.TestNilMapDefault tests_m6.test_i109_pipeline_totality_3.TestNoLinkSidecar tests_m6.test_i109_pipeline_totality_3.TestRemappedPragmas tests_m6.test_i109_pipeline_totality_3.TestRegressions -v
           - name: tests-m6-i110
             # I110 (M6, the scale wall and the composed driver): the per-document sort budget B1-B4 (P2), the sort
             # outputs byte-identical under the speedups (P3), machines.nil_maps in go-machines' output (P1), the
@@ -359,6 +386,12 @@ jobs:
             ~/holon-work
       - name: Verify the pins
         run: python .github/ci/verify_toolchain.py
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: matrix.toolsets
+        with:
+          key: ${{ needs.toolchain.outputs.toolsets }}
+          fail-on-cache-miss: true
+          path: ${{ needs.toolchain.outputs.toolsets_paths }}
       # holon.kcache's entries (pipeline v2, E): written by workflow runs only; a pull request's run reads its base
       # branch's entries and writes its own scope. Each job saves a new key; a restore takes the newest match
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
