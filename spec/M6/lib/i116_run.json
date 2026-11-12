@@ -1,4 +1,6 @@
 {
+  "bind": "derived",
+  "bind_doc": "I115 (bind derived): route A's milestones are bound by holon bind into spec/bindings/<M>.json, which G2 checks; the composed route binds its own milestone the same way, over the derived statements and the models the run generated, in its scratch root (never the repository's spec/bindings). Every family goes through it: no runner is exempt. The bindings name law ids, so they go to the vault with the records (Q56); the row keeps aggregates only (laws bound, unbound, and decided records refused by the binding check).",
   "catalog": "holon-rules/1.16",
   "clones": "~/.holon/eval/repos",
   "commit": "per entry under <out>/<id>/: sidecars/ (every generated input), facts/ (every extracted document; a Go document over store_max_bytes is recorded by sha256 and size only), laws/ (laws/<milestone>), gen/ (gen/<milestone>: models, proofs), records/ (results/<milestone>); and <out>/corpus.json; timings only in <out>/corpus_timing.json",
@@ -76,6 +78,12 @@
     "out": "results/M6/I116/go_machines.json"
   },
   "go_rules_doc": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+  "i115_keys": [
+    "bind",
+    "bind_doc",
+    "preflight_go",
+    "run_unbound"
+  ],
   "iteration": "I116",
   "layout": {
     "layout_version": "holon-layout/0.1",
@@ -87,9 +95,11 @@
   "out": "results/M6/I116/holon",
   "preflight": "toolchain_sets",
   "preflight_doc": "Q80: before any entry runs, every binary of config/toolchains.json the protocol can select is checked: solidity.compiler.version \"pragma\" selects any solc_set release (the file <dir>/solc-<v> must exist and its sha256 equal the pin); go.toolchain \"go_directive\" selects any go_set release (its go binary must exist and print the pinned version_line; go_set pins its tarballs' sha256, not the installed binary, so the version line is the check). Any missing or different binary: holon eval holon refuses to start (exit 2, nothing written). The check is recorded in corpus.json preflight.",
+  "preflight_go": "bin_sha256",
   "replay": "the binding is null: no deployment of a foreign contract is generated, so no witness is replayed on real code (record replay.status not_applicable); stage replay records that",
   "run": "I112 (run_routing per_runner): the derived laws are grouped by the runner of their rule family, read from laws/<M>/DERIVATION.json (holon.eval.holon_run.route): disch (rule DISCH, holon.disch.run's sub-forms) with --sidecar, --disch and --section-errors unknown; fact (rule FACT) with --sidecar and --fact-sidecar; typed (rule SORT sub-forms as_member, realize, reinterpret; rules UNDO and SYM) with --sidecar; milestone (every other law: PAR and route C's families) with no sidecar argument, which holon run sends to holon.pipeline or to the runner its own dispatch names. One holon run --laws call per non-empty group, in that order; a law with no record after every call is UNKNOWN (no record). The run stage's detail holds aggregates only (per runner: laws, exit, records written, section errors), never a law id or a runner's output (Q72); the output is kept in the vault.",
   "run_routing": "per_runner",
+  "run_unbound": "unknown",
   "run_version": "holon-corpus-run/0.2",
   "solidity": {
     "commit_interfaces": [],
