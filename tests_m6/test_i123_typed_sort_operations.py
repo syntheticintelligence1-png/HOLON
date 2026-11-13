@@ -220,7 +220,9 @@ class TestRegressions(unittest.TestCase):
 
     def test_p7_no_earlier_protocol_or_sidecar_names_sort_ops(self):
         for p in sorted((ROOT / "spec").glob("*/lib/*.json")):
-            if p.name == "i123_run.json":
+            # amended (spec/M6/amendments/I123.jsonl): base_run.json, the generated union of the landed keys' opt-ins
+            # (Q104), names sort_ops once I123 has landed; it is not an earlier key's protocol
+            if p.name in ("i123_run.json", "base_run.json"):
                 continue
             try:
                 d = json.loads(p.read_text(encoding="utf-8"))
