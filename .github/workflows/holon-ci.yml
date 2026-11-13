@@ -378,6 +378,16 @@ jobs:
             # results/M6/I120) are the key's measured outcome, not run here. Nothing here analyses a sealed target.
             timeout: 60
             run: python -m unittest tests_m6.test_i120_route_c_full_documents.TestOverLimit tests_m6.test_i120_route_c_full_documents.TestEitherSide tests_m6.test_i120_route_c_full_documents.TestControl tests_m6.test_i120_route_c_full_documents.TestUnits tests_m6.test_i120_route_c_full_documents.TestRegressions -v
+          - name: tests-m6-fm615
+            # F-M6-15 (HUMAN_ANSWERS Q113): holon run --unbound unknown's pre-check binds the statement text the run's
+            # own emitter writes, not the IR's fallback type names, so the pre-check and the post-decision check never
+            # disagree on a law the emitter can express (holon.codecrun.precheck_text / emitted_text and the mirror in
+            # holon.mpipeline). On a synthetic model (tests_m6/fixtures/fm615) the emitter's name R_Rec binds and a name
+            # no model defines stays UNKNOWN (TestPrecheckSeam); over the planted linked codec component
+            # (tests_m3/fixtures/par_linked) the flip decides every bindable law and changes no record, G1-compared
+            # (TestLinkedFixtureFlip). Fixtures are synthetic; nothing here analyses a sealed target (Q56 (5)).
+            timeout: 30
+            run: python -m unittest tests_m6.test_fm615_unbound_precheck -v
           - name: tests-m6-base
             # HUMAN_ANSWERS Q104 (1) and Q109 (F-M6-12): spec/M6/lib/base_run.json, the measured base, is
             # tools/base_protocol.py's output (B1); it loses no key of the root or of a landed protocol, empty dicts
