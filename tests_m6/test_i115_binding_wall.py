@@ -469,9 +469,11 @@ class TestRegressions(unittest.TestCase):
 
     def test_p6_earlier_protocols_name_no_opt_in(self):
         for p in sorted((ROOT / "spec" / "M6" / "lib").glob("i1*_run.json")):
-            if p.name == "i115_run.json":
-                continue
             d = json.loads(p.read_text(encoding="utf-8"))
+            # amended (spec/M6/amendments/I115.jsonl): the protocols of I115 and later keys are not earlier ones
+            it = str(d.get("iteration") or "")
+            if p.name == "i115_run.json" or (it[1:].isdigit() and int(it[1:]) >= 115):
+                continue
             self.assertEqual([k for k in OPT_INS if k in d], [], p.name)
 
     def test_p12_protocol_is_i112s_plus_the_opt_ins(self):

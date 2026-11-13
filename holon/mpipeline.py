@@ -788,7 +788,12 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         status, em, r = "UNKNOWN", None, None
         bound = None
         stmt_text = records.ir_roots_text(law)
+        # I117 (HUMAN_ANSWERS Q91 (3)): under --unbound unknown the binding is checked before the emitter, on the
+        # statement's IR roots (as holon.codecrun does): a law that cannot be bound is never emitted or decided
+        ub0 = CR.unbound_error(stmt_text, model_src, cfg) if law_cone_needed(law, cm.facts) else None
         try:
+            if ub0 is not None:
+                raise _Unbound(ub0)
             ir.check_premises(law)
             if law.get("ir_version") == "holon-ir/0.3":   # record-ref binder types name a facts type (F-M2-18)
                 ir.check_binder_types(law, cm.facts)
@@ -903,6 +908,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
                         if t.get("why"):
                             rec["triage_why"] = t["why"]
                         rec["replay"] = replay_status(report, lid, w)
+        except _Unbound:
+            pass   # nothing attempted: the binding attempt is recorded below
         except mlaws.Unsupported as e:
             attempts.append({"kind": "emit", "error": f"unsupported statement form: {e}"})
         except ir.IRError as e:
@@ -912,7 +919,7 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             attempts.append({"kind": "ir", "error": f"rejected by the oracle sidecar rules: {e}"})
             bound = "not searched: the statement's oracle premises do not resolve against the sidecar"
         agent = None   # I41: the intake's decision on an agent submission for a law left UNKNOWN
-        if status == "UNKNOWN":
+        if status == "UNKNOWN" and ub0 is None:   # I117: an unbound law takes no agent proof either
             why = None if em is not None else ("holon run writes no law file for it: "
                                                + next((a["error"] for a in reversed(attempts) if a.get("error")),
                                                       "the statement was not emitted"))
@@ -960,7 +967,8 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
             attempts.append(intake.attempt(agent[0]))
         rec["status"] = status
         rec["attempts"] = attempts
-        ub = CR.unbound_error(stmt_text, model_src, cfg) if law_cone_needed(law, cm.facts) else None
+        ub = ub0 if ub0 is not None else (CR.unbound_error(stmt_text, model_src, cfg)
+                                          if law_cone_needed(law, cm.facts) else None)
         if ub is not None:   # I115 (--unbound unknown): a law whose statement cannot be bound is UNKNOWN, its decision
             # (if any) dropped: no law or proof file, no witness, the binding error its last attempt
             status = "UNKNOWN"
@@ -1227,6 +1235,10 @@ def reach_search(em, cm: CompiledMachine, imp: str, ld: Path, pd: Path, cfg: dic
         if ok:
             return rr
     return None
+
+
+class _Unbound(Exception):
+    """I117: the law's statement cannot be bound to its model (raised before the emitter; caught in run)."""
 
 
 def law_cone_needed(law: dict, facts: dict) -> bool:

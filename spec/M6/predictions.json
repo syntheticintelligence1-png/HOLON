@@ -1567,6 +1567,121 @@
         }
       ]
     },
+    "I117": {
+      "title": "I117: Go op semantics for the binding (HUMAN_ANSWERS Q90, Q91): (1) holon.gen.goint, Go's integer ops defined from the Go specification over the 64-bit two's complement (wraparound, truncated division and remainder with MinInt / -1, shifts with no upper limit and the negative-count panic, unary - and ^, conversions, comparisons), checked by a differential test against the pinned go 1.24.7 and by Bend's own evaluation; (2) the Go frontend's opt-in ops \"typed\" (protocol go.ops \"typed\"): typed terms recorded for every enumerated function, sized arithmetic opaque to the pruning reasoner, stale loads flagged; (3) the Go-op model's straight-line class (holon.gen.gostraight): ops with no loop over a byte array and guards over the carrier's fields (Q91 (1)); an op that cannot be stated exactly stays undefined, its laws unbound and UNKNOWN; (4) Q91 (3): the mpipeline path's binding check before the emitter. Run through holon eval holon --compose with I116's protocol at its landing plus go.ops \"typed\"",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I117)",
+      "prompt": "prompts/I117_go_op_semantics.md",
+      "tests": [
+        "tests_m6/test_i117_go_op_semantics.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I117/",
+        "docs/iterations/I117.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P6 and P12 are on planted programs and fixtures (tests_m6/fixtures/i117, the differential cases of holon.gen.goint_diff) and unit inputs. P7-P10 are smoke measures on I51's corpus, contaminated by I51, I103-I116 and I107. P11 is a measurement on I106's targets, contaminated: post-I107. I114 scores generality on the sealed pair. Laws are reported as aggregates only, never splitting PROVED from REFUTED (Q56, Q89); stage reasons only for stages before any decision (Q72).",
+        "instruments": "spec/M6/lib/i117_run.json (the run protocol: base_protocol plus go.ops \"typed\") and tests_m6/test_i117_go_op_semantics.py (every check)",
+        "base": "claude/i115-binding-wall at 9571c02f (I115, #194, not yet landed); the lead's I115 and I116 landings are merged by merge commits before the first measured run, and the merge sha is recorded in the report",
+        "protocol_rule": "spec/M6/lib/i117_run.json is base_protocol plus exactly go.ops \"typed\" (and go.ops_doc), checked by TestRegressions.test_p6_protocol_is_its_base_plus_go_ops. Until I116's landing is merged its base_protocol is spec/M6/lib/i115_run.json (for the planted tests only); at that merge, before any measured run, base_protocol becomes the protocol of I116's landing and the file is regenerated from it by this rule (a mechanical rebase, no other change).",
+        "baseline": "I115's counted composed run (results/M6/I115/holon/corpus.json): 107 laws derived, 1 decided (PROVED and REFUTED together, Q56); all 93 PAR laws UNKNOWN by binding (every Go-op op outside goloop's loop class); I116's counted run is the base this key's run is compared with, read at the merged head",
+        "definitions": "(1) holon.gen.goint (fixed here, before any build commit; each quoted from the Go specification in its docstring). A value of a Go integer type T of n bits is represented by the 64-bit two's complement of its mathematical value (sign-extended for signed T, zero-extended for unsigned), Bend's Word(64n) LSB first; fit(v, T) truncates to n bits and reads them in T's signedness (\"Conversions\": sign or zero extension, then truncation). int, uint and uintptr are 64 bits (the pinned linux/amd64 toolchain; the differential test checks it). + - * & | ^ &^: the 64-bit result fit to T (\"Integer overflow\": modulo 2**n). / and %: truncated division (|a| / |b| unsigned, negated when the signs differ; the remainder has the dividend's sign), so MinInt / -1 = MinInt and MinInt % -1 = 0; a zero divisor panics. << and >>: the result has the left operand's type; a count of 64 or more saturates (0, or the sign in every bit for >> of a negative signed value); >> is arithmetic for signed T and logical for unsigned; a count of a signed type whose value is negative panics. Unary -x = 0 - x and ^x = all bits flipped, fit to T. Comparisons order the values: signed order on signed T, unsigned order on unsigned T. Undefined (no definition; the op's laws stay UNKNOWN): any operand that is not of an integer type (float, complex, string, a named type whose underlying type the document does not give), an op outside these.",
+        "frontend": "(2) Opt-in only: the codec frontend's config key ops \"typed\" (config holon-go-frontend/0.3; any other value refused), passed by the composed driver from protocol go.ops \"typed\" (never to the Go machine frontend, whose documents are extracted as before). Under it: every path-enumerated function (codec-shaped or not) emits its paths and a typed section {stale, terms: [[term, Go type]] (a term met with two types recorded null), lengths: {param: array length | null}}; the reasoner's linear forms read an op or unop term as one variable (never as an exact linear combination: Go integers wrap); a path that loads a term after a store through memory the enumerator does not model, or after a call (other than len or cap), marks the function stale. Without it every output is as before.",
+        "class": "(3) The straight-line class (holon.gen.gostraight), only for an op whose Go-op entry has the typed section and no loop body. Carrier kinds: bytes (a byte-array parameter of known length n; cell k is byte k; cell map (1, 0, n)) or fields (any other parameter: the leaves are the field paths from the parameter the component's ops read, each two U32 cells (hi, lo) at its place in the component's sorted leaves: an integer field's value is hi*2**32+lo fit to its type, a bool field is lo != 0, a field compared with nil is nil when lo == 0, a field's len is (hi mod 2**31)*2**32+lo; a nil receiver is not a value of the model, rule A-goloop-fields). A path is the conjunction of its atoms, each an integer comparison of terms over the leaves (or a bool field's truth, or a field's nil-ness), its outcome its end (OPanic, OErr, ORet). Unsupported (the op undefined, its laws unbound and UNKNOWN): a term outside the class, a term of no or two recorded types, a division or remainder whose divisor is not a non-zero constant or a shift whose count is a signed non-constant (the frontend's paths record no panic for them), a stale fields op, a continue path, paths that do not partition the sample points. Candidates for a law (as goloop's rule Y7, in this class): per op of the component by model name, the first sample point (lexicographic over the leaves' sample values: 0, 1, 2, the type's extremes, each constant of the op and its neighbours; a seeded subset of 65536 when the product is larger) at which the op's outcome is OPanic, then OErr, then ORet. A law is REFUTED only by a counter-law Bend accepts at a candidate; no proof route (UNKNOWN otherwise, gap G6). The model text of a document with no straight-line op is byte-identical to before.",
+        "mpipeline": "(4) Q91 (3): under --unbound unknown, on holon.mpipeline's own path (machine-document laws), the binding is checked on the statement's IR roots before the emitter: a law that cannot be bound is UNKNOWN with exactly one attempt (kind binding), no law or proof file, no agent intake; the check after the decision stays (on the decided text). Without the option nothing is computed.",
+        "counting": "Q80, Q76, Q69: the counted run is the first measured run of holon eval holon --protocol spec/M6/lib/i117_run.json --compose over the corpus that finishes; every prediction is scored on it. A re-run counts only if the first attempt never finished; any other re-run is reported beside it as not counted. No started run's output is ever deleted. The preflight (I112's plus Q87's go pins) must pass before it.",
+        "soundness": "Every definition is the specification's rule (quoted in holon.gen.goint) and is compared with the pinned toolchain on every edge case; a term the frontend cannot type, or that could panic where the frontend's paths do not say, is never given a meaning, so its op is undefined and every law naming it is unbound (I115's check) and UNKNOWN. The class has no proof route: it can only REFUTE, and only through a counter-law Bend accepts at a concrete witness, whose outcome the planted tests replay as real Go. The reasoner change and the stale flag only keep paths or refuse ops, never drop a reachable branch. The mpipeline change only moves a refusal earlier. A Morph document has no typed section, so its model and records are unchanged.",
+        "amendment_to_brief": "HUMAN_ANSWERS Q91 (the coordinator's message, read before this prereg): (1) the scope adds guards over the carrier's fields; (3) the mpipeline path's binding check before the emitter, with a planted control"
+      },
+      "predictions": [
+        {
+          "id": "I117-P1",
+          "claim": "(1) The differential test (holon.gen.goint_diff.cases(), at least 25000 edge cases over the 11 integer types: every binary op over the type's edge values, shifts at and past the width and by negative signed counts, unary ops, every conversion, every comparison): the pinned go 1.24.7 prints for every case exactly what the reference computes, and what the model's definitions compute (the compiled Bend module, through holon/js/linked.mjs); at least 500 non-panic cases, checked as laws by Bend's own evaluation, all check, and a planted wrong value is rejected; a non-integer type has no definition.",
+          "check": "tests_m6/test_i117_go_op_semantics.py::TestSemantics",
+          "expected": {
+            "cases_at_least": 25000,
+            "checked_by_bend_at_least": 500
+          }
+        },
+        {
+          "id": "I117-P2",
+          "claim": "(2) The frontend under ops \"typed\" on the planted package: IncWrap (b[2]+1 < b[2]) keeps its panic path and records its terms' types (byte) and its parameter's length 8; Counter.Bump (not codec-shaped) is enumerated and not stale. Without ops \"typed\" the same branch is pruned (the existing reasoner reads b[2]+1 < b[2] as false under unbounded arithmetic) and Bump has no paths. Any other ops value is refused.",
+          "check": "tests_m6/test_i117_go_op_semantics.py::TestFrontend"
+        },
+        {
+          "id": "I117-P3",
+          "claim": "(3) The planted false laws, true under unbounded integers and false under Go's semantics (the totality of SumWrap, uint8 wraparound; of Gate.Admit, int32 wraparound at the maximum), are never PROVED: each is REFUTED (SumWrap at b = 0x01ff000000000000; Admit at Lim = 2**31-1). Every REFUTED PAR record's witness, run as real Go on the pinned toolchain, gives exactly the outcomes its difference states (at least 20 replayed sides). The planted true laws (totality of ShiftMix, SignedLow and Counter.Bump; the domain coherence of ShiftMix and SignedLow) are UNKNOWN, and no PAR law is PROVED.",
+          "check": "tests_m6/test_i117_go_op_semantics.py::TestPlanted::test_p3_false_laws_refuted_and_replayed, test_p3_true_laws_never_refuted",
+          "expected": {
+            "replayed_sides_at_least": 20
+          }
+        },
+        {
+          "id": "I117-P4",
+          "claim": "(3) Undefined ops stay undefined: every law naming Quot (a division by a non-constant byte) is UNKNOWN with exactly one attempt, kind binding, and these laws are exactly the unbound list of the bind stage (bound plus unbound equals derived; 0 decided records refused); the model says why. Field guards (Q91 (1)): Gate.Check's totality is REFUTED with Conn non-nil and len(Items) = 4; Counter.Bump's totality is bound and UNKNOWN.",
+          "check": "tests_m6/test_i117_go_op_semantics.py::TestPlanted::test_p4_undefined_op_unbound, test_p4_field_guards"
+        },
+        {
+          "id": "I117-P5",
+          "claim": "(4) Q91 (3): a planted M1 law whose statement names a function the model does not define, run by holon run --unbound unknown (mpipeline's path) in a scratch root, is UNKNOWN with exactly one attempt (kind binding): nothing emitted, no law or proof file, no generated law directory.",
+          "check": "tests_m6/test_i117_go_op_semantics.py::TestMpipelineBinding"
+        },
+        {
+          "id": "I117-P6",
+          "claim": "Without the opt-ins every output is as before: the committed M3 Go-op models regenerate byte-identical; no protocol but I117's names go.ops; I117's protocol is its base plus go.ops alone; the Bend texts carry no escape hatch.",
+          "check": "tests_m6/test_i117_go_op_semantics.py::TestRegressions"
+        },
+        {
+          "id": "I117-P7",
+          "claim": "(Corpus, the counted run) holon eval holon --protocol spec/M6/lib/i117_run.json --compose: the preflight is ok; entries whose stage is ok at least extract 14, sorts 14, types 14, model 14, disch 14, derive 14, bind 6, run 6 (I115's reach; I116's may be higher); bind ok on every entry that derives a law.",
+          "check": "tests_m6/test_i117_go_op_semantics.py::TestCorpusSmoke::test_p7_stage_reach",
+          "expected": {
+            "entries_at_least": {
+              "extract": 14,
+              "sorts": 14,
+              "types": 14,
+              "model": 14,
+              "disch": 14,
+              "derive": 14,
+              "bind": 6,
+              "run": 6
+            }
+          }
+        },
+        {
+          "id": "I117-P8",
+          "claim": "(Corpus) At least one corpus PAR law is bound (the bind stage binds more laws than the DISCH laws alone: bound at least 15 against I115's 14), and the binding check refuses 0 decided records.",
+          "check": "tests_m6/test_i117_go_op_semantics.py::TestCorpusSmoke::test_p8_par_bound",
+          "expected": {
+            "bound_at_least": 15
+          }
+        },
+        {
+          "id": "I117-P9",
+          "claim": "(Corpus) Laws as aggregates (Q56, Q89): at least 107 derived, at least 2 decided (PROVED and REFUTED together, Q56): I115's 1 plus at least one PAR law; the per-law rows withheld.",
+          "check": "tests_m6/test_i117_go_op_semantics.py::TestCorpusSmoke::test_p9_laws_aggregate",
+          "expected": {
+            "derived_at_least": 107,
+            "decided_at_least": 2
+          }
+        },
+        {
+          "id": "I117-P10",
+          "claim": "(Corpus) No law id, binding, unbound list, witness or per-law record is committed; a bundle commitment per entry with laws.",
+          "check": "tests_m6/test_i117_go_op_semantics.py::TestCorpusSmoke::test_p10_nothing_per_law_committed"
+        },
+        {
+          "id": "I117-P11",
+          "claim": "(Spent targets, contaminated: post-I107) Aggregates only and one bundle commitment per target; their stages and aggregates equal I116's own spent-target measurement (no Solidity document reaches I117's change), so Q88 (1)'s gate is met exactly when I116's spent-target measurement decides at least one law and this run decides at least one on the corpus.",
+          "check": "tests_m6/test_i117_go_op_semantics.py::TestSealedContaminated"
+        },
+        {
+          "id": "I117-P12",
+          "claim": "Morph's M0-M3 move only by re-stamp: holon land dirty re-makes no M0-M2 law; gate-M0 passes; gate-M1 and gate-M2 fail on G1 alone and pass with generator_sha256 stripped; gate-M3 partial passes.",
+          "check": "the gates, run locally and reported (docs/iterations/I117.md)"
+        }
+      ],
+      "regressions": []
+    },
     "I118": {
       "title": "I118: the post-derive walls (HUMAN_ANSWERS Q92, the lead's approval): (1) the composed coverage stage accounts only for the extracted, typed documents and records every other one as skipped; a runner failure and a bind failure confined to one document's laws become per-document fallbacks in Q77's shape (that document's laws UNKNOWN with the error, the rest run), and a failure not confined to one document stays a refusal; (2) per rule family, why no law is derived on each spent target, as pre-decision aggregates (a measurement that builds nothing); (3) spec/schemas/evidence.schema.json gains an optional fallback property. Run through holon eval holon --compose with I116's protocol plus the three opt-ins (and I117's landed keys, if I117 lands first)",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I118)",
