@@ -101,3 +101,10 @@ not its back half. No law is yet derived on a target nobody tuned it on.
    transcripts.
 7. **I106's report** (`docs/iterations/I106.md`) was written by the lead at this exit, from the sealer's committed
    records.
+8. **A soundness finding after this exit (F-M6-01, HUMAN_ANSWERS Q94, 2026-11-13).** Until I117, the Go frontend's
+   path reasoner read Go integers as unbounded.
+   - 3 of Morph's 8 committed Go documents change under the opaque-arithmetic rule alone.
+   - At least 28 of M3's 179 committed decided laws (PROVED and REFUTED together, Q56) read one of them; for 112 more
+     decided laws, committed data does not say.
+   - Morph's scores under `--roles auto`, against I48's and I52/I52b's baselines, rest partly on those laws. They are
+     provisional until I119 (b) re-derives and re-decides them.
