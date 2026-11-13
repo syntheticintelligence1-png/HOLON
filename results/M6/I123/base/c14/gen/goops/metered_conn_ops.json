@@ -1,0 +1,165 @@
+{
+  "carrier": {
+    "id": "meteredConn",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/p2p.meteredConn"
+  },
+  "component": "metered_conn_ops",
+  "document": "results/M6/base/holon/c14/facts/go_1.go.extracted.json",
+  "document_sha256": "7e3f152b8e1733ff650179402f8c482a9fd646280aa35255d5e406e68ea7fc27",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "p2p_meteredConn_Close": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "c",
+          "type": "*github.com/ethereum/go-ethereum/p2p.meteredConn"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "c"
+                    ],
+                    "Conn"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "unknown",
+          "returns": [
+            [
+              "call",
+              "dynamic:Close",
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "c"
+                  ],
+                  "Conn"
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "c"
+                    ],
+                    "Conn"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "call",
+              "dynamic:Close",
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "c"
+                  ],
+                  "Conn"
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.meteredConn).Close",
+      "span": "p2p/metrics.go:88",
+      "typed": {
+        "lengths": {
+          "c": null
+        },
+        "stale": true,
+        "terms": [
+          [
+            [
+              "call",
+              "dynamic:Close",
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "c"
+                  ],
+                  "Conn"
+                ]
+              ]
+            ],
+            "error"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "c"
+              ],
+              "Conn"
+            ],
+            "net.Conn"
+          ],
+          [
+            [
+              "global",
+              "github.com/ethereum/go-ethereum/p2p.activePeerGauge"
+            ],
+            "github.com/ethereum/go-ethereum/metrics.Gauge"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ]
+  }
+}
