@@ -408,6 +408,16 @@ jobs:
             # sealed target (Q56 (5)).
             timeout: 60
             run: python -m unittest tests_m6.test_i122_goloop_loop_shapes.TestFrontend tests_m6.test_i122_goloop_loop_shapes.TestClasses tests_m6.test_i122_goloop_loop_shapes.TestDifferential.test_p3_model_equals_go tests_m6.test_i122_goloop_loop_shapes.TestDifferential.test_p3_trip_sequences_equal_go tests_m6.test_i122_goloop_loop_shapes.TestPlanted.test_p4_false_laws_refuted_and_replayed tests_m6.test_i122_goloop_loop_shapes.TestPlanted.test_p5_true_laws_never_refuted tests_m6.test_i122_goloop_loop_shapes.TestPlanted.test_p6_outside_unbound tests_m6.test_i122_goloop_loop_shapes.TestRegressions tests_m6.test_i122_goloop_loop_shapes.TestCorpusSmoke.test_p8_loop_bodies_and_reasons tests_m6.test_i122_goloop_loop_shapes.TestCorpusSmoke.test_p9_ops_in_class_and_laws tests_m6.test_i122_goloop_loop_shapes.TestCorpusSmoke.test_p10_nothing_per_law_committed -v
+          - name: tests-m6-i126
+            # I126 (M6 follow-on, goops coverage of the corpus's loop shapes; HUMAN_ANSWERS Q112 (5), Q93 (3), Q90, Q117):
+            # the frontend's opt-in loop_forms "seq" (P1: the recorded loop forms, a sequential exit ending "next", an
+            # earlier side-effect-free loop passed on a prefix, nothing else changed without it), class SEQ on the planted
+            # package (P2), Q90's differential test against the pinned go 1.24.7 and the trips (P3), the planted false
+            # laws REFUTED with every witness replayed as real Go (P4), the true law never refuted (P5), the ops just
+            # outside unbound (P6), the regressions (P7, R1; I122's S1 and S2 unchanged). The corpus measures (P8-P10;
+            # results/M6/I126) are the key's measured outcome. Nothing here analyses a sealed target (Q56 (5)).
+            timeout: 60
+            run: python -m unittest tests_m6.test_i126_goloop_corpus_loops.TestFrontend tests_m6.test_i126_goloop_corpus_loops.TestClasses tests_m6.test_i126_goloop_corpus_loops.TestDifferential tests_m6.test_i126_goloop_corpus_loops.TestPlanted tests_m6.test_i126_goloop_corpus_loops.TestRegressions -v
           - name: tests-m6-i104
             # I104 (M6): holon roles. The contract R1-R6 (TestBuild: determinism and the committed Morph roles, evidence,
             # names as tie-breakers, the proposal channel and its model-free provenance, hand sidecars win, no target

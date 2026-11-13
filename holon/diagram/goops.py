@@ -120,7 +120,8 @@ def document(name: str, comp: dict, doc_rel: str, raw: bytes, go: dict) -> dict:
         if mn in ops:
             raise LinkedError(f"component {name}: two ops named {mn}")
         ops[mn] = {"source": fid, **{k: f.get(k) for k in OP_KEYS},
-                   **({"typed": f["typed"]} if "typed" in f else {})}   # I117: only under the config's ops "typed"
+                   **({"typed": f["typed"]} if "typed" in f else {}),   # I117: only under the config's ops "typed"
+                   **({"loop_forms": f["loop_forms"]} if "loop_forms" in f else {})}   # I126: only under loop_forms
         results[result_carrier_id(rs)] = list(rs)
     if not ops:
         raise LinkedError(f"component {name}: no function of {doc_rel} takes one {comp['carrier']}")

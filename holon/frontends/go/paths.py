@@ -108,19 +108,21 @@ class Frame:
 
 
 class PState:
-    __slots__ = ("frames", "cond", "mem", "_r", "looped", "updates", "tstore")
+    __slots__ = ("frames", "cond", "mem", "_r", "looped", "updates", "tstore", "next_loop")
 
     def __init__(self, frames, cond, mem):
         self.frames, self.cond, self.mem, self._r = frames, cond, mem, None
         self.looped = False      # loop-body mode (I67): this path has entered the loop header once
         self.updates = None      # I93 (0.3): the carried variables' values at the back edge of a continue path
         self.tstore = False      # I117 (ops "typed"): memory no Ptr models may have changed on this path
+        self.next_loop = None    # I126 (loop_forms "seq"): the span of the later loop whose header this path met
 
     def fork(self) -> "PState":
         p = PState([f.copy() for f in self.frames], list(self.cond), dict(self.mem))
         p.looped = self.looped
         p.updates = self.updates
         p.tstore = self.tstore
+        p.next_loop = self.next_loop
         return p
 
 
@@ -203,7 +205,8 @@ class Enumerator:
         self._loop = {"header": L.header, "phi": L.phi.name if L.phi else None, "iv": iv,
                       "phi_value": iv if k == 0 else op("-", iv, const(k)), "init": L.init, "step": L.step,
                       "havoc": frozenset(havoc),
-                      "others": {x.header for x in self.flow(fn).loops() if x.header != L.header}}
+                      "others": {x.header for x in self.flow(fn).loops() if x.header != L.header},
+                      "seq": self.ctx.loop_seq, "L": L, "loops": {x.header: x for x in self.flow(fn).loops()}}
         top = Frame()
         top.fn, top.flow, top.env, top.bidx, top.pc, top.depth, top.ret = fn, self.flow(fn), {}, 0, 0, 0, None
         top.args = []
@@ -254,6 +257,11 @@ class Enumerator:
                                    "error": None})
             self.res.layouts.append([])
             self.res.ends.add(site)
+            return
+        if end == "continue" and st.next_loop is not None:   # I126: the path left the loop for a later one
+            self.res.paths.append({"cond": list(st.cond), "end": "next", "next": st.next_loop, "returns": None,
+                                   "site": None, "error": None})
+            self.res.layouts.append([])
             return
         if end == "continue":                 # I67 loop-body mode: the iteration completed, control goes to the header
             entry = {"cond": list(st.cond), "end": "continue", "returns": None, "site": None, "error": None}
@@ -546,10 +554,46 @@ class Enumerator:
         return UNKNOWN_CELL
 
     # ------------------------------------------------------------------ stepping
+    SEQ_EFFECTS = ("Call", "Go", "Defer", "Store", "MapUpdate", "Send", "Select")
+
+    def _seq_enter(self, fr: Frame, st: PState, b: int):
+        """I126 (loop_forms "seq"; spec/M6/predictions/I126.json's frontend_forms (6a), (6b)): the header b of another
+        loop M, met at depth 0 while one iteration of loop L is enumerated. M nested in L or L in M: None (OtherLoop, as
+        before). After L's header (the path left L): "continue" with st.next_loop = M's span, which finish() writes as
+        a path ending "next". Before it (L's prefix): M is passed when it is a counted or range loop with an induction
+        phi, a constant step other than 0, a comparison and an exit successor, and its blocks hold no call, store, map
+        update, send, select, receive, go or defer: every value M's blocks define is bound to an opaque term and the
+        path goes on at M's exit successor ("passed"); else None. Passing M assumes nothing of it: a later loop's
+        iteration runs, in the composition, only after M's exit, and M has no effect on memory."""
+        L, M = self._loop["L"], self._loop["loops"].get(b)
+        if M is None or (M.body & L.body):
+            return None
+        if st.looped:
+            st.next_loop = M.span
+            return "continue"
+        if M.kind not in ("counted", "range") or M.phi is None or not isinstance(M.step, int) or M.step == 0 \
+                or M.cmp is None or M.exit_succ is None:
+            return None
+        blocks = fr.fn.blocks
+        for x in M.body:
+            for ins in blocks[x].instrs:
+                if ins.op in self.SEQ_EFFECTS or (ins.op == "UnOp" and ins.get("unop") == "<-"):
+                    return None
+        for x in sorted(M.body):
+            for ins in blocks[x].instrs:
+                if ins.name:
+                    fr.env[ins.name] = ("unknown", f"loop:{ins.name}")
+        r = self.enter(fr, st, M.exit_succ, M.header)
+        return "passed" if r is None else r
+
     def enter(self, fr: Frame, st: PState, b: int, pred: int):
         # I67 loop-body mode (run_loop): the header's first entry on a path binds the induction phi symbolically and
         # every other phi to an opaque term; its second entry is the jump back that ends the iteration "continue"
         if self._loop is not None and fr.depth == 0 and b in self._loop["others"]:
+            if self._loop["seq"]:   # I126 (loop_forms "seq"): a sequential loop, met after this one or before it
+                r = self._seq_enter(fr, st, b)
+                if r is not None:
+                    return None if r == "passed" else r
             raise OtherLoop(b)                       # unrolled or forked it might never end: no loop body here
         if self._loop is not None and b == self._loop["header"] and fr.depth == 0:
             blk = fr.fn.blocks[b]

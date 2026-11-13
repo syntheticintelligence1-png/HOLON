@@ -61,6 +61,7 @@ class Analysis:
         self.enum: dict[str, object] = {}
         self._cases: dict = {}
         self._results: dict = {}
+        self._loop_status: dict = {}   # I126: per function, per loop header, the body loop_bodies gave it
         self._writes: dict = {}
         self.listed = sorted(fid for fid, f in self.prog.funcs.items() if f.synthetic == "")
 
@@ -123,7 +124,73 @@ class Analysis:
             lb = self.loop_bodies(fid)
             if lb is not None:
                 entry["loop_bodies"] = lb
+        if self.ctx.loop_seq and fn.has_body:   # I126 (loop_forms "seq"): every loop's form, and why it has no body
+            lf = self.loop_forms(fid)
+            if lf:
+                entry["loop_forms"] = lf
         return entry
+
+    LOOP_WHY = {PathLimit: "path limit", OtherLoop: "another loop on a path", LoopStore: "a store not tracked"}
+    OVER = {"slice": "slice", "array": "array", "pointer": "pointer", "map": "map", "chan": "chan",
+            "signature": "func", "func": "func"}
+
+    def loop_forms(self, fid: str) -> list:
+        """I126 (loop_forms "seq"): one entry per loop of the function, in header order: its flow kind (counted, range,
+        unbounded), its syntax (for, range, none) and whether a for has a condition, what a range ranges over (from the
+        SSA: the range operand's type for a Next or receive loop, the length operand's type for an indexed one; else
+        other), its depth, and whether loop_bodies gave it a body with paths, a body with no paths or no body, with why
+        (spec/M6/predictions/I126.json's frontend_forms (7)). A record only: nothing reads it but the Go-op model's
+        reasons and counts."""
+        fn = self.prog.funcs[fid]
+        fl = self.flow(fid)
+        status = self._loop_status.get(fid, {})
+        out = []
+        for L in fl.loops():
+            _span, stmt, has_cond = fl._span(L)
+            body, why = status.get(L.header, ("none", None))
+            if body == "none":
+                if L.kind not in ("counted", "range") or L.phi is None:
+                    why = "no induction variable"
+                elif not isinstance(L.step, int) or L.step == 0:
+                    why = "step not constant"
+                else:
+                    why = "no comparison"
+            out.append({"span": L.span, "kind": L.kind, "syntax": stmt or "none", "cond": bool(has_cond),
+                        "over": self._range_over(fn, fl, L) if stmt == "range" else None, "depth": L.depth,
+                        "body": body, "why": why})
+        return out
+
+    def _range_over(self, fn, fl, L) -> str:
+        def kind_of(o) -> str:
+            t = self.ctx.operand_type(fn, o)
+            k = self.ty.kind(t) if t else ""
+            if k == "basic":
+                e = self.ty.entry(self.ty.under(t))
+                return "string" if e.get("string") or self.ty.under(t) in ("string", "untyped string") else (
+                    "int" if e.get("integer") else "other")
+            return self.OVER.get(k, "other")
+        for b in sorted(L.body):
+            for ins in fn.blocks[b].instrs:
+                if ins.op == "Next" and ins.operands and ins.operands[0] and "v" in ins.operands[0]:
+                    r = fn.defs.get(ins.operands[0]["v"])
+                    if r is not None and r.op == "Range" and r.operands:
+                        return kind_of(r.operands[0])
+                if ins.op == "UnOp" and ins.get("unop") == "<-":
+                    return "chan"
+        last = fn.blocks[L.header].last
+        if L.kind in ("counted", "range") and last is not None and last.operands:
+            c = last.operands[0]
+            d = fn.defs.get(c.get("v", "")) if c and "v" in c else None
+            for o in (d.operands if d is not None else []):
+                if not o or "const" in o or fl._iv_of(o, L) is not None:
+                    continue   # a constant bound (an array or an integer constant: not told apart) or the index
+                x = fn.defs.get(o.get("v", "")) if "v" in o else None
+                call = x.call if x is not None and x.op == "Call" else None
+                if call and call.get("mode") == "builtin" and call.get("callee") == "len" and call.get("args"):
+                    return kind_of(call["args"][0])
+                if kind_of(o) == "int":
+                    return "int"
+        return "other"
 
     def loop_bodies(self, fid: str) -> list | None:
         """holon-go-frontend/0.2's loop_bodies (I67): one iteration of each counted or range loop of step 1 with an
@@ -140,6 +207,7 @@ class Analysis:
             return None
         fl = self.flow(fid)
         out = []
+        status = self._loop_status.setdefault(fid, {})   # I126: per loop header, ("paths" | "null", why)
         for L in fl.loops():
             if L.kind not in ("counted", "range") or L.phi is None:
                 continue
@@ -148,25 +216,31 @@ class Analysis:
                     continue
             elif L.fuel is None or L.step != 1:
                 continue
+            status[L.header] = ("null", None)
             try:
                 res = self._loop_fixpoint(fn, L)
             except PathLimit:
+                status[L.header] = ("null", self.LOOP_WHY[PathLimit])
                 paths = None
                 self.ctx.debt_entry(fid, "path_limit", L.span,
                                     f"more than {self.ctx.max_paths} paths in one iteration of the loop: no loop body")
             except OtherLoop:
+                status[L.header] = ("null", self.LOOP_WHY[OtherLoop])
                 paths = None
                 self.ctx.debt_entry(fid, "unsupported", L.span,
                                     "another loop on a path of one iteration (nested or after the exit): no loop body")
             except LoopStore as e:
+                status[L.header] = ("null", self.LOOP_WHY[LoopStore])
                 paths = None
                 self.ctx.debt_entry(fid, "unsupported", L.span, f"{e} on a path of one iteration: no loop body")
             else:
                 paths = [to_json(p) for p in res.paths]
                 for pos, what in res.unsupported:
                     self.ctx.debt_entry(fid, "unsupported", pos, what)
+                status[L.header] = ("paths", None)
                 if res.unsupported:   # e.g. a defer that may recover: the paths are not the function's behaviour
                     paths = None
+                    status[L.header] = ("null", "an unsupported construct")
             ent = {"span": L.span, "iv": L.iv, "init": to_json(L.init), "step": L.step, "cmp": L.cmp,
                    "limit": to_json(L.limit), "fuel": to_json(L.fuel), "exits": list(L.exits), "paths": paths}
             if self.ctx.v03:   # I93: the carried variables, in header order, with their entry values

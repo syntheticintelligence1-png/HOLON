@@ -426,6 +426,15 @@ def shapes(doc: dict) -> dict:
                     out[name] = goshapes.shape(name, op)
                 except Unsupported as e2:
                     out[name] = Unsupported(f"{name}: loop shapes: {e2}")
+                    if "loop_forms" in op:   # I126 (loop_forms "seq"): class SEQ, after I67, S1 and S2
+                        try:
+                            out[name] = goshapes.shape_seq(name, op)
+                        except Unsupported as e3:
+                            out[name] = Unsupported(f"{name}: loop shapes: {e2}; seq: {e3}")
+            elif "loop_forms" in op and op.get("paths_reason") == "loop" and not lbs:   # I126: the forms, recorded
+                out[name] = Unsupported(f"{name}: 0 loop bodies (the frontend emitted none); loop forms: " + "; ".join(
+                    f"{f.get('syntax')} {f.get('over') or ''} {f.get('kind')}: {f.get('why')}".replace("  ", " ")
+                    for f in op["loop_forms"]))
             if "typed" in op and not op.get("loop_bodies"):
                 try:
                     out[name] = _straight(name, op)
@@ -480,7 +489,8 @@ def declared_bundle(doc: dict, rel: str, sha: str, root: Path) -> dict:
     own = {"A-goloop-cells": ["St", "Res"], "A-goloop-outcome": ["Out", "is_panic"], "A-goloop-sites": []}
     for sh in shs.values():   # I122: the classes' own entries, only when an op is in one
         if goshapes.is_shape(sh):
-            own.setdefault("A-goshapes-range" if isinstance(sh, goshapes.RangeShape) else "A-goshapes-stride", [])
+            own.setdefault("A-goshapes-range" if isinstance(sh, goshapes.RangeShape) else
+                           "A-goshapes-seq" if sh.kind == "SEQ" else "A-goshapes-stride", [])
     if any(isinstance(sh, goshapes.RangeShape) for sh in shs.values()):
         own["A-goshapes-prelude"] = ["gs_len"]
     if _any_straight(shs):   # I117: the Go integer semantics the straight-line ops are written in

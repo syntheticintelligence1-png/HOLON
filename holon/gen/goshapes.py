@@ -372,6 +372,167 @@ def shape_s2(name: str, op: dict, lb: dict):
     return sh
 
 
+# ====================================================================== SEQ (I126)
+def _segment(name: str, param: str, n: int, lb: dict, nxt: str | None):
+    """One loop of a SEQ op (spec/M6/predictions/I126.json's definitions): (trip, read, body paths over local iteration
+    numbers, exit outcome), or Unsupported. nxt is the next loop's span (its exit paths end "next" naming it), None for
+    the last loop (its exit paths share one outcome)."""
+    gl = _gl()
+    U = gl.Unsupported
+    iv = lb.get("iv") or "i"
+    typed = lb.get("typed") or {}
+    if lb.get("paths") is None:
+        raise U(f"{name}: a loop of the sequence has no paths")
+    if typed.get("stale"):
+        raise U(f"{name}: a loop of the sequence loads a term after a store or a call (stale)")
+    init, limit, s, cmp = gl._const(lb.get("init")), gl._const(lb.get("limit")), lb.get("step"), lb.get("cmp")
+    if init is None or limit is None or not isinstance(s, int) or s == 0 or cmp not in goint.CMPS:
+        raise U(f"{name}: a loop of the sequence is not counted from a constant to a constant with a constant step")
+    T = typed.get("iv_type")
+    if not T or goint.itype(T) is None:
+        raise U(f"{name}: the induction variable's type {T!r} is not a recorded integer type")
+    if goint.fit(init, T) != init or goint.fit(limit, T) != limit:
+        raise U(f"{name}: a loop constant is not a value of {T}")
+    trip, v = [], init
+    while goint.compare(cmp, T, v, limit):
+        trip.append(v)
+        if len(trip) > MAX_TRIP:
+            raise U(f"{name}: more than {MAX_TRIP} iterations (or none ending)")
+        v = goint.fit(v + s, T)
+    bits, signed = goint.itype(T)
+    lo_t, hi_t = (-(1 << (bits - 1)), (1 << (bits - 1)) - 1) if signed else (0, (1 << bits) - 1)
+
+    def values(a: int, c: int, xs) -> list[int]:
+        out = []
+        for x in xs:
+            for w in (a * x, a * x + c):
+                if not lo_t <= w <= hi_t:
+                    raise U(f"{name}: the term {a}*iv + {c} leaves {T}'s range at iv = {x} (it would wrap)")
+            out.append(a * x + c)
+        return out
+
+    neg = {"<": ">=", ">=": "<", ">": "<=", "<=": ">", "==": "!=", "!=": "=="}[cmp]
+    m = len(trip)
+    read, body, exits = None, [], []
+    for p in lb["paths"]:
+        cells, index, is_exit, live = [], [], False, True
+        for atom in p["cond"]:
+            if not (isinstance(atom, list) and len(atom) == 3 and atom[0] in gl.FLIP):
+                raise U(f"{name}: condition {atom!r} is not a comparison")
+            o, x, y = atom
+            kx, ky = gl._const(x), gl._const(y)
+            if (kx is None) == (ky is None):
+                raise U(f"{name}: condition {atom!r} does not compare a term with a constant")
+            oo, t, k = (o, x, ky) if ky is not None else (gl.FLIP[o], y, kx)
+            if t == ["iv", iv] and k == limit and oo == neg:
+                is_exit = True
+                continue
+            r = gl.cell_read(t, iv, param)
+            if r is not None:
+                if read is not None and r != read:
+                    raise U(f"{name}: the body reads two cells, {read} and {r}")
+                read = r
+                if not 0 <= k <= 255:
+                    raise U(f"{name}: a byte compared with {k}")
+                cells.append((oo, k))
+                continue
+            a = gl.affine(t, iv)
+            if a is None:
+                raise U(f"{name}: condition {atom!r} reads more than the induction variable and the cell")
+            index.append((a, oo, k))
+        end = p.get("end")
+        if is_exit:
+            if cells:
+                raise U(f"{name}: an exit path reads a cell")
+            # the exit is reached at the induction value after the trip: an index atom is evaluated there exactly
+            if not all(gl.holds_cell(oo, w, k) for (a, oo, k) in index for w in values(*a, [v])):
+                continue
+            if end == "next":
+                exits.append(("next", p.get("next")))
+            else:
+                exits.append((gl._outcome(p), None))
+            continue
+        if end == "next":
+            raise U(f"{name}: a break out of a loop of the sequence (an early exit into the next loop)")
+        out = gl._outcome(p)
+        sets = [("set", frozenset(j for j, w in enumerate(values(*a, trip)) if gl.holds_cell(oo, w, k)))
+                for (a, oo, k) in index]
+        if live:
+            body.append(gl.Path_(cells, sets, out, p.get("site")))
+    want = {("next", nxt)} if nxt is not None else None
+    if not exits:
+        raise U(f"{name}: a loop of the sequence has no exit path")
+    if want is not None and set(exits) != want:
+        raise U(f"{name}: a loop's exit paths end in {sorted(set(e[0] for e in exits))}, not in the next loop")
+    if want is None and (len(set(exits)) != 1 or exits[0][0] in ("continue", "next")):
+        raise U(f"{name}: the last loop's exit paths end in {sorted(set(e[0] for e in exits))} (one outcome)")
+    if read is None:
+        if any(p.outcome != "continue" for p in body):
+            raise U(f"{name}: a loop of the sequence reads no cell and does not only continue")
+        return trip, None, [], exits[0][0]
+    a, c = read
+    idx = values(a, c, trip)
+    if any(not 0 <= j < n for j in idx):
+        raise U(f"{name}: an iteration reads a byte outside [0, {n})")
+    if not any(p.outcome == "continue" for p in body):
+        raise U(f"{name}: no body path of a loop of the sequence continues")
+    return trip, idx, body, exits[0][0]
+
+
+def shape_seq(name: str, op: dict):
+    """Class SEQ (I126): the op's loop bodies, counted loops over one byte array, composed in program order; an empty
+    loop (no read, every path continues) dropped once its trip is shown finite. The shape is I122's StrideShape over
+    the concatenated trip, of kind SEQ."""
+    gl = _gl()
+    U = gl.Unsupported
+    if name in gl.RESERVED or not gl.IDENT.match(name) or name.startswith(("gw_", "gs_")):
+        raise U(f"op name {name!r} is reserved or not an identifier")
+    params = op.get("params") or []
+    if len(params) != 1:
+        raise U(f"{name}: {len(params)} parameters")
+    param = params[0]["name"]
+    lbs = op.get("loop_bodies")
+    if not isinstance(lbs, list) or not lbs:
+        raise U(f"{name}: 0 loop bodies")
+    forms = op.get("loop_forms") or []
+    if len(forms) != len(lbs) or any(f.get("depth") != 1 for f in forms):
+        raise U(f"{name}: a loop the frontend gave no body, or a nested loop (the sequence is every loop, at depth 1)")
+    n = ((lbs[0].get("typed") or {}).get("lengths") or {}).get(param)
+    if not isinstance(n, int) or n < 1:
+        raise U(f"{name}: the parameter is not a byte array of known length (class SEQ)")
+    trip, idx, paths, exit_, kept = [], [], [], None, 0
+    for j, lb in enumerate(lbs):
+        last = j == len(lbs) - 1
+        t, ix, body, ex = _segment(name, param, n, lb, None if last else lbs[j + 1].get("span"))
+        if last:
+            exit_ = ex
+        if ix is None:
+            continue   # an empty loop: its trip ends (computed), it reads nothing and every path continues
+        kept += 1
+        off = len(trip)
+        whole = frozenset(range(off, off + len(t)))
+        for p in body:
+            sets = [("set", frozenset(off + i for i in c[1])) for c in p.index]
+            paths.append(gl.Path_(p.cells, [("set", whole)] + sets, p.outcome, p.site))
+        trip += t
+        idx += ix
+    if len(lbs) < 2 and kept == len(lbs):
+        raise U(f"{name}: one loop, not empty (the classes I67, S1 and S2 take one loop)")
+    if not trip:
+        raise U(f"{name}: every loop of the sequence is empty")
+    if len(set(idx)) != len(idx):
+        raise U(f"{name}: two iterations read one byte")
+    paths.sort(key=lambda p: (p.outcome != "continue", p.outcome, p.site or "", repr(p.cells),
+                              repr([sorted(c[1]) for c in p.index])))
+    consts = {v for p in paths for _, v in p.cells}
+    samples = sorted(x for x in {v + d for v in consts for d in (-1, 0, 1)} | {0, 255} if 0 <= x <= 255)
+    sh = StrideShape(name, param, trip, tuple(idx), paths, exit_, samples, kind="SEQ")
+    for i in range(sh.n):
+        for h in sh.samples:
+            sh.pick(h, i)
+    return sh
+
+
 # ====================================================================== dispatch, evaluation, text
 def shape(name: str, op: dict):
     """The S1 or S2 shape of an op the I67 class refused, or goloop's Unsupported."""
@@ -487,6 +648,10 @@ def op_text(sh) -> str:
         what = (f"class S1: cell k is {sh.param}{''.join('.' + f for f in sh.path)}[k] ({sh.elem}"
                 f"{', offset ' + str(sh.bias()) if sh.bias() else ''}), len cells; exit outcome {sh.exit}")
         fuel = "gs_len(hs)"
+    elif sh.kind == "SEQ":   # I126
+        what = (f"class SEQ: cell k is {sh.param}[idx_k], idx = {list(sh.idx)}, the loops' trips in program order "
+                f"{sh.trip}; exit outcome {sh.exit}")
+        fuel = f"{sh.n}n"
     else:
         what = (f"class S2: cell k is {sh.param}[idx_k], idx = {list(sh.idx)}, trip {sh.trip}; exit outcome "
                 f"{sh.exit}")
@@ -512,7 +677,8 @@ def op_text(sh) -> str:
 
 def op_defs(sh) -> dict[str, list[str]]:
     op = sh.op
-    key = "A-goshapes-range" if isinstance(sh, RangeShape) else "A-goshapes-stride"
+    key = "A-goshapes-range" if isinstance(sh, RangeShape) else "A-goshapes-seq" if sh.kind == "SEQ" else \
+        "A-goshapes-stride"
     return {key: [op, f"step_{op}", f"run_{op}"], "A-goloop-outcome": [f"ok_{op}"],
             "A-goloop-sites": [f"body_{op}"] + [f"sel_{op}_{k}" for k in range(len(sh.paths) - 1)]}
 
@@ -528,4 +694,8 @@ TEXTS = {
                          "wraparound (iv_(k+1) = fit(iv_k + step, T)); every other byte of the array is not modelled "
                          "(0 on replay, rule Y9).",
     "A-goshapes-prelude": "The length of a cell sequence (gs_len), class S1's trip count.",
+    "A-goshapes-seq": "Class SEQ (I126): an op's argument is the sequence of the bytes its counted loops read, in "
+                      "program order, one per iteration of each loop's trip sequence computed in its induction "
+                      "variable's Go type with wraparound; a loop that reads nothing and only continues is dropped once "
+                      "its trip is shown finite; every other byte of the array is not modelled (0 on replay, rule Y9).",
 }

@@ -141,3 +141,13 @@ func Spin(b *Blob) error {
 		}
 	}
 }
+
+// Meter is supplied by the environment. It is not an op of the fixture: the composed route's DISCH stage needs one
+// Go machine document (a type with methods), as I122's Frame gives its fixture.
+type Meter struct {
+	n uint8
+}
+
+func (m *Meter) Tick() {
+	m.n++
+}

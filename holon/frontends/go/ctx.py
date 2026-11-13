@@ -34,6 +34,10 @@ class Ctx:
         self.typed_ops = config.get("ops") == "typed"
         # I122 (opt-in, loops "shapes", with ops "typed"): loop bodies for every function and every constant step
         self.loop_shapes = config.get("loops") == "shapes"
+        # I126 (opt-in, loop_forms "seq", with loops "shapes"): every loop's form recorded (loop_forms); a path of one
+        # iteration that meets a later sequential loop's header ends "next"; an earlier side-effect-free counted loop
+        # met on a later loop's prefix is passed (its values opaque)
+        self.loop_seq = config.get("loop_forms") == "seq"
         lim = config.get("limits") or {}
         self.max_paths = int(lim.get("max_paths", 512))
         self.inline_depth = int(lim.get("inline_depth", 4))

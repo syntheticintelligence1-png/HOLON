@@ -506,7 +506,8 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
                    "primitives": dict(proto["go"]["primitives"]), "limits": dict(proto["go"]["limits"]),
                    **({"toolchain": proto["go"]["toolchain"]} if proto["go"].get("toolchain") else {}),
                    **({"ops": proto["go"]["ops"]} if proto["go"].get("ops") else {}),   # I117: opt-in only
-                   **({"loops": proto["go"]["loops"]} if proto["go"].get("loops") else {})}   # I122: opt-in only
+                   **({"loops": proto["go"]["loops"]} if proto["go"].get("loops") else {}),   # I122: opt-in only
+                   **({"loop_forms": proto["go"]["loop_forms"]} if proto["go"].get("loop_forms") else {})}   # I126
             cp = S / rel / "sidecars" / f"{d['stem']}.json"
             cp.write_text(dumps(cfg))
             res = R.holon("extract", ["extract", "go", "--root", str(S), "--config", str(cp), "--src", str(src),
@@ -649,6 +650,7 @@ def go_machines(R: Runner, S: Path, rel: str, proto: dict, entry: dict, d: dict,
     mc["machines"] = {"nil_maps": proto["compose"]["nil_maps"]}
     mc.pop("ops", None)   # I117: ops "typed" is the codec frontend's (the Go-op model); the machine documents are as before
     mc.pop("loops", None)   # I122: loops "shapes" is the codec frontend's too
+    mc.pop("loop_forms", None)   # I126: loop_forms "seq" is the codec frontend's too
     cp = S / rel / "sidecars" / f"{d['stem']}_machines.json"
     cp.write_text(dumps(mc))
     out = tmp / "machines" / d["stem"]

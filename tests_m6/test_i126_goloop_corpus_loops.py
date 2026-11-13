@@ -198,8 +198,15 @@ class TestFrontend(unittest.TestCase):
         for fid, f in off["go"]["functions"].items():
             self.assertNotIn("loop_forms", f, fid)
             self.assertNotIn('"next"', json.dumps(f.get("loop_bodies")), fid)
+        # amended (spec/M6/amendments/I126.jsonl): a body the opt-in enumerates has no OtherLoop debt entry under it
+        done = {fid for fid, f in on["go"]["functions"].items()
+                if f.get("loop_bodies") and all(lb["paths"] is not None for lb in f["loop_bodies"])}
+        cov = dict(off["go"]["coverage"])
+        cov["debt"] = [d for d in cov["debt"] if not (d.get("function") in done and d.get("what", "").startswith(
+            "another loop on a path of one iteration"))]
+        self.assertEqual(on["go"]["coverage"], cov)
         for k in on["go"]:
-            if k != "functions":
+            if k not in ("functions", "coverage"):
                 self.assertEqual(on["go"][k], off["go"][k], k)
         for fid, f in on["go"]["functions"].items():
             g = off["go"]["functions"][fid]

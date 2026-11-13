@@ -42,6 +42,13 @@ tests_m2/test_extract_go.py):
               constant non-zero step (not only step 1); a loop of step other than 1 binds its induction variable without
               the assumption init <= iv; each entry carries "typed": {"terms": [[term, Go type]], "stale", "iv_type": the
               induction variable's Go type | null, "lengths": {param: array length | null}}. Every other output is as without it.
+  loop_forms "seq" (I126, opt-in, only with loops "shapes"; contract: tests_m6/test_i126_goloop_corpus_loops.py): every
+              function with a body and a loop gets "loop_forms": [{"span", "kind", "syntax", "cond", "over", "depth",
+              "body", "why"}], one per loop in header order (spec/M6/predictions/I126.json's frontend_forms (7)); a path
+              of one iteration that meets the header of a loop disjoint from it ends "next" with that loop's span; on a
+              loop's prefix, an earlier disjoint counted loop with no call, store, map update, send, select, receive, go
+              or defer in its body is passed to its exit, every value its blocks define opaque. A nested loop still has
+              no paths. Every other output is as without it.
 """
 from __future__ import annotations
 
@@ -128,6 +135,8 @@ def load_config(path: Path) -> dict:
         raise Refused(f"config {path}: ops must be \"typed\" (I117), with config holon-go-frontend/0.3")
     if "loops" in cfg and (cfg["loops"] != "shapes" or cfg.get("ops") != "typed"):
         raise Refused(f"config {path}: loops must be \"shapes\" (I122), with ops \"typed\"")
+    if "loop_forms" in cfg and (cfg["loop_forms"] != "seq" or cfg.get("loops") != "shapes"):
+        raise Refused(f"config {path}: loop_forms must be \"seq\" (I126), with loops \"shapes\"")
     lim = cfg.get("limits", {})
     if not isinstance(lim, dict) or not all(isinstance(lim.get(k), int) and lim.get(k) > 0
                                             for k in ("max_paths", "inline_depth", "flow_depth")):
