@@ -443,5 +443,66 @@ def main(argv=None) -> int:
     return 0
 
 
+
+
+# ------------------------------------------------------------------------------------------------------ recount
+def recount(vault: Path, out: Path) -> dict:
+    """The affected count by holon land's own notion of a law's inputs (holon.land.dirty_laws): a decision trace
+    (traces/<M>/<law>.json) whose reads include a changed document, or a statement whose derivation input names one.
+    The counted run's text match over records (main) both over- and under-counts (a model file named like a document
+    stem; documents read through the trace, not named in the record), so this replaces it as the measure; the counted
+    run's audit.json stays as it was written. Decided laws with no trace are counted apart: their reads are not
+    recorded, so whether they read a changed document is not determined by committed data."""
+    ch = json.loads((vault / "bundle" / "changed_documents.json").read_text())
+    summary = {"recount_version": "holon-i119-recount/0.1", "basis": "decision traces' reads and laws/<M> statements"}
+    lists: dict = {}
+    for reading, docs in (("rule", set(ch["morph"])), ("a2", set(ch["morph_a2"]))):
+        per, untraced = {}, {}
+        for m in ("M0", "M1", "M2", "M3"):
+            hit, unt = [], 0
+            stmt = set()
+            ld = ROOT / "laws" / m
+            if ld.is_dir():
+                for p in sorted(ld.glob("L_*.json")):
+                    t = p.read_text(encoding="utf-8")
+                    if any(d in t for d in docs):
+                        stmt.add(p.stem)
+            for p in sorted((ROOT / "results" / m).glob("L*.json")) if (ROOT / "results" / m).is_dir() else []:
+                try:
+                    r = json.loads(p.read_text(encoding="utf-8"))
+                except ValueError:
+                    continue
+                if r.get("status") not in ("PROVED", "REFUTED"):
+                    continue
+                lid = r.get("law_id") or p.stem
+                tp = ROOT / "traces" / m / f"{lid}.json"
+                reads = set(json.loads(tp.read_text()).get("reads") or {}) if tp.is_file() else None
+                if (reads is not None and reads & docs) or lid in stmt:
+                    hit.append(lid)
+                elif reads is None:
+                    unt += 1
+            per[m], untraced[m] = len(hit), unt
+            lists[f"{reading}:{m}"] = sorted(hit)
+        summary[f"affected_decided_laws_{reading}"] = per
+        summary[f"decided_without_trace_{reading}"] = untraced
+    bd = vault / "bundle_recount"
+    if bd.exists():
+        shutil.rmtree(bd)
+    bd.mkdir()
+    (bd / "affected.json").write_text(dumps(lists))
+    summary["affected_bundle_sha256"], summary["affected_bundle_files"] = bundle_sha(bd)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(dumps(summary))
+    return summary
+
+
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "recount":   # tools/i119_audit.py recount --vault DIR [--out PATH]
+        ap = argparse.ArgumentParser(prog="tools/i119_audit.py recount")
+        ap.add_argument("--vault", required=True)
+        ap.add_argument("--out", default="results/M6/I119/audit_recount.json")
+        x = ap.parse_args(sys.argv[2:])
+        s = recount(Path(x.vault).resolve(), ROOT / x.out)
+        print(f"i119_audit recount: {s['affected_decided_laws_rule']}; without trace {s['decided_without_trace_rule']}")
+        sys.exit(0)
     sys.exit(main())
