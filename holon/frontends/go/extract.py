@@ -37,6 +37,12 @@ tests_m2/test_extract_go.py):
               start; a call's variadic slice built at the call site is ["varargs", [terms]]; primitive kind fill_bytes
               ((*big.Int).FillBytes(buf): cell k ["byte", receiver, k], a site of kind fill_bytes, status unknown).
               extraction.frontend_version is holon-go/0.3.
+  I119 (HUMAN_ANSWERS Q93 (1)): under every config the path reasoner reads sized integer arithmetic as opaque
+              (I117's rule, before only under ops "typed"; Ctx.opaque_arith_of): a branch is pruned only if its
+              condition is refuted with arithmetic terms read as uninterpreted, which holds under Go's wraparound.
+              So a function's paths are a superset of the earlier reading's, and a site of an enumerated function is
+              open where only unbounded arithmetic called it safe. The site reasoner of functions with no path set
+              (Analysis.sites' dominator atoms) is unchanged.
 """
 from __future__ import annotations
 
