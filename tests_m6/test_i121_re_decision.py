@@ -439,6 +439,39 @@ class TestRegressions(unittest.TestCase):
                 self.assertNotIn("@unsafe", t)
                 self.assertNotRegex(t, r'import\s+"\./[^"]+\.c"')
 
+    def test_f_m6_13_slot_archived_before_reset(self):
+        """F-M6-13 (HUMAN_ANSWERS Q110): the re-decision's job runner archives a slot's changed, added and deleted
+        paths to the vault before it resets the slot, so a started job's partial output is never deleted (Q80)."""
+        import importlib.util
+        import shutil
+        import tarfile
+        spec = importlib.util.spec_from_file_location("i121_redecide", ROOT / "tools" / "i121_redecide.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        d = Path(tempfile.mkdtemp(prefix="i121-slot-"))
+        try:
+            g = lambda *a: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a], cwd=d / "s",
+                                          check=True, capture_output=True)
+            (d / "s").mkdir()
+            g("init", "-q")
+            (d / "s" / "kept.json").write_text("{}")
+            (d / "s" / "gone.json").write_text("{}")
+            g("add", "-A")
+            g("commit", "-q", "-m", "base")
+            (d / "s" / "kept.json").write_text('{"status": "partial"}')
+            (d / "s" / "new.json").write_text('{"record": 1}')
+            (d / "s" / "gone.json").unlink()
+            out = mod.archive_then_reset(d / "s", d / "vault", "disch-3")
+            with tarfile.open(out) as tf:
+                self.assertEqual(sorted(tf.getnames()), ["kept.json", "new.json"])
+                self.assertEqual(tf.extractfile("kept.json").read(), b'{"status": "partial"}')
+            self.assertIn("gone.json", (d / "vault" / "disch-3-0.status.txt").read_text())
+            self.assertEqual((d / "s" / "kept.json").read_text(), "{}")
+            self.assertFalse((d / "s" / "new.json").exists())
+            self.assertIsNone(mod.archive_then_reset(d / "s", d / "vault", "disch-3"))   # clean: nothing archived
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+
     def test_p8_reads_no_sealed_input(self):
         for p in sorted((ROOT / "tools").glob("i121_*.py")):
             t = p.read_text(encoding="utf-8")

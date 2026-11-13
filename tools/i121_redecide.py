@@ -13,6 +13,10 @@ the repository gets aggregates only (results/M6/I121/redecide.json, written by `
       trace changed, by case ((a) unchanged law file, (b) facts_sha256 only, (c) id renumbered), written to the vault
   python tools/i121_redecide.py compare --wt WT --base REV --vault V --milestone M3
       after the re-make: each affected law's re-decided status on WT against its committed status at REV, in the vault
+  python tools/i121_redecide.py reset-slot --slot DIR --archive-dir A [--label L]
+      archive every changed, added or deleted path of a sandbox slot (git status against its HEAD) to
+      A/<label>-<n>.tgz with its status listing, and only then reset the slot to HEAD (F-M6-13: a started job's
+      partial output is never deleted, Q80); refuses to reset when the archive cannot be written
   python tools/i121_redecide.py summary --vault V --out results/M6/I121/redecide.json
       the aggregates: per milestone and channel counts, verdicts changed (PROVED and REFUTED together), and one sha256
       bundle commitment of the vault's re-decided set (I107's canonical form)
@@ -165,6 +169,40 @@ def cmd_compare(a) -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------------------------------------- reset-slot
+def archive_then_reset(slot: Path, archive_dir: Path, label: str) -> Path | None:
+    """F-M6-13 (I121): a slot's working state is archived before it is reset. Returns the archive written (None when
+    the slot was clean). Raises when the archive cannot be written or read back; then nothing is reset."""
+    import tarfile
+    slot, archive_dir = Path(slot).resolve(), Path(archive_dir).resolve()
+    st = subprocess.run(["git", "status", "--porcelain", "--untracked-files=all"], cwd=slot, capture_output=True,
+                        text=True, check=True).stdout
+    out = None
+    if st.strip():
+        archive_dir.mkdir(parents=True, exist_ok=True)
+        n = 0
+        while (archive_dir / f"{label}-{n}.tgz").exists():
+            n += 1
+        out = archive_dir / f"{label}-{n}.tgz"
+        (archive_dir / f"{label}-{n}.status.txt").write_text(st)
+        with tarfile.open(out, "w:gz") as tf:
+            for ln in st.splitlines():
+                rel = ln[3:].split(" -> ")[-1]
+                if (slot / rel).exists():
+                    tf.add(slot / rel, arcname=rel)
+        with tarfile.open(out) as tf:   # read back before anything is deleted
+            tf.getnames()
+    subprocess.run(["git", "reset", "-q", "--hard", "HEAD"], cwd=slot, check=True)
+    subprocess.run(["git", "clean", "-qfd"], cwd=slot, check=True)
+    return out
+
+
+def cmd_reset_slot(a) -> int:
+    out = archive_then_reset(Path(a.slot), Path(a.archive_dir), a.label)
+    print(f"i121_redecide reset-slot: {a.slot}: " + (f"archived to {out}, then reset" if out else "clean, reset"))
+    return 0
+
+
 # ---------------------------------------------------------------------------------------------------------- summary
 def bundle_sha(files: list[Path], base: Path) -> str:
     """I107's canonical bundle form: sorted paths, one '<sha256>  <path>' line per file, then the sha256 of that."""
@@ -192,6 +230,10 @@ def cmd_summary(a) -> int:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="i121_redecide")
     sub = ap.add_subparsers(dest="cmd", required=True)
+    sp = sub.add_parser("reset-slot")
+    sp.add_argument("--slot", required=True)
+    sp.add_argument("--archive-dir", required=True)
+    sp.add_argument("--label", default="slot")
     for name in ("models", "affected", "compare", "summary"):
         sp = sub.add_parser(name)
         if name != "summary":
@@ -204,7 +246,8 @@ def main(argv=None) -> int:
         if name == "summary":
             sp.add_argument("--out", required=True)
     a = ap.parse_args(argv)
-    return {"models": cmd_models, "affected": cmd_affected, "compare": cmd_compare, "summary": cmd_summary}[a.cmd](a)
+    return {"models": cmd_models, "affected": cmd_affected, "compare": cmd_compare, "summary": cmd_summary,
+            "reset-slot": cmd_reset_slot}[a.cmd](a)
 
 
 if __name__ == "__main__":
