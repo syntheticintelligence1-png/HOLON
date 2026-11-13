@@ -110,3 +110,12 @@ not its back half. No law is yet derived on a target nobody tuned it on.
      provisional until I119 (b) re-derives and re-decides them.
    - Exact counts at I119 (a)'s landing (`results/M6/I119/rederive.json`): M0-M2 are unaffected. In M3, 148 of the 179
      decided laws are affected, plus 14 UNKNOWN laws and 1 renumbered law. The re-decision is I121 (Q97).
+9. **An instrument finding after this exit (F-M6-15, HUMAN_ANSWERS Q113, 2026-11-13).** From I115 until #212, `holon run
+   --unbound unknown` (the base protocol's `run_unbound`) checked each law's binding before deciding it on the emitter's
+   fallback names (`Header` as `Hdr`), which disagree with a Go-derived model's (`R_Header`).
+   - Bindable laws were recorded UNKNOWN without being decided. It is fail-closed: no committed verdict is wrong because
+     of it.
+   - Every composed corpus measure from I115 to I123 ran it. In I122's counted run the binding check recorded 234 of the
+     268 derived laws UNKNOWN, an upper bound on this defect's share, since a genuinely unbindable law counts there too.
+   - Those keys' corpus decided counts (smoke) understate what their code could decide. I124's baseline, measured after
+     the fix, is the first corpus measure without it.
