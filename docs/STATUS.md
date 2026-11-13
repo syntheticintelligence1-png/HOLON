@@ -10,7 +10,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | M3 | 52 | 326 | 288 | 52 |
 | M4 | 9 | 54 | 54 | 9 |
 | M5 | 8 | 41 | 22 | 6 |
-| M6 | 14 | 129 | 40 | 13 |
+| M6 | 16 | 150 | 43 | 15 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
 
@@ -125,6 +125,8 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I115 | M6 | I115: the binding wall (HUMAN_ANSWERS Q88 (2), Q87): (1) the milestone runner checks each law's binding (the kernel con… | `prompts/I115_binding_wall.md` | 12 | 3 | 1 | `docs/iterations/I115.md` |
 | I116 | M6 | I116: per-document fallbacks (HUMAN_ANSWERS Q83, Q88 (3)): (D) a DISCH refusal for one document makes that document's D… | `prompts/I116_per_document_fallbacks.md` | 12 | 3 | 1 | `docs/iterations/I116.md` |
 | I117 | M6 | I117: Go op semantics for the binding (HUMAN_ANSWERS Q90, Q91): (1) holon.gen.goint, Go's integer ops defined from the … | `prompts/I117_go_op_semantics.md` | 12 | 0 | 1 | `docs/iterations/I117.md` |
+| I118 | M6 | I118: the post-derive walls (HUMAN_ANSWERS Q92, the lead's approval): (1) the composed coverage stage accounts only for… | `prompts/I118_post_derive_walls.md` | 13 | 3 | 1 | `docs/iterations/I118.md` |
+| I119 | M6 | I119: Go reasoner soundness (HUMAN_ANSWERS Q93 (1), the defect I117 found): (a) a read-only audit that re-extracts ever… | `prompts/I119_go_reasoner_soundness.md` | 8 | 0 | 1 | `docs/iterations/I119.md` |
 | I50b | M4 | Held-out target, a contaminated rerun (I50b): two generic producer changes (a sorts rule for the frontend's update term… | `prompts/I50b_heldout_rerun.md` | 5 | 6 | 1 | `docs/iterations/I50b.md` |
 | I52b | M4 | Baselines on the held-out target (I52's held-out half): the nine I52 baselines at I52's equal budget on ScrollChain (th… | `prompts/I52b_heldout_baselines.md` | 6 | 7 | 1 | `docs/iterations/I52b.md` |
 | I54b | M5 | I54b: the corpus-truth key: I54's frozen truth protocol run on I48's 20 entries by two fresh labellers per entry, every… | `prompts/I54b_m5_truth_key.md` | 5 | 3 | 1 | `docs/iterations/I54b.md` |

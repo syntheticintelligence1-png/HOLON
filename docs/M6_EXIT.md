@@ -108,3 +108,5 @@ not its back half. No law is yet derived on a target nobody tuned it on.
      decided laws, committed data does not say.
    - Morph's scores under `--roles auto`, against I48's and I52/I52b's baselines, rest partly on those laws. They are
      provisional until I119 (b) re-derives and re-decides them.
+   - Exact counts at I119 (a)'s landing (`results/M6/I119/rederive.json`): M0-M2 are unaffected. In M3, 148 of the 179
+     decided laws are affected, plus 14 UNKNOWN laws and 1 renumbered law. The re-decision is I121 (Q97).

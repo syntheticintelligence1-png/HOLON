@@ -87,3 +87,11 @@ safe that wrap out of bounds.
   is every number in this record that rests on them.
 - **The decision above** stands as recorded on 2026-11-11. Whether E1-E5 still hold, E3's "no open high-priority
   finding" included, is re-decided after I119 (b) and recorded here as an amendment.
+- **Update (I119 (a)'s landing, HUMAN_ANSWERS Q95-Q97).** I119's re-derivation under the opaque-arithmetic default
+  (`results/M6/I119/rederive.json`, aggregates only) gives the exact counts.
+  - **M0, M1 and M2 are unaffected.** G1 regenerates every generated file and record byte-identical. In M2 the only
+    file that differs is the re-extracted Go document itself.
+  - **M3: 148 of its 179 committed decided laws are affected** (PROVED and REFUTED together, Q56). 72 are affected
+    through their decision traces or a changed statement, and 76 more because their facts document changes. 14 UNKNOWN
+    laws and 1 law that the re-derivation renumbers are affected too. None is undetermined.
+  - The re-decision lands whole as I121 (Q97). Until then these statuses are provisional.

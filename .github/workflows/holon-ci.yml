@@ -301,6 +301,17 @@ jobs:
             # target (Q56 (5)).
             timeout: 90
             run: python -m unittest tests_m6.test_i116_per_document_fallbacks.TestDischUnit tests_m6.test_i116_per_document_fallbacks.TestDischShapes tests_m6.test_i116_per_document_fallbacks.TestEvidenceUnit tests_m6.test_i116_per_document_fallbacks.TestEvidenceShapes tests_m6.test_i116_per_document_fallbacks.TestMilestoneWide tests_m6.test_i116_per_document_fallbacks.TestBytes tests_m6.test_i116_per_document_fallbacks.TestRegressions -v
+          - name: tests-m6-i118
+            # I118 (M6, the post-derive walls): (C) the composed coverage stage walks only the extracted, typed
+            # documents and lists the others as skipped (P1, P2: planted Guarded over its term budget and the opaque
+            # Dyn, in I111's three shapes); (R) a runner failure confined to one document's laws makes them UNKNOWN
+            # with the error, the rest decided (P3), a failure in every document stays a refusal (P4); (B) a bind
+            # failure confined to one document unbinds its laws, the rest bound (P5), any other refuses (P6); (3) the
+            # evidence schema's optional fallback (P7); the same bytes without the opt-ins (P8); the regressions (P13,
+            # R1). The corpus and spent-target measures (P9-P12; results/M6/I118) are the key's measured outcome, not
+            # run here. Nothing here analyses a sealed target (Q56 (5)).
+            timeout: 90
+            run: python -m unittest tests_m6.test_i118_post_derive_walls.TestCoverageUnit tests_m6.test_i118_post_derive_walls.TestCoverageShapes tests_m6.test_i118_post_derive_walls.TestRunShapes tests_m6.test_i118_post_derive_walls.TestRunMilestoneWide tests_m6.test_i118_post_derive_walls.TestBindShapes tests_m6.test_i118_post_derive_walls.TestBindMilestoneWide tests_m6.test_i118_post_derive_walls.TestEvidenceSchema tests_m6.test_i118_post_derive_walls.TestBytes tests_m6.test_i118_post_derive_walls.TestRegressions -v
           - name: tests-m6-i113
             # I113 (M6, the second sealed draw, HUMAN_ANSWERS Q86): the draw script (D1 standard library only, its test
             # vector; D2 the Q55 (2) pin rule), the candidate list and the key's sidecar pins (C1, K1), and the seal
@@ -328,6 +339,18 @@ jobs:
             # key's measured outcome, not run here. Nothing here analyses a sealed target (Q56 (5)).
             timeout: 60
             run: python -m unittest tests_m6.test_i117_go_op_semantics.TestSemantics tests_m6.test_i117_go_op_semantics.TestFrontend tests_m6.test_i117_go_op_semantics.TestPlanted tests_m6.test_i117_go_op_semantics.TestMpipelineBinding tests_m6.test_i117_go_op_semantics.TestRegressions -v
+          - name: tests-m6-i119
+            # I119 (M6, Go reasoner soundness; HUMAN_ANSWERS Q93 (1)): the planted package (tests_m6/fixtures/i119):
+            # HUMAN_ANSWERS Q97: I119 lands (a) only; the tests of (b)'s default (TestFixture's default-mode checks,
+            # TestDefault's flip checks) belong to I121, which re-applies (b), and are not run here.
+            # the wraparound branch kept and the false in-bounds claim not made under the default (P1), confirmed on
+            # the pinned go 1.24.7 (P2); the audit summary's counts and commitment, no law id (P4, P5; P3's
+            # TestAudit.test_p3_morph_baseline_reproduces is a recorded miss, 7 of 8, and is not run here); the rule as the
+            # default under every config version (P6); the regressions (P8). The audit's re-extraction of the corpus
+            # is the key's measured outcome (results/M6/I119/audit.json), not run here. Nothing here analyses a
+            # sealed target (Q56 (5)).
+            timeout: 30
+            run: python -m unittest tests_m6.test_i119_go_reasoner_soundness.TestFixture.test_p1_old_reading_recorded tests_m6.test_i119_go_reasoner_soundness.TestFixture.test_p1_control_unchanged tests_m6.test_i119_go_reasoner_soundness.TestDifferential tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_names_no_law tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_counts_are_per_milestone tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_corpus_covered tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_is_read_only tests_m6.test_i119_go_reasoner_soundness.TestDefault.test_p6_reasoner_unit tests_m6.test_i119_go_reasoner_soundness.TestDefault.test_p6_narrow_loop_mode_unchanged tests_m6.test_i119_go_reasoner_soundness.TestRegressions -v
           - name: tests-m6-i120
             # I120 (M6, route C reads beyond the store limit; HUMAN_ANSWERS Q93 (2)): the planted entry (I117's planted
             # Go package as a git entry) run end to end by holon eval holon's run_entry --compose: over a planted small

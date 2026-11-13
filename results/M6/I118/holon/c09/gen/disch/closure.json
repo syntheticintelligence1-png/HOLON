@@ -1,0 +1,552 @@
+{
+  "document": "disch_closure",
+  "inputs": [
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.Cap.extracted.json",
+      "sha256": "44d688460de6f7cbb500d97d65cf846ed712fd89e9b4a4cf1dc0245acb6601b0"
+    },
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.Msg.extracted.json",
+      "sha256": "0b2d082923d6c6968ffc533f3cd673ef193b3cd2188f2267ce6a62d014e3641f"
+    },
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.MsgPipeRW.extracted.json",
+      "sha256": "9fa457757042f9bad1a529e548d7ca64ab6287b3d76b09455e0f4455ccbc637c"
+    },
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.Server.extracted.json",
+      "sha256": "8a33615c415362ba078c8b83fc877dcc4be654f453f4a338426f9f4a25e54742"
+    },
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.conn.extracted.json",
+      "sha256": "e8e596a7ef5261e27a019ff1a4469ec79454e3201bd4d1926531cf30ceae6308"
+    },
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.eofSignal.extracted.json",
+      "sha256": "128c5166ab665a47def00afd85be35571e9cc53b73b2ef5b0cdfafbe49fb8075"
+    },
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.meteredConn.extracted.json",
+      "sha256": "40fa73cb98caab6f0f860d8cadc951fdbdbcd2cbd8eb6ee94fabff5c4caaaa63"
+    },
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.peerError.extracted.json",
+      "sha256": "2ecc8c4b5ea8e2daa076f5455a6927514a1acac05145ab3f51f9b7de39e7a4e9"
+    },
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.protoRW.extracted.json",
+      "sha256": "71a798995c4e0310f9c41c955cd61ac57c32abb366f312d5d2f083f4c88fbd82"
+    },
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.rlpxTransport.extracted.json",
+      "sha256": "adf00ed416ad735024af0692f779910e0dc4946587a80507c761a92fc3ec6914"
+    },
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.sharedUDPConn.extracted.json",
+      "sha256": "11e9673963cb7f8aa35fb8724914dbbd948cce21f6dbc7988dc3d1d3824bb7dc"
+    },
+    {
+      "path": "results/M6/I118/holon/c09/facts/go_1_go_1.tcpDialer.extracted.json",
+      "sha256": "f47c4caffb45ebc7311e4d92914436792948fcf84ebf9354872a499bd42ba05e"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.Cap.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "Name": [
+          0
+        ],
+        "Version": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.Msg.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "Code": [
+          0
+        ],
+        "Payload": [
+          0
+        ],
+        "ReceivedAt": [
+          0
+        ],
+        "Size": [
+          0
+        ],
+        "meterCap": [
+          0
+        ],
+        "meterCode": [
+          0
+        ],
+        "meterSize": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.MsgPipeRW.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Close",
+            "ReadMsg",
+            "WriteMsg"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Close",
+            "ReadMsg",
+            "WriteMsg"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "closed",
+            "closing",
+            "r",
+            "w"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Close": null,
+        "ReadMsg": null,
+        "WriteMsg": null
+      },
+      "r0": {
+        "closed": [
+          0
+        ],
+        "closing": [
+          0
+        ],
+        "r": [
+          0
+        ],
+        "w": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.Server.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "NodeInfo",
+            "PeersInfo",
+            "RemovePeer",
+            "Self",
+            "SetupConn",
+            "Start",
+            "Stop",
+            "SubscribeEvents"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "NodeInfo",
+            "PeersInfo",
+            "RemovePeer",
+            "Self",
+            "SetupConn",
+            "Start",
+            "Stop",
+            "SubscribeEvents"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "Config",
+            "DiscV5",
+            "addtrusted",
+            "checkpointAddPeer",
+            "checkpointPostHandshake",
+            "delpeer",
+            "dialsched",
+            "discmix",
+            "inboundHistory",
+            "listenFunc",
+            "listener",
+            "localnode",
+            "lock",
+            "log",
+            "loopWG",
+            "newPeerHook",
+            "newTransport",
+            "nodedb",
+            "ntab",
+            "ourHandshake",
+            "peerFeed",
+            "peerOp",
+            "peerOpDone",
+            "portMappingRegister",
+            "quit",
+            "removetrusted",
+            "running"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "NodeInfo": null,
+        "PeersInfo": null,
+        "RemovePeer": null,
+        "Self": null,
+        "SetupConn": null,
+        "Start": null,
+        "Stop": null,
+        "SubscribeEvents": null
+      },
+      "r0": {
+        "Config": [
+          0
+        ],
+        "DiscV5": [
+          0
+        ],
+        "addtrusted": [
+          0
+        ],
+        "checkpointAddPeer": [
+          0
+        ],
+        "checkpointPostHandshake": [
+          0
+        ],
+        "delpeer": [
+          0
+        ],
+        "dialsched": [
+          0
+        ],
+        "discmix": [
+          0
+        ],
+        "inboundHistory": [
+          0
+        ],
+        "listenFunc": [
+          0
+        ],
+        "listener": [
+          0
+        ],
+        "localnode": [
+          0
+        ],
+        "lock": [
+          0
+        ],
+        "log": [
+          0
+        ],
+        "loopWG": [
+          0
+        ],
+        "newPeerHook": [
+          0
+        ],
+        "newTransport": [
+          0
+        ],
+        "nodedb": [
+          0
+        ],
+        "ntab": [
+          0
+        ],
+        "ourHandshake": [
+          0
+        ],
+        "peerFeed": [
+          0
+        ],
+        "peerOp": [
+          0
+        ],
+        "peerOpDone": [
+          0
+        ],
+        "portMappingRegister": [
+          0
+        ],
+        "quit": [
+          0
+        ],
+        "removetrusted": [
+          0
+        ],
+        "running": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.conn.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "String"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "String"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "caps",
+            "cont",
+            "fd",
+            "flags",
+            "name",
+            "node",
+            "transport"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "String": null
+      },
+      "r0": {
+        "caps": [
+          0
+        ],
+        "cont": [
+          0
+        ],
+        "fd": [
+          0
+        ],
+        "flags": [
+          0
+        ],
+        "name": [
+          0
+        ],
+        "node": [
+          0
+        ],
+        "transport": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.eofSignal.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Read"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Read"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "count",
+            "eof"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Read": null
+      },
+      "r0": {
+        "count": [
+          0
+        ],
+        "eof": [
+          0
+        ],
+        "wrapped": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.meteredConn.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "Conn": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.peerError.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "code": [
+          0
+        ],
+        "message": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.protoRW.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "Protocol": [
+          0
+        ],
+        "closed": [
+          0
+        ],
+        "in": [
+          0
+        ],
+        "offset": [
+          0
+        ],
+        "w": [
+          0
+        ],
+        "werr": [
+          0
+        ],
+        "wstart": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.rlpxTransport.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "ReadMsg",
+            "WriteMsg"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "ReadMsg",
+            "WriteMsg"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "conn",
+            "rmu",
+            "wbuf",
+            "wmu"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "ReadMsg": null,
+        "WriteMsg": null
+      },
+      "r0": {
+        "conn": [
+          0
+        ],
+        "rmu": [
+          0
+        ],
+        "wbuf": [
+          0
+        ],
+        "wmu": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.sharedUDPConn.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "UDPConn": [
+          0
+        ],
+        "unhandled": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.tcpDialer.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Dial"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Dial"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "d"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Dial": null
+      },
+      "r0": {
+        "d": [
+          0
+        ]
+      }
+    }
+  },
+  "sidecar": {
+    "path": "results/M6/I118/holon/c09/sidecars/disch.json",
+    "sha256": "557eea791dcba899b5a0683ae3a1a3b06891cf4e367af8226d65448ff5c3b2a2"
+  }
+}

@@ -75,18 +75,39 @@ def given_sidecars(paths: list, root=ROOT) -> list:
     return out
 
 
-def compute(m: str, root=ROOT, sidecars: list | None = None) -> dict:
-    """The coverage report of milestone m (module docstring); with sidecars (I112), of those extraction sidecars."""
+def untyped(m: str, root=ROOT) -> set:
+    """I118 (C): the documents holon types made opaque, from gen/<m>/sorts/opaque.json (empty when there is none)."""
+    p = Path(root) / "gen" / m / "sorts" / "opaque.json"
+    if not p.is_file():
+        return set()
+    return {x["document"] for x in json.loads(p.read_text(encoding="utf-8")).get("documents") or []}
+
+
+def compute(m: str, root=ROOT, sidecars: list | None = None, typed_only: bool = False) -> dict:
+    """The coverage report of milestone m (module docstring); with sidecars (I112), of those extraction sidecars.
+    typed_only (I118 (C), only with sidecars): a sidecar whose document was not extracted (not a file under the root:
+    reason not_extracted) or is opaque at holon types (reason opaque) is not walked and is listed under "skipped"
+    [{document, reason}]; no law is over such a document (I111's O2-O7), so no record reads its entry."""
     root = Path(root)
-    docs = []
+    docs, skipped = [], []
+    opaque = untyped(m, root) if typed_only else set()
     for sp, side, mod in (accounting_sidecars(m, root) if sidecars is None else given_sidecars(sidecars, root)):
+        if typed_only:
+            why = ("not_extracted" if not (root / side["output"]).is_file() else
+                   "opaque" if side["output"] in opaque else None)
+            if why is not None:
+                skipped.append({"document": side["output"], "reason": why})
+                continue
         cov = mod.coverage_document(side, sp, root, None)
         if cov is not None:
             docs.append(dict(cov, document=side["output"]))
     if sidecars is None:
         docs.extend(bundle_entries(m, root))
     docs.sort(key=lambda d: d["document"])
-    return {"documents": docs, "unaccounted": sum(len(d["unaccounted"]) for d in docs)}
+    out = {"documents": docs, "unaccounted": sum(len(d["unaccounted"]) for d in docs)}
+    if typed_only:
+        out["skipped"] = sorted(skipped, key=lambda d: d["document"])
+    return out
 
 
 def bundle_entries(m: str, root=ROOT) -> list:
@@ -129,12 +150,19 @@ def main(argv=None) -> int:
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--sidecars", help="I112: comma-separated extraction sidecars to account for (the composed "
                                        "driver's), instead of the milestone's")
+    ap.add_argument("--typed-only", action="store_true",
+                    help="I118 (C), with --sidecars: account only for the extracted, typed documents; list the others "
+                         "under skipped [{document, reason: not_extracted | opaque}]")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve() if a.root else ROOT
     out = Path(a.out) if a.out else report_path(a.milestone, root)
+    if a.typed_only and a.sidecars is None:
+        print("holon coverage: refused: --typed-only needs --sidecars (the composed route's form)", file=sys.stderr)
+        return 2
     try:
         data = render(compute(a.milestone, root,
-                              [x for x in a.sidecars.split(",") if x] if a.sidecars is not None else None))
+                              [x for x in a.sidecars.split(",") if x] if a.sidecars is not None else None,
+                              typed_only=a.typed_only))
     except Refused as e:
         print(f"holon coverage: refused: {e}", file=sys.stderr)
         return 2
@@ -153,5 +181,7 @@ def main(argv=None) -> int:
     for d in doc["documents"]:
         print(f"holon coverage: {d['document']}: {d['statements']} statements, {d['extracted']} extracted, "
               f"{len(d['debt'])} debt entries, {len(d['unaccounted'])} unaccounted")
+    for d in doc.get("skipped") or []:
+        print(f"holon coverage: {d['document']}: skipped ({d['reason']})")
     print(f"holon coverage: wrote {out}")
     return 0
