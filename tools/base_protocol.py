@@ -27,6 +27,7 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 ROOT = "spec/M6/lib/i116_run.json"
 GENERATIONS = (
     ("spec/M6/lib/i117_run.json", "spec/M6/lib/i118_run.json", "spec/M6/lib/i120_run.json"),
+    ("spec/M6/lib/i123_run.json",),   # measured on generation 0's base (11b26c96…, Q109); landed first of its generation
 )
 LANDED = tuple(rel for gen in GENERATIONS for rel in gen)
 OUT = "spec/M6/lib/base_run.json"
