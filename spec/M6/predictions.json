@@ -2212,6 +2212,105 @@
         }
       ],
       "regressions": []
+    },
+    "I126": {
+      "title": "I126: goops coverage of the corpus's loop shapes (HUMAN_ANSWERS Q112 (5), Q93 (3), Q90 (1)-(2); the lead's 19:08Z ruling, Q117): the Go frontend's opt-in loop_forms \"seq\" (protocol go.loop_forms \"seq\", with loops \"shapes\" and ops \"typed\") (a) records the form of every loop of a function and why it has no loop body or a body with no paths, and lets the body of a counted loop that follows another, sequentially, be enumerated (its exit into the next loop's header ends \"next\"; an earlier side-effect-free counted loop on its prefix is passed); (b) goloop's new class SEQ composes several counted loops over one fixed-length byte array in program order, each loop's trip sequence computed in its induction variable's Go type with wraparound, an empty loop (every path continues, no read) dropped once its trip is shown finite. I122's S1 and S2 are unchanged; everything outside SEQ stays Unsupported, its laws unbound and UNKNOWN, its reason counted before any decision (Q72). Run through holon eval holon --compose with the base protocol of the landing the coordinator names plus go.loop_forms \"seq\"",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I126)",
+      "prompt": "prompts/I126_goloop_corpus_loops.md",
+      "tests": [
+        "tests_m6/test_i126_goloop_corpus_loops.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I126/",
+        "docs/iterations/I126.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P7 and P11 are on the planted fixture tests_m6/fixtures/i126 (a Go package written from the Go specification's rules, never from corpus code), unit inputs and Morph's committed outputs. P8-P10 are smoke on contaminated data (I51's corpus, contaminated by I51, I103-I125 and I107): the corpus is where I126 is designed, not where its generality is claimed; generality is claimed only from I114's sealed pair, never from these numbers. Laws are reported as aggregates only, never splitting PROVED from REFUTED (Q56, Q89): N decided (PROVED and REFUTED together, Q56); stage reasons only for stages before any decision (Q72).",
+        "instruments": "spec/M6/lib/i126_run.json (the run protocol: base_protocol plus go.loop_forms \"seq\"), tools/i126_forms.py (model-generation and loop-form counts, pre-decision) and tests_m6/test_i126_goloop_corpus_loops.py (every check)",
+        "base": "claude/holon-v2-bend2-c6z3cd at 326dcc01; spec/M6/lib/base_run.json sha256 1d45d89b098b6e66026942aeacefd25ee8df932d529630cf8df16db490c70a33. Per Q104 and Q117 (2) the measured runs come after the next landing (I121's #215 or I124's), on the base the coordinator names, merged into this branch by a merge commit before any measured run; its commit and base_run.json's sha256 are recorded in the report.",
+        "protocol_rule": "spec/M6/lib/i126_run.json is spec/M6/lib/base_run.json plus exactly go.loop_forms \"seq\" and go.loop_forms_doc, with its own doc (naming base_run.json's sha256), iteration, out and go_machines.out. At the merge of the base the coordinator names, before any measured run, the file is regenerated from that base by this rule (a mechanical rebase, no other change). Two runs on the same code (Q104 (2)): the baseline base_run.json alone (out results/M6/I126/baseline) and the counted run i126_run.json (out results/M6/I126/holon).",
+        "corpus_count": "Counted before this prereg, aggregates only (Q98), from the Go-op documents and go.loops of I122's committed counted run (results/M6/I122/holon, base protocol plus loops \"shapes\", the opt-ins I124's baseline also runs), never from an entry's code: 84 Go ops, 20 with a loop. 9 ops have 0 loop bodies: every loop of theirs is one the frontend's flow analysis gives no induction variable (kind unbounded: a range over a map, a channel, a string or a function, or a for with no condition) or no constant step. 5 ops have one loop body with paths, and every one of those bodies has a call result in a condition. 2 ops have one loop body with no paths, 2 have two bodies and 2 have three, every one of those bodies with no paths (the frontend's refusals: another loop on a path of one iteration, a store it does not track, a path limit, an unsupported construct). The brief's law-level counts (I124's baseline, the lead 19:08Z): 78 PAR laws refused at binding for a loop reason, 47 with 0 bodies, 17 with a body with no paths, 10 with 2 bodies, 4 with 3. On the planted package, a counted loop followed by another gets no paths in either body for the first of these reasons (another loop on a path): the sequential form is the form this key's class takes; the 0-body forms are recorded and stay Unsupported, for the reasons the definitions give from the specification.",
+        "frontend_forms": "Which loop forms the Go frontend (holon.frontends.go, flow.Flow.loops and analyses.loop_bodies under loops \"shapes\") emits a loop body for, from the Go specification's statement forms: (1) for with a condition, (2) the three-clause for, and (3) for range over a slice, an array, a pointer to an array or an integer get a body when the SSA header compares an induction phi (or phi + constant) with a loop-invariant limit and the phi's step is one constant other than 0 (kind counted or range). (4) for range over a string, a map, a channel or a function (an iterator), and (5) a for with no condition, get none: SSA ranges a string or a map with Next, a channel with a receive, a function with a call, and none has an induction phi (kind unbounded). Labels, break and continue are control flow: a continue (or the end of the body) returns to the header and ends a path continue; a break or a labelled break or continue leaves the loop and its path runs on as an exit path. (6) Nesting: a body whose iteration meets another loop's header has no paths (OtherLoop), today for a nested loop and for a loop that follows it in sequence alike. Under loop_forms \"seq\": (6a) a path of loop L's iteration that leaves L and meets the header of a loop M disjoint from L (neither body contains the other) ends \"next\" with M's span, where today it raises OtherLoop; (6b) on the prefix of loop L's enumeration (before L's header is first entered), the header of a loop E disjoint from L, of kind counted or range with an induction phi, a constant step other than 0, a comparison and an exit successor, whose body blocks hold no Call, Go, Defer, Store, MapUpdate, Send, Select or channel receive, is passed: the path jumps to E's exit successor with every value E's blocks define bound to an opaque term (unknown), where today it raises OtherLoop; any other loop met on the prefix still raises OtherLoop. A nested loop still has no paths. (7) Every function with a body gets loop_forms: one entry per loop in header order, {span, kind (counted | range | unbounded), syntax (for | range | none), cond (the for has a condition), over (for a range: slice | array | pointer | string | map | chan | int | func | other; else null), depth, body (paths | null | none: a body with paths, a body with no paths, no body), why (null, or for no body: no induction variable | step not constant | no comparison; for no paths: another loop on a path | a store not tracked | path limit | an unsupported construct)}. Without loop_forms every output is byte-identical; loop_forms other than \"seq\", or without loops \"shapes\", is refused.",
+        "definitions": "SEQ (\"Statements\" (statements execute in order), \"For statements with for clause\", \"Integer overflow\", \"Index expressions\", \"Comparison operators\"), tried only after goloop's I67 class and I122's S1 and S2 refuse an op, and only for an op whose entry carries loop_forms (the opt-in): the op has one parameter p of a fixed-length byte array type (or a pointer to one) of length n, and k >= 1 loop bodies L_1..L_k (header order), every one with paths, none nested in another, where k >= 2 or L_1 is empty; each L_j a counted loop with constant init, constant limit, constant step s_j other than 0 (either sign, 1 included), cmp one of < <= > >= != ==, and an induction variable of a recorded integer type T_j. Go: the post statement wraps in T_j, so L_j's trip sequence is iv_0 = init, iv_(t+1) = fit(iv_t + s_j, T_j) while cmp(iv_t, limit) holds in T_j's order, computed concretely (at most 4096 iterations, else Unsupported: termination is then not shown). Statements execute in order, so the op runs L_1's iterations, then (when L_1 exits normally) L_2's, and so on, and its outcome is the first iteration's outcome that is not continue, else L_k's exit outcome. Each iteration of a non-empty loop reads at most one cell p[a*iv + c] (I122's affine read; every affine value an atom compares is an exact integer inside T_j's range, else Unsupported: it would wrap); its atoms become sets of iteration numbers of the concatenated trip; every index is in [0, n) and no byte is read twice in the whole op. The exit paths of L_j for j < k end \"next\" naming L_(j+1)'s span, read no cell and have no condition but the loop's own exit atom; L_k's exit paths share one outcome (OPanic, OErr or ORet). A body path ending \"next\" (a break) is Unsupported (an early exit into the next loop). An empty loop (every body path continues and has no atom but the loop's own range; it reads nothing) has no observable effect: its trip sequence is computed to show it ends, then it is dropped from the composition; an empty loop whose trip does not end within 4096 iterations is Unsupported. The carrier is the cell sequence of the concatenated trip (p[idx_0], ...), its cell map the explicit index tuple (\"idx\", (idx_0, ...)); every other byte of p is not modelled (0 on replay, rule Y9). The model is I122's S2 model over the concatenated trip (one St step per iteration, the body selected by the iteration number's set tests), so the composition is exact: iteration t of the concatenation runs exactly when every earlier iteration continued, which is the program-order semantics. Anything else (a loop of another class in the sequence, a condition over a carried value or a call result, a nested loop, a loop body with no paths) is goloop's Unsupported, and the laws naming the op stay unbound and UNKNOWN. The 0-body forms stay Unsupported, from the specification: a map's iteration order is unspecified and an entry created during iteration may or may not be produced, so no trip sequence is a function of the carrier; a channel's elements come from other goroutines and the loop ends only when the channel is closed; a function iterator's trip is its callee's; a for with no condition ends only by the body's break or return, so its termination is not stated by its form; a string's range decodes UTF-8 (a trip of runes, not bytes), which this key does not model.",
+        "arithmetic": "SEQ uses the opaque reading: it needs ops \"typed\", whose reasoner reads sized arithmetic as opaque, so no path the frontend keeps or prunes depends on unbounded integers (I119's defect). Trip sequences and indices are evaluated concretely in Go's semantics (holon.gen.goint.fit at T_j's width, every width), and any affine value outside T_j's range is refused. The pass of an earlier loop on a later loop's prefix (6b) binds that loop's values to opaque terms, so it can only keep paths, never prune one. The narrow-arithmetic loop mode is unchanged.",
+        "deciding": "As goloop's rule Y7 and I122's S2: the ops of a law share one cell map; the candidates are the shortest panic witness, then the continue values; a law is REFUTED only by a counter-law Bend accepts at a concrete witness (the record's difference is the compiled model's evaluation), and there is no proof route (G6): SEQ never makes a law PROVED.",
+        "counting": "tools/i126_forms.py writes results/M6/I126/loop_forms.json from a composed run's committed Go-op documents: per op, its goloop class (I67, straight, S1, S2, SEQ) or its Unsupported reason by category (no name, value or identifier), and the loop forms recorded under loop_forms by (kind, syntax, over, body, why), as counts only, before any decision (Q72).",
+        "soundness": "A fallback only makes a law weaker or UNKNOWN: an op outside SEQ has no definitions and its laws are unbound. SEQ can only REFUTE (G6 is not closed), and every REFUTED needs a counter-law Bend accepts at a concrete witness, which the planted tests replay on the real function with the pinned go 1.24.7. The composition is the program order of the specification; the empty loop's removal is exact (no read, no store, every path continues, a finite trip); the frontend's pass of an earlier loop binds its values opaque and requires a body with no call, store, map update, send, select, receive, go or defer, so the memory a later loop reads is the memory at the op's entry, and the later loop's iterations are reached in the composition only after the earlier loop's exit.",
+        "amendment_to_brief": "None. The brief's example classes (an empty body, several bodies) are this key's SEQ (several bodies, sequential, with empty loops dropped). The corpus's 'empty body' (17 laws) is a body with no paths, not an empty loop: its causes are recorded per loop (why) and stay Unsupported unless the cause is the sequential form (6a, 6b)."
+      },
+      "predictions": [
+        {
+          "id": "I126-P1",
+          "claim": "(Frontend) On the planted package under loop_forms \"seq\": Seq2, WrapSeq and EmptyThen each get two loop bodies with paths, the first body's exit paths ending \"next\" with the second loop's span; Nested's, Carry's and CallSeq's second bodies, and Nested's first, have no paths or (Carry) paths whose conditions read the first loop's value; MapRange and Spin get no loop body, their loop_forms entries recording kind unbounded, over map (MapRange) and syntax for with cond false (Spin), with why 'no induction variable'. Every function with a loop has loop_forms, one entry per loop. Without loop_forms no function has loop_forms or a \"next\" path, and every output is byte-identical to an extraction without it; loop_forms other than \"seq\", or without loops \"shapes\", is refused.",
+          "check": "tests_m6/test_i126_goloop_corpus_loops.py::TestFrontend"
+        },
+        {
+          "id": "I126-P2",
+          "claim": "(Class SEQ) Seq2, WrapSeq and EmptyThen are in SEQ with concatenated trips Seq2 (0, 1, 2, 3 | 7, 6, 5, 4), WrapSeq (16, 17 | 252, 0, 4: Go wraps 256 to 0) and EmptyThen (32, 34; its empty loop of 10 iterations dropped), cell maps (\"idx\", (0, 1, 2, 3, 7, 6, 5, 4)), (\"idx\", (16, 17, 252, 0, 4)) and (\"idx\", (32, 34)). Nested, Carry, CallSeq, Break, MapRange and Spin are Unsupported, each with a reason recorded.",
+          "check": "tests_m6/test_i126_goloop_corpus_loops.py::TestClasses"
+        },
+        {
+          "id": "I126-P3",
+          "claim": "(Q90's differential method) On all 687 enumerated cases (every SEQ op, the cell assignments of I122's s2_cases: at most two cells set from {1, 0x7f, 0x80, 0xff}, the rest 0: 481 for Seq2, 181 for WrapSeq, 25 for EmptyThen), real Go on the pinned go 1.24.7 = the compiled Bend model = the shapes' mirror; each SEQ op's loop headers, run as Go, print exactly the computed trip sequences.",
+          "check": "tests_m6/test_i126_goloop_corpus_loops.py::TestDifferential",
+          "expected": {
+            "cases": 687
+          }
+        },
+        {
+          "id": "I126-P4",
+          "claim": "(No false PROVED; every REFUTED replayed) The totality laws of Seq2 and WrapSeq (WrapSeq's true only without wraparound) are REFUTED and never PROVED: Seq2 at the witness b[7] = 0x80 (every other modelled byte 0), WrapSeq at b[16] = b[17] = 1, b[0] = 0x7f (the first wrapped iteration). Every REFUTED PAR record's witness, run as real Go, gives the outcomes the model's difference says (at least 2 sides replayed).",
+          "check": "tests_m6/test_i126_goloop_corpus_loops.py::TestPlanted::test_p4_false_laws_refuted_and_replayed",
+          "expected": {
+            "replayed_sides_at_least": 2
+          }
+        },
+        {
+          "id": "I126-P5",
+          "claim": "(No false REFUTED) EmptyThen's totality law (true under Go's semantics) is UNKNOWN, never REFUTED; no PAR law of the planted run is PROVED.",
+          "check": "tests_m6/test_i126_goloop_corpus_loops.py::TestPlanted::test_p5_true_laws_never_refuted"
+        },
+        {
+          "id": "I126-P6",
+          "claim": "(Just outside) Every PAR law naming Nested, Carry, CallSeq, Break, MapRange or Spin is UNKNOWN with exactly one binding attempt, and the model writes each as '# <op>: unsupported (<reason>)'.",
+          "check": "tests_m6/test_i126_goloop_corpus_loops.py::TestPlanted::test_p6_outside_unbound"
+        },
+        {
+          "id": "I126-P7",
+          "claim": "(The control) Every committed M3 Go-op model regenerates byte-identical; I122's planted ops are in S1 and S2 with I122's trips, extracted with or without loop_forms, and their op texts are identical; the I67 class and S1/S2 come before SEQ; no protocol but I126's names go.loop_forms, and i126_run.json is base_run.json plus exactly go.loop_forms; the generated model has no Bend escape hatch.",
+          "check": "tests_m6/test_i126_goloop_corpus_loops.py::TestRegressions"
+        },
+        {
+          "id": "I126-P8",
+          "claim": "(Corpus, smoke on contaminated data; the counted run; pre-decision, Q72) results/M6/I126/loop_forms.json counts every corpus Go op by class or Unsupported reason category (their sum is the op count) and every loop of an op with a loop by its recorded form; every op with 0 loop bodies has every loop recorded with body none and a why from the definitions' list.",
+          "check": "tests_m6/test_i126_goloop_corpus_loops.py::TestCorpusSmoke::test_p8_forms_and_reasons"
+        },
+        {
+          "id": "I126-P9",
+          "claim": "(Corpus, smoke on contaminated data) No corpus Go op is in SEQ (0 ops: by the count, every corpus loop body with paths has a call result in a condition, and the sequential bodies sit in ops whose loops call functions), so for every entry both runs extracted, the corpus PAR laws derived and bound, and the laws decided (PROVED and REFUTED together, Q56), equal the baseline's.",
+          "check": "tests_m6/test_i126_goloop_corpus_loops.py::TestCorpusSmoke::test_p9_ops_in_class_and_laws",
+          "expected": {
+            "ops_in_seq": 0
+          }
+        },
+        {
+          "id": "I126-P10",
+          "claim": "(Corpus, smoke on contaminated data) No law id, binding, unbound list, witness or per-law record is committed; one bundle commitment per entry with laws; under withhold() the summary's findings, classes, recall and detected_any are withheld (zero by construction), never reported as measured.",
+          "check": "tests_m6/test_i126_goloop_corpus_loops.py::TestCorpusSmoke::test_p10_nothing_per_law_committed"
+        },
+        {
+          "id": "I126-P11",
+          "claim": "Morph's M0-M3 move only by re-stamp: holon land dirty re-makes no M0-M2 law; gate-M0 passes; gate-M1 and gate-M2 pass, or fail on G1 alone and pass with generator_sha256 stripped; gate-M3 partial passes.",
+          "check": "the gates, run locally and reported (docs/iterations/I126.md)"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I126-R1",
+          "claim": "Every earlier tests-m6 job stays in CI and passes, tests-m6-i122 included (I122's S1 and S2 unchanged).",
+          "check": "tests_m6/test_i126_goloop_corpus_loops.py::TestRegressions::test_r1_earlier_jobs_listed"
+        }
+      ]
     }
   }
 }

@@ -592,6 +592,10 @@ class TestRegressions(unittest.TestCase):
             if p.name == "i122_run.json":
                 continue
             d = json.loads(p.read_text(encoding="utf-8"))
+            # amended (spec/M6/amendments/I122.jsonl): the protocols of I122 and later keys carry its opt-in
+            it = str(d.get("iteration") or "") if isinstance(d, dict) else ""
+            if it[1:].isdigit() and int(it[1:]) >= 122:
+                continue
             if isinstance(d, dict) and isinstance(d.get("go"), dict):
                 self.assertNotIn("loops", d["go"], p.relative_to(ROOT).as_posix())
 
