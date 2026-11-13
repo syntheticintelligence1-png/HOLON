@@ -328,6 +328,18 @@ jobs:
             # key's measured outcome, not run here. Nothing here analyses a sealed target (Q56 (5)).
             timeout: 60
             run: python -m unittest tests_m6.test_i117_go_op_semantics.TestSemantics tests_m6.test_i117_go_op_semantics.TestFrontend tests_m6.test_i117_go_op_semantics.TestPlanted tests_m6.test_i117_go_op_semantics.TestMpipelineBinding tests_m6.test_i117_go_op_semantics.TestRegressions -v
+          - name: tests-m6-i122
+            # I122 (M6, goloop's loop shapes; HUMAN_ANSWERS Q93 (3), Q98 (2), Q90): the frontend's opt-in loops "shapes"
+            # (P1), classes S1 (a range over a carrier slice) and S2 (a constant stride, with Go's wraparound) on the
+            # planted package (P1, P2), Q90's differential test against the pinned go 1.24.7 and the S2 trip sequences
+            # (P3), the planted false laws REFUTED with every witness replayed as real Go (P4), the true laws never
+            # refuted (P5), the ops just outside unbound (P6), the regressions (P7, R1). P3's case count
+            # (test_p3_case_count) and P4's Signed witness (test_p4_signed_witness) are recorded misses
+            # (spec/M6/amendments/I122.jsonl, docs/iterations/I122.md) and are not run here; the corpus and sealed
+            # measures (P8-P11; results/M6/I122) are the key's measured outcome, not run here. Nothing here analyses a
+            # sealed target (Q56 (5)).
+            timeout: 60
+            run: python -m unittest tests_m6.test_i122_goloop_loop_shapes.TestFrontend tests_m6.test_i122_goloop_loop_shapes.TestClasses tests_m6.test_i122_goloop_loop_shapes.TestDifferential.test_p3_model_equals_go tests_m6.test_i122_goloop_loop_shapes.TestDifferential.test_p3_trip_sequences_equal_go tests_m6.test_i122_goloop_loop_shapes.TestPlanted.test_p4_false_laws_refuted_and_replayed tests_m6.test_i122_goloop_loop_shapes.TestPlanted.test_p5_true_laws_never_refuted tests_m6.test_i122_goloop_loop_shapes.TestPlanted.test_p6_outside_unbound tests_m6.test_i122_goloop_loop_shapes.TestRegressions -v
           - name: tests-m6-i104
             # I104 (M6): holon roles. The contract R1-R6 (TestBuild: determinism and the committed Morph roles, evidence,
             # names as tie-breakers, the proposal channel and its model-free provenance, hand sidecars win, no target

@@ -38,7 +38,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .. import bend
-from . import goint, gostraight
+from . import goint, goshapes, gostraight
 
 ALIAS = "M"
 ROOT = Path(__file__).resolve().parents[2]
@@ -418,6 +418,14 @@ def shapes(doc: dict) -> dict:
             out[name] = shape(name, op)
         except Unsupported as e:
             out[name] = e
+            lbs = op.get("loop_bodies")
+            if isinstance(lbs, list) and lbs and all(isinstance(lb, dict) and "typed" in lb for lb in lbs):
+                try:   # I122 (loops "shapes"): classes S1 and S2, only for a loop body emitted under the opt-in
+                    if name in RESERVED or not IDENT.match(name) or name.startswith(("gw_", "gs_")):
+                        raise Unsupported(f"op name {name!r} is reserved or not an identifier")
+                    out[name] = goshapes.shape(name, op)
+                except Unsupported as e2:
+                    out[name] = Unsupported(f"{name}: loop shapes: {e2}")
             if "typed" in op and not op.get("loop_bodies"):
                 try:
                     out[name] = _straight(name, op)
@@ -466,9 +474,15 @@ def declared_bundle(doc: dict, rel: str, sha: str, root: Path) -> dict:
     A-goloop-sites. Every definition generate() writes is classified once: by an entry, or the prelude's equality
     utilities by the one no_assumption group."""
     shs = shapes(doc)
-    per_op = [(gostraight.op_defs(sh) if isinstance(sh, gostraight.Straight) else op_defs(sh))
+    per_op = [(gostraight.op_defs(sh) if isinstance(sh, gostraight.Straight) else
+               goshapes.op_defs(sh) if goshapes.is_shape(sh) else op_defs(sh))
               for sh in shs.values() if not isinstance(sh, Unsupported)]
     own = {"A-goloop-cells": ["St", "Res"], "A-goloop-outcome": ["Out", "is_panic"], "A-goloop-sites": []}
+    for sh in shs.values():   # I122: the classes' own entries, only when an op is in one
+        if goshapes.is_shape(sh):
+            own.setdefault("A-goshapes-range" if isinstance(sh, goshapes.RangeShape) else "A-goshapes-stride", [])
+    if any(isinstance(sh, goshapes.RangeShape) for sh in shs.values()):
+        own["A-goshapes-prelude"] = ["gs_len"]
     if _any_straight(shs):   # I117: the Go integer semantics the straight-line ops are written in
         own["A-goint"] = list(gostraight.PRELUDE_DEFS)
     fops = [s.op for s in shs.values() if isinstance(s, gostraight.Straight) and s.kind == "fields"]
@@ -476,6 +490,7 @@ def declared_bundle(doc: dict, rel: str, sha: str, root: Path) -> dict:
         own["A-goloop-fields"] = sorted(fops)
     for d in per_op:
         for k, names in d.items():
+            own.setdefault(k, [])
             own[k] += names
     ops = sorted(n for d in per_op for names in d.values() for n in names)
     drel = doc["document"]
@@ -510,7 +525,7 @@ def declared_bundle(doc: dict, rel: str, sha: str, root: Path) -> dict:
                    "(holon.gen.goint: wraparound, truncated division, shifts, conversions, comparisons), on the "
                    "pinned toolchain's linux/amd64, where int, uint and uintptr are 64 bits; an op whose terms could "
                    "panic (a division by a non-constant, a shift by a signed non-constant count) is not modelled, "
-                   "because the frontend's paths do not record the panic (I117)."}
+                   "because the frontend's paths do not record the panic (I117).", **goshapes.TEXTS}
     for k in sorted(own):
         entries.append({"id": k, "kind": "abstraction", "source": f"{rel}#/ops", "text": texts[k],
                         "introduced_by": sorted(own[k])})
@@ -530,11 +545,15 @@ def generate(doc: dict, sha: str) -> str:
     shs = shapes(doc)
     if _any_straight(shs):   # I117: only a document with a straight-line op carries the Go integer semantics
         head += [goint.PRELUDE, gostraight.CELL_DEF]
+    if any(isinstance(sh, goshapes.RangeShape) for sh in shs.values()):   # I122: only with an S1 op
+        head += [goshapes.PRELUDE]
     for name, sh in shs.items():
         if isinstance(sh, Unsupported):
             body.append(f"# {name}: unsupported ({sh})\n")
         elif isinstance(sh, gostraight.Straight):
             body.append(gostraight.op_text(sh))
+        elif goshapes.is_shape(sh):
+            body.append(goshapes.op_text(sh))
         else:
             body.append(op_text(sh))
     return "\n".join(head) + "\n" + "\n".join(body)
@@ -642,6 +661,8 @@ def emit(law: dict, doc: dict, model_import: str, counter: bool = False, note: s
 
 def cells_literal(cells: list[int]) -> str:
     """A cell sequence as a Bend term: runs of one value as List.replicate, joined by List.append."""
+    if not cells:   # I122: class S1's empty sequence (an I67 or straight-line witness is never empty)
+        return "[]"
     runs = []
     for v in cells:
         if runs and runs[-1][0] == v:
@@ -707,12 +728,18 @@ def candidates(cm: CompiledModel, named: list[str], n: int) -> list[tuple[str, l
                 if w is not None and len(w) == n:
                     out.append((f"the first sample point where {name} is {o}", w))
             continue
+        if goshapes.is_shape(sh):   # I122: its shortest panic witness (S1: any length; S2: the cells of its trip)
+            if sh.cell_map() == cm.shapes[sorted(named)[0]].cell_map():
+                out += goshapes.candidates(sh)[:1] if goshapes.panic_witness(sh) is not None else []
+            continue
         w = panic_witness(sh)
         if w is not None and len(w) == n:
             out.append((f"the smallest panic witness of {name}", w))
     first = cm.shapes[sorted(named)[0]]
     if isinstance(first, gostraight.Straight):
         return out
+    if goshapes.is_shape(first):
+        return out + [c for c in goshapes.candidates(first) if not c[0].startswith("the shortest panic witness")]
     c = all_continue(first)
     if c is not None and len(c) == n:
         out.append((f"the continue values of {first.op}", c))
@@ -738,7 +765,8 @@ def decide(law: dict, cm: CompiledModel, ld: Path, pd: Path, model_import_l: str
         return Decision("UNKNOWN", statement=stmt, attempts=[{"kind": "model", "error": f"cell maps differ: {maps}"}],
                         bound="not searched: the ops the law names read different cells of the carrier (stride, base "
                               "or count), so no cell sequence is one carrier value for all of them (rule Y6)")
-    n = next(iter(maps.values()))[-1]
+    cmap = next(iter(maps.values()))
+    n = None if cmap[0] == "range" else len(cmap[1]) if cmap[0] == "idx" else cmap[-1]   # I122: S1 has any length
     attempts, tried = [], []
     try:
         cands = candidates(cm, cem.ops, n)
@@ -748,9 +776,11 @@ def decide(law: dict, cm: CompiledModel, ld: Path, pd: Path, model_import_l: str
     first = cm.shapes[sorted(cem.ops)[0]]
     fields = isinstance(first, gostraight.Straight) and first.kind == "fields"
     top = 0xffffffff if fields else 255   # a witness is n byte cells, or n U32 cells of field leaves (I117)
+    if isinstance(first, goshapes.RangeShape):   # I122: S1's cells are its elements, encoded
+        top = min(cm.shapes[o].top() for o in cem.ops)
     for what, cells in cands:
         tried.append(what)
-        if len(cells) != n or any(not (0 <= v <= top) for v in cells):
+        if (n is not None and len(cells) != n) or any(not (0 <= v <= top) for v in cells):
             attempts.append({"kind": "refute", "candidate": what, "error": f"not {n} {'U32' if fields else 'byte'} "
                                                                          "cells"})
             continue
@@ -767,13 +797,15 @@ def decide(law: dict, cm: CompiledModel, ld: Path, pd: Path, model_import_l: str
             lhs_t, rhs_t = law["statement"]["claim"]["eq"]
             out = cm.outcomes(cem.ops, cells)   # the record's difference is the compiled model's (m5)
             mirror = {o: (cm.shapes[o].evaluate(cells) if isinstance(cm.shapes[o], gostraight.Straight)
+                          else goshapes.evaluate(cm.shapes[o], cells) if goshapes.is_shape(cm.shapes[o])
                           else evaluate(cm.shapes[o], cells)) for o in cem.ops}
             if mirror != out:
                 attempts.append({"kind": "mirror", "error": f"the shapes' evaluation {mirror} differs from the "
                                                              f"compiled model's {out}"})
             diff = {"lhs": side_value(out, lhs_t), "rhs": side_value(out, rhs_t)}
             return Decision("REFUTED", em=cem, statement=stmt, check=rr,
-                            witness={b: first.witness_value(cells) if fields else "0x" + bytes(cells).hex()},
+                            witness={b: first.witness_value(cells) if fields or goshapes.is_shape(first)
+                                     else "0x" + bytes(cells).hex()},
                             difference=diff, attempts=attempts)
     for x in {ld, pd}:
         shutil.rmtree(x, ignore_errors=True)
