@@ -13,10 +13,13 @@
   "disch": {
     "binding": null,
     "disch_version": "holon-disch/0.1",
+    "hypotheses": {},
     "hypothesis_verdicts": null,
     "r0": {
       "doc": "the zero storage (no deployment)",
-      "proxy_slots": []
+      "keys": {},
+      "proxy_slots": [],
+      "values": {}
     },
     "search": {
       "max_prefixes": 3000,
@@ -26,7 +29,7 @@
     },
     "section_errors": "unknown"
   },
-  "doc": "I123 (HUMAN_ANSWERS Q100 (1)): the typed model's sort operations. This protocol is its base_protocol plus exactly typed.sort_ops \"word\" (and typed.sort_ops_doc); every other key is the base's. Rebased at the coordinator's word (HUMAN_ANSWERS Q104; the lead at d05abec7, I120's landing): base_protocol is spec/M6/lib/base_run.json (sha256 bff577284cdd30673eca2c2797304fdc0d5155950689987833c18bd90c078a5d), and this file was regenerated from it by this rule (a mechanical rebase, no other change), checked by tests_m6/test_i123_typed_sort_operations.py::TestRegressions.test_p7_protocol_is_its_base_plus_sort_ops.",
+  "doc": "I123 (HUMAN_ANSWERS Q100 (1)): the typed model's sort operations. This protocol is its base_protocol plus exactly typed.sort_ops \"word\" (and typed.sort_ops_doc); every other key is the base's. Rebased at the coordinator's word (HUMAN_ANSWERS Q104; the lead at d05abec7, I120's landing): base_protocol is spec/M6/lib/base_run.json (sha256 11b26c96c426ade05ea3d21c776983b44c46eb64477bd5693d6520a2eb6dd665, the fixed file of HUMAN_ANSWERS Q109), and this file was regenerated from it by this rule (a mechanical rebase, no other change), checked by tests_m6/test_i123_typed_sort_operations.py::TestRegressions.test_p7_protocol_is_its_base_plus_sort_ops.",
   "document_fallback": {
     "bind": "unknown",
     "coverage": "typed_only",
@@ -39,6 +42,7 @@
   "fact": {
     "binding": null,
     "fact_version": "holon-fact/0.1",
+    "hypotheses": {},
     "measure": {
       "fresh": [
         "0x0100000000000000000000000000000000000000000000000000000000000001",
@@ -53,7 +57,8 @@
       "prefix_depth": 3,
       "time_candidates": "E - 1, E and E + 1 for every term E an atom of a check of the candidate step compares with block.timestamp, evaluated on the candidate state, and the trace's own times (never 0, never decreasing)"
     },
-    "term_size": "spec/M3/lib/term_size.json"
+    "term_size": "spec/M3/lib/term_size.json",
+    "verdicts": {}
   },
   "filter": "the record's replay status decides the class of a finding (REFUTED record): failed is model_defect; otherwise localized is true_defect; passed and not localized is intended_asymmetry; anything else unreplayed",
   "go": {
@@ -67,6 +72,7 @@
     "ops": "typed",
     "ops_doc": "I117 (ops \"typed\", opt-in): the codec frontend records each path-enumerated function's typed terms (their Go types) and reads sized arithmetic as opaque in its reasoner (Go integers wrap), and the Go-op model's straight-line class (holon.gen.gostraight) models an op with no loop over a byte-array carrier with Go's integer semantics (holon.gen.goint). The Go machine documents are extracted as before (the machines config carries no ops).",
     "package": "the directory of the file; its module is the nearest directory at or above it holding go.mod; its import path is the module path (go.mod's module line) joined with the directory relative to the module",
+    "primitives": {},
     "source": "the module directory, when its go.mod has no replace directive with a relative path that leaves it; otherwise a scratch copy of the whole checkout with a generated go.work whose use list is the closure of the module directory under its relative replace targets that hold a go.mod (a checkout that has its own go.work keeps it, unchanged); under work_replace main_module the generated go.work also carries a replace for each module path two used modules replace differently, taken from the package's own module (paths rewritten relative to the workspace root), and its go line is the highest go directive among the used modules",
     "stem": "go_<n>, n the 1-based index of the package in the sorted list of the entry's import paths",
     "store_max_bytes": 1000000,
