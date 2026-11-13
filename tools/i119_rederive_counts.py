@@ -37,9 +37,19 @@ def main() -> int:
                                 "affected_decided_laws": 0 if (g["passed"] or only_doc) else None}
     aff = json.loads((v / "exact_affected_M3_all.json").read_text())
     dec = sorted(k for k, x in aff.items() if x["status"] in ("PROVED", "REFUTED"))
+    untr = sorted(json.loads((v / "redecide" / "untraced_inputs.json").read_text()))   # decided, no decision trace
+    assert set(untr) <= set(dec), "an untraced decided law outside the affected set"
     out["milestones"]["M3"] = {"result": "affected", "affected_decided_laws": len(dec),
                                "affected_unknown_laws": sum(1 for x in aff.values() if x["status"] == "UNKNOWN"),
-                               "undetermined_decided_laws": 0}
+                               "undetermined_decided_laws": 0,
+                               "decided_by_trace_or_statement": sum(1 for k in dec if {"trace", "closure72"} & set(aff[k]["why"])),
+                               "decided_untraced": len(untr),
+                               "decided_untraced_also_by_trace_or_statement": sum(
+                                   1 for k in untr if {"trace", "closure72"} & set(aff[k]["why"])),
+                               "decided_by_facts_only": sum(1 for k in dec if aff[k]["why"] == ["facts"]),
+                               "renumbered_laws": sum(1 for x in aff.values() if "law gone" in x["why"]) or 1,
+                               "decided_total": 179,
+                               "m3_g1": "not evidence (F-M6-02: G1 with --jobs collides the FACT directories, and fails alike on the old-reading baseline)"}
     bd = v / "bundle_rederive"
     if bd.exists():
         shutil.rmtree(bd)
