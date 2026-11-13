@@ -1,5 +1,5 @@
 {
-  "base_protocol": "spec/M6/lib/i115_run.json",
+  "base_protocol": "spec/M6/lib/i116_run.json",
   "bind": "derived",
   "bind_doc": "I115 (bind derived): route A's milestones are bound by holon bind into spec/bindings/<M>.json, which G2 checks; the composed route binds its own milestone the same way, over the derived statements and the models the run generated, in its scratch root (never the repository's spec/bindings). Every family goes through it: no runner is exempt. The bindings name law ids, so they go to the vault with the records (Q56); the row keeps aggregates only (laws bound, unbound, and decided records refused by the binding check).",
   "catalog": "holon-rules/1.16",
@@ -29,7 +29,12 @@
     },
     "section_errors": "unknown"
   },
-  "doc": "I117: I116's protocol at its landing plus go.ops \"typed\" (this file is I115's plus the opt-in until I116's landing is merged; it is then rebased onto I116's by the rule of spec/M6/predictions/I117.json, before any measured run). I115 prereg instrument (the contract is the docstring of tests_m6/test_i115_binding_wall.py). It is I112's protocol (spec/M6/lib/i112_run.json, which stays the protocol of I112's record) with exactly three additions, each an opt-in no earlier protocol names: run_unbound \"unknown\" (Q88 (2): the milestone runner checks each law's binding, the kernel cone of its statement over its model, before deciding it; a law whose statement names a definition its model does not define is UNKNOWN, recorded with the binding error, and every other law is decided as before: holon run --unbound unknown), bind \"derived\" (Q88 (2): after the run, holon bind --unbound skip binds every derived law in the scratch root's spec/bindings/<M>.json, listing the laws it cannot bind in spec/bindings/<M>.unbound.json, and the binding check admits a PROVED or REFUTED record only when its law is bound with the record's statement hash and model; any other decided record is rewritten UNKNOWN with the reason), and preflight_go \"bin_sha256\" (Q87: every go_set release's installed bin/go is checked by its sha256, config/toolchains.json bin_sha256, as well as its version line; a refused preflight is recorded in <out>/preflight.json and the run does not start). The tier typed.sort_budget is I110's 5000000, unchanged.",
+  "doc": "I117: I116's protocol at its landing (spec/M6/lib/i116_run.json, 72b8ec16) plus go.ops \"typed\" (spec/M6/predictions/I117.json's protocol_rule; regenerated from it at the merge of I116's landing, before any measured run). I116 prereg instrument (the contract is the docstring of tests_m6/test_i116_per_document_fallbacks.py). It is I112's protocol (spec/M6/lib/i112_run.json, which stays the protocol of I112's record) with exactly one addition, document_fallback {disch, evidence}, an opt-in no earlier protocol names; once I115 lands, its binding keys are added as its landed protocol names them, in one commit before any measured run, and nothing else changes. The tier typed.sort_budget is I110's 5000000, unchanged.",
+  "document_fallback": {
+    "disch": "unknown",
+    "evidence": "unknown"
+  },
+  "document_fallback_doc": "I116 (Q83, Q88 (3)): per-document fallbacks. disch \"unknown\": every DISCH sidecar the driver generates names document_fallback \"unknown\" (holon.analysis.closure): a document whose DISCH analysis D2-D10 refuses (ClassError, class class_error; a KeyError, TypeError or IndexError while analysing it, class malformed) is a recorded miss in gen/<M>/disch/fallback.json, with no DISCH analysis and no DISCH law; every other document's DISCH runs. evidence \"unknown\": the adoption sidecar holon roles installs for the entry (spec/<M>/lib/derive_extracted.json, never a hand sidecar) names document_fallback \"unknown\" (holon.diagram.evidence): an adopted transitions document whose E2 atoms the rule over transitions documents does not map (holon.diagram.transitions.TransitionsError, class e2_unmapped) keeps its anchors and gets no atom, a recorded miss under the evidence document's fallback; derive rebuilds the same set. The definitions are spec/M6/predictions/I116.json's thresholds.",
   "fact": {
     "binding": null,
     "fact_version": "holon-fact/0.1",
@@ -73,9 +78,15 @@
   "go_machines": {
     "entries": "every corpus entry with a file ending in .go",
     "nil_maps": "unknown",
-    "out": "results/M6/I115/go_machines.json"
+    "out": "results/M6/I117/go_machines.json"
   },
   "go_rules_doc": "No rule producer of holon-rules/1.15 takes a Go document without a target sidecar: the typed part reads transitions documents only, PAR's Go sub-forms read spec/<M>/lib/go_laws.json (function roles), the codec layer reads link roles. No generator of those sidecars exists, so a Go document is extracted and recorded and derives nothing (stage derive: no_producer).",
+  "i115_keys": [
+    "bind",
+    "bind_doc",
+    "preflight_go",
+    "run_unbound"
+  ],
   "iteration": "I117",
   "layout": {
     "layout_version": "holon-layout/0.1",
