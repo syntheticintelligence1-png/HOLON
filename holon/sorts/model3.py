@@ -57,6 +57,7 @@ from . import grammar as G
 from .affine3 import affine
 from . import skeys as SKEYS
 from .prelude3 import FUEL, PRELUDE, SENTINEL, prelude
+from . import sortops as SORTOPS
 
 GHOST_MARKER = "# ---- ghost: SORT coercions (holon.rules.sort)"
 SITE_MARKER = "# ---- ghost: SORT-site instrumentation (holon.sorts.sites)"
@@ -189,6 +190,7 @@ class Loc:
 class Gen:
     EXT1 = False   # the language extension EXT1 (I70; Model3X below): off in every model compiled before it
     EXT1_LINK = False   # EXT1's additions for linked calls (I94; Model3XL below): off in every other model
+    sort_ops = False    # I123: the typed model's sort operations (holon.sorts.sortops), set by build_text(sort_ops=True)
 
     def __init__(self, m: ExtractedModel, *, typed: bool, sorts: dict | None = None, seeds: dict | None = None,
                  init_storage: dict | None = None, hashes: list | None = None, basis=None, site: dict | None = None,
@@ -465,6 +467,8 @@ class Gen:
             return sc.subst[key]
         h = t[0]
         f = getattr(self, "t_" + _NAMES.get(h, h.replace(".", "_")), None)
+        if f is not None and h in SORTOPS.HEADS and not self.sort_ops:
+            f = None        # I123: outside the language without the opt-in, as before
         if f is None:
             raise GenError(f"{sc.action}: term {h!r} is outside the M3 generator's language: {key[:160]}")
         out = f(t, sc)
@@ -878,11 +882,20 @@ class Gen:
         (ac, ak), (bcode, bk) = self.value(t[1], sc), self.value(t[2], sc)
         tt = self.affine_operands(op, t, (ac, ak), (bcode, bk))
         if tt is not None:
+            if self.sort_ops and not self.affine_sorted(op, tt):
+                raw = SORTOPS.raw_affine(self, op, t, sc, (ac, ak), (bcode, bk))   # I123 C1
+                if raw is not None:
+                    return raw
             return self.typed_affine(op, tt[0], tt[1], sc)
         ac2, ak2 = self.unsigned_kind(ac, ak)
         bcode2, bk2 = self.unsigned_kind(bcode, bk)
         a, b = self.to_w(ac2, ak2), self.to_w(bcode2, bk2)
         return (f"w_add({a}, {b})" if op == "+" else f"w_sub({a}, {b})"), "w"
+
+    def affine_sorted(self, op: str, tt) -> bool:
+        """I123 C1: do the typed operands have an affine row (typed_affine's test, without registering anything)?"""
+        (_ac, asort), (_bc, bsort) = tt
+        return G.affine(op, self.base_sort(asort), self.base_sort(bsort)) is not None
 
     def unsigned_kind(self, c: str, k: str):
         """A signed typed value consumed by anything but its realization check: its machine value (R1)."""
@@ -965,12 +978,16 @@ class Gen:
 
     def t_shl(self, t, sc):
         if not isinstance(t[2], int):
+            if self.sort_ops:
+                SORTOPS.check_amount(self, t, sc)   # I123 R1
             return self.var_shift("l", t, sc)       # I83 L5: a shift by a non-constant amount
         fn = self.shl(int(t[2]))
         return (f"{fn}({self.w(t[1], sc)})" if fn else "w0()"), "w"
 
     def t_shr(self, t, sc):
         if not isinstance(t[2], int):
+            if self.sort_ops:
+                SORTOPS.check_amount(self, t, sc)   # I123 R1
             return self.var_shift("r", t, sc)       # I83 L5: a shift by a non-constant amount
         fn = self.shr(int(t[2]))
         return (f"{fn}({self.w(t[1], sc)})" if fn else "w0()"), "w"
@@ -985,6 +1002,8 @@ class Gen:
         n = int(t[1])
         inner = t[2]
         if not (isinstance(inner, list) and len(inner) == 3 and inner[0] in ("+", "-", "*")):
+            if self.sort_ops and not (isinstance(inner, list) and inner and inner[0] in ("**", "neg", "sdiv")):
+                return SORTOPS.fits_value(self, t, sc)      # I123 V1
             raise GenError(f"{sc.action}: fits over {canonical(inner)[:80]}")
         op = inner[0]
         (ac, ak), (bcode, bk) = self.value(inner[1], sc), self.value(inner[2], sc)
@@ -2542,7 +2561,7 @@ def s0_text(init: dict) -> str:
 
 def build_text(m: ExtractedModel, *, typed: bool, sorts: dict, seeds: dict, init: dict, hashes: list, basis,
                site_rows: list, header: list[str], storage: str = "raw", s0_entries: list | None = None,
-               ext1: bool = False, ext1_link: bool = False) -> tuple[str, Model3]:
+               ext1: bool = False, ext1_link: bool = False, sort_ops: bool = False) -> tuple[str, Model3]:
     """The model text and its generator. storage: raw (the default; I28's versioned modules) or structural (I68: the
     store PRELUDE_SK, s0 from s0_entries, holon.sorts.skeys.s0_entries of the deployment). ext1: EXT1 (Model3X);
     ext1_link: EXT1 with its additions for linked calls (Model3XL; I94), which require ext1."""
@@ -2550,6 +2569,8 @@ def build_text(m: ExtractedModel, *, typed: bool, sorts: dict, seeds: dict, init
         raise ValueError("build_text: ext1_link requires ext1")
     mm = ((Model3XL if ext1_link else Model3X) if ext1 else Model3)(m, typed=typed, sorts=sorts, seeds=seeds,
                                                                     init_storage=init, hashes=hashes, storage=storage)
+    if sort_ops:
+        mm.sort_ops = True     # I123: the typed model's sort operations (holon.sorts.sortops)
     acts = sorted(a for a in m.actions if m.params(a) is not None)
     for a in acts:
         mm.compile_action(a)
@@ -2690,7 +2711,8 @@ def generate(milestone: str, root: Path, doc_rel: str, *, typed: bool = True, si
               "else st."]
     sites = [] if typed else ratio_sites(milestone, root, assignment, model)
     text, mm = build_text(m, typed=typed, sorts=mo.get("assignment") or {}, seeds=seeds, init=storage, hashes=hashes,
-                          basis=basis, site_rows=sites, header=header, storage="structural", s0_entries=entries)
+                          basis=basis, site_rows=sites, header=header, storage="structural", s0_entries=entries,
+                          **({"sort_ops": True} if sc.sort_ops else {}))
     mm.basis = basis
     mm.n1 = n1_sorts(mo.get("assignment") or {}, basis.sites)
     mm.hashes = hashes
@@ -3736,3 +3758,16 @@ class Model3XL(Model3X):
     t_mul = _i94_t_mul
     mul_check = _i94_mul_check
     var_shift = _i94_var_shift
+
+
+# ------------------------------------------------------------------------------------------------ I123: sort operations
+def _i123_t_sar(self, t, sc):
+    return SORTOPS.t_sar(self, t, sc)
+
+
+def _i123_t_sfits(self, t, sc):
+    return SORTOPS.t_sfits(self, t, sc)
+
+
+Gen.t_sar = _i123_t_sar
+Gen.t_sfits = _i123_t_sfits

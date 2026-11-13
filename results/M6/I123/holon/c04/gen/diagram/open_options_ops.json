@@ -1,0 +1,89 @@
+{
+  "carriers": [
+    {
+      "base_type": "OpenOptions",
+      "cls": "rep",
+      "domains": [
+        "ok_rawdb_Open",
+        "ok_rawdb_openKeyValueDatabase"
+      ],
+      "id": "OpenOptions",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Database_Error",
+      "cls": "rep",
+      "id": "R_Database_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_Open",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_Open",
+      "kind": "CODEC",
+      "model_fn": "rawdb_Open",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "github.com/ethereum/go-ethereum/core/rawdb.Open"
+        }
+      ],
+      "src": "OpenOptions",
+      "tgt": "R_Database_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_openKeyValueDatabase",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_openKeyValueDatabase",
+      "kind": "CODEC",
+      "model_fn": "rawdb_openKeyValueDatabase",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "github.com/ethereum/go-ethereum/core/rawdb.openKeyValueDatabase"
+        }
+      ],
+      "src": "OpenOptions",
+      "tgt": "R_Database_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/open_options_ops.json",
+  "facts_sha256": "9cf2e871659ed283fa92e9a7698278af14661e3613a24e4ffa407131a54b5a18",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "open_options_ops",
+  "principal_classes": [],
+  "provenance": {}
+}
