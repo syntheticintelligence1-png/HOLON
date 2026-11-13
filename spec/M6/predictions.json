@@ -1682,6 +1682,81 @@
       ],
       "regressions": []
     },
+    "I119": {
+      "title": "I119: Go reasoner soundness (HUMAN_ANSWERS Q93 (1), the defect I117 found): (a) a read-only audit that re-extracts every committed Go document (Morph's M0-M3, every corpus entry's) with only I117's opaque-arithmetic rule and lists the documents whose paths change and the committed decided laws that read them (per-milestone counts and a sha256 bundle commitment only); (b) the rule becomes the Go frontend's default for every Go document (codec and machine documents alike), the narrow-arithmetic loop mode unchanged; changed documents re-extracted and affected laws re-derived and re-decided through the statement-diff log, never edited",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I119)",
+      "prompt": "prompts/I119_go_reasoner_soundness.md",
+      "tests": [
+        "tests_m6/test_i119_go_reasoner_soundness.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I119/",
+        "docs/iterations/I119.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P2 are on the planted package tests_m6/fixtures/i119 (Go semantics only, never corpus code). P3-P5 are the audit (a), read-only, scored on its first finished run. P6-P8 are the flip (b). Laws are reported as per-milestone counts only, never splitting PROVED from REFUTED (Q56, Q89), and never by id; the affected-law list stays in the vault, committed only as a sha256 bundle commitment (I107's canonical form).",
+        "instruments": "tools/i119_audit.py (the audit: it re-extracts in scratch copies of holon/, the old reading at the audited commit and the old reading plus the rule, and compares; it writes nothing under the repository but results/M6/I119/audit.json) and tests_m6/test_i119_go_reasoner_soundness.py",
+        "base": "claude/i117-go-op-semantics at 93d12670 (I117, not yet landed; it holds the rule, terms.lin(opaque) and the Reasoner's opaque flag); the lead claude/holon-v2-bend2-c6z3cd at 72b8ec16 is already an ancestor; each later lead move is merged by a merge commit",
+        "the_rule": "I117's opaque-arithmetic rule: the path enumerator's Reasoner (holon/frontends/go/paths.py) built with opaque=True, so an op or unop term is a variable of its own in the linear forms (terms.lin) and no branch is pruned by unbounded arithmetic. Only the rule: no typed section, no every-function enumeration (the rest of ops \"typed\")",
+        "a2": "The audit's extension A2 (measured, reported apart, never counted in P3-P5): the same rule also in the site reasoner of functions with no path set (holon/frontends/go/analyses.py, the dominator-atom Reasoner of a loop, recursion or path-limit function). It is the same defect class (an index bound implied only by unbounded arithmetic is called safe); (b) does not flip it unless the human rules so (a Question for the human)",
+        "affected": "A committed decided law (status PROVED or REFUTED in a committed record) is affected when a document whose paths changed is read by its statement, its model or its evidence: for Morph, every committed M0-M3 record whose generator closure or evidence names the document's path (the records' evidence and the generation inputs, holon land's closure); for the corpus, every committed run row whose laws_aggregate has decided > 0 and one of whose documents changed",
+        "soundness": "The rule only removes implications: lin(opaque) reads an op or unop term as an atom, so every fact set implies a subset of what it implied before, and a branch is pruned only if its condition is refuted with arithmetic read as uninterpreted, which is sound under wraparound. So the default keeps every path the old reading kept, and adds the branches it pruned. A law can only lose a premise of its evidence (become weaker or UNKNOWN), never become wrongly PROVED by the change"
+      },
+      "predictions": [
+        {
+          "id": "I119-P1",
+          "claim": "The planted package under the default config (no ops) after (b): Inc64 has a panic path and its panic site is open; Idx has a panic path and its index site is open, never safe; Plus's paths and sites are identical to the old reading's. Under the old reading (the audit's baseline) Inc64 has no panic path and Idx's index site is safe (the defect reproduced, recorded in results/M6/I119/audit.json fixture).",
+          "check": "tests_m6/test_i119_go_reasoner_soundness.py::TestFixture"
+        },
+        {
+          "id": "I119-P2",
+          "claim": "The differential check (Q90's method) on the pinned go 1.24.7: Inc64(nil, math.MaxInt64) panics, Idx(make([]byte, 1), math.MaxInt) panics, Idx(make([]byte, 1), 0) returns 0, Plus([]byte{7, 0}) panics: the paths the default keeps are real and the old reading's claims (no panic path, safe site) are false.",
+          "check": "tests_m6/test_i119_go_reasoner_soundness.py::TestDifferential"
+        },
+        {
+          "id": "I119-P3",
+          "claim": "Audit (a), Morph: the 8 committed Go documents (spec/M2/facts 5, spec/M3/facts 3) re-extract byte-identical to the committed bytes under the old reading, and none of them changes its paths under the rule (I117's report: Morph's documents are unchanged under the opt-in).",
+          "expected": {
+            "morph_documents": 8,
+            "morph_changed": 0
+          }
+        },
+        {
+          "id": "I119-P4",
+          "claim": "Audit (a), committed decided laws affected, per milestone: M0 0, M1 0, M2 0, M3 0, corpus 0 (counts only; no law named). So no affected-law message beyond the one-line 0 count is sent, and (b) moves no committed status.",
+          "expected": {
+            "M0": 0,
+            "M1": 0,
+            "M2": 0,
+            "M3": 0,
+            "corpus": 0
+          }
+        },
+        {
+          "id": "I119-P5",
+          "claim": "Audit (a), the corpus: every distinct committed corpus Go document config (codec and machine documents, every committed run, deduplicated by config without its doc string) is re-extracted from its entry's pinned checkout; at least one corpus document's paths change under the rule (the corpus has 64-bit arithmetic in branch conditions; the count is the measure).",
+          "expected": {
+            "corpus_changed_at_least": 1
+          }
+        },
+        {
+          "id": "I119-P6",
+          "claim": "(b) The rule is the default for every Go document: holon extract go and holon extract go_machines read sized arithmetic as opaque under every config version, with or without ops; ops \"typed\" keeps its typed section and every-function enumeration and nothing else of it moves. The narrow-arithmetic loop mode (I67's narrow wrapping in loop bodies) is unchanged: Morph's M3 loop_bodies sections byte-identical.",
+          "check": "tests_m6/test_i119_go_reasoner_soundness.py::TestDefault"
+        },
+        {
+          "id": "I119-P7",
+          "claim": "(b) Morph: every committed Go document re-extracts byte-identical under the new default (follows P3), so (b) is a re-stamp only: statuses moved by re-decision 0 (aggregates, Q89); holon land dirty re-makes no M0-M2 law; gate-M0 passes; gate-M1 and gate-M2 fail on G1 alone and pass with generator_sha256 stripped; gate-M3 partial passes.",
+          "check": "the gates, run locally and reported (docs/iterations/I119.md)"
+        },
+        {
+          "id": "I119-P8",
+          "claim": "Regressions: the target-agnostic test passes; every earlier tests-m6-* job passes locally, an earlier key's test that asserts the old reading amended with its amendment line first (I117's P2 control 'without ops typed the branch is pruned' is the one predicted); no Bend escape hatch; the CI job tests-m6-i119 lists the key's classes.",
+          "check": "tests_m6/test_i119_go_reasoner_soundness.py::TestRegressions"
+        }
+      ],
+      "regressions": []
+    },
     "I122": {
       "title": "I122: goloop's loop shapes (HUMAN_ANSWERS Q93 (3), Q98 (2), Q90): two loop classes of the Go-op model defined from the Go specification, S1 (a for-range over a slice the carrier holds, its trip count the slice's length, read from the carrier) and S2 (a counted loop with a constant step other than 1, of either sign, over a fixed-length byte array, its trip sequence computed in the induction variable's Go type with wraparound), behind the Go frontend's opt-in loops \"shapes\" (protocol go.loops \"shapes\", with ops \"typed\"), the frontend's loop_bodies widened to match; every op outside them stays Unsupported, its laws unbound and UNKNOWN, its reason counted before any decision (Q72). Run through holon eval holon --compose with the protocol of the last landing before this key's measured runs plus go.loops \"shapes\"",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I122)",

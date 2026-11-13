@@ -1,0 +1,147 @@
+{
+  "affected_bundle_files": 2,
+  "affected_bundle_sha256": "7028163eb39c588624f4f9f71ea886e0bf77e6c97bdf250320c7dcf9815dcb71",
+  "affected_decided_laws": {
+    "M0": 0,
+    "M1": 1,
+    "M2": 0,
+    "M3": 0,
+    "corpus": 3
+  },
+  "affected_decided_laws_a2": {
+    "M0": 0,
+    "M1": 1,
+    "M2": 0,
+    "M3": 0,
+    "corpus": 6
+  },
+  "audit_version": "holon-i119-audit/0.1",
+  "audited_commit": "71512b326ec46d3b0b3ffeef9a057b4784650f24",
+  "corpus": {
+    "baseline_compared_rows": 124,
+    "baseline_identical_rows": 0,
+    "changed_configs": 12,
+    "changed_configs_a2": 17,
+    "changed_function_sections": {
+      "loop_bodies": 24,
+      "paths": 40,
+      "sites": 16
+    },
+    "configs": 42,
+    "extracted": 31,
+    "machine_documents": "not re-extracted: holon.frontends.go_machines imports no reasoner",
+    "refused": 11,
+    "rows_with_go": 151,
+    "runs": 11
+  },
+  "fixture": {
+    "old": {
+      "Idx": {
+        "ends": [
+          "return",
+          "return",
+          "return"
+        ],
+        "index_status": "safe"
+      },
+      "Inc64": {
+        "ends": [
+          "return"
+        ]
+      },
+      "Plus": {
+        "ends": [
+          "panic",
+          "return",
+          "return"
+        ]
+      }
+    },
+    "rule": {
+      "Idx": {
+        "ends": [
+          "panic",
+          "return",
+          "return",
+          "return"
+        ],
+        "index_status": "open"
+      },
+      "Inc64": {
+        "ends": [
+          "panic",
+          "return"
+        ]
+      },
+      "Plus": {
+        "ends": [
+          "panic",
+          "return",
+          "return"
+        ]
+      }
+    }
+  },
+  "morph": {
+    "baseline_identical": 7,
+    "changed": 3,
+    "changed_a2": 6,
+    "changed_function_sections": {
+      "loop_bodies": 24,
+      "paths": 21,
+      "sites": 6
+    },
+    "documents": 8,
+    "files": [
+      {
+        "baseline_sha256": "0589504d8598a3e89afc1f41d42dcc2196cbe4bbd5a5d83172d914a8415ee573",
+        "committed_sha256": "0589504d8598a3e89afc1f41d42dcc2196cbe4bbd5a5d83172d914a8415ee573",
+        "config": "spec/M2/lib/go_frontend.json",
+        "path": "spec/M2/facts/morph_batch.go.extracted.json"
+      },
+      {
+        "baseline_sha256": "8ecf9b58906d1485001d43b9afe9c3f0c8cd775f914da650b93c1a55d9519063",
+        "committed_sha256": "8ecf9b58906d1485001d43b9afe9c3f0c8cd775f914da650b93c1a55d9519063",
+        "config": "spec/M2/lib/go_frontend.json",
+        "path": "spec/M2/facts/morph_blob.go.extracted.json"
+      },
+      {
+        "baseline_sha256": "f0f1ee13857f10a38c73f0f2b0e002d5602d2fbea266fdf3c87ffa4cc5e8a89d",
+        "committed_sha256": "f0f1ee13857f10a38c73f0f2b0e002d5602d2fbea266fdf3c87ffa4cc5e8a89d",
+        "config": "spec/M2/lib/go_frontend.json",
+        "path": "spec/M2/facts/morph_derivation.go.extracted.json"
+      },
+      {
+        "baseline_sha256": "17b18d41c8d8fac21216824e7021fe7b1d3bf67af5f2d47e2a0cfabb40738feb",
+        "committed_sha256": "17b18d41c8d8fac21216824e7021fe7b1d3bf67af5f2d47e2a0cfabb40738feb",
+        "config": "spec/M2/lib/go_frontend.json",
+        "path": "spec/M2/facts/morph_genesis.go.extracted.json"
+      },
+      {
+        "baseline_sha256": "1a5060d31bd05a4c1d26a58891b78b8197fcbc0c0c7413aa0ea5d033c9ec7f27",
+        "committed_sha256": "1a5060d31bd05a4c1d26a58891b78b8197fcbc0c0c7413aa0ea5d033c9ec7f27",
+        "config": "spec/M2/lib/go_frontend.json",
+        "path": "spec/M2/facts/morph_nodetypes.go.extracted.json"
+      },
+      {
+        "baseline_sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e",
+        "committed_sha256": "89042f506282b43dc5be12f4c9213e580d2c6b402fffa3b05dfdf9cee50ad88e",
+        "config": "spec/M3/lib/go_frontend.json",
+        "path": "spec/M3/facts/morph_blob.go.extracted.json"
+      },
+      {
+        "baseline_sha256": "f0f1ee13857f10a38c73f0f2b0e002d5602d2fbea266fdf3c87ffa4cc5e8a89d",
+        "committed_sha256": "bf549dc64bb425ab0cd8f8bcb67ad0d8aae1aedcc027b5d5368d37b8035eb392",
+        "config": "spec/M2/lib/go_frontend.json",
+        "path": "spec/M3/facts/morph_derivation.extracted.json"
+      },
+      {
+        "baseline_sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826",
+        "committed_sha256": "04676cfffdbf6d47c1260ff194d4edc216112fda26f037f844426481d0f53826",
+        "config": "spec/M3/lib/go_frontend_03.json",
+        "path": "spec/M3/facts/morph_go03.go.extracted.json"
+      }
+    ]
+  },
+  "rule": "paths.py Reasoner opaque=True for every config (I117's opaque-arithmetic rule alone)"
+}
