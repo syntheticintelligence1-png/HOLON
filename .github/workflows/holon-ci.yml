@@ -359,10 +359,12 @@ jobs:
             # differential of the typed model's steps against the compiled code (P2); the planted false laws rejected
             # and the true laws checked (P3, P4); the refusals just outside each class and the composed route's
             # runner over a refused document (P5); the opt-in, Morph's typed model byte-identical (P6, P11); D1's
-            # section (P8); the regressions (P7, R1). The corpus and spent-target measures (P9, P10; results/M6/I123)
-            # are the key's measured outcome, not run here. Nothing here analyses a sealed target (Q56 (5)).
+            # section (P8); the regressions (P7, R1). Of the corpus and spent-target measures (P9, P10; the committed
+            # aggregates under results/M6/I123), the checks that read them run here; the two recorded misses
+            # (TestCorpus.test_p9_no_run_step_lost, TestSealed.test_p10_aave_runner_fallbacks; docs/iterations/I123.md)
+            # are left out, as I119's P3 and I122's two were. Nothing here analyses a sealed target (Q56 (5)).
             timeout: 60
-            run: python -m unittest tests_m6.test_i123_typed_sort_operations.TestSemantics tests_m6.test_i123_typed_sort_operations.TestDifferential tests_m6.test_i123_typed_sort_operations.TestLaws tests_m6.test_i123_typed_sort_operations.TestRefusal tests_m6.test_i123_typed_sort_operations.TestOptIn tests_m6.test_i123_typed_sort_operations.TestSections tests_m6.test_i123_typed_sort_operations.TestRegressions -v
+            run: python -m unittest tests_m6.test_i123_typed_sort_operations.TestSemantics tests_m6.test_i123_typed_sort_operations.TestDifferential tests_m6.test_i123_typed_sort_operations.TestLaws tests_m6.test_i123_typed_sort_operations.TestRefusal tests_m6.test_i123_typed_sort_operations.TestOptIn tests_m6.test_i123_typed_sort_operations.TestSections tests_m6.test_i123_typed_sort_operations.TestRegressions tests_m6.test_i123_typed_sort_operations.TestCorpus.test_p9_typed_models_not_fewer tests_m6.test_i123_typed_sort_operations.TestCorpus.test_p9_no_law_id_committed tests_m6.test_i123_typed_sort_operations.TestSealed.test_p10_aggregates_only tests_m6.test_i123_typed_sort_operations.TestSealed.test_p10_aave_bind_fallbacks -v
           - name: tests-m6-i120
             # I120 (M6, route C reads beyond the store limit; HUMAN_ANSWERS Q93 (2)): the planted entry (I117's planted
             # Go package as a git entry) run end to end by holon eval holon's run_entry --compose: over a planted small

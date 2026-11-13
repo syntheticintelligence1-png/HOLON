@@ -326,6 +326,11 @@ class TestSealed(unittest.TestCase):
         (t,) = [v for k, v in d["targets"].items() if "aave" in k.lower()]
         self.assertLessEqual(t["runner_fallback_documents"],
                              pred("I123-P10")["expected"]["aave_runner_fallback_documents_at_most"])
+
+    def test_p10_aave_bind_fallbacks(self):
+        # split from test_p10_aave_runner_fallbacks (spec/M6/amendments/I123.jsonl): the bind bound, unchanged
+        d = json.loads(SEALED.read_text(encoding="utf-8"))
+        (t,) = [v for k, v in d["targets"].items() if "aave" in k.lower()]
         self.assertLessEqual(t["bind_fallback_documents"], 3)
 
 
