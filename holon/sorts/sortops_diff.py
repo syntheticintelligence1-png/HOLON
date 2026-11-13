@@ -578,7 +578,7 @@ def _section_probe(fx, n: str, sort_ops: bool) -> tuple[bool, str]:
 
 def pre_i123_commit(root: Path) -> str:
     """The parent of I123's prereg commit (the generator before I123)."""
-    p = subprocess.run(["git", "-C", str(root), "log", "--format=%H", "--grep=^I123 prereg:"], capture_output=True,
+    p = subprocess.run(["git", "-C", str(root), "log", "--format=%H", "--grep=^I123 prereg[: ]"], capture_output=True,
                        text=True, check=True)
     hs = p.stdout.split()
     if not hs:
