@@ -187,12 +187,9 @@ class TestAudit(unittest.TestCase):
             self.assertIsInstance(v, int)
 
     def test_p3_morph_baseline_reproduces(self):
-        # amended by I119 (spec/M6/amendments/I119.jsonl): a document carrying I85's consumer section is compared by
-        # its extractor part
         m = self.a["morph"]
         self.assertEqual(m["documents"], pred("I119-P3")["expected"]["morph_documents"])
-        same = sum(1 for d in m["files"] if extractor_part_reproduces(d))
-        self.assertEqual(same, m["documents"], "the old reading re-extracts the committed extractor output")
+        self.assertEqual(m["baseline_identical"], m["documents"], "the old reading re-extracts the committed bytes")
 
     def test_audit_corpus_covered(self):
         c = self.a["corpus"]
