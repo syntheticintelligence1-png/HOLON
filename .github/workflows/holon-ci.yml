@@ -339,6 +339,16 @@ jobs:
             # key's measured outcome, not run here. Nothing here analyses a sealed target (Q56 (5)).
             timeout: 60
             run: python -m unittest tests_m6.test_i117_go_op_semantics.TestSemantics tests_m6.test_i117_go_op_semantics.TestFrontend tests_m6.test_i117_go_op_semantics.TestPlanted tests_m6.test_i117_go_op_semantics.TestMpipelineBinding tests_m6.test_i117_go_op_semantics.TestRegressions -v
+          - name: tests-m6-i125
+            # I125 (M6 follow-on, F-M6-05's consistency; HUMAN_ANSWERS Q105 (6), Q117): under the opt-in
+            # run_unbound_reason "goops" a Go-op law that cannot be bound because it names an op goops refuses is
+            # UNKNOWN with goops' refusal (class and reason, read from the generated model) as its reason. The planted
+            # package through the composed route's stages: goops' output (P1), the refused ops' laws (P2), the derived
+            # law set and every other record unchanged by the opt-in (P3), the base code's outputs without it (P4, a git
+            # worktree at the key's base), the units (P5) and the regressions (P6). The corpus measures (P7-P9;
+            # results/M6/I125) are the key's measured outcome, not run here. Nothing here analyses a sealed target.
+            timeout: 60
+            run: python -m unittest tests_m6.test_i125_derive_goops_consistency.TestGenerator tests_m6.test_i125_derive_goops_consistency.TestPlanted tests_m6.test_i125_derive_goops_consistency.TestUnits tests_m6.test_i125_derive_goops_consistency.TestRegressions -v
           - name: tests-m6-i119
             # I119 (M6, Go reasoner soundness; HUMAN_ANSWERS Q93 (1)): the planted package (tests_m6/fixtures/i119):
             # HUMAN_ANSWERS Q97: I119 lands (a) only; the tests of (b)'s default (TestFixture's default-mode checks,
