@@ -4,7 +4,7 @@
 
 A measurement that builds nothing (spec/M6/predictions/I118.json thresholds.families). It reads, per target, only what
 the composed run wrote before any decision, from the vault copy of each row's output (<vault>/out/<id>/: laws/
-DERIVATION.json, gen/sorts/types.json and opaque.json, gen/disch/closure.json and fallback.json, gen/evidence.json, the
+DERIVATION.json (or <vault>/laws/<id>/laws/, where withhold() moves it), gen/sorts/types.json and opaque.json, gen/disch/closure.json and fallback.json, gen/evidence.json, the
 generated sidecars undo.json and fact.json). For every (rule, subform) of the protocol's catalog it records the laws
 derived and the family's input as counts, and a reason: derived (laws > 0); no_input (an input count is 0: the family
 covers nothing the target declares, a reported coverage limit); input_no_law (inputs present, no law); part_absent (a
@@ -65,7 +65,8 @@ def inputs(e: Path) -> dict:
 
 
 def families(e: Path, catalog: dict) -> dict:
-    der = load(e / "laws" / "DERIVATION.json") or {}
+    # withhold() (Q56) moves a row's laws into <vault>/laws/<id>/laws; derive's DERIVATION.json is read from either
+    der = load(e / "laws" / "DERIVATION.json") or load(e.parent.parent / "laws" / e.name / "laws" / "DERIVATION.json") or {}
     count: dict = {}
     for x in der.get("laws") or []:
         k = f"{x.get('rule')}/{x.get('subform')}"
