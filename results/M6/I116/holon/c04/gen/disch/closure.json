@@ -1,0 +1,403 @@
+{
+  "document": "disch_closure",
+  "inputs": [
+    {
+      "path": "results/M6/I116/holon/c04/facts/go_1_go_1.KeyLengthIterator.extracted.json",
+      "sha256": "c0b5e2107011cb2e97b1dbd0eb0d7bdac60ec1f41f009c185ff2c59c92e2a586"
+    },
+    {
+      "path": "results/M6/I116/holon/c04/facts/go_1_go_1.ResettableFreezer.extracted.json",
+      "sha256": "6026ea64323ded3bd6c143108b16949537d297a426a9dada1c918163823b123f"
+    },
+    {
+      "path": "results/M6/I116/holon/c04/facts/go_1_go_1.chainFreezer.extracted.json",
+      "sha256": "30fc2b79f63d435962ef929a329e834e87327bc7d9ccaa8b4ea42afd5962bdfb"
+    },
+    {
+      "path": "results/M6/I116/holon/c04/facts/go_1_go_1.freezerTableBatch.extracted.json",
+      "sha256": "c2a5cbe8fd106d315345d79091967fc59009aceab025c58f69992d2ddee2de76"
+    },
+    {
+      "path": "results/M6/I116/holon/c04/facts/go_1_go_1.freezerdb.extracted.json",
+      "sha256": "a1f83950146b0ddd6c03c2379aa9f1bde348f51a2cb5d4f58f6973013af32d69"
+    },
+    {
+      "path": "results/M6/I116/holon/c04/facts/go_1_go_1.nofreezedb.extracted.json",
+      "sha256": "73bad1a8662b8c503a743301fa1e6db634f39bd2a2b18760e7be14fff9cc2cf4"
+    },
+    {
+      "path": "results/M6/I116/holon/c04/facts/go_1_go_1.stat.extracted.json",
+      "sha256": "48b38f8e4f387b5ea9cb488988129249f57323fe27ec7f742bfed827b81e1eb9"
+    },
+    {
+      "path": "results/M6/I116/holon/c04/facts/go_1_go_1.tableIterator.extracted.json",
+      "sha256": "888b1be9a64f6bba70373fb9fd4a377cb3dd0b3faef78d85a7dbc14fd30c9927"
+    },
+    {
+      "path": "results/M6/I116/holon/c04/facts/go_1_go_1.writeBuffer.extracted.json",
+      "sha256": "f94412a18a4bd8b528d8d5a378173f1d3c9e37607c019559c32e69d1033aa988"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.KeyLengthIterator.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Next"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Next"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "Iterator"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Next": null
+      },
+      "r0": {
+        "Iterator": [
+          0
+        ],
+        "requiredKeyLength": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.ResettableFreezer.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Ancient",
+            "AncientRange",
+            "AncientSize",
+            "Ancients",
+            "Close",
+            "HasAncient",
+            "MigrateTable",
+            "ModifyAncients",
+            "ReadAncients",
+            "Reset",
+            "Sync",
+            "Tail",
+            "TruncateHead",
+            "TruncateTail"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Ancient",
+            "AncientRange",
+            "AncientSize",
+            "Ancients",
+            "Close",
+            "HasAncient",
+            "MigrateTable",
+            "ModifyAncients",
+            "ReadAncients",
+            "Reset",
+            "Sync",
+            "Tail",
+            "TruncateHead",
+            "TruncateTail"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "datadir",
+            "freezer",
+            "lock",
+            "opener"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Ancient": null,
+        "AncientRange": null,
+        "AncientSize": null,
+        "Ancients": null,
+        "Close": null,
+        "HasAncient": null,
+        "MigrateTable": null,
+        "ModifyAncients": null,
+        "ReadAncients": null,
+        "Reset": null,
+        "Sync": null,
+        "Tail": null,
+        "TruncateHead": null,
+        "TruncateTail": null
+      },
+      "r0": {
+        "datadir": [
+          0
+        ],
+        "freezer": [
+          0
+        ],
+        "lock": [
+          0
+        ],
+        "opener": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.chainFreezer.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Close"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Close"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "Freezer",
+            "quit",
+            "trigger",
+            "wg"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Close": null
+      },
+      "r0": {
+        "Freezer": [
+          0
+        ],
+        "quit": [
+          0
+        ],
+        "trigger": [
+          0
+        ],
+        "wg": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.freezerTableBatch.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Append",
+            "AppendRaw"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Append",
+            "AppendRaw"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "curItem",
+            "dataBuffer",
+            "encBuffer",
+            "indexBuffer",
+            "sb",
+            "t",
+            "totalBytes"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Append": null,
+        "AppendRaw": null
+      },
+      "r0": {
+        "curItem": [
+          0
+        ],
+        "dataBuffer": [
+          0
+        ],
+        "encBuffer": [
+          0
+        ],
+        "indexBuffer": [
+          0
+        ],
+        "sb": [
+          0
+        ],
+        "t": [
+          0
+        ],
+        "totalBytes": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.freezerdb.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "AncientStore": [
+          0
+        ],
+        "KeyValueStore": [
+          0
+        ],
+        "ancientRoot": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.nofreezedb.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "ReadAncients"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "ReadAncients"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "KeyValueStore"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "ReadAncients": null
+      },
+      "r0": {
+        "KeyValueStore": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.stat.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Add"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Add"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "count",
+            "size"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Add": null
+      },
+      "r0": {
+        "count": [
+          0
+        ],
+        "size": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.tableIterator.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "iter": [
+          0
+        ],
+        "prefix": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.writeBuffer.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Reset",
+            "Write"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Reset",
+            "Write"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "data"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Reset": null,
+        "Write": null
+      },
+      "r0": {
+        "data": [
+          0
+        ]
+      }
+    }
+  },
+  "sidecar": {
+    "path": "results/M6/I116/holon/c04/sidecars/disch.json",
+    "sha256": "8ef13188dcc647eb09e41ff2136d7c332233d8ea600615dfcba59e6f06586500"
+  }
+}

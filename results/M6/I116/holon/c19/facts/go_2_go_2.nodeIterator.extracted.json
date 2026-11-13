@@ -1,0 +1,2767 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.nodeIterator",
+      "edges": [],
+      "effects": [
+        {
+          "family": "resolver",
+          "src": "trie/iterator.go:162"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "AddResolver",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "resolver",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "resolver": [
+          "unknown",
+          "trie/iterator.go:162",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "trie/iterator.go:162",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "resolver",
+          "path": [],
+          "seq": 0,
+          "src": "trie/iterator.go:162",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:162",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.nodeIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "storage",
+                      "err"
+                    ],
+                    [
+                      "unknown",
+                      "trie/iterator.go:228",
+                      "nonnilerr"
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "trie/iterator.go:231",
+                  "ok"
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "trie/iterator.go:232",
+                "member"
+              ],
+              0
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "&&",
+                    [
+                      "!",
+                      [
+                        "==",
+                        [
+                          "storage",
+                          "err"
+                        ],
+                        [
+                          "unknown",
+                          "trie/iterator.go:228",
+                          "nonnilerr"
+                        ]
+                      ]
+                    ],
+                    [
+                      "unknown",
+                      "trie/iterator.go:231",
+                      "ok"
+                    ]
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "trie/iterator.go:232",
+                    "member"
+                  ],
+                  0
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "trie/iterator.go:232"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "storage",
+                      "err"
+                    ],
+                    [
+                      "unknown",
+                      "trie/iterator.go:228",
+                      "nonnilerr"
+                    ]
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "unknown",
+                    "trie/iterator.go:231",
+                    "ok"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "storage",
+                "err"
+              ],
+              0
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "&&",
+                    [
+                      "!",
+                      [
+                        "==",
+                        [
+                          "storage",
+                          "err"
+                        ],
+                        [
+                          "unknown",
+                          "trie/iterator.go:228",
+                          "nonnilerr"
+                        ]
+                      ]
+                    ],
+                    [
+                      "!",
+                      [
+                        "unknown",
+                        "trie/iterator.go:231",
+                        "ok"
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "storage",
+                    "err"
+                  ],
+                  0
+                ]
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "trie/iterator.go:234"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Error",
+      "order": [
+        [
+          "guard",
+          "trie/iterator.go:232",
+          0
+        ],
+        [
+          "guard",
+          "trie/iterator.go:234",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "trie/iterator.go:227",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.nodeIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Hash",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "==",
+          [
+            "call",
+            "len",
+            [
+              "unknown",
+              "trie/iterator.go:167",
+              "ptr"
+            ]
+          ],
+          0
+        ],
+        0,
+        [
+          "unknown",
+          "trie/iterator.go:170",
+          "load"
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:166",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.nodeIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Leaf",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "s>",
+          [
+            "len",
+            [
+              "storage",
+              "path"
+            ]
+          ],
+          0
+        ],
+        [
+          "==",
+          [
+            "unknown",
+            "trie/encoding.go:144",
+            "load"
+          ],
+          16
+        ],
+        0
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:180",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.nodeIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "s>",
+                [
+                  "call",
+                  "len",
+                  [
+                    "unknown",
+                    "trie/iterator.go:194",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "unknown",
+                  "trie/iterator.go:195",
+                  "ok"
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "s>",
+                    [
+                      "call",
+                      "len",
+                      [
+                        "unknown",
+                        "trie/iterator.go:194",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "!",
+                    [
+                      "unknown",
+                      "trie/iterator.go:195",
+                      "ok"
+                    ]
+                  ]
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            },
+            {
+              "expr": [
+                "s>",
+                [
+                  "call",
+                  "len",
+                  [
+                    "unknown",
+                    "trie/iterator.go:194",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "not at leaf",
+          "src": "trie/iterator.go:199"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "LeafBlob",
+      "order": [
+        [
+          "guard",
+          "trie/iterator.go:199",
+          0
+        ],
+        [
+          "guard",
+          "trie/iterator.go:199",
+          1
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "unknown",
+        "trie/iterator.go:195",
+        "typeassert"
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:193",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.nodeIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "s>",
+                [
+                  "call",
+                  "len",
+                  [
+                    "unknown",
+                    "trie/iterator.go:185",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "unknown",
+                "trie/iterator.go:186",
+                "ok"
+              ],
+              [
+                "s>",
+                [
+                  "len",
+                  [
+                    "storage",
+                    "path"
+                  ]
+                ],
+                0
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "trie/encoding.go:144",
+                  "load"
+                ],
+                16
+              ],
+              [
+                "!=",
+                [
+                  "sext",
+                  64,
+                  [
+                    "&",
+                    [
+                      "len",
+                      [
+                        "unknown",
+                        "trie/encoding.go:112",
+                        "slice"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                0
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "s>",
+                    [
+                      "call",
+                      "len",
+                      [
+                        "unknown",
+                        "trie/iterator.go:185",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "unknown",
+                    "trie/iterator.go:186",
+                    "ok"
+                  ],
+                  [
+                    "s>",
+                    [
+                      "len",
+                      [
+                        "storage",
+                        "path"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "trie/encoding.go:144",
+                      "load"
+                    ],
+                    16
+                  ],
+                  [
+                    "!=",
+                    [
+                      "sext",
+                      64,
+                      [
+                        "&",
+                        [
+                          "len",
+                          [
+                            "unknown",
+                            "trie/encoding.go:112",
+                            "slice"
+                          ]
+                        ],
+                        1
+                      ]
+                    ],
+                    0
+                  ]
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            },
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "s>",
+                    [
+                      "call",
+                      "len",
+                      [
+                        "unknown",
+                        "trie/iterator.go:185",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "unknown",
+                    "trie/iterator.go:186",
+                    "ok"
+                  ],
+                  [
+                    "s>",
+                    [
+                      "len",
+                      [
+                        "storage",
+                        "path"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "trie/encoding.go:144",
+                        "load"
+                      ],
+                      16
+                    ]
+                  ],
+                  [
+                    "!=",
+                    [
+                      "sext",
+                      64,
+                      [
+                        "&",
+                        [
+                          "len",
+                          [
+                            "storage",
+                            "path"
+                          ]
+                        ],
+                        1
+                      ]
+                    ],
+                    0
+                  ]
+                ]
+              ],
+              "seq": 1,
+              "stack": []
+            },
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "s>",
+                    [
+                      "call",
+                      "len",
+                      [
+                        "unknown",
+                        "trie/iterator.go:185",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "unknown",
+                    "trie/iterator.go:186",
+                    "ok"
+                  ],
+                  [
+                    "!",
+                    [
+                      "s>",
+                      [
+                        "len",
+                        [
+                          "storage",
+                          "path"
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!=",
+                    [
+                      "sext",
+                      64,
+                      [
+                        "&",
+                        [
+                          "len",
+                          [
+                            "storage",
+                            "path"
+                          ]
+                        ],
+                        1
+                      ]
+                    ],
+                    0
+                  ]
+                ]
+              ],
+              "seq": 2,
+              "stack": []
+            }
+          ],
+          "reason": "can't convert hex key of odd length",
+          "src": "trie/encoding.go:115"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "s>",
+                [
+                  "call",
+                  "len",
+                  [
+                    "unknown",
+                    "trie/iterator.go:185",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "unknown",
+                  "trie/iterator.go:186",
+                  "ok"
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "s>",
+                    [
+                      "call",
+                      "len",
+                      [
+                        "unknown",
+                        "trie/iterator.go:185",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "!",
+                    [
+                      "unknown",
+                      "trie/iterator.go:186",
+                      "ok"
+                    ]
+                  ]
+                ]
+              ],
+              "seq": 3,
+              "stack": []
+            },
+            {
+              "expr": [
+                "s>",
+                [
+                  "call",
+                  "len",
+                  [
+                    "unknown",
+                    "trie/iterator.go:185",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              "seq": 4,
+              "stack": []
+            }
+          ],
+          "reason": "not at leaf",
+          "src": "trie/iterator.go:190"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "LeafKey",
+      "order": [
+        [
+          "guard",
+          "trie/encoding.go:115",
+          0
+        ],
+        [
+          "guard",
+          "trie/encoding.go:115",
+          1
+        ],
+        [
+          "guard",
+          "trie/encoding.go:115",
+          2
+        ],
+        [
+          "guard",
+          "trie/iterator.go:190",
+          0
+        ],
+        [
+          "guard",
+          "trie/iterator.go:190",
+          1
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "&&",
+          [
+            "s>",
+            [
+              "call",
+              "len",
+              [
+                "unknown",
+                "trie/iterator.go:185",
+                "ptr"
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "trie/iterator.go:186",
+            "ok"
+          ],
+          [
+            "s>",
+            [
+              "len",
+              [
+                "storage",
+                "path"
+              ]
+            ],
+            0
+          ],
+          [
+            "==",
+            [
+              "unknown",
+              "trie/encoding.go:144",
+              "load"
+            ],
+            16
+          ],
+          [
+            "!",
+            [
+              "!=",
+              [
+                "sext",
+                64,
+                [
+                  "&",
+                  [
+                    "len",
+                    [
+                      "unknown",
+                      "trie/encoding.go:112",
+                      "slice"
+                    ]
+                  ],
+                  1
+                ]
+              ],
+              0
+            ]
+          ]
+        ],
+        [
+          "unknown",
+          "trie/iterator.go:187",
+          "local"
+        ],
+        [
+          "?",
+          [
+            "&&",
+            [
+              "s>",
+              [
+                "call",
+                "len",
+                [
+                  "unknown",
+                  "trie/iterator.go:185",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:186",
+              "ok"
+            ],
+            [
+              "s>",
+              [
+                "len",
+                [
+                  "storage",
+                  "path"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "trie/encoding.go:144",
+                  "load"
+                ],
+                16
+              ]
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "sext",
+                  64,
+                  [
+                    "&",
+                    [
+                      "len",
+                      [
+                        "storage",
+                        "path"
+                      ]
+                    ],
+                    1
+                  ]
+                ],
+                0
+              ]
+            ]
+          ],
+          [
+            "unknown",
+            "trie/iterator.go:187",
+            "local"
+          ],
+          [
+            "unknown",
+            "trie/iterator.go:187",
+            "local"
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:184",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.nodeIterator",
+      "edges": [],
+      "effects": [
+        {
+          "family": "err",
+          "src": "trie/iterator.go:217"
+        },
+        {
+          "family": "path",
+          "src": "trie/iterator.go:217"
+        },
+        {
+          "family": "resolver",
+          "src": "trie/iterator.go:217"
+        },
+        {
+          "family": "stack",
+          "src": "trie/iterator.go:217"
+        },
+        {
+          "family": "trie",
+          "src": "trie/iterator.go:217"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "LeafProof",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "err": [
+          "?",
+          [
+            "&&",
+            [
+              "s>",
+              [
+                "call",
+                "len",
+                [
+                  "unknown",
+                  "trie/iterator.go:203",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:204",
+              "ok"
+            ]
+          ],
+          [
+            "unknown",
+            "trie/iterator.go:217",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "s>",
+                [
+                  "call",
+                  "len",
+                  [
+                    "unknown",
+                    "trie/iterator.go:203",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "unknown",
+                  "trie/iterator.go:204",
+                  "ok"
+                ]
+              ]
+            ],
+            [
+              "storage",
+              "err"
+            ],
+            [
+              "?",
+              [
+                "!",
+                [
+                  "s>",
+                  [
+                    "call",
+                    "len",
+                    [
+                      "unknown",
+                      "trie/iterator.go:203",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "storage",
+                "err"
+              ],
+              [
+                "storage",
+                "err"
+              ]
+            ]
+          ]
+        ],
+        "path": [
+          "?",
+          [
+            "&&",
+            [
+              "s>",
+              [
+                "call",
+                "len",
+                [
+                  "unknown",
+                  "trie/iterator.go:203",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:204",
+              "ok"
+            ]
+          ],
+          [
+            "unknown",
+            "trie/iterator.go:217",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "s>",
+                [
+                  "call",
+                  "len",
+                  [
+                    "unknown",
+                    "trie/iterator.go:203",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "unknown",
+                  "trie/iterator.go:204",
+                  "ok"
+                ]
+              ]
+            ],
+            [
+              "storage",
+              "path"
+            ],
+            [
+              "?",
+              [
+                "!",
+                [
+                  "s>",
+                  [
+                    "call",
+                    "len",
+                    [
+                      "unknown",
+                      "trie/iterator.go:203",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "storage",
+                "path"
+              ],
+              [
+                "storage",
+                "path"
+              ]
+            ]
+          ]
+        ],
+        "resolver": [
+          "?",
+          [
+            "&&",
+            [
+              "s>",
+              [
+                "call",
+                "len",
+                [
+                  "unknown",
+                  "trie/iterator.go:203",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:204",
+              "ok"
+            ]
+          ],
+          [
+            "unknown",
+            "trie/iterator.go:217",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "s>",
+                [
+                  "call",
+                  "len",
+                  [
+                    "unknown",
+                    "trie/iterator.go:203",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "unknown",
+                  "trie/iterator.go:204",
+                  "ok"
+                ]
+              ]
+            ],
+            [
+              "storage",
+              "resolver"
+            ],
+            [
+              "?",
+              [
+                "!",
+                [
+                  "s>",
+                  [
+                    "call",
+                    "len",
+                    [
+                      "unknown",
+                      "trie/iterator.go:203",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "storage",
+                "resolver"
+              ],
+              [
+                "storage",
+                "resolver"
+              ]
+            ]
+          ]
+        ],
+        "stack": [
+          "?",
+          [
+            "&&",
+            [
+              "s>",
+              [
+                "call",
+                "len",
+                [
+                  "unknown",
+                  "trie/iterator.go:203",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:204",
+              "ok"
+            ]
+          ],
+          [
+            "unknown",
+            "trie/iterator.go:217",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "s>",
+                [
+                  "call",
+                  "len",
+                  [
+                    "unknown",
+                    "trie/iterator.go:203",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "unknown",
+                  "trie/iterator.go:204",
+                  "ok"
+                ]
+              ]
+            ],
+            [
+              "storage",
+              "stack"
+            ],
+            [
+              "?",
+              [
+                "!",
+                [
+                  "s>",
+                  [
+                    "call",
+                    "len",
+                    [
+                      "unknown",
+                      "trie/iterator.go:203",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "storage",
+                "stack"
+              ],
+              [
+                "storage",
+                "stack"
+              ]
+            ]
+          ]
+        ],
+        "trie": [
+          "?",
+          [
+            "&&",
+            [
+              "s>",
+              [
+                "call",
+                "len",
+                [
+                  "unknown",
+                  "trie/iterator.go:203",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:204",
+              "ok"
+            ]
+          ],
+          [
+            "unknown",
+            "trie/iterator.go:217",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "s>",
+                [
+                  "call",
+                  "len",
+                  [
+                    "unknown",
+                    "trie/iterator.go:203",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "unknown",
+                  "trie/iterator.go:204",
+                  "ok"
+                ]
+              ]
+            ],
+            [
+              "storage",
+              "trie"
+            ],
+            [
+              "?",
+              [
+                "!",
+                [
+                  "s>",
+                  [
+                    "call",
+                    "len",
+                    [
+                      "unknown",
+                      "trie/iterator.go:203",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "storage",
+                "trie"
+              ],
+              [
+                "storage",
+                "trie"
+              ]
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "trie/iterator.go:202",
+      "writes": [
+        {
+          "cond": [
+            "&&",
+            [
+              "s>",
+              [
+                "call",
+                "len",
+                [
+                  "unknown",
+                  "trie/iterator.go:203",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:204",
+              "ok"
+            ]
+          ],
+          "family": "err",
+          "path": [],
+          "seq": 0,
+          "src": "trie/iterator.go:217",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:217",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "s>",
+              [
+                "call",
+                "len",
+                [
+                  "unknown",
+                  "trie/iterator.go:203",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:204",
+              "ok"
+            ]
+          ],
+          "family": "path",
+          "path": [],
+          "seq": 1,
+          "src": "trie/iterator.go:217",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:217",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "s>",
+              [
+                "call",
+                "len",
+                [
+                  "unknown",
+                  "trie/iterator.go:203",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:204",
+              "ok"
+            ]
+          ],
+          "family": "resolver",
+          "path": [],
+          "seq": 2,
+          "src": "trie/iterator.go:217",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:217",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "s>",
+              [
+                "call",
+                "len",
+                [
+                  "unknown",
+                  "trie/iterator.go:203",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:204",
+              "ok"
+            ]
+          ],
+          "family": "stack",
+          "path": [],
+          "seq": 3,
+          "src": "trie/iterator.go:217",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:217",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "s>",
+              [
+                "call",
+                "len",
+                [
+                  "unknown",
+                  "trie/iterator.go:203",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:204",
+              "ok"
+            ]
+          ],
+          "family": "trie",
+          "path": [],
+          "seq": 4,
+          "src": "trie/iterator.go:217",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:217",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.nodeIterator",
+      "edges": [],
+      "effects": [
+        {
+          "family": "err",
+          "src": "trie/iterator.go:241"
+        },
+        {
+          "family": "path",
+          "src": "trie/iterator.go:241"
+        },
+        {
+          "family": "resolver",
+          "src": "trie/iterator.go:241"
+        },
+        {
+          "family": "stack",
+          "src": "trie/iterator.go:241"
+        },
+        {
+          "family": "trie",
+          "src": "trie/iterator.go:241"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "Next",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "descend",
+          "type": "bool",
+          "width": 8
+        }
+      ],
+      "payable": false,
+      "post": {
+        "err": [
+          "unknown",
+          "trie/iterator.go:241",
+          "havoc"
+        ],
+        "path": [
+          "unknown",
+          "trie/iterator.go:241",
+          "havoc"
+        ],
+        "resolver": [
+          "unknown",
+          "trie/iterator.go:241",
+          "havoc"
+        ],
+        "stack": [
+          "unknown",
+          "trie/iterator.go:241",
+          "havoc"
+        ],
+        "trie": [
+          "unknown",
+          "trie/iterator.go:241",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "trie/iterator.go:241",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "trie",
+          "path": [],
+          "seq": 0,
+          "src": "trie/iterator.go:241",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:241",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "stack",
+          "path": [],
+          "seq": 1,
+          "src": "trie/iterator.go:241",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:241",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "path",
+          "path": [],
+          "seq": 2,
+          "src": "trie/iterator.go:241",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:241",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "err",
+          "path": [],
+          "seq": 3,
+          "src": "trie/iterator.go:241",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:241",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "resolver",
+          "path": [],
+          "seq": 4,
+          "src": "trie/iterator.go:241",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:241",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.nodeIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Parent",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "==",
+          [
+            "call",
+            "len",
+            [
+              "unknown",
+              "trie/iterator.go:174",
+              "ptr"
+            ]
+          ],
+          0
+        ],
+        0,
+        [
+          "unknown",
+          "trie/iterator.go:177",
+          "load"
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:173",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.nodeIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Path",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "storage",
+        "path"
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:223",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-kv",
+      "text": "A KV store maps key bytes to value bytes; Get of an absent key is the empty value, Has(k) is Get(k) != empty (a stored value is never empty), Delete writes the empty value. A KV call's error result is free; a Set or Delete that returns an error is modelled as having written."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/trie.nodeIterator",
+  "debt": [
+    {
+      "action": "LeafKey",
+      "kind": "loop",
+      "src": "trie/encoding.go:123",
+      "what": "loop not iterated; havocked: "
+    },
+    {
+      "action": "LeafProof",
+      "kind": "defer",
+      "src": "trie/iterator.go:220",
+      "what": "panic under a deferred recover: not a guard"
+    },
+    {
+      "action": "LeafProof",
+      "kind": "loop",
+      "src": "trie/iterator.go:207",
+      "what": "loop not iterated; havocked: err,path,resolver,stack,trie"
+    },
+    {
+      "action": "Next",
+      "kind": "loop",
+      "src": "trie/encoding.go:97",
+      "what": "loop not iterated; havocked: "
+    },
+    {
+      "action": "Next",
+      "kind": "loop",
+      "src": "trie/iterator.go:266",
+      "what": "loop not iterated; havocked: err,path,resolver,stack,trie"
+    },
+    {
+      "action": "Next",
+      "kind": "loop",
+      "src": "trie/iterator.go:301",
+      "what": "loop not iterated; havocked: err,path,resolver,stack,trie"
+    },
+    {
+      "action": "Next",
+      "kind": "path_limit",
+      "src": "trie/iterator.go:241",
+      "what": "more than 512 paths: every family havocked, no guard"
+    }
+  ],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I116/holon/c19/sidecars/go_2_machines.json",
+      "sha256": "4cc684b8d33db1391bf9e52c2f381630e9447ca45acde9d94f393bea6420fbef"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "415a3d65effe7ccbd299a138fab0551b1553d581ebaf64d9fd6b26a1afd514b2",
+        "unit": "trie/committer.go"
+      },
+      {
+        "sha256": "909e0fc61e18b06cb50895705a152423dc55586e98740cabf2d853aaf845d458",
+        "unit": "trie/database.go"
+      },
+      {
+        "sha256": "0465eca93af8b3a5c296462f8f9a0f47d513b4c31c97d486a0549498d82bd8c8",
+        "unit": "trie/encoding.go"
+      },
+      {
+        "sha256": "ded31351c610a31c44b32cd65d66367175bc44f2b6499465e5b8bd88be5c578a",
+        "unit": "trie/errors.go"
+      },
+      {
+        "sha256": "996bafb781716fe4f3f58d73e901d33180b04b3ab1f34c05b5a0b90216037707",
+        "unit": "trie/hasher.go"
+      },
+      {
+        "sha256": "0c8d11dd6bbfd980986fb867e1035a9a3cd1ce51399c55ed4d59f4b403bef94e",
+        "unit": "trie/iterator.go"
+      },
+      {
+        "sha256": "7d1471d4e564d12c364c34b3b61bebf75b66b47017562adb96257b7abc8bae6b",
+        "unit": "trie/node.go"
+      },
+      {
+        "sha256": "eb9cfbd7f15079e81bc9f06aaf2bb0411fa705ada6a80ac52d6f0093a7b07c14",
+        "unit": "trie/proof.go"
+      },
+      {
+        "sha256": "cd43a4788d9a3c0c7701f60c725384a8951c1dcc42aba2c4997c291cc4d34088",
+        "unit": "trie/secure_trie.go"
+      },
+      {
+        "sha256": "0aafc8edcff2a1de3880ea901e14d956683c0cf4f69511eb2f2f22a0cea14dfb",
+        "unit": "trie/stacktrie.go"
+      },
+      {
+        "sha256": "6324ca30e0bcb6851beee5d3b2b560081f4cc437e759669d5c96b64b6d0e4e4d",
+        "unit": "trie/sync.go"
+      },
+      {
+        "sha256": "2e7f468eeec986cda27570a66a8c76fe51a0a0039201d2c52753395216c4be99",
+        "unit": "trie/sync_bloom.go"
+      },
+      {
+        "sha256": "cb060c3ba2dd61b3ff6b08972891b185dccd8f5b188c11c23113019841cce2e3",
+        "unit": "trie/trie.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "trie.nodeIterator",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "AddResolver": {
+        "declared_in": "trie.nodeIterator",
+        "inputs": [
+          {
+            "name": "resolver",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "AddResolver",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Error": {
+        "declared_in": "trie.nodeIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Error",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Hash": {
+        "declared_in": "trie.nodeIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Hash",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Leaf": {
+        "declared_in": "trie.nodeIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Leaf",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "LeafBlob": {
+        "declared_in": "trie.nodeIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "LeafBlob",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bytes"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "LeafKey": {
+        "declared_in": "trie.nodeIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "LeafKey",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bytes"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "LeafProof": {
+        "declared_in": "trie.nodeIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "LeafProof",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Next": {
+        "declared_in": "trie.nodeIterator",
+        "inputs": [
+          {
+            "name": "descend",
+            "type": "bool"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "Next",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Parent": {
+        "declared_in": "trie.nodeIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Parent",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Path": {
+        "declared_in": "trie.nodeIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Path",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bytes"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "trie.nodeIterator",
+          "label": "trie",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "trie.nodeIterator",
+          "label": "stack",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "trie.nodeIterator",
+          "label": "path",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_bytes_storage"
+        },
+        {
+          "contract": "trie.nodeIterator",
+          "label": "err",
+          "offset": 0,
+          "slot": "3",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "trie.nodeIterator",
+          "label": "resolver",
+          "offset": 0,
+          "slot": "4",
+          "type": "t_mapping(t_bytes_memory_ptr,t_bytes_storage)"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        },
+        "t_bytes_memory_ptr": {
+          "encoding": "bytes",
+          "label": "bytes",
+          "numberOfBytes": "32"
+        },
+        "t_bytes_storage": {
+          "encoding": "bytes",
+          "label": "bytes",
+          "numberOfBytes": "32"
+        },
+        "t_mapping(t_bytes_memory_ptr,t_bytes_storage)": {
+          "encoding": "mapping",
+          "key": "t_bytes_memory_ptr",
+          "label": "mapping(bytes => bytes)",
+          "numberOfBytes": "32",
+          "value": "t_bytes_storage"
+        }
+      }
+    },
+    "linearization": [
+      "trie.nodeIterator"
+    ],
+    "members": {
+      "(*github.com/ethereum/go-ethereum/trie.Database).node": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/trie.Database).node",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x3a105625",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/trie.Trie).resolveHash": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "bytes"
+            },
+            {
+              "name": "a2",
+              "type": "bytes"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/trie.Trie).resolveHash",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x3697e93c",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/trie.hasher).hash": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "bool"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/trie.hasher).hash",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x5b624740",
+          "visibility": "external"
+        }
+      ],
+      "(*sync.Pool).Get": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*sync.Pool).Get",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x2aca348c",
+          "visibility": "external"
+        }
+      ],
+      "(github.com/ethereum/go-ethereum/common.Hash).Bytes": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(github.com/ethereum/go-ethereum/common.Hash).Bytes",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "selector": "0x729dd453",
+          "visibility": "external"
+        }
+      ],
+      "fmt.Errorf": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "string"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "fmt.Errorf",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x86082f5f",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/common.BytesToHash": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "bytes"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/common.BytesToHash",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x66adce96",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/ethdb.KeyValueStore.Get": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "bytes"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/ethdb.KeyValueStore.Get",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x2e03ec4a",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/rlp.CountValues": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "bytes"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/rlp.CountValues",
+          "outputs": [
+            {
+              "name": "",
+              "type": "int64"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xea28e113",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/rlp.SplitList": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "bytes"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/rlp.SplitList",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes"
+            },
+            {
+              "name": "",
+              "type": "bytes"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x7d3eee46",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.decodeFull": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "bytes"
+            },
+            {
+              "name": "a1",
+              "type": "bytes"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.decodeFull",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x1ee77f6b",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.decodeNode": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "bytes"
+            },
+            {
+              "name": "a1",
+              "type": "bytes"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.decodeNode",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xaea2d4e1",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.decodeShort": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "bytes"
+            },
+            {
+              "name": "a1",
+              "type": "bytes"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.decodeShort",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xe059b8f9",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.newHasher": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "bool"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.newHasher",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x28dfad79",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.wrapError": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "string"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.wrapError",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x5e3ec6bb",
+          "visibility": "external"
+        }
+      ],
+      "len": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "len",
+          "outputs": [
+            {
+              "name": "",
+              "type": "int64"
+            }
+          ],
+          "selector": "0xccc84848",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "trie/committer.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "trie",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "stack",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "path",
+      "offset": 0,
+      "slot": 2,
+      "value": "bytes"
+    },
+    {
+      "kind": "scalar",
+      "name": "err",
+      "offset": 0,
+      "slot": 3,
+      "value": "bytes32"
+    },
+    {
+      "key": "bytes",
+      "kind": "mapping",
+      "name": "resolver",
+      "offset": 0,
+      "slot": 4,
+      "value": "bytes"
+    }
+  ],
+  "target": {
+    "commit": "42bc1944a17260d75dc1e33e1571c804b9a4a88a",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/trie.nodeIterator"
+  }
+}
