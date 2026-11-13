@@ -1,0 +1,64 @@
+{
+  "carriers": [
+    {
+      "base_type": "KeyValueStore",
+      "cls": "rep",
+      "domains": [
+        "ok_rawdb_PushUncleanShutdownMarker"
+      ],
+      "id": "KeyValueStore",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_SliceUint64_Uint64_Error",
+      "cls": "rep",
+      "id": "R_SliceUint64_Uint64_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_PushUncleanShutdownMarker",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_PushUncleanShutdownMarker",
+      "kind": "CODEC",
+      "model_fn": "rawdb_PushUncleanShutdownMarker",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "github.com/ethereum/go-ethereum/core/rawdb.PushUncleanShutdownMarker"
+        }
+      ],
+      "src": "KeyValueStore",
+      "tgt": "R_SliceUint64_Uint64_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/key_value_store_ops.json",
+  "facts_sha256": "61f3103f35b1555d352fdf1ea54ca0d0e161d19e0b9756c68fc13290eee3bc96",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "key_value_store_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

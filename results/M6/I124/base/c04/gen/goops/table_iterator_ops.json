@@ -1,0 +1,77 @@
+{
+  "carrier": {
+    "id": "tableIterator",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/core/rawdb.tableIterator"
+  },
+  "component": "table_iterator_ops",
+  "document": "results/M6/base/holon/c04/facts/go_1.go.extracted.json",
+  "document_sha256": "1f2d9d628505a8cb52af8213a8dd7d5fd9707f86c69232891ac22f00a124c61b",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "rawdb_tableIterator_Error": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "iter",
+          "type": "*github.com/ethereum/go-ethereum/core/rawdb.tableIterator"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [],
+          "end": "return",
+          "error": "unknown",
+          "returns": [
+            [
+              "call",
+              "dynamic:Error",
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "iter"
+                  ],
+                  "iter"
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/core/rawdb.tableIterator).Error",
+      "span": "core/rawdb/table.go:281",
+      "typed": {
+        "lengths": {
+          "iter": null
+        },
+        "stale": false,
+        "terms": [
+          [
+            [
+              "field",
+              [
+                "param",
+                "iter"
+              ],
+              "iter"
+            ],
+            "github.com/ethereum/go-ethereum/ethdb.Iterator"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ]
+  }
+}

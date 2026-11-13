@@ -1,0 +1,1093 @@
+{
+  "carrier": {
+    "id": "freezerdb",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/core/rawdb.freezerdb"
+  },
+  "component": "freezerdb_ops",
+  "document": "results/M6/base/holon/c04/facts/go_1.go.extracted.json",
+  "document_sha256": "1f2d9d628505a8cb52af8213a8dd7d5fd9707f86c69232891ac22f00a124c61b",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "rawdb_freezerdb_AncientDatadir": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "frdb",
+          "type": "*github.com/ethereum/go-ethereum/core/rawdb.freezerdb"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "field",
+              [
+                "param",
+                "frdb"
+              ],
+              "ancientRoot"
+            ],
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "string",
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/core/rawdb.freezerdb).AncientDatadir",
+      "span": "core/rawdb/database.go:45",
+      "typed": {
+        "lengths": {
+          "frdb": null
+        },
+        "stale": false,
+        "terms": [
+          [
+            [
+              "field",
+              [
+                "param",
+                "frdb"
+              ],
+              "ancientRoot"
+            ],
+            "string"
+          ]
+        ]
+      }
+    },
+    "rawdb_freezerdb_Close": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "frdb",
+          "type": "*github.com/ethereum/go-ethereum/core/rawdb.freezerdb"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "AncientStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "!=",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "KeyValueStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "!=",
+              [
+                "len",
+                [
+                  "append",
+                  [
+                    "append",
+                    [
+                      "nil"
+                    ],
+                    [
+                      "varargs",
+                      [
+                        [
+                          "call",
+                          "dynamic:Close",
+                          [
+                            [
+                              "field",
+                              [
+                                "param",
+                                "frdb"
+                              ],
+                              "AncientStore"
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "varargs",
+                    [
+                      [
+                        "call",
+                        "dynamic:Close",
+                        [
+                          [
+                            "field",
+                            [
+                              "param",
+                              "frdb"
+                            ],
+                            "KeyValueStore"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "call",
+              "fmt.Errorf",
+              [
+                [
+                  "str",
+                  "%v"
+                ],
+                [
+                  "varargs",
+                  [
+                    [
+                      "unknown",
+                      "opaque"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "AncientStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "!=",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "KeyValueStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                [
+                  "append",
+                  [
+                    "append",
+                    [
+                      "nil"
+                    ],
+                    [
+                      "varargs",
+                      [
+                        [
+                          "call",
+                          "dynamic:Close",
+                          [
+                            [
+                              "field",
+                              [
+                                "param",
+                                "frdb"
+                              ],
+                              "AncientStore"
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "varargs",
+                    [
+                      [
+                        "call",
+                        "dynamic:Close",
+                        [
+                          [
+                            "field",
+                            [
+                              "param",
+                              "frdb"
+                            ],
+                            "KeyValueStore"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "AncientStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "==",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "KeyValueStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "!=",
+              [
+                "len",
+                [
+                  "append",
+                  [
+                    "nil"
+                  ],
+                  [
+                    "varargs",
+                    [
+                      [
+                        "call",
+                        "dynamic:Close",
+                        [
+                          [
+                            "field",
+                            [
+                              "param",
+                              "frdb"
+                            ],
+                            "AncientStore"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "call",
+              "fmt.Errorf",
+              [
+                [
+                  "str",
+                  "%v"
+                ],
+                [
+                  "varargs",
+                  [
+                    [
+                      "unknown",
+                      "opaque"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "AncientStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "==",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "KeyValueStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                [
+                  "append",
+                  [
+                    "nil"
+                  ],
+                  [
+                    "varargs",
+                    [
+                      [
+                        "call",
+                        "dynamic:Close",
+                        [
+                          [
+                            "field",
+                            [
+                              "param",
+                              "frdb"
+                            ],
+                            "AncientStore"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "AncientStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "!=",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "KeyValueStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "!=",
+              [
+                "len",
+                [
+                  "append",
+                  [
+                    "nil"
+                  ],
+                  [
+                    "varargs",
+                    [
+                      [
+                        "call",
+                        "dynamic:Close",
+                        [
+                          [
+                            "field",
+                            [
+                              "param",
+                              "frdb"
+                            ],
+                            "KeyValueStore"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "call",
+              "fmt.Errorf",
+              [
+                [
+                  "str",
+                  "%v"
+                ],
+                [
+                  "varargs",
+                  [
+                    [
+                      "unknown",
+                      "opaque"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "AncientStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "!=",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "KeyValueStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "==",
+              [
+                "len",
+                [
+                  "append",
+                  [
+                    "nil"
+                  ],
+                  [
+                    "varargs",
+                    [
+                      [
+                        "call",
+                        "dynamic:Close",
+                        [
+                          [
+                            "field",
+                            [
+                              "param",
+                              "frdb"
+                            ],
+                            "KeyValueStore"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "AncientStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "==",
+              [
+                "call",
+                "dynamic:Close",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "frdb"
+                    ],
+                    "KeyValueStore"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/core/rawdb.freezerdb).Close",
+      "span": "core/rawdb/database.go:51",
+      "typed": {
+        "lengths": {
+          "frdb": null
+        },
+        "stale": true,
+        "terms": [
+          [
+            [
+              "call",
+              "dynamic:Close",
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "frdb"
+                  ],
+                  "AncientStore"
+                ]
+              ]
+            ],
+            "error"
+          ],
+          [
+            [
+              "call",
+              "dynamic:Close",
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "frdb"
+                  ],
+                  "KeyValueStore"
+                ]
+              ]
+            ],
+            "error"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "frdb"
+              ],
+              "AncientStore"
+            ],
+            "github.com/ethereum/go-ethereum/ethdb.AncientStore"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "frdb"
+              ],
+              "KeyValueStore"
+            ],
+            "github.com/ethereum/go-ethereum/ethdb.KeyValueStore"
+          ],
+          [
+            [
+              "len",
+              [
+                "append",
+                [
+                  "append",
+                  [
+                    "nil"
+                  ],
+                  [
+                    "varargs",
+                    [
+                      [
+                        "call",
+                        "dynamic:Close",
+                        [
+                          [
+                            "field",
+                            [
+                              "param",
+                              "frdb"
+                            ],
+                            "AncientStore"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  "varargs",
+                  [
+                    [
+                      "call",
+                      "dynamic:Close",
+                      [
+                        [
+                          "field",
+                          [
+                            "param",
+                            "frdb"
+                          ],
+                          "KeyValueStore"
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "int"
+          ],
+          [
+            [
+              "len",
+              [
+                "append",
+                [
+                  "nil"
+                ],
+                [
+                  "varargs",
+                  [
+                    [
+                      "call",
+                      "dynamic:Close",
+                      [
+                        [
+                          "field",
+                          [
+                            "param",
+                            "frdb"
+                          ],
+                          "AncientStore"
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "int"
+          ],
+          [
+            [
+              "len",
+              [
+                "append",
+                [
+                  "nil"
+                ],
+                [
+                  "varargs",
+                  [
+                    [
+                      "call",
+                      "dynamic:Close",
+                      [
+                        [
+                          "field",
+                          [
+                            "param",
+                            "frdb"
+                          ],
+                          "KeyValueStore"
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            "int"
+          ]
+        ]
+      }
+    },
+    "rawdb_freezerdb_Freeze": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "frdb",
+          "type": "*github.com/ethereum/go-ethereum/core/rawdb.freezerdb"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "true",
+              [
+                "field",
+                [
+                  "field",
+                  [
+                    "unknown",
+                    "assert"
+                  ],
+                  "Freezer"
+                ],
+                "readonly"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "global",
+              "github.com/ethereum/go-ethereum/core/rawdb.errReadOnly"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "false",
+              [
+                "field",
+                [
+                  "field",
+                  [
+                    "unknown",
+                    "assert"
+                  ],
+                  "Freezer"
+                ],
+                "readonly"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": null,
+          "id": "core/rawdb/database.go:69:23:assert",
+          "kind": "assert",
+          "status": "open",
+          "witness": null
+        },
+        {
+          "bound": null,
+          "id": "core/rawdb/database.go:74:20:assert",
+          "kind": "assert",
+          "status": "open",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/ethereum/go-ethereum/core/rawdb.freezerdb).Freeze",
+      "span": "core/rawdb/database.go:68",
+      "typed": {
+        "lengths": {
+          "frdb": null
+        },
+        "stale": false,
+        "terms": [
+          [
+            [
+              "field",
+              [
+                "field",
+                [
+                  "unknown",
+                  "assert"
+                ],
+                "Freezer"
+              ],
+              "readonly"
+            ],
+            "bool"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "frdb"
+              ],
+              "AncientStore"
+            ],
+            "github.com/ethereum/go-ethereum/ethdb.AncientStore"
+          ],
+          [
+            [
+              "field",
+              [
+                "unknown",
+                "assert"
+              ],
+              "Freezer"
+            ],
+            "*github.com/ethereum/go-ethereum/core/rawdb.Freezer"
+          ],
+          [
+            [
+              "field",
+              [
+                "unknown",
+                "assert"
+              ],
+              "trigger"
+            ],
+            "chan chan struct{}"
+          ],
+          [
+            [
+              "global",
+              "github.com/ethereum/go-ethereum/core/rawdb.errReadOnly"
+            ],
+            "error"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ],
+    "R_String_Error": [
+      "string",
+      "error"
+    ]
+  }
+}

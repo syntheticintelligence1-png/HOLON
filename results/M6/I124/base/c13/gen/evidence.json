@@ -1,0 +1,190 @@
+{
+  "atoms": [],
+  "document": "evidence",
+  "evidence_sha256": "556ae2ac2b341ea6ee4f4e0888fcb0fe7817e94672d8a50627df4493346839da",
+  "evidence_version": "holon-evidence/0.1",
+  "inputs": [
+    {
+      "path": "gen/M9/sorts/assignment.json",
+      "sha256": "4cfaf78892f73576eb37369e29c833c7e5e416f27ebc33faead7c1812e056f5f"
+    },
+    {
+      "path": "results/M6/base/holon/c13/facts/go_1.go.extracted.json",
+      "sha256": "cad04107d458e0de7b3cd57c9a40dc61e8711eed17857d7c115e29076e58ebca"
+    },
+    {
+      "path": "results/M6/base/holon/c13/facts/go_1_go_1.AppModule.extracted.json",
+      "sha256": "0cfb349927d02977bd084aa5ddd58c25eefa9b4d78157014be90f5a4bb375aa6"
+    },
+    {
+      "path": "results/M6/base/holon/c13/facts/go_1_go_1.AppModuleBasic.extracted.json",
+      "sha256": "5ac4c7c6cf8dbcf3d44e82f9fb2de1ea97eb0c9ab072026e13331fdeca292520"
+    },
+    {
+      "path": "results/M6/base/holon/c13/facts/go_1_go_1.IBCModule.extracted.json",
+      "sha256": "e128b28c2e7ab4b6caae8786aa9c0f4ca294d3cb94bc8880539c252db1d6d849"
+    },
+    {
+      "path": "spec/M2/lib/evidence_lexical.json",
+      "sha256": "0c1b71a550906dd674c31dbf757a1b364a6806af06b3ebfc80ec38c12c869e0e"
+    },
+    {
+      "path": "spec/M9/lib/derive_extracted.json",
+      "sha256": "0dda614bf0421607b2c274d7d940dec32be02648dd9cca79ea55d8fc8a4d953e"
+    }
+  ],
+  "levels": {
+    "E1": "strong",
+    "E2": "strong",
+    "E3": "strong",
+    "E4": "strong",
+    "E5": "medium",
+    "E6": "weak"
+  },
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.AppModule.extracted": {
+      "anchors": {
+        "actions": {
+          "BeginBlock": "TRANS.BeginBlock",
+          "ConsensusVersion": "TRANS.ConsensusVersion",
+          "EndBlock": "TRANS.EndBlock",
+          "ExportGenesis": "TRANS.ExportGenesis",
+          "GenerateGenesisState": "TRANS.GenerateGenesisState",
+          "InitGenesis": "TRANS.InitGenesis",
+          "RegisterInvariants": "TRANS.RegisterInvariants",
+          "RegisterServices": "TRANS.RegisterServices",
+          "RegisterStoreDecoder": "TRANS.RegisterStoreDecoder",
+          "WeightedOperations": "TRANS.WeightedOperations"
+        },
+        "carriers": {
+          "AppModuleBasic": {
+            "readers": [],
+            "writers": []
+          },
+          "keeper": {
+            "readers": [
+              "TRANS.ExportGenesis"
+            ],
+            "writers": []
+          }
+        },
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "TRANS.BeginBlock",
+          "TRANS.ConsensusVersion",
+          "TRANS.EndBlock",
+          "TRANS.ExportGenesis",
+          "TRANS.GenerateGenesisState",
+          "TRANS.InitGenesis",
+          "TRANS.RegisterInvariants",
+          "TRANS.RegisterServices",
+          "TRANS.RegisterStoreDecoder",
+          "TRANS.WeightedOperations"
+        ]
+      },
+      "diagram": null,
+      "facts": "results/M6/base/holon/c13/facts/go_1_go_1.AppModule.extracted.json",
+      "facts_sha256": "0cfb349927d02977bd084aa5ddd58c25eefa9b4d78157014be90f5a4bb375aa6",
+      "facts_version": "holon-facts/0.3"
+    },
+    "go_1_go_1.AppModuleBasic.extracted": {
+      "anchors": {
+        "actions": {
+          "DefaultGenesis": "TRANS.DefaultGenesis",
+          "GetQueryCmd": "TRANS.GetQueryCmd",
+          "GetTxCmd": "TRANS.GetTxCmd",
+          "Name": "TRANS.Name",
+          "RegisterGRPCGatewayRoutes": "TRANS.RegisterGRPCGatewayRoutes",
+          "RegisterInterfaces": "TRANS.RegisterInterfaces",
+          "RegisterLegacyAminoCodec": "TRANS.RegisterLegacyAminoCodec",
+          "ValidateGenesis": "TRANS.ValidateGenesis"
+        },
+        "carriers": {},
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "TRANS.DefaultGenesis",
+          "TRANS.GetQueryCmd",
+          "TRANS.GetTxCmd",
+          "TRANS.Name",
+          "TRANS.RegisterGRPCGatewayRoutes",
+          "TRANS.RegisterInterfaces",
+          "TRANS.RegisterLegacyAminoCodec",
+          "TRANS.ValidateGenesis"
+        ]
+      },
+      "diagram": null,
+      "facts": "results/M6/base/holon/c13/facts/go_1_go_1.AppModuleBasic.extracted.json",
+      "facts_sha256": "5ac4c7c6cf8dbcf3d44e82f9fb2de1ea97eb0c9ab072026e13331fdeca292520",
+      "facts_version": "holon-facts/0.3"
+    },
+    "go_1_go_1.IBCModule.extracted": {
+      "anchors": {
+        "actions": {
+          "OnAcknowledgementPacket": "TRANS.OnAcknowledgementPacket",
+          "OnChanCloseConfirm": "TRANS.OnChanCloseConfirm",
+          "OnChanCloseInit": "TRANS.OnChanCloseInit",
+          "OnChanOpenAck": "TRANS.OnChanOpenAck",
+          "OnChanOpenConfirm": "TRANS.OnChanOpenConfirm",
+          "OnChanOpenInit": "TRANS.OnChanOpenInit",
+          "OnChanOpenTry": "TRANS.OnChanOpenTry",
+          "OnRecvPacket": "TRANS.OnRecvPacket",
+          "OnTimeoutPacket": "TRANS.OnTimeoutPacket",
+          "UnmarshalPacketData": "TRANS.UnmarshalPacketData"
+        },
+        "carriers": {
+          "keeper": {
+            "readers": [
+              "TRANS.OnAcknowledgementPacket",
+              "TRANS.OnChanOpenInit",
+              "TRANS.OnChanOpenTry",
+              "TRANS.OnRecvPacket",
+              "TRANS.OnTimeoutPacket"
+            ],
+            "writers": []
+          }
+        },
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "TRANS.OnAcknowledgementPacket",
+          "TRANS.OnChanCloseConfirm",
+          "TRANS.OnChanCloseInit",
+          "TRANS.OnChanOpenAck",
+          "TRANS.OnChanOpenConfirm",
+          "TRANS.OnChanOpenInit",
+          "TRANS.OnChanOpenTry",
+          "TRANS.OnRecvPacket",
+          "TRANS.OnTimeoutPacket",
+          "TRANS.UnmarshalPacketData"
+        ]
+      },
+      "diagram": null,
+      "facts": "results/M6/base/holon/c13/facts/go_1_go_1.IBCModule.extracted.json",
+      "facts_sha256": "e128b28c2e7ab4b6caae8786aa9c0f4ca294d3cb94bc8880539c252db1d6d849",
+      "facts_version": "holon-facts/0.3"
+    }
+  },
+  "sorts_sha256": "c75fd61f25e92cf79b4488e1339b7e621248253d65c54ae9214dd83fdcf769fe",
+  "unresolved": []
+}
