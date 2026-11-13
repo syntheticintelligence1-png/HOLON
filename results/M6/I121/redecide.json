@@ -1,0 +1,91 @@
+{
+ "attempts": {
+  "M3_par": {
+   "attempt1": "stopped before deciding (setup error)",
+   "attempt2": "crashed (BindingError, F-M6-04); 8 decided before the crash",
+   "attempt3": "instrument failure (F-M6-15), counted for nothing (Q113)",
+   "attempt4": "counted (Q115)",
+   "attempt5": "replica of attempt 4, counted for nothing"
+  },
+  "other_jobs": 14,
+  "restart": "container restart mid-run (Q110): 3 jobs re-run, 5 run first time"
+ },
+ "bundle_files": 759,
+ "bundle_sha256": "8c501b2647307c6a18644ca3b6683389c817c150fa680a21b06689200af6aa57",
+ "channels": {
+  "M3": {
+   "binding_change": 0,
+   "cone_unchanged": 0,
+   "facts_form_accepted": 0,
+   "facts_form_refused": 107,
+   "from_scratch": 54,
+   "model_extension": 0,
+   "new": 1,
+   "retired": 1
+  }
+ },
+ "channels_doc": "case (b): 107 laws whose file differs only in facts_sha256; no facts-form line is committed under Q116 (the lines belong with the held re-extracted documents), and a dry run on the assembled sandbox tree refused all 107, 106 of them on instrument artifacts of the assembly (a trace listing that includes __pycache__, and the F-M6-15 overlay), 1 on its derivation (docs/iterations/I121.md). case (a): 54 laws, every one re-made and re-decided from scratch, with no model_extension or binding_change line. case (c): 1 retired, 1 new.",
+ "determinism": {
+  "attempt2_vs_attempt4": {
+   "bytes_equal": 7,
+   "compared": 8,
+   "limit": "1 law: its lean4 kernel entry and independence_class were never produced by attempt 2 (crashed before holon lean): a disclosed limit, not a pass (Q115)",
+   "verdict_equal": 8
+  },
+  "attempt4_vs_attempt5": {
+   "bytes_equal": 97,
+   "compared": 97,
+   "verdict_equal": 97
+  },
+  "restart_logged_lines": {
+   "bytes": "not comparable: the interrupted jobs' partial records were lost at a slot reset (F-M6-13); a disclosed limit, not a pass",
+   "compared_laws": 8,
+   "verdict_equal": 8
+  }
+ },
+ "doc": "I121's re-decision (HUMAN_ANSWERS Q96, Q97 (2), Q113, Q115, Q116): aggregates only, no law id; every count PROVED and REFUTED together (Q56, Q89). Run in the builder's sandbox, vault first, never in a CI re-make. Under Q116 (b') the flip, the re-extracted Go documents and the 162 re-decided M3 records are held together for the human's call: nothing re-decided is committed in plaintext, and the lead's M3 records stay as committed. bundle_sha256 commits to the vault's re-decided set (records, traces and per-law generated files of the 162), in I107's canonical form.",
+ "g1": {
+  "M3": null
+ },
+ "log_lines_before": 1445,
+ "milestones": {
+  "M0": {
+   "compared": 0,
+   "new_laws": 0,
+   "redecided": 0,
+   "remade": 0,
+   "retired_laws": 0,
+   "verdicts_changed": 0,
+   "withheld": false
+  },
+  "M1": {
+   "compared": 0,
+   "new_laws": 0,
+   "redecided": 0,
+   "remade": 0,
+   "retired_laws": 0,
+   "verdicts_changed": 0,
+   "withheld": false
+  },
+  "M2": {
+   "compared": 0,
+   "new_laws": 0,
+   "redecided": 0,
+   "remade": 0,
+   "retired_laws": 0,
+   "verdicts_changed": 0,
+   "withheld": false
+  },
+  "M3": {
+   "compared": 161,
+   "new_laws": 1,
+   "redecided": 162,
+   "remade": 162,
+   "retired_laws": 1,
+   "verdicts_changed": 3,
+   "withheld": true,
+   "withheld_how": "Q116 (b'): held off the lead with the flip until the human's call (not committed as UNKNOWN records)"
+  }
+ },
+ "redecide_version": "holon-i121-redecide/0.1"
+}
