@@ -1,0 +1,64 @@
+{
+  "carriers": [
+    {
+      "base_type": "Logger",
+      "cls": "rep",
+      "domains": [
+        "ok_governor_CheckQuery"
+      ],
+      "id": "Logger",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I118/holon/c06/facts/go_1.go.extracted.json",
+      "domain": "ok_governor_CheckQuery",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.governor_CheckQuery",
+      "kind": "CODEC",
+      "model_fn": "governor_CheckQuery",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "github.com/certusone/wormhole/node/pkg/governor.CheckQuery"
+        }
+      ],
+      "src": "Logger",
+      "tgt": "R_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/logger_ops.json",
+  "facts_sha256": "63b2920b86f855e28f823b9ea341a69bb026d5f0a476b0bd4a5688d0b51cb0b6",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "logger_ops",
+  "principal_classes": [],
+  "provenance": {}
+}
