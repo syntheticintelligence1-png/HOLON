@@ -363,6 +363,9 @@ jobs:
             # aggregates under results/M6/I123), the checks that read them run here; the two recorded misses
             # (TestCorpus.test_p9_no_run_step_lost, TestSealed.test_p10_aave_runner_fallbacks; docs/iterations/I123.md)
             # are left out, as I119's P3 and I122's two were. Nothing here analyses a sealed target (Q56 (5)).
+            # the lead, at I123's landing: its planted fixtures compile with I103's solc set (0.5.17, 0.6.12, 0.7.6 by
+            # pragma), so the job restores the toolchain sets; without them every fixture errored in CI
+            toolsets: true
             timeout: 60
             run: python -m unittest tests_m6.test_i123_typed_sort_operations.TestSemantics tests_m6.test_i123_typed_sort_operations.TestDifferential tests_m6.test_i123_typed_sort_operations.TestLaws tests_m6.test_i123_typed_sort_operations.TestRefusal tests_m6.test_i123_typed_sort_operations.TestOptIn tests_m6.test_i123_typed_sort_operations.TestSections tests_m6.test_i123_typed_sort_operations.TestRegressions tests_m6.test_i123_typed_sort_operations.TestCorpus.test_p9_typed_models_not_fewer tests_m6.test_i123_typed_sort_operations.TestCorpus.test_p9_no_law_id_committed tests_m6.test_i123_typed_sort_operations.TestSealed.test_p10_aggregates_only tests_m6.test_i123_typed_sort_operations.TestSealed.test_p10_aave_bind_fallbacks -v
           - name: tests-m6-i120
