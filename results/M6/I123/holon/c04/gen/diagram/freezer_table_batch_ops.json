@@ -1,0 +1,89 @@
+{
+  "carriers": [
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "freezerTableBatch",
+      "cls": "rep",
+      "domains": [
+        "ok_rawdb_freezerTableBatch_commit",
+        "ok_rawdb_freezerTableBatch_maybeCommit"
+      ],
+      "id": "freezerTableBatch",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_freezerTableBatch_commit",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_freezerTableBatch_commit",
+      "kind": "CODEC",
+      "model_fn": "rawdb_freezerTableBatch_commit",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.freezerTableBatch).commit"
+        }
+      ],
+      "src": "freezerTableBatch",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_freezerTableBatch_maybeCommit",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_freezerTableBatch_maybeCommit",
+      "kind": "CODEC",
+      "model_fn": "rawdb_freezerTableBatch_maybeCommit",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.freezerTableBatch).maybeCommit"
+        }
+      ],
+      "src": "freezerTableBatch",
+      "tgt": "R_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/freezer_table_batch_ops.json",
+  "facts_sha256": "817e32f9070aec30f304ff45a2f77188039ad353f11ebe4138632e109c2652a8",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "freezer_table_batch_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

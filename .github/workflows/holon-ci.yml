@@ -351,6 +351,23 @@ jobs:
             # sealed target (Q56 (5)).
             timeout: 30
             run: python -m unittest tests_m6.test_i119_go_reasoner_soundness.TestFixture.test_p1_old_reading_recorded tests_m6.test_i119_go_reasoner_soundness.TestFixture.test_p1_control_unchanged tests_m6.test_i119_go_reasoner_soundness.TestDifferential tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_names_no_law tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_counts_are_per_milestone tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_corpus_covered tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_is_read_only tests_m6.test_i119_go_reasoner_soundness.TestDefault.test_p6_reasoner_unit tests_m6.test_i119_go_reasoner_soundness.TestDefault.test_p6_narrow_loop_mode_unchanged tests_m6.test_i119_go_reasoner_soundness.TestRegressions -v
+          - name: tests-m6-i123
+            # I123 (M6, the typed model's sort operations; HUMAN_ANSWERS Q100 (1)): under the opt-in typed.sort_ops
+            # "word", the planted fixtures (tests_m6/fixtures/i123, from the EVM and Solidity semantics alone): every
+            # edge case's reference equals the code the pinned solc compiled, run by the pinned forge, and the typed
+            # model's definitions, checked as laws by Bend, with a planted wrong value rejected (P1); the A/B
+            # differential of the typed model's steps against the compiled code (P2); the planted false laws rejected
+            # and the true laws checked (P3, P4); the refusals just outside each class and the composed route's
+            # runner over a refused document (P5); the opt-in, Morph's typed model byte-identical (P6, P11); D1's
+            # section (P8); the regressions (P7, R1). Of the corpus and spent-target measures (P9, P10; the committed
+            # aggregates under results/M6/I123), the checks that read them run here; the two recorded misses
+            # (TestCorpus.test_p9_no_run_step_lost, TestSealed.test_p10_aave_runner_fallbacks; docs/iterations/I123.md)
+            # are left out, as I119's P3 and I122's two were. Nothing here analyses a sealed target (Q56 (5)).
+            # the lead, at I123's landing: its planted fixtures compile with I103's solc set (0.5.17, 0.6.12, 0.7.6 by
+            # pragma), so the job restores the toolchain sets; without them every fixture errored in CI
+            toolsets: true
+            timeout: 60
+            run: python -m unittest tests_m6.test_i123_typed_sort_operations.TestSemantics tests_m6.test_i123_typed_sort_operations.TestDifferential tests_m6.test_i123_typed_sort_operations.TestLaws tests_m6.test_i123_typed_sort_operations.TestRefusal tests_m6.test_i123_typed_sort_operations.TestOptIn tests_m6.test_i123_typed_sort_operations.TestSections tests_m6.test_i123_typed_sort_operations.TestRegressions tests_m6.test_i123_typed_sort_operations.TestCorpus.test_p9_typed_models_not_fewer tests_m6.test_i123_typed_sort_operations.TestCorpus.test_p9_no_law_id_committed tests_m6.test_i123_typed_sort_operations.TestSealed.test_p10_aggregates_only tests_m6.test_i123_typed_sort_operations.TestSealed.test_p10_aave_bind_fallbacks -v
           - name: tests-m6-i120
             # I120 (M6, route C reads beyond the store limit; HUMAN_ANSWERS Q93 (2)): the planted entry (I117's planted
             # Go package as a git entry) run end to end by holon eval holon's run_entry --compose: over a planted small
@@ -364,7 +381,9 @@ jobs:
           - name: tests-m6-base
             # HUMAN_ANSWERS Q104 (1) and Q109 (F-M6-12): spec/M6/lib/base_run.json, the measured base, is
             # tools/base_protocol.py's output (B1); it loses no key of the root or of a landed protocol, empty dicts
-            # included (B2); each value is the root's or a landed opt-in's (B3); the flattening keeps an empty dict (B4).
+            # included (B2); each value is the root's or a landed opt-in's (B3); the flattening keeps an empty dict (B4);
+            # a later generation names the sha256 of the base it measured on (B5); planted: a later generation's opt-in
+            # survives regeneration, and a dropped key or a wrong base is refused (B6).
             timeout: 10
             run: python -m unittest tests_m6.test_base_protocol -v
           - name: tests-m6-i104

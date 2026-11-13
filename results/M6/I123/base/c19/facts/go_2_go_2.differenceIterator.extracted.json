@@ -1,0 +1,2605 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.differenceIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": 0,
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": 0,
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": "not implemented",
+          "src": "trie/iterator.go:553"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "AddResolver",
+      "order": [
+        [
+          "guard",
+          "trie/iterator.go:553",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "resolver",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "trie/iterator.go:552",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.differenceIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "||",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/trie.NodeIterator.Error",
+                  [
+                    "storage",
+                    "a"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/trie.NodeIterator.Error",
+                [
+                  "storage",
+                  "a"
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "call",
+                      "github.com/ethereum/go-ethereum/trie.NodeIterator.Error",
+                      [
+                        "storage",
+                        "a"
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/trie.NodeIterator.Error",
+                    [
+                      "storage",
+                      "a"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "trie/iterator.go:600"
+        },
+        {
+          "expr": [
+            "||",
+            [
+              "!=",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/trie.NodeIterator.Error",
+                [
+                  "storage",
+                  "a"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/trie.NodeIterator.Error",
+                [
+                  "storage",
+                  "b"
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "||",
+                [
+                  "!=",
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/trie.NodeIterator.Error",
+                    [
+                      "storage",
+                      "a"
+                    ]
+                  ],
+                  0
+                ],
+                [
+                  "==",
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/trie.NodeIterator.Error",
+                    [
+                      "storage",
+                      "b"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "trie/iterator.go:602"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Error",
+      "order": [
+        [
+          "guard",
+          "trie/iterator.go:600",
+          0
+        ],
+        [
+          "guard",
+          "trie/iterator.go:602",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "trie/iterator.go:598",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.differenceIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Hash",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "github.com/ethereum/go-ethereum/trie.NodeIterator.Hash",
+        [
+          "storage",
+          "b"
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:524",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.differenceIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Leaf",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "github.com/ethereum/go-ethereum/trie.NodeIterator.Leaf",
+        [
+          "storage",
+          "b"
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:532",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.differenceIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "LeafBlob",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "github.com/ethereum/go-ethereum/trie.NodeIterator.LeafBlob",
+        [
+          "storage",
+          "b"
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:540",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.differenceIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "LeafKey",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "github.com/ethereum/go-ethereum/trie.NodeIterator.LeafKey",
+        [
+          "storage",
+          "b"
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:536",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.differenceIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "LeafProof",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "github.com/ethereum/go-ethereum/trie.NodeIterator.LeafProof",
+        [
+          "storage",
+          "b"
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:544",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.differenceIterator",
+      "edges": [],
+      "effects": [
+        {
+          "family": "count",
+          "src": "trie/iterator.go:563"
+        },
+        {
+          "family": "eof",
+          "src": "trie/iterator.go:575"
+        },
+        {
+          "family": "a",
+          "src": "trie/iterator.go:576"
+        },
+        {
+          "family": "b",
+          "src": "trie/iterator.go:576"
+        },
+        {
+          "family": "count",
+          "src": "trie/iterator.go:576"
+        },
+        {
+          "family": "eof",
+          "src": "trie/iterator.go:576"
+        },
+        {
+          "family": "a",
+          "src": "trie/iterator.go:581"
+        },
+        {
+          "family": "b",
+          "src": "trie/iterator.go:581"
+        },
+        {
+          "family": "count",
+          "src": "trie/iterator.go:581"
+        },
+        {
+          "family": "eof",
+          "src": "trie/iterator.go:581"
+        },
+        {
+          "family": "a",
+          "src": "trie/iterator.go:586"
+        },
+        {
+          "family": "b",
+          "src": "trie/iterator.go:586"
+        },
+        {
+          "family": "count",
+          "src": "trie/iterator.go:586"
+        },
+        {
+          "family": "eof",
+          "src": "trie/iterator.go:586"
+        },
+        {
+          "family": "eof",
+          "src": "trie/iterator.go:590"
+        },
+        {
+          "family": "a",
+          "src": "trie/iterator.go:591"
+        },
+        {
+          "family": "b",
+          "src": "trie/iterator.go:591"
+        },
+        {
+          "family": "count",
+          "src": "trie/iterator.go:591"
+        },
+        {
+          "family": "eof",
+          "src": "trie/iterator.go:591"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "Next",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "arg1",
+          "type": "bool",
+          "width": 8
+        }
+      ],
+      "payable": false,
+      "post": {
+        "a": [
+          "?",
+          [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "storage",
+              "eof"
+            ]
+          ],
+          [
+            "storage",
+            "a"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                [
+                  "storage",
+                  "b"
+                ],
+                1
+              ],
+              [
+                "!",
+                [
+                  "storage",
+                  "eof"
+                ]
+              ]
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:591",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                  [
+                    "storage",
+                    "b"
+                  ],
+                  1
+                ],
+                [
+                  "!",
+                  [
+                    "storage",
+                    "eof"
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "trie/iterator.go:586",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                    [
+                      "storage",
+                      "b"
+                    ],
+                    1
+                  ],
+                  [
+                    "!",
+                    [
+                      "storage",
+                      "eof"
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "trie/iterator.go:581",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "call",
+                      "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                      [
+                        "storage",
+                        "b"
+                      ],
+                      1
+                    ],
+                    [
+                      "!",
+                      [
+                        "storage",
+                        "eof"
+                      ]
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "trie/iterator.go:576",
+                    "havoc"
+                  ],
+                  [
+                    "?",
+                    [
+                      "!",
+                      [
+                        "call",
+                        "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                        [
+                          "storage",
+                          "b"
+                        ],
+                        1
+                      ]
+                    ],
+                    [
+                      "storage",
+                      "a"
+                    ],
+                    [
+                      "storage",
+                      "a"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        "b": [
+          "?",
+          [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "storage",
+              "eof"
+            ]
+          ],
+          [
+            "storage",
+            "b"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                [
+                  "storage",
+                  "b"
+                ],
+                1
+              ],
+              [
+                "!",
+                [
+                  "storage",
+                  "eof"
+                ]
+              ]
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:591",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                  [
+                    "storage",
+                    "b"
+                  ],
+                  1
+                ],
+                [
+                  "!",
+                  [
+                    "storage",
+                    "eof"
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "trie/iterator.go:586",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                    [
+                      "storage",
+                      "b"
+                    ],
+                    1
+                  ],
+                  [
+                    "!",
+                    [
+                      "storage",
+                      "eof"
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "trie/iterator.go:581",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "call",
+                      "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                      [
+                        "storage",
+                        "b"
+                      ],
+                      1
+                    ],
+                    [
+                      "!",
+                      [
+                        "storage",
+                        "eof"
+                      ]
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "trie/iterator.go:576",
+                    "havoc"
+                  ],
+                  [
+                    "?",
+                    [
+                      "!",
+                      [
+                        "call",
+                        "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                        [
+                          "storage",
+                          "b"
+                        ],
+                        1
+                      ]
+                    ],
+                    [
+                      "storage",
+                      "b"
+                    ],
+                    [
+                      "storage",
+                      "b"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        "count": [
+          "?",
+          [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "storage",
+              "eof"
+            ]
+          ],
+          [
+            "sext",
+            64,
+            [
+              "+",
+              [
+                "storage",
+                "count"
+              ],
+              1
+            ]
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                [
+                  "storage",
+                  "b"
+                ],
+                1
+              ],
+              [
+                "!",
+                [
+                  "storage",
+                  "eof"
+                ]
+              ]
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:591",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                  [
+                    "storage",
+                    "b"
+                  ],
+                  1
+                ],
+                [
+                  "!",
+                  [
+                    "storage",
+                    "eof"
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "trie/iterator.go:586",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                    [
+                      "storage",
+                      "b"
+                    ],
+                    1
+                  ],
+                  [
+                    "!",
+                    [
+                      "storage",
+                      "eof"
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "trie/iterator.go:581",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "call",
+                      "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                      [
+                        "storage",
+                        "b"
+                      ],
+                      1
+                    ],
+                    [
+                      "!",
+                      [
+                        "storage",
+                        "eof"
+                      ]
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "trie/iterator.go:576",
+                    "havoc"
+                  ],
+                  [
+                    "?",
+                    [
+                      "!",
+                      [
+                        "call",
+                        "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                        [
+                          "storage",
+                          "b"
+                        ],
+                        1
+                      ]
+                    ],
+                    [
+                      "storage",
+                      "count"
+                    ],
+                    [
+                      "storage",
+                      "count"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        "eof": [
+          "?",
+          [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "storage",
+              "eof"
+            ]
+          ],
+          [
+            "storage",
+            "eof"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                [
+                  "storage",
+                  "b"
+                ],
+                1
+              ],
+              [
+                "!",
+                [
+                  "storage",
+                  "eof"
+                ]
+              ]
+            ],
+            [
+              "unknown",
+              "trie/iterator.go:591",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                  [
+                    "storage",
+                    "b"
+                  ],
+                  1
+                ],
+                [
+                  "!",
+                  [
+                    "storage",
+                    "eof"
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "trie/iterator.go:586",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                    [
+                      "storage",
+                      "b"
+                    ],
+                    1
+                  ],
+                  [
+                    "!",
+                    [
+                      "storage",
+                      "eof"
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "trie/iterator.go:581",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "call",
+                      "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                      [
+                        "storage",
+                        "b"
+                      ],
+                      1
+                    ],
+                    [
+                      "!",
+                      [
+                        "storage",
+                        "eof"
+                      ]
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "trie/iterator.go:576",
+                    "havoc"
+                  ],
+                  [
+                    "?",
+                    [
+                      "!",
+                      [
+                        "call",
+                        "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                        [
+                          "storage",
+                          "b"
+                        ],
+                        1
+                      ]
+                    ],
+                    [
+                      "storage",
+                      "eof"
+                    ],
+                    [
+                      "storage",
+                      "eof"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "&&",
+          [
+            "call",
+            "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+            [
+              "storage",
+              "b"
+            ],
+            1
+          ],
+          [
+            "storage",
+            "eof"
+          ]
+        ],
+        1,
+        [
+          "?",
+          [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          1,
+          [
+            "?",
+            [
+              "&&",
+              [
+                "call",
+                "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                [
+                  "storage",
+                  "b"
+                ],
+                1
+              ],
+              [
+                "!",
+                [
+                  "storage",
+                  "eof"
+                ]
+              ]
+            ],
+            0,
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "call",
+                  "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                  [
+                    "storage",
+                    "b"
+                  ],
+                  1
+                ],
+                [
+                  "!",
+                  [
+                    "storage",
+                    "eof"
+                  ]
+                ]
+              ],
+              1,
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "call",
+                    "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+                    [
+                      "storage",
+                      "b"
+                    ],
+                    1
+                  ],
+                  [
+                    "!",
+                    [
+                      "storage",
+                      "eof"
+                    ]
+                  ]
+                ],
+                1,
+                0
+              ]
+            ]
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:556",
+      "writes": [
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "storage",
+              "eof"
+            ]
+          ],
+          "family": "count",
+          "path": [],
+          "seq": 0,
+          "src": "trie/iterator.go:563",
+          "stack": [],
+          "value": [
+            "sext",
+            64,
+            [
+              "+",
+              [
+                "storage",
+                "count"
+              ],
+              1
+            ]
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "count",
+          "path": [],
+          "seq": 1,
+          "src": "trie/iterator.go:563",
+          "stack": [],
+          "value": [
+            "sext",
+            64,
+            [
+              "+",
+              [
+                "storage",
+                "count"
+              ],
+              1
+            ]
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "eof",
+          "path": [],
+          "seq": 2,
+          "src": "trie/iterator.go:590",
+          "stack": [],
+          "value": 1
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "a",
+          "path": [],
+          "seq": 3,
+          "src": "trie/iterator.go:591",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:591",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "b",
+          "path": [],
+          "seq": 4,
+          "src": "trie/iterator.go:591",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:591",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "count",
+          "path": [],
+          "seq": 5,
+          "src": "trie/iterator.go:591",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:591",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "eof",
+          "path": [],
+          "seq": 6,
+          "src": "trie/iterator.go:591",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:591",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "count",
+          "path": [],
+          "seq": 7,
+          "src": "trie/iterator.go:563",
+          "stack": [],
+          "value": [
+            "sext",
+            64,
+            [
+              "+",
+              [
+                "storage",
+                "count"
+              ],
+              1
+            ]
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "a",
+          "path": [],
+          "seq": 8,
+          "src": "trie/iterator.go:586",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:586",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "b",
+          "path": [],
+          "seq": 9,
+          "src": "trie/iterator.go:586",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:586",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "count",
+          "path": [],
+          "seq": 10,
+          "src": "trie/iterator.go:586",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:586",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "eof",
+          "path": [],
+          "seq": 11,
+          "src": "trie/iterator.go:586",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:586",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "count",
+          "path": [],
+          "seq": 12,
+          "src": "trie/iterator.go:563",
+          "stack": [],
+          "value": [
+            "sext",
+            64,
+            [
+              "+",
+              [
+                "storage",
+                "count"
+              ],
+              1
+            ]
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "a",
+          "path": [],
+          "seq": 13,
+          "src": "trie/iterator.go:581",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:581",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "b",
+          "path": [],
+          "seq": 14,
+          "src": "trie/iterator.go:581",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:581",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "count",
+          "path": [],
+          "seq": 15,
+          "src": "trie/iterator.go:581",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:581",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "eof",
+          "path": [],
+          "seq": 16,
+          "src": "trie/iterator.go:581",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:581",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "count",
+          "path": [],
+          "seq": 17,
+          "src": "trie/iterator.go:563",
+          "stack": [],
+          "value": [
+            "sext",
+            64,
+            [
+              "+",
+              [
+                "storage",
+                "count"
+              ],
+              1
+            ]
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "eof",
+          "path": [],
+          "seq": 18,
+          "src": "trie/iterator.go:575",
+          "stack": [],
+          "value": 1
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "a",
+          "path": [],
+          "seq": 19,
+          "src": "trie/iterator.go:576",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:576",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "b",
+          "path": [],
+          "seq": 20,
+          "src": "trie/iterator.go:576",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:576",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "count",
+          "path": [],
+          "seq": 21,
+          "src": "trie/iterator.go:576",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:576",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "call",
+              "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+              [
+                "storage",
+                "b"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "storage",
+                "eof"
+              ]
+            ]
+          ],
+          "family": "eof",
+          "path": [],
+          "seq": 22,
+          "src": "trie/iterator.go:576",
+          "stack": [],
+          "value": [
+            "unknown",
+            "trie/iterator.go:576",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.differenceIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Parent",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "github.com/ethereum/go-ethereum/trie.NodeIterator.Parent",
+        [
+          "storage",
+          "b"
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:528",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "trie.differenceIterator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Path",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "github.com/ethereum/go-ethereum/trie.NodeIterator.Path",
+        [
+          "storage",
+          "b"
+        ]
+      ],
+      "selector": null,
+      "src": "trie/iterator.go:548",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/trie.differenceIterator",
+  "debt": [
+    {
+      "action": "Next",
+      "kind": "loop",
+      "src": "trie/iterator.go:571",
+      "what": "loop not iterated; havocked: a,b,count,eof"
+    }
+  ],
+  "extraction": {
+    "config": {
+      "path": "results/M6/base/holon/c19/sidecars/go_2_machines.json",
+      "sha256": "6d616b0158caa3a9472da1d17e014042bbc72b596d78cef6ec80a0d66e607476"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "415a3d65effe7ccbd299a138fab0551b1553d581ebaf64d9fd6b26a1afd514b2",
+        "unit": "trie/committer.go"
+      },
+      {
+        "sha256": "909e0fc61e18b06cb50895705a152423dc55586e98740cabf2d853aaf845d458",
+        "unit": "trie/database.go"
+      },
+      {
+        "sha256": "0465eca93af8b3a5c296462f8f9a0f47d513b4c31c97d486a0549498d82bd8c8",
+        "unit": "trie/encoding.go"
+      },
+      {
+        "sha256": "ded31351c610a31c44b32cd65d66367175bc44f2b6499465e5b8bd88be5c578a",
+        "unit": "trie/errors.go"
+      },
+      {
+        "sha256": "996bafb781716fe4f3f58d73e901d33180b04b3ab1f34c05b5a0b90216037707",
+        "unit": "trie/hasher.go"
+      },
+      {
+        "sha256": "0c8d11dd6bbfd980986fb867e1035a9a3cd1ce51399c55ed4d59f4b403bef94e",
+        "unit": "trie/iterator.go"
+      },
+      {
+        "sha256": "7d1471d4e564d12c364c34b3b61bebf75b66b47017562adb96257b7abc8bae6b",
+        "unit": "trie/node.go"
+      },
+      {
+        "sha256": "eb9cfbd7f15079e81bc9f06aaf2bb0411fa705ada6a80ac52d6f0093a7b07c14",
+        "unit": "trie/proof.go"
+      },
+      {
+        "sha256": "cd43a4788d9a3c0c7701f60c725384a8951c1dcc42aba2c4997c291cc4d34088",
+        "unit": "trie/secure_trie.go"
+      },
+      {
+        "sha256": "0aafc8edcff2a1de3880ea901e14d956683c0cf4f69511eb2f2f22a0cea14dfb",
+        "unit": "trie/stacktrie.go"
+      },
+      {
+        "sha256": "6324ca30e0bcb6851beee5d3b2b560081f4cc437e759669d5c96b64b6d0e4e4d",
+        "unit": "trie/sync.go"
+      },
+      {
+        "sha256": "2e7f468eeec986cda27570a66a8c76fe51a0a0039201d2c52753395216c4be99",
+        "unit": "trie/sync_bloom.go"
+      },
+      {
+        "sha256": "cb060c3ba2dd61b3ff6b08972891b185dccd8f5b188c11c23113019841cce2e3",
+        "unit": "trie/trie.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "trie.differenceIterator",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "AddResolver": {
+        "declared_in": "trie.differenceIterator",
+        "inputs": [
+          {
+            "name": "resolver",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "AddResolver",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Error": {
+        "declared_in": "trie.differenceIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Error",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Hash": {
+        "declared_in": "trie.differenceIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Hash",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Leaf": {
+        "declared_in": "trie.differenceIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Leaf",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "LeafBlob": {
+        "declared_in": "trie.differenceIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "LeafBlob",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bytes"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "LeafKey": {
+        "declared_in": "trie.differenceIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "LeafKey",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bytes"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "LeafProof": {
+        "declared_in": "trie.differenceIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "LeafProof",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Next": {
+        "declared_in": "trie.differenceIterator",
+        "inputs": [
+          {
+            "name": "arg1",
+            "type": "bool"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "Next",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Parent": {
+        "declared_in": "trie.differenceIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Parent",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Path": {
+        "declared_in": "trie.differenceIterator",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Path",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bytes"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "trie.differenceIterator",
+          "label": "a",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "trie.differenceIterator",
+          "label": "b",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "trie.differenceIterator",
+          "label": "eof",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_bool"
+        },
+        {
+          "contract": "trie.differenceIterator",
+          "label": "count",
+          "offset": 0,
+          "slot": "3",
+          "type": "t_int64"
+        }
+      ],
+      "types": {
+        "t_bool": {
+          "encoding": "inplace",
+          "label": "bool",
+          "numberOfBytes": "1"
+        },
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        },
+        "t_int64": {
+          "encoding": "inplace",
+          "label": "int64",
+          "numberOfBytes": "8"
+        }
+      }
+    },
+    "linearization": [
+      "trie.differenceIterator"
+    ],
+    "members": {
+      "github.com/ethereum/go-ethereum/trie.NodeIterator.Error": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.NodeIterator.Error",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xcdf5db43",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.NodeIterator.Hash": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.NodeIterator.Hash",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x87bf89eb",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.NodeIterator.Leaf": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.NodeIterator.Leaf",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "selector": "0xd875b1f6",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.NodeIterator.LeafBlob": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.NodeIterator.LeafBlob",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "selector": "0xfb760613",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.NodeIterator.LeafKey": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.NodeIterator.LeafKey",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "selector": "0x0a0eaf02",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.NodeIterator.LeafProof": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.NodeIterator.LeafProof",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x3e5ca6b1",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.NodeIterator.Next": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "bool"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.NodeIterator.Next",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "selector": "0x51d78853",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.NodeIterator.Parent": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.NodeIterator.Parent",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xfc756f04",
+          "visibility": "external"
+        }
+      ],
+      "github.com/ethereum/go-ethereum/trie.NodeIterator.Path": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/ethereum/go-ethereum/trie.NodeIterator.Path",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "selector": "0x301456be",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "trie/committer.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "a",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "b",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "eof",
+      "offset": 0,
+      "slot": 2,
+      "value": "bool"
+    },
+    {
+      "kind": "scalar",
+      "name": "count",
+      "offset": 0,
+      "slot": 3,
+      "value": "int64"
+    }
+  ],
+  "target": {
+    "commit": "42bc1944a17260d75dc1e33e1571c804b9a4a88a",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/trie.differenceIterator"
+  }
+}

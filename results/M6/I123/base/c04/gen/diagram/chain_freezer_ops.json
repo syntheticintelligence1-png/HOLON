@@ -1,0 +1,64 @@
+{
+  "carriers": [
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "chainFreezer",
+      "cls": "rep",
+      "domains": [
+        "ok_rawdb_chainFreezer_Close"
+      ],
+      "id": "chainFreezer",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_chainFreezer_Close",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_chainFreezer_Close",
+      "kind": "CODEC",
+      "model_fn": "rawdb_chainFreezer_Close",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.chainFreezer).Close"
+        }
+      ],
+      "src": "chainFreezer",
+      "tgt": "R_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/chain_freezer_ops.json",
+  "facts_sha256": "28d8bc2341a1f24a37a92c4a0979d12be3b3a662609225cfb05c5f6e9e853132",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "chain_freezer_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

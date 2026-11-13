@@ -1980,6 +1980,137 @@
         }
       ],
       "regressions": []
+    },
+    "I123": {
+      "title": "I123: the typed model's sort operations (HUMAN_ANSWERS Q100 (1)): under the opt-in typed.sort_ops \"word\", holon.sorts.model3 reads a typed value as the 256-bit word it occupies by exactly the word-level operations (W1: & | ^ ~, masks, trunc, sext, wbyte, << >>, + - outside checked code; the result an unrefined word), defines the EVM shifts shl, shr and sar (S1-S3: an amount of 256 or more gives 0, or all ones for a negative sar; sar sign-extends from bit 255), keeps checked and unchecked arithmetic apart (C1), refuses a non-constant shift amount in a release below 0.8.0 (R1), and defines in a section over the model the constant shifts it needs (D1); everything else stays refused, its document falling back and its laws UNKNOWN. Run through holon eval holon --compose on the base the coordinator names after I120's landing",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I123)",
+      "prompt": "prompts/I123_typed_sort_operations.md",
+      "tests": [
+        "tests_m6/test_i123_typed_sort_operations.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I123/",
+        "docs/iterations/I123.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P8 and P11 are on planted fixtures (tests_m6/fixtures/i123, written from the Solidity and EVM semantics alone), Morph and unit inputs. P9 is smoke on I51's corpus, contaminated by I51, I103-I118 and I107. P10 is a measurement on I106's spent targets, contaminated: post-I107. Generality is claimed only from I114's sealed pair. Laws are reported as aggregates only, never splitting PROVED from REFUTED (Q56, Q89); stage reasons only for stages before any decision (Q72, Q100 (1)(a)).",
+        "instruments": "spec/M6/lib/i123_run.json (the run protocol: base_protocol plus typed.sort_ops \"word\") and tests_m6/test_i123_typed_sort_operations.py (every check)",
+        "base": "the lead claude/holon-v2-bend2-c6z3cd at 65328226 for the build and the planted tests; the measured runs come after I120's landing, on the base and protocol the coordinator names (Q100 (1), Q99 (1)), merged by a merge commit before the first measured run, its sha recorded in the report",
+        "protocol_rule": "spec/M6/lib/i123_run.json is base_protocol plus exactly typed.sort_ops \"word\" and typed.sort_ops_doc (and its own doc, iteration, out, go_machines.out), checked by TestRegressions.test_p7_protocol_is_its_base_plus_sort_ops. Until the coordinator names the measured runs' base its base_protocol is spec/M6/lib/i117_run.json (the planted tests only); at that word, before any measured run, base_protocol becomes the named protocol and the file is regenerated from it by this rule (a mechanical rebase, no other change).",
+        "baseline": "I118's measurement on the spent targets (PR #202, contaminated: post-I107): on Aave V3, 8 laws derived, 3 documents fall back at the typed runner and at bind (6 laws), 0 decided (PROVED and REFUTED together, Q56); on EigenLayer no law derived. The corpus baseline is the base protocol's own run on the same base, run beside I123's (one change per measurement, Q92 (4))."
+      },
+      "predictions": [
+        {
+          "id": "I123-P1",
+          "claim": "(Semantics) holon.sorts.sortops.cases(): at least 400 edge cases of S1-S3 and W1 (shl, shr, sar in their Yul and Solidity forms over x in {0, 1, 2, 2^255 - 1, 2^255, 2^256 - 2, 2^256 - 1} and the amounts 0, 1, 7, 8, 255, 256, 257, 300 and 2^256 - 1; the narrow uint8 and int8 forms with truncation and sign; & | ^ ~ and masks on a typed word): the reference (holon.sorts.sortops.reference, the EVM and Solidity rules) equals, case for case, what the code the pinned solc 0.8.24 compiled from tests_m6/fixtures/i123/sol/SortOps.sol stores (run by the pinned forge), and what the typed model's definitions compute, checked as laws by Bend's own evaluation (law dK: {code == value : W}, proof {==}); every case checks, and a planted wrong value is rejected.",
+          "check": "tests_m6/test_i123_typed_sort_operations.py::TestSemantics",
+          "expected": {
+            "cases_at_least": 400,
+            "disagreements": 0,
+            "bend_checked_at_least": 400
+          }
+        },
+        {
+          "id": "I123-P2",
+          "claim": "(A/B differential, the replay harness's EVM) Under the opt-in sort_ops \"word\", the typed model of SortOps (every action) builds, and its step outcomes (holon.sorts.evaluate3, the runner's evaluator) equal the compiled code's (status and every storage write, the forge run of the pinned solc 0.8.24's code) on every edge case of P1 that runs through SortOps's functions, block.timestamp included: 0 disagreements. The pre-0.8 fixtures Pre05, Pre06 and Pre07 (solc 0.5.17, 0.6.12, 0.7.6, selected by their pragmas) build and agree the same way on their cases.",
+          "check": "tests_m6/test_i123_typed_sort_operations.py::TestDifferential",
+          "expected": {
+            "sortops_builds": true,
+            "pre_builds": [
+              "Pre05",
+              "Pre06",
+              "Pre07"
+            ],
+            "disagreements": 0
+          }
+        },
+        {
+          "id": "I123-P3",
+          "claim": "(False laws) Each planted law false under the EVM is not PROVED: Bend rejects it. They hold only if a shift of 256 or more did not give 0 (shl(x, 256) == x, shr(x, 300) == x >> 44), if sar past 255 of a negative value gave 0, if a masked Time word kept its high bits (last & 0xffffffff == last for last >= 2^32), if Solidity's int8 << were not truncated, or if an unchecked Time + Time were the unbounded sum.",
+          "check": "tests_m6/test_i123_typed_sort_operations.py::TestLaws::test_p3_false_laws_rejected",
+          "expected": {
+            "false_laws_proved": 0,
+            "false_laws_at_least": 6
+          }
+        },
+        {
+          "id": "I123-P4",
+          "claim": "(True laws) Each planted law true under the EVM checks and is not REFUTED; its value is the compiled code's on the same input (the forge run), so a refutation would have a witness that does not replay.",
+          "check": "tests_m6/test_i123_typed_sort_operations.py::TestLaws::test_p4_true_laws_check",
+          "expected": {
+            "true_laws_refuted": 0,
+            "true_laws_at_least": 6
+          }
+        },
+        {
+          "id": "I123-P5",
+          "claim": "(Refusal) Just outside each class, the typed model stays refused under the opt-in, with a holon.sorts.model3.GenError naming the construct: RSdiv (sdiv), RSmod (smod), RAddmod (addmod), RMulmod (mulmod), RSignext (signextend with a non-constant byte), RCheckedT (Time + Time in checked code: C1 keeps the typed discipline) and PreVar05, PreVar06, PreVar07 (R1: a non-constant shift amount in a release below 0.8.0). In the composed route's typed runner each such document falls back (I116/I118's per-document fallback where the protocol names it) and no law over it is decided.",
+          "check": "tests_m6/test_i123_typed_sort_operations.py::TestRefusal",
+          "expected": {
+            "refused": [
+              "RSdiv",
+              "RSmod",
+              "RAddmod",
+              "RMulmod",
+              "RSignext",
+              "RCheckedT",
+              "PreVar05",
+              "PreVar06",
+              "PreVar07"
+            ]
+          }
+        },
+        {
+          "id": "I123-P6",
+          "claim": "(The opt-in) Without sort_ops, every model holon.sorts.model3 generates is byte for byte what it generated before I123: SortOps stays refused (sar is outside the language), and Morph's committed typed models (gen/M3/sorts/models/*.bend) regenerate byte-identical; D1 (a section over the typed model defining the constant shifts it needs) applies only under the opt-in, and without it holon.undo.trace still refuses such a term as before.",
+          "check": "tests_m6/test_i123_typed_sort_operations.py::TestOptIn",
+          "expected": {
+            "morph_models_changed": 0
+          }
+        },
+        {
+          "id": "I123-P7",
+          "claim": "(Protocol) spec/M6/lib/i123_run.json is its base_protocol plus exactly typed.sort_ops \"word\" and typed.sort_ops_doc; no earlier protocol or committed typed sidecar names sort_ops; holon eval holon writes sort_ops into the typed sidecar it generates only when the protocol names it.",
+          "check": "tests_m6/test_i123_typed_sort_operations.py::TestRegressions",
+          "expected": {
+            "earlier_naming_sort_ops": 0
+          }
+        },
+        {
+          "id": "I123-P8",
+          "claim": "(D1) A term with a constant shift the typed model does not define, compiled by a section over the model (holon.undo.trace.Trace.compile_word, which holon.gen.symsec's SYM section inherits): under the opt-in the section defines the shift itself, by the model's own shift builder, and the section checks with Bend; without the opt-in it is refused as before.",
+          "check": "tests_m6/test_i123_typed_sort_operations.py::TestSections",
+          "expected": {
+            "section_checks": true
+          }
+        },
+        {
+          "id": "I123-P9",
+          "claim": "(Corpus, smoke on contaminated data) Through holon eval holon --compose with spec/M6/lib/i123_run.json on the base the coordinator names: no corpus entry's run step is lost against the base's run (entries whose run step completes: I123's >= the base's), and the Solidity documents whose typed model builds at the typed runner are at least the base's. Laws are reported in Q89's wording only (N decided, PROVED and REFUTED together, Q56); runner reasons are not committed (Q72).",
+          "check": "tests_m6/test_i123_typed_sort_operations.py::TestCorpus",
+          "expected": {
+            "run_ok_not_fewer": true,
+            "typed_models_built_not_fewer": true
+          }
+        },
+        {
+          "id": "I123-P10",
+          "claim": "(Spent targets, a measurement only, contaminated: post-I107) Through --compose --vault on EigenLayer and Aave V3 as I107 pinned them: on Aave V3 fewer documents fall back at the typed runner than I118's 3 (at most 2), and at bind at most as many; EigenLayer as I118 measured it (no law derived). The decided count is reported in Q89's wording, the bundle commitment per target in I107's canonical form, and alerts only (Q56, Q72, Q89); the measurement never counts as held-out.",
+          "check": "tests_m6/test_i123_typed_sort_operations.py::TestSealed",
+          "expected": {
+            "aave_runner_fallback_documents_at_most": 2
+          }
+        },
+        {
+          "id": "I123-P11",
+          "claim": "(Morph) Morph's M0-M3 records move only by re-stamp: with the change in holon.sorts.model3's generator closure, the CI gates (M0, M1, M2, partial M3) pass, and holon land dirty re-makes no law; the PR carries the re-stamp plan (holon land plan).",
+          "check": "tests_m6/test_i123_typed_sort_operations.py::TestOptIn::test_p11_morph_models_byte_identical",
+          "expected": {
+            "laws_remade": 0
+          }
+        }
+      ],
+      "regressions": []
     }
   }
 }

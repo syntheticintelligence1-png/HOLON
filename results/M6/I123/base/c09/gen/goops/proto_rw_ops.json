@@ -1,0 +1,267 @@
+{
+  "carrier": {
+    "id": "protoRW",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/p2p.protoRW"
+  },
+  "component": "proto_rw_ops",
+  "document": "results/M6/base/holon/c09/facts/go_1.go.extracted.json",
+  "document_sha256": "f37ebe70418861a7de33ac585b4414ee2ee0e118beed42d328bd3fc51066317f",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "p2p_protoRW_ReadMsg": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "rw",
+          "type": "*github.com/ethereum/go-ethereum/p2p.protoRW"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "result",
+              [
+                "unknown",
+                "select"
+              ],
+              2
+            ],
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                1
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "unknown",
+          "returns": [
+            [
+              "zero",
+              "github.com/ethereum/go-ethereum/p2p.Msg"
+            ],
+            [
+              "global",
+              "io.EOF"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                0
+              ]
+            ],
+            [
+              "!=",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                1
+              ]
+            ]
+          ],
+          "end": "panic",
+          "error": null,
+          "returns": null,
+          "site": "p2p/peer.go:471:20:panic"
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "github.com/ethereum/go-ethereum/p2p.Msg",
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": null,
+          "id": "p2p/peer.go:471:20:panic",
+          "kind": "panic",
+          "status": "open",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.protoRW).ReadMsg",
+      "span": "p2p/peer.go:471",
+      "typed": {
+        "lengths": {
+          "rw": null
+        },
+        "stale": false,
+        "terms": [
+          [
+            [
+              "field",
+              [
+                "param",
+                "rw"
+              ],
+              "closed"
+            ],
+            "<-chan struct{}"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "rw"
+              ],
+              "in"
+            ],
+            "chan github.com/ethereum/go-ethereum/p2p.Msg"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "rw"
+              ],
+              "offset"
+            ],
+            "uint64"
+          ],
+          [
+            [
+              "field",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                2
+              ],
+              "Code"
+            ],
+            "uint64"
+          ],
+          [
+            [
+              "global",
+              "io.EOF"
+            ],
+            "error"
+          ],
+          [
+            [
+              "op",
+              "-",
+              [
+                "field",
+                [
+                  "result",
+                  [
+                    "unknown",
+                    "select"
+                  ],
+                  2
+                ],
+                "Code"
+              ],
+              [
+                "field",
+                [
+                  "param",
+                  "rw"
+                ],
+                "offset"
+              ]
+            ],
+            "uint64"
+          ],
+          [
+            [
+              "result",
+              [
+                "unknown",
+                "select"
+              ],
+              0
+            ],
+            "int"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Msg_Error": [
+      "github.com/ethereum/go-ethereum/p2p.Msg",
+      "error"
+    ]
+  }
+}

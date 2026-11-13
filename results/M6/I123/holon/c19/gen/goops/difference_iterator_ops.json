@@ -1,0 +1,169 @@
+{
+  "carrier": {
+    "id": "differenceIterator",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/trie.differenceIterator"
+  },
+  "component": "difference_iterator_ops",
+  "document": "results/M6/I123/holon/c19/facts/go_2.go.extracted.json",
+  "document_sha256": "bbd1367a23ffca765858f499b0514eec9264b2030e32399ae0572393c89c7e8b",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "trie_differenceIterator_Error": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "it",
+          "type": "*github.com/ethereum/go-ethereum/trie.differenceIterator"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "call",
+                "dynamic:Error",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "it"
+                    ],
+                    "a"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "call",
+              "dynamic:Error",
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "it"
+                  ],
+                  "a"
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "call",
+                "dynamic:Error",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "it"
+                    ],
+                    "a"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "unknown",
+          "returns": [
+            [
+              "call",
+              "dynamic:Error",
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "it"
+                  ],
+                  "b"
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/trie.differenceIterator).Error",
+      "span": "trie/iterator.go:598",
+      "typed": {
+        "lengths": {
+          "it": null
+        },
+        "stale": true,
+        "terms": [
+          [
+            [
+              "call",
+              "dynamic:Error",
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "it"
+                  ],
+                  "a"
+                ]
+              ]
+            ],
+            "error"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "it"
+              ],
+              "a"
+            ],
+            "github.com/ethereum/go-ethereum/trie.NodeIterator"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "it"
+              ],
+              "b"
+            ],
+            "github.com/ethereum/go-ethereum/trie.NodeIterator"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ]
+  }
+}

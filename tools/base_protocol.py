@@ -4,11 +4,17 @@
   python tools/base_protocol.py --check   # regenerates in memory and compares; writes nothing
 
 The rule, and nothing else: start from ROOT (I116's landed protocol, the common ancestor of every landed M6 protocol).
-For each landed protocol in LANDED, in order, take every key whose value differs from that protocol's own base (its
-`base_protocol`, or ROOT when it names none), leaving out META, and set it in the result exactly as named there. A key
-that two protocols set to different values is refused. META keys get the base's own values below. An empty dict is
-a key's value like any other, so it is kept (F-M6-12: dropping it broke every run on the base). Output is
-deterministic (sorted keys, two-space indent, one trailing newline).
+For each landed protocol, in order, take every key whose value differs from that protocol's own base, leaving out
+META, and set it in the result exactly as named there. A key that two protocols set to different values is refused,
+and so is a key a protocol drops. META keys get the base's own values below. An empty dict is a key's value like any
+other, so it is kept (F-M6-12: dropping it broke every run on the base). Output is deterministic (sorted keys,
+two-space indent, one trailing newline).
+
+The landed protocols come in GENERATIONS: each holds the protocols measured on the same base (Q109's note).
+- A protocol of generation 0 names its own base (`base_protocol`, or ROOT when it names none), never OUT.
+- A protocol of a later generation g names OUT. It was measured on the base built from generations 0..g-1, so it is
+  compared with that build, never with the committed OUT, which after its landing already holds its opt-ins. Its
+  `doc` names that build's sha256, the base it was generated from (tests_m6/test_base_protocol.py's B5).
 """
 from __future__ import annotations
 
@@ -19,7 +25,11 @@ from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 ROOT = "spec/M6/lib/i116_run.json"
-LANDED = ("spec/M6/lib/i117_run.json", "spec/M6/lib/i118_run.json", "spec/M6/lib/i120_run.json")
+GENERATIONS = (
+    ("spec/M6/lib/i117_run.json", "spec/M6/lib/i118_run.json", "spec/M6/lib/i120_run.json"),
+    ("spec/M6/lib/i123_run.json",),   # measured on generation 0's base (11b26c96…, Q109); landed first of its generation
+)
+LANDED = tuple(rel for gen in GENERATIONS for rel in gen)
 OUT = "spec/M6/lib/base_run.json"
 META = {"base_protocol", "doc", "go_machines.out", "iteration", "out", "i117_keys"}
 
@@ -49,29 +59,42 @@ def _load(rel: str) -> dict:
     return json.loads((ROOT_DIR / rel).read_text(encoding="utf-8"))
 
 
-def build() -> str:
-    base = _flat(_load(ROOT))
-    out = dict(base)
+def _own_base(rel: str, p: dict, g: int, generations: tuple) -> dict:
+    named = p.get("base_protocol") or ROOT
+    if g == 0:
+        if named == OUT:
+            raise SystemExit(f"base_protocol: {rel} names {OUT} but is in generation 0")
+        return _flat(_load(named))
+    if named != OUT:
+        raise SystemExit(f"base_protocol: {rel} is in generation {g} but names {named}, not {OUT}")
+    return _flat(json.loads(build(generations[:g])))
+
+
+def build(generations: tuple = GENERATIONS) -> str:
+    out = _flat(_load(ROOT))
     set_by: dict = {}
-    for rel in LANDED:
-        p = _flat(_load(rel))
-        own_base = _flat(_load(p.get("base_protocol") or ROOT))
-        for k in sorted(set(p) | set(own_base)):
-            if k in META or p.get(k) == own_base.get(k):
-                continue
-            if k not in p:
-                raise SystemExit(f"base_protocol: {rel} removes {k}; the rule only adds opt-in keys")
-            if k in set_by and out[k] != p[k]:
-                raise SystemExit(f"base_protocol: {k} is set differently by {set_by[k]} and {rel}")
-            out[k], set_by[k] = p[k], set_by.get(k, rel)
-    sha = {rel: hashlib.sha256((ROOT_DIR / rel).read_bytes()).hexdigest() for rel in (ROOT, *LANDED)}
+    for g, gen in enumerate(generations):
+        for rel in gen:
+            p = _flat(_load(rel))
+            own_base = _own_base(rel, p, g, generations)
+            for k in sorted(set(p) | set(own_base)):
+                if k in META or p.get(k) == own_base.get(k):
+                    continue
+                if k not in p:
+                    raise SystemExit(f"base_protocol: {rel} removes {k}; the rule only adds opt-in keys")
+                if k in set_by and out[k] != p[k]:
+                    raise SystemExit(f"base_protocol: {k} is set differently by {set_by[k]} and {rel}")
+                out[k], set_by[k] = p[k], set_by.get(k, rel)
+    landed = [rel for gen in generations for rel in gen]
+    last = _load(landed[-1]).get("iteration") or landed[-1]
+    sha = {rel: hashlib.sha256((ROOT_DIR / rel).read_bytes()).hexdigest() for rel in (ROOT, *landed)}
     out.update({
         "base_protocol": ROOT,
         "iteration": "base",
         "out": "results/M6/base/holon",
         "go_machines.out": "results/M6/base/go_machines.json",
-        "doc": ("HUMAN_ANSWERS Q104 (1): the measured base after I120's landing. Generated by tools/base_protocol.py: "
-                + ROOT + " plus the union of the landed opt-in keys of " + ", ".join(LANDED)
+        "doc": (f"HUMAN_ANSWERS Q104 (1): the measured base after {last}'s landing. Generated by tools/base_protocol.py: "
+                + ROOT + " plus the union of the landed opt-in keys of " + ", ".join(landed)
                 + ". Sources (sha256): " + "; ".join(f"{k} {v}" for k, v in sha.items()) + ". Opt-in keys set: "
                 + ", ".join(f"{k} (from {set_by[k]})" for k in sorted(set_by)) + "."),
     })

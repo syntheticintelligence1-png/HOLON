@@ -1,0 +1,155 @@
+{
+  "carriers": [
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_String_Error",
+      "cls": "rep",
+      "id": "R_String_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Uint64_Error",
+      "cls": "rep",
+      "id": "R_Uint64_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "nofreezedb",
+      "cls": "rep",
+      "domains": [
+        "ok_rawdb_nofreezedb_AncientDatadir",
+        "ok_rawdb_nofreezedb_Ancients",
+        "ok_rawdb_nofreezedb_Sync",
+        "ok_rawdb_nofreezedb_Tail"
+      ],
+      "id": "nofreezedb",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_nofreezedb_AncientDatadir",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_nofreezedb_AncientDatadir",
+      "kind": "CODEC",
+      "model_fn": "rawdb_nofreezedb_AncientDatadir",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.nofreezedb).AncientDatadir"
+        }
+      ],
+      "src": "nofreezedb",
+      "tgt": "R_String_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_nofreezedb_Ancients",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_nofreezedb_Ancients",
+      "kind": "CODEC",
+      "model_fn": "rawdb_nofreezedb_Ancients",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.nofreezedb).Ancients"
+        }
+      ],
+      "src": "nofreezedb",
+      "tgt": "R_Uint64_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_nofreezedb_Sync",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_nofreezedb_Sync",
+      "kind": "CODEC",
+      "model_fn": "rawdb_nofreezedb_Sync",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.nofreezedb).Sync"
+        }
+      ],
+      "src": "nofreezedb",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_nofreezedb_Tail",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_nofreezedb_Tail",
+      "kind": "CODEC",
+      "model_fn": "rawdb_nofreezedb_Tail",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.nofreezedb).Tail"
+        }
+      ],
+      "src": "nofreezedb",
+      "tgt": "R_Uint64_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/nofreezedb_ops.json",
+  "facts_sha256": "d7b5b36156c5240986ec45b5a90db55fe6b4fde81673f8af2a86ab33f77fe3b0",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "nofreezedb_ops",
+  "principal_classes": [],
+  "provenance": {}
+}
