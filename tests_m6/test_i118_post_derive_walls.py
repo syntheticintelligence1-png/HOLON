@@ -257,7 +257,10 @@ class TestRunShapes(_Sol):
                                        fault="coverage_entry")
         self.assertNotEqual(st["run"]["status"], "ok")
         ids = sorted(law_facts(S, M))
-        self.assertEqual([i for i in ids if record(S, M, i)], [])
+        # amended (spec/M6/amendments/I118.jsonl): the runner stops at the first law over Guarded, so the records it
+        # decided before it are written; none over Guarded is, and the group is not complete
+        self.assertEqual([i for i in over(S, M, "Guarded.extracted.json") if record(S, M, i)], [])
+        self.assertTrue([i for i in ids if not record(S, M, i)])
 
     def test_p3_cross_document_and_constrained(self):
         _c, C, _r, M, _R = self.run_of(("Counter", "Guarded"))
