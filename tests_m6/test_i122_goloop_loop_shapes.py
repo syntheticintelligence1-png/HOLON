@@ -478,6 +478,11 @@ class TestPlanted(_Planted):
 
 
 # ----------------------------------------------------------------------------------------------- the corpus
+def aggs(doc: dict) -> dict:
+    """(entry, family) -> {derived, decided, unknown}: the law counts a composed run commits (laws_aggregate)."""
+    return {(r["id"], k): f for r in doc["rows"] for k, f in (r.get("laws_aggregate") or {}).items()}
+
+
 class TestCorpusSmoke(unittest.TestCase):
     """P8-P10: the counted composed corpus run (results/M6/I122/holon/corpus.json) and the model-generation counts
     (results/M6/I122/loop_shapes.json, pre-decision, Q72)."""
@@ -503,9 +508,17 @@ class TestCorpusSmoke(unittest.TestCase):
         s = self.shapes_doc()
         n = s["by_class"].get("S1", 0) + s["by_class"].get("S2", 0)
         self.assertEqual(n, pred("I122-P9")["expected"]["ops_in_new_classes"])
-        a, b = self.doc()["summary"], self.base_doc()["summary"]
-        for k in ("laws_derived", "laws_decided", "bind_bound"):
-            self.assertEqual(a.get(k), b.get(k), k)
+        # amended (spec/M6/amendments/I122.jsonl): the laws are the rows' laws_aggregate; the PAR comparison is
+        # test_p9_par_laws_equal_baseline
+        self.assertEqual(sum(f["decided"] for _k, f in aggs(self.doc()).items()),
+                         sum(f["decided"] for _k, f in aggs(self.base_doc()).items()))
+
+    def test_p9_par_laws_equal_baseline(self):
+        # amended (spec/M6/amendments/I122.jsonl): split from test_p9_ops_in_class_and_laws; P9's recorded miss
+        a, b = aggs(self.doc()), aggs(self.base_doc())
+        par = sorted(k for k in set(a) | set(b) if k[1].startswith("PAR/"))
+        self.assertEqual({k: (a.get(k) or {}).get("derived", 0) for k in par},
+                         {k: (b.get(k) or {}).get("derived", 0) for k in par})
 
     def test_p10_nothing_per_law_committed(self):
         for p in sorted(OUT.rglob("*")):
@@ -513,12 +526,16 @@ class TestCorpusSmoke(unittest.TestCase):
                 self.assertIsNone(LAW_ID.search(p.read_text(encoding="utf-8", errors="replace")),
                                   p.relative_to(ROOT).as_posix())
         d = self.doc()
-        for row in d["entries"]:
-            if (row.get("laws") or {}).get("derived"):
-                self.assertRegex(row.get("bundle_sha256") or "", r"^[0-9a-f]{64}$", row.get("id"))
+        # amended (spec/M6/amendments/I122.jsonl): the document's rows, laws, laws_aggregate, laws_bundle_sha256
+        for row in d["rows"]:
+            self.assertEqual(row.get("laws"), [], row["id"])   # Q56: per-law rows withheld
+            if any(f["derived"] for f in (row.get("laws_aggregate") or {}).values()):
+                self.assertRegex(row.get("laws_bundle_sha256") or "", r"^[0-9a-f]{64}$", row["id"])
         sm = d["summary"]
-        for k in ("findings", "recall", "detected_any"):
-            self.assertIn(sm.get(k), (0, 0.0, False, None, "withheld"), k)
+        self.assertEqual(sm["findings"], 0)
+        self.assertEqual(sm["detected_any"], [])
+        for r, v in sm["recall"].items():
+            self.assertEqual((v["detected"], v["recall"]), ([], 0.0), r)
 
 
 class TestSealedContaminated(unittest.TestCase):
