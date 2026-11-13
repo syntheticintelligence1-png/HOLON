@@ -363,6 +363,16 @@ jobs:
             # are the key's measured outcome, not run here. Nothing here analyses a sealed target (Q56 (5)).
             timeout: 60
             run: python -m unittest tests_m6.test_i123_typed_sort_operations.TestSemantics tests_m6.test_i123_typed_sort_operations.TestDifferential tests_m6.test_i123_typed_sort_operations.TestLaws tests_m6.test_i123_typed_sort_operations.TestRefusal tests_m6.test_i123_typed_sort_operations.TestOptIn tests_m6.test_i123_typed_sort_operations.TestSections tests_m6.test_i123_typed_sort_operations.TestRegressions -v
+          - name: tests-m6-i120
+            # I120 (M6, route C reads beyond the store limit; HUMAN_ANSWERS Q93 (2)): the planted entry (I117's planted
+            # Go package as a git entry) run end to end by holon eval holon's run_entry --compose: over a planted small
+            # store_max_bytes under go.store_scope "commit", route C's laws are derived and the committed output holds
+            # the document by sha256 and size only (P1); the same entry under the limit gives the same row and the same
+            # committed bytes but the storage fields (P2); the control without the opt-in reproduces I117's wall (P3);
+            # the storage rule as a unit (P4); the regressions (P10, R1). The corpus and sealed measures (P5-P9;
+            # results/M6/I120) are the key's measured outcome, not run here. Nothing here analyses a sealed target.
+            timeout: 60
+            run: python -m unittest tests_m6.test_i120_route_c_full_documents.TestOverLimit tests_m6.test_i120_route_c_full_documents.TestEitherSide tests_m6.test_i120_route_c_full_documents.TestControl tests_m6.test_i120_route_c_full_documents.TestUnits tests_m6.test_i120_route_c_full_documents.TestRegressions -v
           - name: tests-m6-i104
             # I104 (M6): holon roles. The contract R1-R6 (TestBuild: determinism and the committed Morph roles, evidence,
             # names as tie-breakers, the proposal channel and its model-free provenance, hand sidecars win, no target

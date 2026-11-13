@@ -1,0 +1,76 @@
+{
+  "dropped": [],
+  "inputs": [
+    {
+      "kind": "go",
+      "path": "results/M6/I120/holon/c08/facts/go_1.go.extracted.json",
+      "sha256": "9c033020da4f80bb09cc4dec4d3e1138c18c6ff98c756a3585554e8411210d89"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I120/holon/c08/facts/go_1_go_1.Keeper.extracted.json",
+      "sha256": "e03627f9bdf8de6baf79cbd5976123935d53cfd1550d604e450d06c9a3b2ffa0"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I120/holon/c08/facts/go_1_go_1.Migrator.extracted.json",
+      "sha256": "6061de7817dd7bbd6e55a3fac8e35754a3d815957e811ee3c38124b6248bf6cb"
+    }
+  ],
+  "milestone": "M9",
+  "mode": "static",
+  "proposed": null,
+  "rejected": [
+    {
+      "carrier": "*cosmossdk.io/x/group.GroupInfo",
+      "document": "results/M6/I120/holon/c08/facts/go_1.go.extracted.json",
+      "reason": "Go function '(cosmossdk.io/x/group/keeper.Keeper).UpdateGroupAdmin$1' gives the model name 'keeper_Keeper_UpdateGroupAdmin$1', which is not an identifier"
+    },
+    {
+      "carrier": "*cosmossdk.io/x/group.GroupPolicyInfo",
+      "document": "results/M6/I120/holon/c08/facts/go_1.go.extracted.json",
+      "reason": "Go function '(cosmossdk.io/x/group/keeper.Keeper).UpdateGroupPolicyAdmin$1' gives the model name 'keeper_Keeper_UpdateGroupPolicyAdmin$1', which is not an identifier"
+    }
+  ],
+  "roles": [
+    {
+      "carrier": "[]github.com/cosmos/cosmos-sdk/types.Msg",
+      "detail": {
+        "ops": [
+          "cosmossdk.io/x/group/keeper.validateMsgs"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I120/holon/c08/facts/go_1.go.extracted.json#go.functions.cosmossdk.io/x/group/keeper.validateMsgs"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "msg_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "evidence": {
+        "facts": [
+          "results/M6/I120/holon/c08/facts/go_1_go_1.Keeper.extracted.json",
+          "results/M6/I120/holon/c08/facts/go_1_go_1.Migrator.extracted.json"
+        ],
+        "rule": "transitions_documents"
+      },
+      "id": "documents",
+      "roles_source": "static",
+      "sidecar": "typed"
+    }
+  ],
+  "roles_version": "holon-roles/0.1",
+  "sidecars": {
+    "derive_extracted.json": "4d5d3508db1909506b8361932088ab07dfb78b0dd610579a52d097547fb67234",
+    "disch.json": "4a2d88915b3b62f80fb2def03e11c8f19250b2352ed19a05fac59467231c20f1",
+    "fact.json": "a29341924f9696b15c9c0dc9e6d70c41b15ca7d2cc4b26af0b5673634312b769",
+    "go_ops.json": "e6b7d5068b382a42dc3f5765145b802e560274212f7949487048ae1ed10b326c",
+    "sort_types.json": "7bff0f21e475d1ec65b3d1043eccf45c6574f1621f8da48ef0895df84ba890df",
+    "undo.json": "c3ee8bca15739a6c4f559289d18814dbb537b140dadcaf743c545c2171ae3ed4"
+  }
+}
