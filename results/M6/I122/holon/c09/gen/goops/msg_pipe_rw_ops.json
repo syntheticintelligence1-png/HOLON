@@ -1,0 +1,427 @@
+{
+  "carrier": {
+    "id": "MsgPipeRW",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/p2p.MsgPipeRW"
+  },
+  "component": "msg_pipe_rw_ops",
+  "document": "results/M6/I122/holon/c09/facts/go_1.go.extracted.json",
+  "document_sha256": "eafbc75a39b62f9cc82ed2c392db9087f32e6afca1b2cf618e842955633dbd1e",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "p2p_MsgPipeRW_Close": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "p",
+          "type": "*github.com/ethereum/go-ethereum/p2p.MsgPipeRW"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "true",
+              [
+                "call",
+                "(*sync/atomic.Bool).Swap",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "p"
+                    ],
+                    "closed"
+                  ],
+                  [
+                    "bool",
+                    true
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "false",
+              [
+                "call",
+                "(*sync/atomic.Bool).Swap",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "p"
+                    ],
+                    "closed"
+                  ],
+                  [
+                    "bool",
+                    true
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.MsgPipeRW).Close",
+      "span": "p2p/message.go:215",
+      "typed": {
+        "lengths": {
+          "p": null
+        },
+        "stale": true,
+        "terms": [
+          [
+            [
+              "field",
+              [
+                "param",
+                "p"
+              ],
+              "closed"
+            ],
+            "*sync/atomic.Bool"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "p"
+              ],
+              "closing"
+            ],
+            "chan struct{}"
+          ]
+        ]
+      }
+    },
+    "p2p_MsgPipeRW_ReadMsg": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "p",
+          "type": "*github.com/ethereum/go-ethereum/p2p.MsgPipeRW"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "true",
+              [
+                "call",
+                "(*sync/atomic.Bool).Load",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "p"
+                    ],
+                    "closed"
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "zero",
+              "github.com/ethereum/go-ethereum/p2p.Msg"
+            ],
+            [
+              "global",
+              "github.com/ethereum/go-ethereum/p2p.ErrPipeClosed"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "false",
+              [
+                "call",
+                "(*sync/atomic.Bool).Load",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "p"
+                    ],
+                    "closed"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "result",
+              [
+                "unknown",
+                "select"
+              ],
+              2
+            ],
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "false",
+              [
+                "call",
+                "(*sync/atomic.Bool).Load",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "p"
+                    ],
+                    "closed"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "!=",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                1
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "zero",
+              "github.com/ethereum/go-ethereum/p2p.Msg"
+            ],
+            [
+              "global",
+              "github.com/ethereum/go-ethereum/p2p.ErrPipeClosed"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "false",
+              [
+                "call",
+                "(*sync/atomic.Bool).Load",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "p"
+                    ],
+                    "closed"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "!=",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                0
+              ]
+            ],
+            [
+              "!=",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                1
+              ]
+            ]
+          ],
+          "end": "panic",
+          "error": null,
+          "returns": null,
+          "site": "p2p/message.go:201:21:panic"
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "github.com/ethereum/go-ethereum/p2p.Msg",
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": null,
+          "id": "p2p/message.go:201:21:panic",
+          "kind": "panic",
+          "status": "open",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.MsgPipeRW).ReadMsg",
+      "span": "p2p/message.go:201",
+      "typed": {
+        "lengths": {
+          "p": null
+        },
+        "stale": true,
+        "terms": [
+          [
+            [
+              "field",
+              [
+                "param",
+                "p"
+              ],
+              "closed"
+            ],
+            "*sync/atomic.Bool"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "p"
+              ],
+              "closing"
+            ],
+            "chan struct{}"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "p"
+              ],
+              "r"
+            ],
+            "<-chan github.com/ethereum/go-ethereum/p2p.Msg"
+          ],
+          [
+            [
+              "global",
+              "github.com/ethereum/go-ethereum/p2p.ErrPipeClosed"
+            ],
+            "error"
+          ],
+          [
+            [
+              "result",
+              [
+                "unknown",
+                "select"
+              ],
+              0
+            ],
+            "int"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ],
+    "R_Msg_Error": [
+      "github.com/ethereum/go-ethereum/p2p.Msg",
+      "error"
+    ]
+  }
+}

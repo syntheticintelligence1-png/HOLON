@@ -788,8 +788,12 @@ def run_m1(milestone: str, facts_path: str | None, out: str | None, gen_dir: str
         status, em, r = "UNKNOWN", None, None
         bound = None
         stmt_text = records.ir_roots_text(law)
-        # I117 (HUMAN_ANSWERS Q91 (3)): under --unbound unknown the binding is checked before the emitter, on the
-        # statement's IR roots (as holon.codecrun does): a law that cannot be bound is never emitted or decided
+        # I117 (HUMAN_ANSWERS Q91 (3)): under --unbound unknown the binding is checked before the law is decided (as
+        # holon.codecrun does): a law that cannot be bound is never decided. F-M6-15 (Q113): it is checked on the
+        # statement text the emitter writes (the IR's roots only where the emitter refuses it), the text the check
+        # after the decision binds
+        if CR.UNBOUND == "unknown":
+            stmt_text = CR.precheck_text(law, lambda: _emit_unchecked(law, cm, imp, shash))
         ub0 = CR.unbound_error(stmt_text, model_src, cfg) if law_cone_needed(law, cm.facts) else None
         try:
             if ub0 is not None:
@@ -1235,6 +1239,15 @@ def reach_search(em, cm: CompiledMachine, imp: str, ld: Path, pd: Path, cfg: dic
         if ok:
             return rr
     return None
+
+
+def _emit_unchecked(law: dict, cm, imp: str, shash: str) -> str | None:
+    """F-M6-15: the statement text run()'s emitter writes for a law (holon.mlaws.Emitter), without deciding it; None
+    where the emitter refuses it."""
+    try:
+        return mlaws.Emitter(cm.m).emit(law, imp, note=shash).text
+    except (mlaws.Unsupported, ir.IRError):
+        return None
 
 
 class _Unbound(Exception):

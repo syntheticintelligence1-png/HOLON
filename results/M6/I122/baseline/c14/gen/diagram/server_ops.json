@@ -1,0 +1,139 @@
+{
+  "carriers": [
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "Server",
+      "cls": "rep",
+      "domains": [
+        "ok_p2p_Server_Start",
+        "ok_p2p_Server_setupDiscovery",
+        "ok_p2p_Server_setupListening",
+        "ok_p2p_Server_setupLocalNode"
+      ],
+      "id": "Server",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c14/facts/go_1.go.extracted.json",
+      "domain": "ok_p2p_Server_Start",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.p2p_Server_Start",
+      "kind": "CODEC",
+      "model_fn": "p2p_Server_Start",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/p2p.Server).Start"
+        }
+      ],
+      "src": "Server",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c14/facts/go_1.go.extracted.json",
+      "domain": "ok_p2p_Server_setupDiscovery",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.p2p_Server_setupDiscovery",
+      "kind": "CODEC",
+      "model_fn": "p2p_Server_setupDiscovery",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/p2p.Server).setupDiscovery"
+        }
+      ],
+      "src": "Server",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c14/facts/go_1.go.extracted.json",
+      "domain": "ok_p2p_Server_setupListening",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.p2p_Server_setupListening",
+      "kind": "CODEC",
+      "model_fn": "p2p_Server_setupListening",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/p2p.Server).setupListening"
+        }
+      ],
+      "src": "Server",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c14/facts/go_1.go.extracted.json",
+      "domain": "ok_p2p_Server_setupLocalNode",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.p2p_Server_setupLocalNode",
+      "kind": "CODEC",
+      "model_fn": "p2p_Server_setupLocalNode",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/p2p.Server).setupLocalNode"
+        }
+      ],
+      "src": "Server",
+      "tgt": "R_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/server_ops.json",
+  "facts_sha256": "8a37b991d1ae23e0d3e331ea9f58633e84a16c348413823741ebbc89dc262953",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "server_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

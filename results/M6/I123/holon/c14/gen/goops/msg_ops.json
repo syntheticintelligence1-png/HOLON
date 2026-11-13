@@ -1,0 +1,92 @@
+{
+  "carrier": {
+    "id": "Msg",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "github.com/ethereum/go-ethereum/p2p.Msg"
+  },
+  "component": "msg_ops",
+  "document": "results/M6/I123/holon/c14/facts/go_1.go.extracted.json",
+  "document_sha256": "2e71d024dc7f32e93077a9b465bb4b735fc8a82070d5b5a22d2860a04db46cbe",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "p2p_Msg_Discard": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "msg",
+          "type": "github.com/ethereum/go-ethereum/p2p.Msg"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [],
+          "end": "return",
+          "error": "unknown",
+          "returns": [
+            [
+              "result",
+              [
+                "call",
+                "io.Copy",
+                [
+                  [
+                    "global",
+                    "io/ioutil.Discard"
+                  ],
+                  [
+                    "field",
+                    [
+                      "param",
+                      "msg"
+                    ],
+                    "Payload"
+                  ]
+                ]
+              ],
+              1
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(github.com/ethereum/go-ethereum/p2p.Msg).Discard",
+      "span": "p2p/message.go:68",
+      "typed": {
+        "lengths": {
+          "msg": null
+        },
+        "stale": false,
+        "terms": [
+          [
+            [
+              "field",
+              [
+                "param",
+                "msg"
+              ],
+              "Payload"
+            ],
+            "io.Reader"
+          ],
+          [
+            [
+              "global",
+              "io/ioutil.Discard"
+            ],
+            "io.Writer"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ]
+  }
+}

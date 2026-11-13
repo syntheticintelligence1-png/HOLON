@@ -1,0 +1,273 @@
+{
+  "carrier": {
+    "id": "Trie",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/trie.Trie"
+  },
+  "component": "trie_ops",
+  "document": "results/M6/base/holon/c19/facts/go_2.go.extracted.json",
+  "document_sha256": "204bcd1950a19c616438b1b9d6f96373a3e30b5ec0b9721fa5048de5ea00e502",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "trie_Trie_hashRoot": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "t",
+          "type": "*github.com/ethereum/go-ethereum/trie.Trie"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "field",
+                [
+                  "param",
+                  "t"
+                ],
+                "root"
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "iface",
+              "github.com/ethereum/go-ethereum/trie.hashNode",
+              [
+                "call",
+                "(github.com/ethereum/go-ethereum/common.Hash).Bytes",
+                [
+                  [
+                    "global",
+                    "github.com/ethereum/go-ethereum/trie.emptyRoot"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "nil"
+            ],
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "field",
+                [
+                  "param",
+                  "t"
+                ],
+                "root"
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "result",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/trie.hasher).hash",
+                [
+                  [
+                    "unknown",
+                    "assert"
+                  ],
+                  [
+                    "field",
+                    [
+                      "param",
+                      "t"
+                    ],
+                    "root"
+                  ],
+                  [
+                    "bool",
+                    true
+                  ]
+                ]
+              ],
+              0
+            ],
+            [
+              "result",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/trie.hasher).hash",
+                [
+                  [
+                    "unknown",
+                    "assert"
+                  ],
+                  [
+                    "field",
+                    [
+                      "param",
+                      "t"
+                    ],
+                    "root"
+                  ],
+                  [
+                    "bool",
+                    true
+                  ]
+                ]
+              ],
+              1
+            ],
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "github.com/ethereum/go-ethereum/trie.node",
+        "github.com/ethereum/go-ethereum/trie.node",
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/trie.Trie).hashRoot",
+      "span": "trie/trie.go:573",
+      "typed": {
+        "lengths": {
+          "t": null
+        },
+        "stale": true,
+        "terms": [
+          [
+            [
+              "field",
+              [
+                "param",
+                "t"
+              ],
+              "root"
+            ],
+            "github.com/ethereum/go-ethereum/trie.node"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "t"
+              ],
+              "unhashed"
+            ],
+            "int"
+          ],
+          [
+            [
+              "global",
+              "github.com/ethereum/go-ethereum/trie.emptyRoot"
+            ],
+            "github.com/ethereum/go-ethereum/common.Hash"
+          ],
+          [
+            [
+              "iface",
+              "github.com/ethereum/go-ethereum/trie.hashNode",
+              [
+                "call",
+                "(github.com/ethereum/go-ethereum/common.Hash).Bytes",
+                [
+                  [
+                    "global",
+                    "github.com/ethereum/go-ethereum/trie.emptyRoot"
+                  ]
+                ]
+              ]
+            ],
+            "github.com/ethereum/go-ethereum/trie.node"
+          ],
+          [
+            [
+              "result",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/trie.hasher).hash",
+                [
+                  [
+                    "unknown",
+                    "assert"
+                  ],
+                  [
+                    "field",
+                    [
+                      "param",
+                      "t"
+                    ],
+                    "root"
+                  ],
+                  [
+                    "bool",
+                    true
+                  ]
+                ]
+              ],
+              0
+            ],
+            "github.com/ethereum/go-ethereum/trie.node"
+          ],
+          [
+            [
+              "result",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/trie.hasher).hash",
+                [
+                  [
+                    "unknown",
+                    "assert"
+                  ],
+                  [
+                    "field",
+                    [
+                      "param",
+                      "t"
+                    ],
+                    "root"
+                  ],
+                  [
+                    "bool",
+                    true
+                  ]
+                ]
+              ],
+              1
+            ],
+            "github.com/ethereum/go-ethereum/trie.node"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Node_Node_Error": [
+      "github.com/ethereum/go-ethereum/trie.node",
+      "github.com/ethereum/go-ethereum/trie.node",
+      "error"
+    ]
+  }
+}

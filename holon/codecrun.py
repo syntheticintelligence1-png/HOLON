@@ -88,6 +88,30 @@ def unbound_error(stmt_text: str, model_src: Path, cfg: dict) -> str | None:
     return None
 
 
+def precheck_text(law: dict, emit) -> str:
+    """F-M6-15 (HUMAN_ANSWERS Q113): the text the binding is checked on before a law is decided, under --unbound
+    unknown. It is the statement text the run's own emitter writes for the law (emit(), called without deciding
+    anything), so the check before the decision and the check after it (on the decided statement's text) never
+    disagree on a law the emitter can express; records.ir_roots_text only where the emitter refuses the statement.
+    Never computed when the option is off."""
+    try:
+        t = emit()
+    except (C1.Unsupported, GL.Unsupported, GG.Unsupported, GN.Unsupported, ir.IRError):
+        t = None
+    return t if t is not None else records.ir_roots_text(law)
+
+
+def emitted_text(law: dict, kind: str, doc: dict, cm, imp: str, shash: str) -> str:
+    """precheck_text for a codec-runner law: the emitter its decide() writes the statement with, for its kind."""
+    if kind == "linked":
+        return precheck_text(law, lambda: GL.emit(law, cm.doc, imp, note=shash).text)
+    if kind == "goops":
+        return precheck_text(law, lambda: GG.emit(law, cm.doc, imp, note=shash).text)
+    if kind == "gocount":
+        return precheck_text(law, lambda: GN.emit(law, cm.doc, imp, note=shash).text)
+    return precheck_text(law, lambda: C1.emit(C1.to01(law), doc, imp, header_note=shash).text)
+
+
 def unbound_res(err: str) -> dict:
     return {"status": "UNKNOWN", "attempts": [{"kind": "binding", "error": err}], "bound": UNBOUND_BOUND.format(err)}
 
@@ -264,6 +288,8 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
     for x in {d, ld, pd}:
         shutil.rmtree(x, ignore_errors=True)
     stmt_text = records.ir_roots_text(law)
+    if UNBOUND == "unknown":   # F-M6-15: the pre-check binds the emitter's statement text, as the check after does
+        stmt_text = emitted_text(law, kind, doc, cm, imp, shash)
     ub = unbound_error(stmt_text, model_src, cfg)   # I115: the binding first (None unless --unbound unknown)
     try:
         if ub is not None:

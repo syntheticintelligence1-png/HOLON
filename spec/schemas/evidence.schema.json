@@ -24,6 +24,8 @@
     "models": {"type": "object", "additionalProperties": {"$ref": "#/$defs/model"}},
     "atoms": {"type": "array", "items": {"$ref": "#/$defs/atom"}},
     "unresolved": {"type": "array", "items": {"$ref": "#/$defs/unresolved"}},
+    "fallback": {"type": "array", "items": {"$ref": "#/$defs/fallback"},
+                 "description": "I116 (E), schema by I118 (Q92 (3)): the adopted transitions documents whose E2 atoms the rule over transitions documents does not map, each kept with its anchors and no atom; written only under the adoption sidecar's opt-in (document_fallback \"unknown\"), and only when a document falls back. Optional."},
     "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
   },
   "$defs": {
@@ -32,6 +34,11 @@
              "description": "an edge id: a codec, transition, migration, consumer or (I35, rule W7 of tests_m3/test_own.py) OWN method edge, or a load observation"},
     "edges": {"type": "array", "items": {"$ref": "#/$defs/edge"}},
     "strings": {"type": "array", "items": {"type": "string"}},
+    "fallback": {
+      "type": "object", "additionalProperties": false, "required": ["document", "sha256", "model", "class", "error"],
+      "properties": {"document": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                     "model": {"type": "string"}, "class": {"enum": ["e2_unmapped"]}, "error": {"type": "string"}}
+    },
     "input": {
       "type": "object", "required": ["path", "sha256"], "additionalProperties": false,
       "properties": {"path": {"type": "string"}, "sha256": {"$ref": "#/$defs/sha256"}}

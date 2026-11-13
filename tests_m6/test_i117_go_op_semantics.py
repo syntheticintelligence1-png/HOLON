@@ -539,11 +539,15 @@ class TestRegressions(unittest.TestCase):
 
     def test_p6_no_earlier_protocol_names_go_ops(self):
         for p in sorted((ROOT / "spec").glob("*/lib/*.json")):
-            if p.name == "i117_run.json":
+            if p.name in ("i117_run.json", "base_run.json"):   # amended (I117.jsonl): base_run.json is Q104's combined base
                 continue
             try:
                 d = json.loads(p.read_text(encoding="utf-8"))
             except ValueError:
+                continue
+            # amended (spec/M6/amendments/I117.jsonl): the protocols of I117 and later keys are not earlier ones
+            it = str(d.get("iteration") or "") if isinstance(d, dict) else ""
+            if it[1:].isdigit() and int(it[1:]) >= 117:
                 continue
             if isinstance(d, dict) and isinstance(d.get("go"), dict):
                 self.assertNotIn("ops", d["go"], p.relative_to(ROOT).as_posix())

@@ -42,6 +42,8 @@ class Ctx:
         # I119 (HUMAN_ANSWERS Q93 (1)): the path reasoner reads sized arithmetic as opaque under every config (Go
         # integers wrap), so no branch is pruned by unbounded arithmetic; before I119 only under ops "typed"
         self.opaque_arith = Ctx.opaque_arith_of(config)
+        # I122 (opt-in, loops "shapes", with ops "typed"): loop bodies for every function and every constant step
+        self.loop_shapes = config.get("loops") == "shapes"
         lim = config.get("limits") or {}
         self.max_paths = int(lim.get("max_paths", 512))
         self.inline_depth = int(lim.get("inline_depth", 4))

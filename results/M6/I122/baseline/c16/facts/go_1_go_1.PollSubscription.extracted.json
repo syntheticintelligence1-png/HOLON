@@ -1,0 +1,357 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.PollSubscription",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Err",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "storage",
+        "err"
+      ],
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/common.go:55",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.PollSubscription",
+      "edges": [],
+      "effects": [
+        {
+          "family": "err",
+          "src": "node/pkg/watchers/evm/connectors/common.go:59"
+        },
+        {
+          "family": "errOnce",
+          "src": "node/pkg/watchers/evm/connectors/common.go:59"
+        },
+        {
+          "family": "quit",
+          "src": "node/pkg/watchers/evm/connectors/common.go:59"
+        },
+        {
+          "family": "unsubDone",
+          "src": "node/pkg/watchers/evm/connectors/common.go:59"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "Unsubscribe",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "err": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/common.go:59",
+          "havoc"
+        ],
+        "errOnce": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/common.go:59",
+          "havoc"
+        ],
+        "quit": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/common.go:59",
+          "havoc"
+        ],
+        "unsubDone": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/common.go:59",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/common.go:59",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "err",
+          "path": [],
+          "seq": 0,
+          "src": "node/pkg/watchers/evm/connectors/common.go:59",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/common.go:59",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "errOnce",
+          "path": [],
+          "seq": 1,
+          "src": "node/pkg/watchers/evm/connectors/common.go:59",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/common.go:59",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "quit",
+          "path": [],
+          "seq": 2,
+          "src": "node/pkg/watchers/evm/connectors/common.go:59",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/common.go:59",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "unsubDone",
+          "path": [],
+          "seq": 3,
+          "src": "node/pkg/watchers/evm/connectors/common.go:59",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/common.go:59",
+            "havoc"
+          ]
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/certusone/wormhole/node/pkg/watchers/evm/connectors.PollSubscription",
+  "debt": [],
+  "extraction": {
+    "config": {
+      "path": "results/M6/base/holon/c16/sidecars/go_1_machines.json",
+      "sha256": "6e1320e1fbd52504e5693e7f498a7feeade6c66b8e8cd4f0292b1175bc3c1616"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "deacc3cdaeefa64d49d668d1a250e24cbc2074cde58eea93313f11b5f0974e6f",
+        "unit": "node/pkg/watchers/evm/connectors/celo.go"
+      },
+      {
+        "sha256": "55a8fb0b2d16e4965967dc4777a19b81a71de1921a3446c26eaabfcb608ab1e1",
+        "unit": "node/pkg/watchers/evm/connectors/common.go"
+      },
+      {
+        "sha256": "41048728b90fa0570d00236fedce398402441045019ff34529605a4ed2b2971e",
+        "unit": "node/pkg/watchers/evm/connectors/ethereum.go"
+      },
+      {
+        "sha256": "747042ddb76b8125f9afea90ad853d637c0b25adb187ee20c7bfd3efa555aa19",
+        "unit": "node/pkg/watchers/evm/connectors/logpoller.go"
+      },
+      {
+        "sha256": "a00180ac5c0a6b327d12c4a8bda95e30cc56703d39ef9effcc7d086e987fb585",
+        "unit": "node/pkg/watchers/evm/connectors/poller.go"
+      },
+      {
+        "sha256": "23c42aed84fd84a75076ae46f612723958a09be0b6977153541d863733b7261d",
+        "unit": "node/pkg/watchers/evm/connectors/polygon.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "connectors.PollSubscription",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "Err": {
+        "declared_in": "connectors.PollSubscription",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Err",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Unsubscribe": {
+        "declared_in": "connectors.PollSubscription",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "Unsubscribe",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "connectors.PollSubscription",
+          "label": "errOnce",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "connectors.PollSubscription",
+          "label": "err",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "connectors.PollSubscription",
+          "label": "quit",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "connectors.PollSubscription",
+          "label": "unsubDone",
+          "offset": 0,
+          "slot": "3",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "connectors.PollSubscription"
+    ],
+    "members": {
+      "(*sync.Once).Do": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*sync.Once).Do",
+          "outputs": [],
+          "selector": "0x7c9ebfc1",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "node/pkg/watchers/evm/connectors/celo.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "errOnce",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "err",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "quit",
+      "offset": 0,
+      "slot": 2,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "unsubDone",
+      "offset": 0,
+      "slot": 3,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "100a01b4b17fbf396a9e7b3ffde2733a5086d1aa",
+    "repo": "wormhole-foundation/wormhole",
+    "scope": "go machine github.com/certusone/wormhole/node/pkg/watchers/evm/connectors.PollSubscription"
+  }
+}

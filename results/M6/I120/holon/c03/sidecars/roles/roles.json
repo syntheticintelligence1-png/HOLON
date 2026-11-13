@@ -1,0 +1,83 @@
+{
+  "dropped": [],
+  "inputs": [
+    {
+      "kind": "go",
+      "path": "results/M6/I120/holon/c03/facts/go_1.go.extracted.json",
+      "sha256": "feec9e338a0d0a9ccf128e796a3a75fb8b013a31f2d4b29e0da7744490a915de"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I120/holon/c03/facts/go_1_go_1.Hooks.extracted.json",
+      "sha256": "daf1b732a484c43b41e8ac9afad7cbc701c94b47e2614db2b687c42e4a375be0"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I120/holon/c03/facts/go_1_go_1.Keeper.extracted.json",
+      "sha256": "c2f438afa7867b04470343f1a52250ad061d63f4eb24689e69d169df144381ae"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I120/holon/c03/facts/go_1_go_1.Migrator.extracted.json",
+      "sha256": "8eeb1421160d45d61990c0648fc5592e28a5939388304eb17e0b63a3bbafef1d"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I120/holon/c03/facts/go_1_go_1.Querier.extracted.json",
+      "sha256": "55ef0403b4123628b5724683bfa1e3001f3ccf2ac79c147cd41149920a124de7"
+    },
+    {
+      "kind": "transitions",
+      "path": "results/M6/I120/holon/c03/facts/go_1_go_1.msgServer.extracted.json",
+      "sha256": "b405ea780bd713640062526d36f812f3bb7a3092585ed3ad956d83a37c84c3d6"
+    }
+  ],
+  "milestone": "M9",
+  "mode": "static",
+  "proposed": null,
+  "rejected": [],
+  "roles": [
+    {
+      "carrier": "github.com/cosmos/cosmos-sdk/types.Coins",
+      "detail": {
+        "ops": [
+          "github.com/cosmos/cosmos-sdk/x/distribution/keeper.validateAmount"
+        ]
+      },
+      "evidence": {
+        "facts": [
+          "results/M6/I120/holon/c03/facts/go_1.go.extracted.json#go.functions.github.com/cosmos/cosmos-sdk/x/distribution/keeper.validateAmount"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "id": "coins_ops",
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static",
+      "sidecar": "go_ops"
+    },
+    {
+      "evidence": {
+        "facts": [
+          "results/M6/I120/holon/c03/facts/go_1_go_1.Hooks.extracted.json",
+          "results/M6/I120/holon/c03/facts/go_1_go_1.Keeper.extracted.json",
+          "results/M6/I120/holon/c03/facts/go_1_go_1.Migrator.extracted.json",
+          "results/M6/I120/holon/c03/facts/go_1_go_1.Querier.extracted.json",
+          "results/M6/I120/holon/c03/facts/go_1_go_1.msgServer.extracted.json"
+        ],
+        "rule": "transitions_documents"
+      },
+      "id": "documents",
+      "roles_source": "static",
+      "sidecar": "typed"
+    }
+  ],
+  "roles_version": "holon-roles/0.1",
+  "sidecars": {
+    "derive_extracted.json": "2c5e93c2a6a37deb276e5988b5dd83323b424963d2d3444b511d7daece98ce4f",
+    "disch.json": "55be0514559d899b68a7bba638979a2c96df61f42ff036c58d343a5b8d59a5e9",
+    "fact.json": "3744eb913462569ebc6b05feec381b017d1f9a14edec8dcf86e7fc4eec4b5e8d",
+    "go_ops.json": "3330f908c42af9d52259a3c6774dd03a4b4216cb10c7202bf19914a2622742a5",
+    "sort_types.json": "ab28c065efed050052245f3d4b5c9081a3c9775c1161946627d32e21055894ef",
+    "undo.json": "c3ee8bca15739a6c4f559289d18814dbb537b140dadcaf743c545c2171ae3ed4"
+  }
+}

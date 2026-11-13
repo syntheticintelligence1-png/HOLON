@@ -1,0 +1,172 @@
+{
+  "carriers": [
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Uint64_Error",
+      "cls": "rep",
+      "id": "R_Uint64_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "ResettableFreezer",
+      "cls": "rep",
+      "domains": [
+        "ok_rawdb_ResettableFreezer_Ancients",
+        "ok_rawdb_ResettableFreezer_Close",
+        "ok_rawdb_ResettableFreezer_Reset",
+        "ok_rawdb_ResettableFreezer_Sync",
+        "ok_rawdb_ResettableFreezer_Tail"
+      ],
+      "id": "ResettableFreezer",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_ResettableFreezer_Ancients",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_ResettableFreezer_Ancients",
+      "kind": "CODEC",
+      "model_fn": "rawdb_ResettableFreezer_Ancients",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer).Ancients"
+        }
+      ],
+      "src": "ResettableFreezer",
+      "tgt": "R_Uint64_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_ResettableFreezer_Close",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_ResettableFreezer_Close",
+      "kind": "CODEC",
+      "model_fn": "rawdb_ResettableFreezer_Close",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer).Close"
+        }
+      ],
+      "src": "ResettableFreezer",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_ResettableFreezer_Reset",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_ResettableFreezer_Reset",
+      "kind": "CODEC",
+      "model_fn": "rawdb_ResettableFreezer_Reset",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer).Reset"
+        }
+      ],
+      "src": "ResettableFreezer",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_ResettableFreezer_Sync",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_ResettableFreezer_Sync",
+      "kind": "CODEC",
+      "model_fn": "rawdb_ResettableFreezer_Sync",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer).Sync"
+        }
+      ],
+      "src": "ResettableFreezer",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_ResettableFreezer_Tail",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_ResettableFreezer_Tail",
+      "kind": "CODEC",
+      "model_fn": "rawdb_ResettableFreezer_Tail",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer).Tail"
+        }
+      ],
+      "src": "ResettableFreezer",
+      "tgt": "R_Uint64_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/resettable_freezer_ops.json",
+  "facts_sha256": "088cb832dc68c130cc3230493d52a9e987802f327c86f9ac7d9adf1787b34077",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "resettable_freezer_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

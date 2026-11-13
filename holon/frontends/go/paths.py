@@ -201,7 +201,8 @@ class Enumerator:
         k = getattr(L, "k", 0) or 0
         iv = ("iv", L.iv or "i")
         self._loop = {"header": L.header, "phi": L.phi.name if L.phi else None, "iv": iv,
-                      "phi_value": iv if k == 0 else op("-", iv, const(k)), "init": L.init, "havoc": frozenset(havoc),
+                      "phi_value": iv if k == 0 else op("-", iv, const(k)), "init": L.init, "step": L.step,
+                      "havoc": frozenset(havoc),
                       "others": {x.header for x in self.flow(fn).loops() if x.header != L.header}}
         top = Frame()
         top.fn, top.flow, top.env, top.bidx, top.pc, top.depth, top.ret = fn, self.flow(fn), {}, 0, 0, 0, None
@@ -579,7 +580,9 @@ class Enumerator:
             for oid, ob in self.objs.items():   # memory an iteration writes is unknown in a later one
                 if ob.pos in self._loop["havoc"] and oid in st.mem:
                     st.mem[oid] = OState(None, {}, frozenset({()}))
-            if self._loop["init"] is not None:                 # the induction variable is at least its initial value
+            # the induction variable is at least its initial value: only for step 1 (I122: a negative or wrapping step
+            # has no such fact; the opt-in emits those loops, and they get none)
+            if self._loop["init"] is not None and self._loop.get("step", 1) == 1:
                 self.assume(st, ("<=", self._loop["init"], self._loop["iv"]))
             return None
         blk = fr.fn.blocks[b]
