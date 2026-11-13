@@ -6,7 +6,8 @@
 The rule, and nothing else: start from ROOT (I116's landed protocol, the common ancestor of every landed M6 protocol).
 For each landed protocol in LANDED, in order, take every key whose value differs from that protocol's own base (its
 `base_protocol`, or ROOT when it names none), leaving out META, and set it in the result exactly as named there. A key
-that two protocols set to different values is refused. META keys get the base's own values below. Output is
+that two protocols set to different values is refused. META keys get the base's own values below. An empty dict is
+a key's value like any other, so it is kept (F-M6-12: dropping it broke every run on the base). Output is
 deterministic (sorted keys, two-space indent, one trailing newline).
 """
 from __future__ import annotations
@@ -26,7 +27,7 @@ META = {"base_protocol", "doc", "go_machines.out", "iteration", "out", "i117_key
 def _flat(d: dict, p: str = "") -> dict:
     o = {}
     for k, v in d.items():
-        if isinstance(v, dict):
+        if isinstance(v, dict) and v:   # an empty dict is a value of its own (F-M6-12): kept as a leaf, never dropped
             o.update(_flat(v, p + k + "."))
         else:
             o[p + k] = v
