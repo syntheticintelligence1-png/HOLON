@@ -1,0 +1,382 @@
+{
+  "document": "disch_closure",
+  "inputs": [
+    {
+      "path": "results/M6/I118/holon/c16/facts/go_1_go_1.BlockPollConnector.extracted.json",
+      "sha256": "46e1922d9613322b0b3801a82307a026ca3b85b112b84abaf9a7b5cc0b7b125a"
+    },
+    {
+      "path": "results/M6/I118/holon/c16/facts/go_1_go_1.CeloConnector.extracted.json",
+      "sha256": "2d493ca928751b8b981cf2057ba36288c7124b113fbe510eca70170097b0d106"
+    },
+    {
+      "path": "results/M6/I118/holon/c16/facts/go_1_go_1.EthereumConnector.extracted.json",
+      "sha256": "43eb8eb0310c1c3272bd8332e6e6310c3e562e6403647b8ed74220cc7d6f7969"
+    },
+    {
+      "path": "results/M6/I118/holon/c16/facts/go_1_go_1.LogPollConnector.extracted.json",
+      "sha256": "c6c951afd927275872062d0b807f96fd7fc77a0925d0a2deaba32d3519524db2"
+    },
+    {
+      "path": "results/M6/I118/holon/c16/facts/go_1_go_1.PollSubscription.extracted.json",
+      "sha256": "c5224dfffa62f68f7a94f33024be91ff083820fd4fd80efc6ecc27cb7d813510"
+    },
+    {
+      "path": "results/M6/I118/holon/c16/facts/go_1_go_1.PolygonConnector.extracted.json",
+      "sha256": "0c0f7a0f131a7d6f02887317850dcd6edbfe13de07bf786946c63cbaecc68239"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.BlockPollConnector.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "SubscribeForBlocks"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "SubscribeForBlocks"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "blockFeed",
+            "errFeed"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "SubscribeForBlocks": null
+      },
+      "r0": {
+        "Connector": [
+          0
+        ],
+        "Delay": [
+          0
+        ],
+        "blockFeed": [
+          0
+        ],
+        "errFeed": [
+          0
+        ],
+        "finalizer": [
+          0
+        ],
+        "publishSafeBlocks": [
+          0
+        ],
+        "useFinalized": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.CeloConnector.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "GetCurrentGuardianSetIndex",
+            "GetGuardianSet",
+            "ParseLogMessagePublished",
+            "RawCallContext",
+            "SubscribeForBlocks",
+            "TimeOfBlockByHash",
+            "TransactionReceipt",
+            "WatchLogMessagePublished"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "GetCurrentGuardianSetIndex",
+            "GetGuardianSet",
+            "ParseLogMessagePublished",
+            "RawCallContext",
+            "SubscribeForBlocks",
+            "TimeOfBlockByHash",
+            "TransactionReceipt",
+            "WatchLogMessagePublished"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "address",
+            "caller",
+            "client",
+            "filterer",
+            "logger",
+            "networkName",
+            "rawClient"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "GetCurrentGuardianSetIndex": null,
+        "GetGuardianSet": null,
+        "ParseLogMessagePublished": null,
+        "RawCallContext": null,
+        "SubscribeForBlocks": null,
+        "TimeOfBlockByHash": null,
+        "TransactionReceipt": null,
+        "WatchLogMessagePublished": null
+      },
+      "r0": {
+        "address": [
+          0
+        ],
+        "caller": [
+          0
+        ],
+        "client": [
+          0
+        ],
+        "filterer": [
+          0
+        ],
+        "logger": [
+          0
+        ],
+        "networkName": [
+          0
+        ],
+        "rawClient": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.EthereumConnector.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "GetCurrentGuardianSetIndex",
+            "GetGuardianSet",
+            "ParseLogMessagePublished",
+            "RawCallContext",
+            "SubscribeForBlocks",
+            "TimeOfBlockByHash",
+            "TransactionReceipt",
+            "WatchLogMessagePublished"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "GetCurrentGuardianSetIndex",
+            "GetGuardianSet",
+            "ParseLogMessagePublished",
+            "RawCallContext",
+            "SubscribeForBlocks",
+            "TimeOfBlockByHash",
+            "TransactionReceipt",
+            "WatchLogMessagePublished"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "address",
+            "caller",
+            "client",
+            "filterer",
+            "logger",
+            "networkName",
+            "rawClient"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "GetCurrentGuardianSetIndex": null,
+        "GetGuardianSet": null,
+        "ParseLogMessagePublished": null,
+        "RawCallContext": null,
+        "SubscribeForBlocks": null,
+        "TimeOfBlockByHash": null,
+        "TransactionReceipt": null,
+        "WatchLogMessagePublished": null
+      },
+      "r0": {
+        "address": [
+          0
+        ],
+        "caller": [
+          0
+        ],
+        "client": [
+          0
+        ],
+        "filterer": [
+          0
+        ],
+        "logger": [
+          0
+        ],
+        "networkName": [
+          0
+        ],
+        "rawClient": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.LogPollConnector.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "WatchLogMessagePublished"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "WatchLogMessagePublished"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "errFeed",
+            "messageFeed"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "WatchLogMessagePublished": null
+      },
+      "r0": {
+        "Connector": [
+          0
+        ],
+        "client": [
+          0
+        ],
+        "errFeed": [
+          0
+        ],
+        "messageFeed": [
+          0
+        ],
+        "prevBlockNum": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.PollSubscription.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Unsubscribe"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Unsubscribe"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "err",
+            "errOnce",
+            "quit",
+            "unsubDone"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Unsubscribe": null
+      },
+      "r0": {
+        "err": [
+          0
+        ],
+        "errOnce": [
+          0
+        ],
+        "quit": [
+          0
+        ],
+        "unsubDone": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.PolygonConnector.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "SubscribeForBlocks"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "SubscribeForBlocks"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "Connector",
+            "logger",
+            "rootCaller",
+            "rootClient",
+            "rootFilterer",
+            "rootRawClient"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "SubscribeForBlocks": null
+      },
+      "r0": {
+        "Connector": [
+          0
+        ],
+        "logger": [
+          0
+        ],
+        "rootCaller": [
+          0
+        ],
+        "rootClient": [
+          0
+        ],
+        "rootFilterer": [
+          0
+        ],
+        "rootRawClient": [
+          0
+        ]
+      }
+    }
+  },
+  "sidecar": {
+    "path": "results/M6/I118/holon/c16/sidecars/disch.json",
+    "sha256": "7f0aab431dd61d02a1504604101520fb8a71dbf237353770899fda26fca82e14"
+  }
+}

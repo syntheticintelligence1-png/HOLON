@@ -1682,6 +1682,136 @@
       ],
       "regressions": []
     },
+    "I118": {
+      "title": "I118: the post-derive walls (HUMAN_ANSWERS Q92, the lead's approval): (1) the composed coverage stage accounts only for the extracted, typed documents and records every other one as skipped; a runner failure and a bind failure confined to one document's laws become per-document fallbacks in Q77's shape (that document's laws UNKNOWN with the error, the rest run), and a failure not confined to one document stays a refusal; (2) per rule family, why no law is derived on each spent target, as pre-decision aggregates (a measurement that builds nothing); (3) spec/schemas/evidence.schema.json gains an optional fallback property. Run through holon eval holon --compose with I116's protocol plus the three opt-ins (and I117's landed keys, if I117 lands first)",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I118)",
+      "prompt": "prompts/I118_post_derive_walls.md",
+      "tests": [
+        "tests_m6/test_i118_post_derive_walls.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I118/",
+        "docs/iterations/I118.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P8 are on planted fixtures (tests_m6/fixtures/i118, written from the stages' semantics, never from a spent target's document) and unit inputs. P9 is a smoke measure on I51's corpus, contaminated by I51, I103-I116 and I107. P10-P11 are measurements on I106's targets, contaminated: post-I107. I114 scores generality on the sealed pair. Laws are reported as aggregates only, decided counts never split (Q56, Q89); stage reasons only for stages before any decision (Q72).",
+        "instruments": "spec/M6/lib/i118_run.json (I116's protocol, spec/M6/lib/i116_run.json, plus document_fallback {coverage: typed_only, run: unknown, bind: unknown}; if I117 lands before the counted run, the keys its landed protocol adds to I116's are added exactly as named there in one commit before any measured run, listed in i117_keys, and nothing else changes), tests_m6/test_i118_post_derive_walls.py (every check), tools/i118_sealed.py (the spent-target run, I116's tool with this protocol) and tools/i118_families.py ((2): reads only pre-decision outputs)",
+        "base": "claude/i116-per-document-fallbacks at 303ae8a0 (I116, not yet landed; its landing branch claude/ci-i116-landing). The counted runs wait for the landing they measure on: I117's if it has landed by then, otherwise I116's, merged into this branch by a merge commit whose sha the report records",
+        "baseline": "I116's counted composed run (results/M6/I116/holon/corpus.json): entries ok at extract 14, sorts 14, types 14, model 14, disch 14, evidence 14, derive 14, bind 6, run 6; 107 laws derived, 1 decided (PROVED and REFUTED together, Q56). I116's spent-target run (results/M6/I116/sealed.json): Aave V3 derives 8 laws, 0 decided, its coverage, bind and run stages not ok; EigenLayer derives 0 laws",
+        "counting": "Q80, Q76, Q69: the counted run is the first measured run of holon eval holon --protocol spec/M6/lib/i118_run.json --compose over the corpus that finishes, after the base landing is merged; every prediction is scored on it. A re-run counts only if the first attempt never finished; any other re-run is reported beside it as not counted. No started run's output is ever deleted. The spent-target run is a measurement (contaminated: post-I107), scored on its first finished attempt the same way.",
+        "coverage_skip": "The definition (C), fixed here before any build commit. holon coverage --typed-only (only with --sidecars, the composed route's form; without --sidecars it is refused, exit 2). Each given extraction sidecar is accounted for exactly as before, unless (i) its output document is not a file under the root (reason not_extracted: the frontend refused it, so there is no document, no model and no law over it), or (ii) its output is listed in the milestone's gen/<M>/sorts/opaque.json documents (reason opaque: I111's O2-O7, no typed model, no state, no action and no law over it). Such a sidecar is not walked; it is listed in the report under skipped [{document, reason}], sorted by document. The key skipped is written only under --typed-only, so a report without it is byte-identical to before. The composed driver passes --typed-only when the protocol names document_fallback.coverage \"typed_only\". Soundness: holon.records.coverage_field reads a law's own document's entry only, and no law is derived over a skipped document, so no record reads a skipped entry; coverage is reported debt, never a premise. An extracted, typed document whose walk refuses still refuses the stage (not in this key).",
+        "run_fallback": "The definition (R), fixed here before any build commit. Opt-in: the protocol names document_fallback.run \"unknown\". The composed driver's per-runner step (holon_run._run_routed) runs each runner group as before. When a group's holon run exits non-zero, the group is re-run once per law document (the law's facts, from its laws/<M> file; documents sorted, each with the group's own arguments and --laws its laws over that document). A document whose re-run exits 0 keeps the records it wrote. A document whose re-run exits non-zero falls back: every law of the group over it gets the fallback record, written over any record the failed runs left: status UNKNOWN, scope bounded, bound \"not decided: document fallback (run): <error>\", no witness, no difference, triage none, kernel verdict and checker not_run, artifacts laws, proof and law_name null, attempts [{kind: document_fallback, stage: run, runner, error}] (error: the re-run's last output line). The failure is not confined to one document, and the group stays a refusal, when the first run or a re-run exits 2 (the runner refused its input), or when there are at least two documents and every re-run fails with the same last output line once every law id (L followed by word characters) and every law document path of the group are masked: then no record of the group is kept (the group's laws have no record, as a refusal writes none) and the runner's row says milestone_refusal true. The row's runner aggregates add fallback_documents and fallback_laws (counts only, Q72: no law id). Absent the opt-in, every output is as before. What a fallen-back document contributes: no decision in that runner; every other runner and every other document's laws are decided as without it. What other documents may assume about it: nothing; each document's re-run reads only its own laws, and the runner decides each law over its own document's model.",
+        "bind_fallback": "The definition (B), fixed here before any build commit. holon bind --unbound document: I115's --unbound skip (a BindingError leaves that law out of spec/bindings/<M>.json and lists it in <M>.unbound.json, refused as skip refuses a milestone that already has a bindings file) plus a per-document fallback: an exception other than BindingError (an Exception, not KeyboardInterrupt or SystemExit) raised by bind_law for a law L over document D (L's facts, a string) falls back when no law over another document has L's model (holon.bindings.model_path, computed for every law before binding; a law whose model_path raises is its own model). Then every law over D is left out of <M>.json and listed in <M>.unbound.json with \"document fallback: <class>: <message>\", and spec/bindings/<M>.fallback.json {milestone, documents: [{document, class, error, laws}]} (sorted) records it; the changes log line names the documents under fallback. Any other failure refuses: a failure before or outside the per-law step (the configuration, loading the laws), L with no facts string, or L's model shared with another document's law: exit 1, nothing written (as before). The composed driver passes --unbound document when the protocol names document_fallback.bind \"unknown\"; its bind aggregate adds fallback_documents and fallback_laws. Then binding_check (I115, unchanged) refuses every decided record of an unbound law, so every decided record over D is rewritten UNKNOWN. Absent the opt-in, every output is as before.",
+        "shapes": "Planted shapes, as I111's: alone (the planted document is the only one: no law over it is decided, and its stage is ok with the fallback recorded), cross-document (with Counter: Counter's laws byte-identical and its records equal to Counter alone, seconds removed), constrained-state (the control Guarded without the planted fault decides at least one law over Guarded; with the fault no record over Guarded is PROVED or REFUTED: every law over it is UNKNOWN). Built from the stages' semantics, never from a spent target's documents (Q73, Q84).",
+        "evidence_schema": "(3), fixed here: spec/schemas/evidence.schema.json gains an optional property fallback, an array of {document (string), sha256 (64 hex), model (string), class (enum [e2_unmapped]), error (string)}, each with exactly those keys, not required. It is written only when a milestone opts in (I116's (E)); every committed evidence.json under gen/ and spec/ still validates and stays byte-identical. The frozen schemas/ at the repository root is never touched. This line and its amendment line in spec/M6/amendments/I118.jsonl are the prereg of the schema change.",
+        "families": "(2), fixed here: tools/i118_families.py reads, per target, only pre-decision outputs the composed run wrote (laws/<M>/DERIVATION.json, gen/<M>/sorts/types.json and opaque.json, gen/<M>/disch/closure.json and fallback.json, gen/<M>/evidence.json, the generated undo and fact sidecars) and records per rule family of the protocol's catalog (rule/subform) laws derived and its input as counts: SORT (as_member, realize, reinterpret): typed documents, coercions, typed operations; DISCH (blocking, revert, external, external_none): analysed documents, permission classes; UNDO (cancel, pair, residue): typed documents and the undo sidecar's observations; FACT (attribution, kernel): the fact sidecar's hypotheses; SYM (omega, pi, sentinel, tau): typed documents, ghosts and external guards; PAR in route C: component models in the evidence set; every other family (a part that reads milestone inputs the composed route never generates: bundle, versions, NAT, OWN, slash, Go PAR, PAR records): part_absent. A family's reason: derived (laws > 0); no_input (an input count is 0: a reported coverage limit, the family covers nothing the target declares); input_no_law (inputs present, no law); part_absent. Committed as aggregates only, per target (results/M6/I118/families.json). Nothing is fitted to EigenLayer: this builds nothing in holon/.",
+        "soundness": "Every fallback only removes claims or decisions, never adds them. (C) skips accounting for documents no law is over. (R) replaces a failed runner's output for one document by UNKNOWN records and re-runs every other document's laws exactly as a run of those laws alone; a re-run decides a law only as the runner decides it, so no law is PROVED that the runner would not prove. (B) unbinds laws, and binding_check only refuses decisions of unbound laws. So no fallback turns a law into PROVED. Every REFUTED still needs its replay, and on a deployed system or outside Q56 (4)'s exemption follows Q56."
+      },
+      "predictions": [
+        {
+          "id": "I118-P1",
+          "claim": "(C) unit: over the extraction sidecars of Counter, Guarded (its sidecar's term budget exceeded: not extracted) and Dyn (opaque at types), after the typed part: holon coverage --sidecars exits 3 (extraction error) as before; with --typed-only it exits 0, its documents are Counter's alone and skipped is [{Dyn: opaque}, {Guarded: not_extracted}]; --typed-only without --sidecars is refused (exit 2).",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestCoverageUnit"
+        },
+        {
+          "id": "I118-P2",
+          "claim": "(C) shapes, end to end (holon_run._rules with route C): alone (Guarded over budget, with Dyn): the coverage stage is ok and no law over Guarded exists; cross-document (Counter, Guarded over budget, Dyn): the coverage and run stages are ok, Counter's laws byte-identical and its records equal to Counter alone; constrained: the control (Counter, Guarded) decides at least one law over Guarded, over budget none. Under I116's protocol the cross-document input fails the coverage stage and the run writes no record (the wall).",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestCoverageShapes"
+        },
+        {
+          "id": "I118-P3",
+          "claim": "(R) shapes (Counter and Guarded, Guarded's coverage entry removed before the run step): under I118's protocol without the run opt-in, the DISCH runner exits non-zero with no record; with it, the run stage is ok, Counter's records equal those of the run without the fault, every law over Guarded has the fallback record (UNKNOWN, attempts ending in document_fallback, stage run) and none is PROVED or REFUTED while the control decides at least one; the runner's aggregate names fallback_documents 1. Alone (Guarded alone, its entry removed): every law over Guarded is UNKNOWN with the fallback record.",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestRunShapes"
+        },
+        {
+          "id": "I118-P4",
+          "claim": "(R) milestone-wide: with gen/<M>/coverage.json removed before the run step (every document lacks its entry, the same failure in every document once law ids and document paths are masked), the run stage is not ok, the runner's aggregate says milestone_refusal true, and no law has a record.",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestRunMilestoneWide"
+        },
+        {
+          "id": "I118-P5",
+          "claim": "(B) shapes (Counter and Guarded, Guarded's typed model removed after the run step): holon bind --unbound skip exits 1 and writes no bindings file (as before); --unbound document exits 0: Counter's bindings equal those of the run without the fault, every law over Guarded is unbound with 'document fallback: FileNotFoundError: ...', fallback.json names Guarded; binding_check rewrites every decided record over Guarded UNKNOWN and leaves Counter's decided records decided. Through the composed driver with the opt-in the bind aggregate names fallback_documents 1.",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestBindShapes"
+        },
+        {
+          "id": "I118-P6",
+          "claim": "(B) milestone-wide: an error other than BindingError on a law whose model a law of another document shares refuses (exit 1, no bindings file); an unreadable configuration refuses (exit 1, no bindings file).",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestBindMilestoneWide"
+        },
+        {
+          "id": "I118-P7",
+          "claim": "(3) the evidence schema: spec/schemas/evidence.schema.json names fallback as an optional property; every committed gen/*/evidence.json validates against it and is byte-identical to the lead's; an evidence set with a fallen-back document (I116's planted Listed) validates; a fallback entry with an extra key or another class does not; the frozen schemas/ is unchanged.",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestEvidenceSchema"
+        },
+        {
+          "id": "I118-P8",
+          "claim": "Byte-identity without the opt-ins: holon coverage without --typed-only writes no skipped key and the same bytes as before; no committed sidecar under spec/M0-M3 and no earlier protocol names coverage, run or bind under document_fallback; I118's protocol is I116's plus exactly the three opt-ins (and i117_keys, if any).",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestBytes"
+        },
+        {
+          "id": "I118-P9",
+          "claim": "(Corpus) the counted run (holon eval holon --protocol spec/M6/lib/i118_run.json --compose): the preflight is ok; entries ok at least extract 14, sorts 14, types 14, model 14, disch 14, evidence 14, derive 14, run 6, bind 6; every entry that reaches the coverage stage has it ok; at least 100 laws derived and at least 1 decided (PROVED and REFUTED together, Q56), derived = decided + unknown; no committed file under results/M6/I118/holon names a law id; the summary's findings, classes, recall and detected_any are withheld.",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestCorpusSmoke",
+          "expected": {
+            "entries_at_least": {
+              "extract": 14,
+              "sorts": 14,
+              "types": 14,
+              "model": 14,
+              "disch": 14,
+              "evidence": 14,
+              "derive": 14,
+              "run": 6,
+              "bind": 6
+            },
+            "derived_at_least": 100,
+            "decided_at_least": 1
+          }
+        },
+        {
+          "id": "I118-P10",
+          "claim": "(Spent targets, contaminated: post-I107; through --compose with --vault, aggregates only and one bundle commitment per target) Aave V3: the coverage, run and bind stages are ok (with whatever fallbacks the stages record), every derived law has a record, at least 8 laws derived and at least 1 decided (PROVED and REFUTED together); EigenLayer: 0 laws derived (as I116), its stages through derive ok.",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestSealedContaminated::test_p10_spent_targets",
+          "expected": {
+            "aave_derived_at_least": 8,
+            "aave_decided_at_least": 1,
+            "eigen_derived": 0
+          }
+        },
+        {
+          "id": "I118-P11",
+          "claim": "(2) results/M6/I118/families.json records, for each spent target, every rule family of the catalog with its laws derived, input counts and reason; on EigenLayer every family has 0 laws and at least one family is no_input (a reported coverage limit).",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestSealedContaminated::test_p11_families"
+        },
+        {
+          "id": "I118-P12",
+          "claim": "Q88 (1)'s gate for I114: the counted corpus run decides at least 1 law and the spent-target run decides at least 1 law on at least one target (decided = PROVED and REFUTED together). Predicted: met. Reported plainly either way; never fitted.",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestSealedContaminated::test_p12_gate"
+        },
+        {
+          "id": "I118-P13",
+          "claim": "Morph moves only by re-stamp: every JSON under results/M0-M3 and laws/M0-M3 equals the lead's once generator_sha256 and every seconds are removed (G1_EXCLUDED skipped). The gates M0, M1, M2 and partial M3 are run locally and reported; holon land dirty re-makes no law.",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestRegressions"
+        }
+      ],
+      "regressions": [
+        {
+          "id": "I118-R1",
+          "claim": "Every earlier tests_m6 CI job still passes with no test dropped; an earlier key's test this key breaks is amended with its amendment line first, naming the mode it was written for.",
+          "check": "tests_m6/test_i118_post_derive_walls.py::TestRegressions::test_r1_earlier_jobs_listed"
+        },
+        {
+          "id": "I118-R2",
+          "claim": "holon/ names no target (tests_m2.test_target_agnostic and its exhaustive form).",
+          "check": "tests_m2/test_target_agnostic.py"
+        },
+        {
+          "id": "I118-R3",
+          "claim": "I116's contract classes on planted fixtures pass unchanged (I116's protocol names none of the three opt-ins).",
+          "check": "tests_m6/test_i116_per_document_fallbacks.py"
+        }
+      ]
+    },
     "I119": {
       "title": "I119: Go reasoner soundness (HUMAN_ANSWERS Q93 (1), the defect I117 found): (a) a read-only audit that re-extracts every committed Go document (Morph's M0-M3, every corpus entry's) with only I117's opaque-arithmetic rule and lists the documents whose paths change and the committed decided laws that read them (per-milestone counts and a sha256 bundle commitment only); (b) the rule becomes the Go frontend's default for every Go document (codec and machine documents alike), the narrow-arithmetic loop mode unchanged; changed documents re-extracted and affected laws re-derived and re-decided through the statement-diff log, never edited",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I119)",

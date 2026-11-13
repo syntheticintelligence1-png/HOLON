@@ -301,6 +301,17 @@ jobs:
             # target (Q56 (5)).
             timeout: 90
             run: python -m unittest tests_m6.test_i116_per_document_fallbacks.TestDischUnit tests_m6.test_i116_per_document_fallbacks.TestDischShapes tests_m6.test_i116_per_document_fallbacks.TestEvidenceUnit tests_m6.test_i116_per_document_fallbacks.TestEvidenceShapes tests_m6.test_i116_per_document_fallbacks.TestMilestoneWide tests_m6.test_i116_per_document_fallbacks.TestBytes tests_m6.test_i116_per_document_fallbacks.TestRegressions -v
+          - name: tests-m6-i118
+            # I118 (M6, the post-derive walls): (C) the composed coverage stage walks only the extracted, typed
+            # documents and lists the others as skipped (P1, P2: planted Guarded over its term budget and the opaque
+            # Dyn, in I111's three shapes); (R) a runner failure confined to one document's laws makes them UNKNOWN
+            # with the error, the rest decided (P3), a failure in every document stays a refusal (P4); (B) a bind
+            # failure confined to one document unbinds its laws, the rest bound (P5), any other refuses (P6); (3) the
+            # evidence schema's optional fallback (P7); the same bytes without the opt-ins (P8); the regressions (P13,
+            # R1). The corpus and spent-target measures (P9-P12; results/M6/I118) are the key's measured outcome, not
+            # run here. Nothing here analyses a sealed target (Q56 (5)).
+            timeout: 90
+            run: python -m unittest tests_m6.test_i118_post_derive_walls.TestCoverageUnit tests_m6.test_i118_post_derive_walls.TestCoverageShapes tests_m6.test_i118_post_derive_walls.TestRunShapes tests_m6.test_i118_post_derive_walls.TestRunMilestoneWide tests_m6.test_i118_post_derive_walls.TestBindShapes tests_m6.test_i118_post_derive_walls.TestBindMilestoneWide tests_m6.test_i118_post_derive_walls.TestEvidenceSchema tests_m6.test_i118_post_derive_walls.TestBytes tests_m6.test_i118_post_derive_walls.TestRegressions -v
           - name: tests-m6-i113
             # I113 (M6, the second sealed draw, HUMAN_ANSWERS Q86): the draw script (D1 standard library only, its test
             # vector; D2 the Q55 (2) pin rule), the candidate list and the key's sidecar pins (C1, K1), and the seal
