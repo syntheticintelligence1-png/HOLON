@@ -68,6 +68,8 @@
       "inline_depth": 4,
       "max_paths": 512
     },
+    "ops": "typed",
+    "ops_doc": "I117 (ops \"typed\", opt-in): the codec frontend records each path-enumerated function's typed terms (their Go types) and reads sized arithmetic as opaque in its reasoner (Go integers wrap), and the Go-op model's straight-line class (holon.gen.gostraight) models an op with no loop over a byte-array carrier with Go's integer semantics (holon.gen.goint). The Go machine documents are extracted as before (the machines config carries no ops).",
     "package": "the directory of the file; its module is the nearest directory at or above it holding go.mod; its import path is the module path (go.mod's module line) joined with the directory relative to the module",
     "primitives": {},
     "source": "the module directory, when its go.mod has no replace directive with a relative path that leaves it; otherwise a scratch copy of the whole checkout with a generated go.work whose use list is the closure of the module directory under its relative replace targets that hold a go.mod (a checkout that has its own go.work keeps it, unchanged); under work_replace main_module the generated go.work also carries a replace for each module path two used modules replace differently, taken from the package's own module (paths rewritten relative to the workspace root), and its go line is the highest go directive among the used modules",
@@ -87,6 +89,10 @@
     "bind_doc",
     "preflight_go",
     "run_unbound"
+  ],
+  "i117_keys": [
+    "go.ops",
+    "go.ops_doc"
   ],
   "iteration": "I118",
   "layout": {
