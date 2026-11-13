@@ -385,7 +385,8 @@ class TestRegressions(unittest.TestCase):
             if not isinstance(d, dict) or not isinstance(d.get("go"), dict) or "store_scope" not in d["go"]:
                 continue
             it = str(d.get("iteration") or "")
-            if p.name != "i120_run.json" and not (it[1:].isdigit() and int(it[1:]) >= 120):
+            # amended (spec/M6/amendments/I120.jsonl): base_run.json is Q104's combined base, not an earlier protocol
+            if p.name not in ("i120_run.json", "base_run.json") and not (it[1:].isdigit() and int(it[1:]) >= 120):
                 found.append(p.relative_to(ROOT).as_posix())
         self.assertEqual(found, [])
 
