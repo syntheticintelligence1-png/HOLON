@@ -1,0 +1,99 @@
+{
+  "document": "disch_closure",
+  "inputs": [
+    {
+      "path": "results/M6/I116/holon/c03/facts/go_1_go_1.Hooks.extracted.json",
+      "sha256": "ee5414671fce49c219bc44b5c045bdc0299e0136c4dac75836c95e73c409eda2"
+    },
+    {
+      "path": "results/M6/I116/holon/c03/facts/go_1_go_1.msgServer.extracted.json",
+      "sha256": "f1e28f17864a77698b26c387581672fa54ae23263753b21a64ccd0994930ea49"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.Hooks.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "AfterValidatorRemoved",
+            "BeforeDelegationCreated",
+            "BeforeDelegationSharesModified",
+            "BeforeValidatorSlashed"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "AfterValidatorRemoved",
+            "BeforeDelegationCreated",
+            "BeforeDelegationSharesModified",
+            "BeforeValidatorSlashed"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "k"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "AfterValidatorRemoved": null,
+        "BeforeDelegationCreated": null,
+        "BeforeDelegationSharesModified": null,
+        "BeforeValidatorSlashed": null
+      },
+      "r0": {
+        "k": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.msgServer.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "DepositValidatorRewardsPool",
+            "WithdrawDelegatorReward",
+            "WithdrawValidatorCommission"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "DepositValidatorRewardsPool",
+            "WithdrawDelegatorReward",
+            "WithdrawValidatorCommission"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "Keeper"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "DepositValidatorRewardsPool": null,
+        "WithdrawDelegatorReward": null,
+        "WithdrawValidatorCommission": null
+      },
+      "r0": {
+        "Keeper": [
+          0
+        ]
+      }
+    }
+  },
+  "sidecar": {
+    "path": "results/M6/I116/holon/c03/sidecars/disch.json",
+    "sha256": "413892de00a0dc28308f150c7cad9386369d243a16d6665addd846ae29347290"
+  }
+}

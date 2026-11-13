@@ -775,6 +775,14 @@ def _opaque(milestone: str, root: Path, model_sidecar: str | None) -> set[str]:
     return OP.excluded(milestone, root) if ts.types_fallback else set()
 
 
+FALLBACKS = ("unknown",)
+
+
+def _miss(document: str, sha256: str, model: str, cls: str, error: str) -> dict:
+    """I116 (D): one fallen-back document's recorded miss (its DISCH laws are UNKNOWN: none is derived over it)."""
+    return {"class": cls, "document": document, "error": error, "model": model, "sha256": sha256}
+
+
 class Sidecar:
     """A DISCH sidecar (holon-disch/0.1) and the documents it names, read and checked (Refused on a problem)."""
 
@@ -817,6 +825,12 @@ class Sidecar:
         self.binding = self.doc.get("binding")
         self.model_sidecar = self.doc.get("model_sidecar")
         self.opaque = _opaque(milestone, root, self.model_sidecar)
+        # I116 (D): the per-document DISCH fallback, opt-in (absent: a document's refusal refuses the milestone)
+        fb = self.doc.get("document_fallback")
+        if "document_fallback" in self.doc and fb not in FALLBACKS:
+            raise Refused(f"{self.rel}: document_fallback is {fb!r}, not one of {list(FALLBACKS)}")
+        self.document_fallback = fb
+        self.fallback: list[dict] = []
 
     def read_json(self, rel: str) -> tuple[dict, str]:
         q = self.root / rel
@@ -835,7 +849,7 @@ class Sidecar:
         if self.verdicts_rel:
             verdicts, h = self.read_json(self.verdicts_rel)
             inputs[self.verdicts_rel] = h
-        out = {}
+        out, fallback = {}, []
         for d in self.documents:
             if d in self.opaque:   # I111 O3: an opaque document has no model, so no DISCH law is derived over it
                 continue
@@ -848,11 +862,20 @@ class Sidecar:
                 raise Refused(f"two documents name the model {m}")
             try:
                 an = analysis(doc, self.r0, m)
+            except ClassError as e:
+                if self.document_fallback is None:
+                    raise
+                fallback.append(_miss(d, h, m, "class_error", str(e)))
+                continue
             except (KeyError, TypeError, IndexError) as e:
-                raise Refused(f"{d}: malformed ({type(e).__name__}: {e})") from None
+                if self.document_fallback is None:
+                    raise Refused(f"{d}: malformed ({type(e).__name__}: {e})") from None
+                fallback.append(_miss(d, h, m, "malformed", f"{type(e).__name__}: {e}"))
+                continue
             an["_doc"] = d
             an["_doc_sha256"] = h
             out[m] = attach_hypotheses(an, self.hypotheses, verdicts)
+        self.fallback = sorted(fallback, key=lambda x: x["document"])
         return out, [{"path": k, "sha256": v} for k, v in sorted(inputs.items())]
 
 
@@ -873,10 +896,14 @@ def files(milestone: str, sc: Sidecar) -> dict[str, str]:
         con[m] = {"kinds": an["kinds"], "checks": an["checks"], "external": an["external"],
                   "basis": [{k: b[k] for k in ("tag", "blocked", "check", "check_expr", "checks", "excluded", "time")}
                             | {"classes": b["classes"]} for b in an["basis"]]}
-    return {"closure.json": dumps({"document": "disch_closure", "milestone": milestone, "sidecar": side,
-                                   "inputs": inputs, "models": clo}),
-            "conjuncts.json": dumps({"document": "disch_conjuncts", "milestone": milestone, "sidecar": side,
-                                     "inputs": inputs, "models": con})}
+    out = {"closure.json": dumps({"document": "disch_closure", "milestone": milestone, "sidecar": side,
+                                  "inputs": inputs, "models": clo}),
+           "conjuncts.json": dumps({"document": "disch_conjuncts", "milestone": milestone, "sidecar": side,
+                                    "inputs": inputs, "models": con})}
+    if sc.document_fallback is not None:   # I116 (D): the documents whose DISCH fell back, written under the opt-in only
+        out["fallback.json"] = dumps({"document": "disch_fallback", "milestone": milestone, "sidecar": side,
+                                      "documents": sc.fallback})
+    return out
 
 
 def load(milestone: str, root: Path, sidecar: str | None = None) -> tuple[Sidecar, dict]:
