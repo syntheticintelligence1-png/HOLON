@@ -66,11 +66,14 @@ def bundle_sha(root: Path) -> tuple[str, int]:
 
 
 # ------------------------------------------------------------------------------------------------------ readings
-def make_readings(work: Path) -> dict:
+def make_readings(work: Path, at: str) -> dict:
+    """holon/ as committed at `at` (git archive), three times: old, rule, a2."""
     out = {}
     for name, patches in (("old", ()), ("rule", (PATCH_RULE,)), ("a2", (PATCH_RULE, PATCH_A2))):
         d = work / "readings" / name
-        shutil.copytree(ROOT / "holon", d / "holon", ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+        d.mkdir(parents=True)
+        arc = subprocess.run(["git", "-C", str(ROOT), "archive", at, "holon"], capture_output=True, check=True).stdout
+        subprocess.run(["tar", "-x", "-C", str(d)], input=arc, check=True)
         for rel, a, b in patches:
             p = d / rel
             t = p.read_text(encoding="utf-8")
@@ -86,7 +89,7 @@ def extract(reading: Path, cfg: Path, src: Path | None, out: Path) -> dict:
     cmd = [sys.executable, "-m", "holon", "extract", "go", "--root", str(ROOT), "--config", str(cfg), "--out-dir",
            str(out)] + (["--src", str(src)] if src else [])
     p = subprocess.run(cmd, cwd=reading, env=ENV, capture_output=True, text=True, timeout=14400)
-    files = {f.name: f.read_bytes() for f in sorted(out.glob("*.extracted.json"))}
+    files = {f.name: str(f) for f in sorted(out.glob("*.extracted.json"))}   # paths: read one pair at a time
     return {"exit": p.returncode, "files": files, "log": (p.stdout + p.stderr)[-1500:]}
 
 
@@ -231,7 +234,7 @@ def run_job(job: dict, readings: dict, work: Path) -> dict:
             cfgp, src = job["cfg"], None
         for name, rd in readings.items():
             r = extract(rd, cfgp, src, t / name)
-            res[name] = {"exit": r["exit"], "files": {k: v.hex() for k, v in r["files"].items()}, "log": r["log"]}
+            res[name] = {"exit": r["exit"], "files": r["files"], "log": r["log"]}
             if r["exit"] != 0:
                 res["refused"] = f"{name}: exit {r['exit']}"
     except Exception as e:   # recorded, never hidden
@@ -247,7 +250,7 @@ def run_job(job: dict, readings: dict, work: Path) -> dict:
 def fixture_summary(res: dict) -> dict:
     out = {}
     for name in ("old", "rule"):
-        (b,) = [bytes.fromhex(v) for v in res[name]["files"].values()]
+        (b,) = [Path(v).read_bytes() for v in res[name]["files"].values()]
         fs = json.loads(b)["go"]["functions"]
         pk = "example.com/holon/i119/wrap64."
         out[name] = {
@@ -282,15 +285,17 @@ def main(argv=None) -> int:
     ap.add_argument("--out", default="results/M6/I119/audit.json")
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--parts", default="fixture,morph,corpus")
+    ap.add_argument("--at", default="HEAD", help="the audited commit: holon/ is read from it (git archive)")
     a = ap.parse_args(argv)
     vault = Path(a.vault).resolve()
     if ROOT in vault.parents or vault == ROOT:
         raise SystemExit("i119_audit: the vault must be outside the repository")
     vault.mkdir(parents=True, exist_ok=True)
     parts = a.parts.split(",")
-    head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", a.at], capture_output=True, text=True,
+                          check=True).stdout.strip()
     work = Path(tempfile.mkdtemp(prefix="holon-i119-audit-", dir=os.environ.get("I119_SCRATCH")))
-    readings = make_readings(work)
+    readings = make_readings(work, head)
     jobs = []
     if "fixture" in parts:
         jobs.append({"part": "fixture", "id": "wrap64"})
@@ -317,12 +322,12 @@ def main(argv=None) -> int:
         dj = {"refused": r.get("refused"), "source": r.get("source"), "docs": {}}
         if "refused" not in r:
             for fn in sorted(r["old"]["files"]):
-                ob = bytes.fromhex(r["old"]["files"][fn])
-                rb = bytes.fromhex(r["rule"]["files"].get(fn, ""))
-                ab = bytes.fromhex(r["a2"]["files"].get(fn, ""))
+                rd = lambda n: Path(r[n]["files"][fn]).read_bytes() if fn in r[n]["files"] else b""
+                ob, rb, ab = rd("old"), rd("rule"), rd("a2")
                 s1, s2 = sections(ob, rb), sections(rb, ab) if rb else {"changed": True}
                 dj["docs"][fn] = {"old_sha256": sha(ob), "rule_sha256": sha(rb), "a2_sha256": sha(ab),
                                   "rule_vs_old": s1, "a2_vs_rule": s2}
+        dj["logs"] = {n: r[n]["log"] for n in ("old", "rule", "a2") if n in r and r[n]["exit"] != 0}
         detail["jobs"][f"{part}:{jid}"] = dj
 
     if "fixture" in parts:
@@ -434,7 +439,7 @@ def main(argv=None) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(dumps(summary))
     print(f"i119_audit: wrote {a.out}; affected (rule) {summary['affected_decided_laws']}; bundle {bs}")
-    shutil.rmtree(work, ignore_errors=True)
+    print(f"i119_audit: scratch kept at {work} (no started run's output is deleted)")
     return 0
 
 
