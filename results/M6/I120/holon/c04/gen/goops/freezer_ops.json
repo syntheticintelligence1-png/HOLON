@@ -1,0 +1,219 @@
+{
+  "carrier": {
+    "id": "Freezer",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/core/rawdb.Freezer"
+  },
+  "component": "freezer_ops",
+  "document": "results/M6/I120/holon/c04/facts/go_1.go.extracted.json",
+  "document_sha256": "e88f3435a460706f0e80c39f4abfd85170209a751d9eeb448cb8e7bcac2f1d26",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "rawdb_Freezer_Ancients": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "f",
+          "type": "*github.com/ethereum/go-ethereum/core/rawdb.Freezer"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "call",
+              "(*sync/atomic.Uint64).Load",
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "f"
+                  ],
+                  "frozen"
+                ]
+              ]
+            ],
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "uint64",
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Ancients",
+      "span": "core/rawdb/freezer.go:216",
+      "typed": {
+        "lengths": {
+          "f": null
+        },
+        "stale": false,
+        "terms": []
+      }
+    },
+    "rawdb_Freezer_Close": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "f",
+          "type": "*github.com/ethereum/go-ethereum/core/rawdb.Freezer"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Close",
+      "span": "core/rawdb/freezer.go:164",
+      "typed": {
+        "lengths": {
+          "f": null
+        },
+        "stale": true,
+        "terms": [
+          [
+            [
+              "param",
+              "f"
+            ],
+            "*github.com/ethereum/go-ethereum/core/rawdb.Freezer"
+          ]
+        ]
+      }
+    },
+    "rawdb_Freezer_Sync": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "f",
+          "type": "*github.com/ethereum/go-ethereum/core/rawdb.Freezer"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Sync",
+      "span": "core/rawdb/freezer.go:325"
+    },
+    "rawdb_Freezer_Tail": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "f",
+          "type": "*github.com/ethereum/go-ethereum/core/rawdb.Freezer"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "call",
+              "(*sync/atomic.Uint64).Load",
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "f"
+                  ],
+                  "tail"
+                ]
+              ]
+            ],
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "uint64",
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Tail",
+      "span": "core/rawdb/freezer.go:221",
+      "typed": {
+        "lengths": {
+          "f": null
+        },
+        "stale": false,
+        "terms": []
+      }
+    },
+    "rawdb_Freezer_repair": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "f",
+          "type": "*github.com/ethereum/go-ethereum/core/rawdb.Freezer"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).repair",
+      "span": "core/rawdb/freezer.go:371"
+    },
+    "rawdb_Freezer_validate": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "f",
+          "type": "*github.com/ethereum/go-ethereum/core/rawdb.Freezer"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).validate",
+      "span": "core/rawdb/freezer.go:340"
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ],
+    "R_Uint64_Error": [
+      "uint64",
+      "error"
+    ]
+  }
+}

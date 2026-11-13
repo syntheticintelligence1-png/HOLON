@@ -1,0 +1,14 @@
+{
+  "doc": "I120 planted fixture (tests_m6/test_i120_route_c_full_documents.py). The planted entry is a git repository the test builds in a scratch directory from I117's planted Go package (tests_m6/fixtures/i117/src, written from the Go specification, never from corpus code): the prefix commit holds the package, the fix commit adds one comment line to wrap/wrap.go. The planted protocols are spec/M6/lib/i120_run.json with go.store_max_bytes set to store_max_bytes_small (below the size of the package's typed document, so the document is over the limit) or left at the protocol's value (under it), and the control is the same small limit without go.store_scope (the store limit decides what is evaluated, as before I120). Commits are made with fixed author, committer and dates, so the planted repository is the same on every run.",
+  "package": "tests_m6/fixtures/i117/src",
+  "store_max_bytes_small": 8192,
+  "fix_file": "wrap/wrap.go",
+  "fix_line": "// I120 planted fix commit: a comment line, no semantic change.",
+  "entry": {
+    "id": "p120",
+    "system": "planted",
+    "repo": "https://github.com/holon-planted/i120",
+    "label": "PAR",
+    "files": ["wrap/wrap.go"]
+  }
+}

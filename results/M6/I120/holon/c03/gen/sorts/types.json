@@ -1,0 +1,280 @@
+{
+  "document": "types",
+  "inputs": [
+    {
+      "path": "gen/M9/sorts/assignment.json",
+      "sha256": "8b3890ad6f02b55246956554e8aa168e60431a57f65a066c2f70eec791f76f41"
+    },
+    {
+      "path": "results/M6/I120/holon/c03/facts/go_1_go_1.Hooks.extracted.json",
+      "sha256": "daf1b732a484c43b41e8ac9afad7cbc701c94b47e2614db2b687c42e4a375be0"
+    },
+    {
+      "path": "results/M6/I120/holon/c03/facts/go_1_go_1.Keeper.extracted.json",
+      "sha256": "c2f438afa7867b04470343f1a52250ad061d63f4eb24689e69d169df144381ae"
+    },
+    {
+      "path": "results/M6/I120/holon/c03/facts/go_1_go_1.Migrator.extracted.json",
+      "sha256": "8eeb1421160d45d61990c0648fc5592e28a5939388304eb17e0b63a3bbafef1d"
+    },
+    {
+      "path": "results/M6/I120/holon/c03/facts/go_1_go_1.Querier.extracted.json",
+      "sha256": "55ef0403b4123628b5724683bfa1e3001f3ccf2ac79c147cd41149920a124de7"
+    },
+    {
+      "path": "results/M6/I120/holon/c03/facts/go_1_go_1.msgServer.extracted.json",
+      "sha256": "b405ea780bd713640062526d36f812f3bb7a3092585ed3ad956d83a37c84c3d6"
+    },
+    {
+      "path": "results/M6/I120/holon/c03/sidecars/sort_types.json",
+      "sha256": "54afd719ecb00c87f9718140855daa0e688341822ccc7b87327198a1189daf25"
+    },
+    {
+      "path": "spec/M3/lib/sort_seeds.json",
+      "sha256": "74701ad8e12a64e63396a88d755c091ddffa6342cf4c5292870115dcfde2b12a"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.Hooks.extracted": {
+      "coercions": [],
+      "external_guards": [
+        {
+          "action": "AfterDelegationModified",
+          "calls": [
+            "cosmossdk.io/core/store.KVStore.Get",
+            "cosmossdk.io/core/store.KVStoreService.OpenKVStore",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorCurrentRewardsKey"
+          ],
+          "guard": "guards[0]",
+          "src": "x/distribution/keeper/hooks.go:156"
+        },
+        {
+          "action": "AfterValidatorCreated",
+          "calls": [
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.StakingKeeper.Validator"
+          ],
+          "guard": "guards[0]",
+          "src": "x/distribution/keeper/hooks.go:29"
+        },
+        {
+          "action": "AfterValidatorCreated",
+          "calls": [
+            "cosmossdk.io/core/address.Codec.StringToBytes",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.StakingKeeper.Validator",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.StakingKeeper.ValidatorAddressCodec",
+            "github.com/cosmos/cosmos-sdk/x/staking/types.ValidatorI.GetOperator"
+          ],
+          "guard": "guards[1]",
+          "src": "x/distribution/keeper/hooks.go:31"
+        },
+        {
+          "action": "AfterValidatorRemoved",
+          "calls": [
+            "cosmossdk.io/core/store.KVStore.Get",
+            "cosmossdk.io/core/store.KVStoreService.OpenKVStore",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorOutstandingRewardsKey"
+          ],
+          "guard": "guards[0]",
+          "src": "x/distribution/keeper/hooks.go:39"
+        },
+        {
+          "action": "AfterValidatorRemoved",
+          "calls": [
+            "cosmossdk.io/core/store.KVStore.Get",
+            "cosmossdk.io/core/store.KVStoreService.OpenKVStore",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorAccumulatedCommissionKey",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorOutstandingRewardsKey"
+          ],
+          "guard": "guards[1]",
+          "src": "x/distribution/keeper/hooks.go:45"
+        },
+        {
+          "action": "AfterValidatorRemoved",
+          "calls": [
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Get[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(github.com/cosmos/cosmos-sdk/types.DecCoins).IsZero",
+            "cosmossdk.io/core/store.KVStore.Get",
+            "cosmossdk.io/core/store.KVStoreService.OpenKVStore",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorAccumulatedCommissionKey",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorOutstandingRewardsKey"
+          ],
+          "guard": "guards[2]",
+          "src": "x/distribution/keeper/hooks.go:88"
+        },
+        {
+          "action": "AfterValidatorRemoved",
+          "calls": [
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Get[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Set[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(github.com/cosmos/cosmos-sdk/types.DecCoins).IsZero",
+            "cosmossdk.io/core/store.KVStore.Get",
+            "cosmossdk.io/core/store.KVStoreService.OpenKVStore",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorAccumulatedCommissionKey",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorOutstandingRewardsKey"
+          ],
+          "guard": "guards[3]",
+          "src": "x/distribution/keeper/hooks.go:94"
+        },
+        {
+          "action": "AfterValidatorRemoved",
+          "calls": [
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Get[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Set[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(github.com/cosmos/cosmos-sdk/types.DecCoins).IsZero",
+            "cosmossdk.io/core/store.KVStore.Delete",
+            "cosmossdk.io/core/store.KVStore.Get",
+            "cosmossdk.io/core/store.KVStoreService.OpenKVStore",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorAccumulatedCommissionKey",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorOutstandingRewardsKey"
+          ],
+          "guard": "guards[4]",
+          "src": "x/distribution/keeper/hooks.go:100"
+        },
+        {
+          "action": "AfterValidatorRemoved",
+          "calls": [
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Get[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Set[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(github.com/cosmos/cosmos-sdk/types.DecCoins).IsZero",
+            "cosmossdk.io/core/store.KVStore.Delete",
+            "cosmossdk.io/core/store.KVStore.Get",
+            "cosmossdk.io/core/store.KVStoreService.OpenKVStore",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorAccumulatedCommissionKey",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorOutstandingRewardsKey"
+          ],
+          "guard": "guards[5]",
+          "src": "x/distribution/keeper/hooks.go:106"
+        },
+        {
+          "action": "AfterValidatorRemoved",
+          "calls": [
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Get[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(github.com/cosmos/cosmos-sdk/types.DecCoins).IsZero",
+            "cosmossdk.io/core/store.KVStore.Get",
+            "cosmossdk.io/core/store.KVStoreService.OpenKVStore",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorAccumulatedCommissionKey",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorOutstandingRewardsKey"
+          ],
+          "guard": "guards[6]",
+          "src": "x/distribution/keeper/hooks.go:60"
+        },
+        {
+          "action": "AfterValidatorRemoved",
+          "calls": [
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Get[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Set[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(github.com/cosmos/cosmos-sdk/types.DecCoins).IsZero",
+            "cosmossdk.io/core/store.KVStore.Get",
+            "cosmossdk.io/core/store.KVStoreService.OpenKVStore",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorAccumulatedCommissionKey",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorOutstandingRewardsKey"
+          ],
+          "guard": "guards[7]",
+          "src": "x/distribution/keeper/hooks.go:66"
+        },
+        {
+          "action": "AfterValidatorRemoved",
+          "calls": [
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Get[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Set[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(github.com/cosmos/cosmos-sdk/types.Coins).IsZero",
+            "(github.com/cosmos/cosmos-sdk/types.DecCoins).IsZero",
+            "(github.com/cosmos/cosmos-sdk/types.DecCoins).TruncateDecimal",
+            "cosmossdk.io/core/store.KVStore.Get",
+            "cosmossdk.io/core/store.KVStoreService.OpenKVStore",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetDelegatorWithdrawAddrKey",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorAccumulatedCommissionKey",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorOutstandingRewardsKey"
+          ],
+          "guard": "guards[8]",
+          "src": "x/distribution/keeper/hooks.go:74"
+        },
+        {
+          "action": "AfterValidatorRemoved",
+          "calls": [
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Get[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Set[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "(github.com/cosmos/cosmos-sdk/types.Coins).IsZero",
+            "(github.com/cosmos/cosmos-sdk/types.DecCoins).IsZero",
+            "(github.com/cosmos/cosmos-sdk/types.DecCoins).TruncateDecimal",
+            "cosmossdk.io/core/store.KVStore.Get",
+            "cosmossdk.io/core/store.KVStoreService.OpenKVStore",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.BankKeeper.SendCoinsFromModuleToAccount",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetDelegatorWithdrawAddrKey",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorAccumulatedCommissionKey",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.GetValidatorOutstandingRewardsKey"
+          ],
+          "guard": "guards[9]",
+          "src": "x/distribution/keeper/hooks.go:78"
+        }
+      ],
+      "ghosts": {},
+      "ops": [],
+      "types": {}
+    },
+    "go_1_go_1.msgServer.extracted": {
+      "coercions": [],
+      "external_guards": [
+        {
+          "action": "CommunityPoolSpend",
+          "calls": [
+            "(*cosmossdk.io/errors.Error).Wrapf",
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]).Get[github.com/cosmos/cosmos-sdk/x/distribution/types.FeePool]",
+            "cosmossdk.io/core/address.Codec.StringToBytes",
+            "cosmossdk.io/errors.Wrap",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.AccountKeeper.AddressCodec",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.BankKeeper.BlockedAddr"
+          ],
+          "guard": "guards[5]",
+          "src": "x/distribution/keeper/msg_server.go:170"
+        },
+        {
+          "action": "FundCommunityPool",
+          "calls": [
+            "cosmossdk.io/core/address.Codec.StringToBytes",
+            "cosmossdk.io/errors.Wrap",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.AccountKeeper.AddressCodec",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.BankKeeper.SendCoinsFromAccountToModule"
+          ],
+          "guard": "guards[3]",
+          "src": "x/distribution/keeper/msg_server.go:120"
+        },
+        {
+          "action": "SetWithdrawAddress",
+          "calls": [
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.Params]).Get[github.com/cosmos/cosmos-sdk/x/distribution/types.Params]",
+            "cosmossdk.io/core/address.Codec.StringToBytes",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.AccountKeeper.AddressCodec",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.BankKeeper.BlockedAddr"
+          ],
+          "guard": "guards[2]",
+          "src": "x/distribution/keeper/msg_server.go:42"
+        },
+        {
+          "action": "UpdateParams",
+          "calls": [
+            "(*cosmossdk.io/errors.Error).Wrapf",
+            "(cosmossdk.io/collections.Item[github.com/cosmos/cosmos-sdk/x/distribution/types.Params]).Set[github.com/cosmos/cosmos-sdk/x/distribution/types.Params]",
+            "(cosmossdk.io/math.LegacyDec).IsNil",
+            "(github.com/cosmos/cosmos-sdk/x/distribution/types.Params).ValidateBasic",
+            "cosmossdk.io/core/address.Codec.StringToBytes",
+            "github.com/cosmos/cosmos-sdk/x/distribution/types.AccountKeeper.AddressCodec"
+          ],
+          "guard": "guards[2]",
+          "src": "x/distribution/keeper/msg_server.go:141"
+        }
+      ],
+      "ghosts": {},
+      "ops": [],
+      "types": {}
+    }
+  },
+  "opaque": [
+    "results/M6/I120/holon/c03/facts/go_1_go_1.Keeper.extracted.json",
+    "results/M6/I120/holon/c03/facts/go_1_go_1.Migrator.extracted.json",
+    "results/M6/I120/holon/c03/facts/go_1_go_1.Querier.extracted.json"
+  ],
+  "sorts_sha256": "7f9cfc5ae4c2843f89bcf78d300709f97fa6c22fb7d65994b1b6f768007016ce",
+  "types_version": "holon-types/0.1"
+}

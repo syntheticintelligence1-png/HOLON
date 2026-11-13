@@ -1,0 +1,87 @@
+{
+  "carrier": {
+    "id": "Msg",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "[]github.com/cosmos/cosmos-sdk/types.Msg"
+  },
+  "component": "msg_ops",
+  "document": "results/M6/I120/holon/c18/facts/go_2.go.extracted.json",
+  "document_sha256": "11979416818206fc880d152679fc2e03131288cf3c8b13a426408f772620b2d9",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "keeper_validateMsgs": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "msgs",
+          "type": "[]github.com/cosmos/cosmos-sdk/types.Msg"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t1",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t1",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "param",
+                  "msgs"
+                ]
+              ]
+            ]
+          ],
+          "id": "x/group/keeper/msg_server.go:1148:22:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "cosmossdk.io/x/group/keeper.validateMsgs",
+      "span": "x/group/keeper/msg_server.go:1147"
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ]
+  }
+}
