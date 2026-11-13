@@ -202,7 +202,9 @@ class TestFrontend(unittest.TestCase):
         cfg0.pop("ops")
         fs0 = extract(cfg0, self.tmp / "plain")
         inc0 = fs0[f"{PKG}.IncWrap"]
-        self.assertFalse(any(p["end"] == "panic" for p in inc0["paths"]), "without ops typed the branch is pruned")
+        # amended by I119 (spec/M6/amendments/I117.jsonl): before I119 the branch was pruned without ops typed (the
+        # unbounded reading); from I119 (HUMAN_ANSWERS Q93 (1)(b)) the opaque-arithmetic rule is the default
+        self.assertTrue(any(p["end"] == "panic" for p in inc0["paths"]), "from I119 the branch is kept by default")
         self.assertNotIn("typed", inc0)
         self.assertIsNone(fs0[f"(*{PKG}.Counter).Bump"]["paths"])
 
