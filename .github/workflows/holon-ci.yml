@@ -378,7 +378,9 @@ jobs:
           - name: tests-m6-base
             # HUMAN_ANSWERS Q104 (1) and Q109 (F-M6-12): spec/M6/lib/base_run.json, the measured base, is
             # tools/base_protocol.py's output (B1); it loses no key of the root or of a landed protocol, empty dicts
-            # included (B2); each value is the root's or a landed opt-in's (B3); the flattening keeps an empty dict (B4).
+            # included (B2); each value is the root's or a landed opt-in's (B3); the flattening keeps an empty dict (B4);
+            # a later generation names the sha256 of the base it measured on (B5); planted: a later generation's opt-in
+            # survives regeneration, and a dropped key or a wrong base is refused (B6).
             timeout: 10
             run: python -m unittest tests_m6.test_base_protocol -v
           - name: tests-m6-i104
