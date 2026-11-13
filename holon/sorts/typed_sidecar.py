@@ -72,6 +72,11 @@ class Sidecar:
         return opaque.classes(self.doc)
 
     @property
+    def sort_ops(self) -> str | None:
+        """I123: the typed model's sort operations ("word"; holon.sorts.sortops), or None (as before)."""
+        return sort_ops(self.doc)
+
+    @property
     def version(self) -> str:
         return self.doc["sort_types_version"]
 
@@ -90,6 +95,17 @@ class Sidecar:
     def source(self, doc_rel: str) -> str | None:
         """The source tree a planted document's extraction names (repo-relative), or None."""
         return (self.doc.get("sources") or {}).get(doc_rel)
+
+
+def sort_ops(doc: dict) -> str | None:
+    """I123: a sidecar's sort_ops: absent (None, the model as before) or "word" (holon.sorts.sortops); else ValueError."""
+    from .sortops import MODES
+    v = doc.get("sort_ops")
+    if v is None:
+        return None
+    if v not in MODES:
+        raise ValueError(f"sort_ops {v!r} (want one of {', '.join(MODES)})")
+    return v
 
 
 def rel_of(p: Path, root: Path) -> str:
@@ -123,6 +139,7 @@ def load(milestone: str, root: Path, sidecar: str | None = None) -> Sidecar:
     from . import opaque
     try:
         opaque.mode(doc)   # I111: the only fallback is "opaque"
+        sort_ops(doc)      # I123: the only sort operations are "word"
     except ValueError as e:
         raise SidecarError(f"{p}: {e}") from None
     return Sidecar(p, rel_of(p, root), doc, root, str(milestone) if milestone is not None else None)

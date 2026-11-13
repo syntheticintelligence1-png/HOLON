@@ -122,6 +122,8 @@ class Section(T.Trace):
         code = self.code(self.mm.read_word(st, slot, int(mem.get("offset") or 0), mem["type"]))
         used = {n for n in __import__("re").findall(r"(?<![\w.])([A-Za-z_]\w*)\s*[({]", code)}
         missing = sorted(n for n in used if n not in self.names and n not in ("Nil", "Con", "True", "False", "st", "k"))
+        if missing and getattr(self.mm, "sort_ops", False):
+            missing = self.define_shifts(set(), missing)   # I123 D1
         if missing:
             raise GenError(f"{f}.{member}: the read needs definitions the typed model does not hold ({missing})")
         return code
