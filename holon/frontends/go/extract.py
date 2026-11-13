@@ -119,6 +119,8 @@ def load_config(path: Path) -> dict:
             raise Refused(f"config {path}: primitive {name} needs a width")
         if p["kind"] == "fill_bytes" and cfg.get("config_version") != "holon-go-frontend/0.3":
             raise Refused(f"config {path}: primitive {name}: kind fill_bytes needs config holon-go-frontend/0.3")
+    if "ops" in cfg and (cfg["ops"] != "typed" or cfg.get("config_version") != "holon-go-frontend/0.3"):
+        raise Refused(f"config {path}: ops must be \"typed\" (I117), with config holon-go-frontend/0.3")
     lim = cfg.get("limits", {})
     if not isinstance(lim, dict) or not all(isinstance(lim.get(k), int) and lim.get(k) > 0
                                             for k in ("max_paths", "inline_depth", "flow_depth")):

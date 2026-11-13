@@ -29,6 +29,9 @@ class Ctx:
         self.config_version = config.get("config_version")   # I67: the loop_bodies section is emitted only for 0.2
         # I93: 0.3 = 0.2 plus compare terms, carried loop variables, varargs and the fill_bytes primitive
         self.v03 = self.config_version == "holon-go-frontend/0.3"
+        # I117 (opt-in, ops "typed"): each path-enumerated function records the Go type of its typed terms, and the
+        # reasoner reads sized arithmetic as opaque (Go integers wrap), so no branch is pruned by unbounded arithmetic
+        self.typed_ops = config.get("ops") == "typed"
         lim = config.get("limits") or {}
         self.max_paths = int(lim.get("max_paths", 512))
         self.inline_depth = int(lim.get("inline_depth", 4))
