@@ -22,14 +22,6 @@ def binary_op(callee: str):
 
 
 class Ctx:
-    @staticmethod
-    def opaque_arith_of(config: dict) -> bool:
-        """I119: the opaque-arithmetic rule (I117's) is the default for every Go document, whatever the config's
-        version or ops: Go's + - * << and conversions on sized integers wrap (the specification's "Integer overflow"),
-        so the path reasoner never reads them as exact linear arithmetic. No config key turns it off. The
-        narrow-arithmetic loop mode (I67's ("narrow", ...) terms in loop bodies) is a separate rule and unchanged."""
-        return True
-
     def __init__(self, prog: Program, config: dict):
         self.prog = prog
         self.types = prog.types
@@ -37,11 +29,9 @@ class Ctx:
         self.config_version = config.get("config_version")   # I67: the loop_bodies section is emitted only for 0.2
         # I93: 0.3 = 0.2 plus compare terms, carried loop variables, varargs and the fill_bytes primitive
         self.v03 = self.config_version == "holon-go-frontend/0.3"
-        # I117 (opt-in, ops "typed"): each path-enumerated function records the Go type of its typed terms
+        # I117 (opt-in, ops "typed"): each path-enumerated function records the Go type of its typed terms, and the
+        # reasoner reads sized arithmetic as opaque (Go integers wrap), so no branch is pruned by unbounded arithmetic
         self.typed_ops = config.get("ops") == "typed"
-        # I119 (HUMAN_ANSWERS Q93 (1)): the path reasoner reads sized arithmetic as opaque under every config (Go
-        # integers wrap), so no branch is pruned by unbounded arithmetic; before I119 only under ops "typed"
-        self.opaque_arith = Ctx.opaque_arith_of(config)
         lim = config.get("limits") or {}
         self.max_paths = int(lim.get("max_paths", 512))
         self.inline_depth = int(lim.get("inline_depth", 4))

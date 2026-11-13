@@ -239,7 +239,7 @@ class Enumerator:
     # ------------------------------------------------------------------ path bookkeeping
     def reasoner(self, st: PState) -> Reasoner:
         if st._r is None:
-            st._r = Reasoner(st.cond, self.nonnil, self.ctx.opaque_arith)
+            st._r = Reasoner(st.cond, self.nonnil, self.ctx.typed_ops)
         return st._r
 
     def assume(self, st: PState, atom) -> None:
