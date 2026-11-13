@@ -297,9 +297,9 @@ class TestDifferential(unittest.TestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
-    def test_p3_model_equals_go(self):
-        from holon.gen import goshapes
-        cases = []   # (op, model cells, Go call)
+    def cases(self) -> list:
+        """(op, model cells, Go call) for every input P3's claim enumerates."""
+        cases = []
         for name in S1_OPS:
             sh = self.cm.shapes[name]
             signed = name == "shapes_Signed"
@@ -315,7 +315,16 @@ class TestDifferential(unittest.TestCase):
                 cells = [asg.get(k, 0) for k in range(len(idx))]
                 kv = ", ".join(f"{idx[k]}, {v}" for k, v in sorted(asg.items()))
                 cases.append((name, cells, f"func() error {{ return shapes.{name.split('_', 1)[1]}(blob({kv})) }}"))
-        self.assertGreaterEqual(len(cases), pred("I122-P3")["expected"]["cases_at_least"])
+        return cases
+
+    def test_p3_case_count(self):
+        # amended (spec/M6/amendments/I122.jsonl): split from test_p3_model_equals_go, unchanged; P3's recorded miss
+        self.assertGreaterEqual(len(self.cases()), pred("I122-P3")["expected"]["cases_at_least"])
+
+    def test_p3_model_equals_go(self):
+        # amended (spec/M6/amendments/I122.jsonl): the count assertion is test_p3_case_count
+        from holon.gen import goshapes
+        cases = self.cases()
         got = run_go_main("\n".join(f"\tfmt.Println(out({c}))" for _, _, c in cases), self.tmp)
         model = self.cm.calls([{"fn": o, "args": [{"val": list(cells)}]} for o, cells, _ in cases])
         mirror = [goshapes.evaluate(self.cm.shapes[o], cells) for o, cells, _ in cases]
@@ -423,7 +432,7 @@ class TestPlanted(_Planted):
         back = list(bytes.fromhex(next(iter(rs["L_par_tot_shapes_Back"]["witness"].values()))[2:]))
         self.assertEqual({i: v for i, v in zip(shs["shapes_Back"].cell_map()[1], back) if v}, {3: 0x80})
         self.assertEqual(next(iter(rs["L_par_tot_shapes_Frame_Scan"]["witness"].values())), {"Data": [255]})
-        self.assertEqual(next(iter(rs["L_par_tot_shapes_Signed"]["witness"].values())), [-101])
+        # amended (spec/M6/amendments/I122.jsonl): Signed's stated witness is test_p4_signed_witness
         calls, want = [], []
         _st, S, M = self.run_of()
         for lid, r in sorted(rs.items()):
@@ -443,6 +452,12 @@ class TestPlanted(_Planted):
         self.assertEqual(len(got), len(calls))
         for (is_ok, val), g in zip(want, got):
             self.assertEqual((g != "OPanic") if is_ok else g, val)
+
+    def test_p4_signed_witness(self):
+        # amended (spec/M6/amendments/I122.jsonl): split from test_p4_false_laws_refuted_and_replayed, unchanged;
+        # P4's recorded miss
+        rs = self.recs()
+        self.assertEqual(next(iter(rs["L_par_tot_shapes_Signed"]["witness"].values())), [-101])
 
     def test_p5_true_laws_never_refuted(self):
         rs = self.recs()

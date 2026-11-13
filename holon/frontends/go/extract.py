@@ -37,6 +37,11 @@ tests_m2/test_extract_go.py):
               start; a call's variadic slice built at the call site is ["varargs", [terms]]; primitive kind fill_bytes
               ((*big.Int).FillBytes(buf): cell k ["byte", receiver, k], a site of kind fill_bytes, status unknown).
               extraction.frontend_version is holon-go/0.3.
+  loops "shapes" (I122, opt-in, only with ops "typed"; contract: tests_m6/test_i122_goloop_loop_shapes.py): loop_bodies
+              are emitted for every function with a body, codec-shaped or not, and for counted and range loops of any
+              constant non-zero step (not only step 1); a loop of step other than 1 binds its induction variable without
+              the assumption init <= iv; each entry carries "typed": {"terms": [[term, Go type]], "stale", "iv_type": the
+              induction variable's Go type | null, "lengths": {param: array length | null}}. Every other output is as without it.
 """
 from __future__ import annotations
 
@@ -121,6 +126,8 @@ def load_config(path: Path) -> dict:
             raise Refused(f"config {path}: primitive {name}: kind fill_bytes needs config holon-go-frontend/0.3")
     if "ops" in cfg and (cfg["ops"] != "typed" or cfg.get("config_version") != "holon-go-frontend/0.3"):
         raise Refused(f"config {path}: ops must be \"typed\" (I117), with config holon-go-frontend/0.3")
+    if "loops" in cfg and (cfg["loops"] != "shapes" or cfg.get("ops") != "typed"):
+        raise Refused(f"config {path}: loops must be \"shapes\" (I122), with ops \"typed\"")
     lim = cfg.get("limits", {})
     if not isinstance(lim, dict) or not all(isinstance(lim.get(k), int) and lim.get(k) > 0
                                             for k in ("max_paths", "inline_depth", "flow_depth")):
