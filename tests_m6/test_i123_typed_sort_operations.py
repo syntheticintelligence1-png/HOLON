@@ -206,8 +206,17 @@ class TestSections(_Fixture):
 # ----------------------------------------------------------------------------------------------- P7 regressions
 class TestRegressions(unittest.TestCase):
     def test_p7_protocol_is_its_base_plus_sort_ops(self):
+        # amended (spec/M6/amendments/I123.jsonl): compared with the base it measured on (tools/base_protocol.py's
+        # generations before this key), never with the committed base_run.json, which this key's landing extends
+        import hashlib
+        import sys
+        sys.path.insert(0, str(ROOT / "tools"))
+        import base_protocol as bp
+        gens = getattr(bp, "GENERATIONS", None)
+        text = bp.build(gens[:1]) if gens else bp.build()
         b = protocol()
-        a = protocol(b["base_protocol"])
+        self.assertIn(hashlib.sha256(text.encode("utf-8")).hexdigest(), b["doc"])
+        a = json.loads(text)
         self.assertEqual(b["typed"].pop("sort_ops"), "word")
         b["typed"].pop("sort_ops_doc")
         b.pop("base_protocol")
