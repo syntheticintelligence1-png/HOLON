@@ -1,0 +1,205 @@
+{
+  "carrier": {
+    "id": "Coins",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "github.com/cosmos/cosmos-sdk/types.Coins"
+  },
+  "component": "coins_ops",
+  "document": "results/M6/I123/holon/c03/facts/go_1.go.extracted.json",
+  "document_sha256": "d97f8f792212722bd1f17dcf691d5e51e706528507a4ce895fb3f9cf585a14a4",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "keeper_validateAmount": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "amount",
+          "type": "github.com/cosmos/cosmos-sdk/types.Coins"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "param",
+                "amount"
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "unknown",
+          "returns": [
+            [
+              "call",
+              "cosmossdk.io/errors.Wrap",
+              [
+                [
+                  "iface",
+                  "*cosmossdk.io/errors.Error",
+                  [
+                    "global",
+                    "github.com/cosmos/cosmos-sdk/types/errors.ErrInvalidCoins"
+                  ]
+                ],
+                [
+                  "str",
+                  "amount cannot be nil"
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "param",
+                "amount"
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "!=",
+              [
+                "call",
+                "(github.com/cosmos/cosmos-sdk/types.Coins).Validate",
+                [
+                  [
+                    "param",
+                    "amount"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "unknown",
+          "returns": [
+            [
+              "call",
+              "cosmossdk.io/errors.Wrap",
+              [
+                [
+                  "iface",
+                  "*cosmossdk.io/errors.Error",
+                  [
+                    "global",
+                    "github.com/cosmos/cosmos-sdk/types/errors.ErrInvalidCoins"
+                  ]
+                ],
+                [
+                  "call",
+                  "(github.com/cosmos/cosmos-sdk/types.Coins).String",
+                  [
+                    [
+                      "param",
+                      "amount"
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "param",
+                "amount"
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "==",
+              [
+                "call",
+                "(github.com/cosmos/cosmos-sdk/types.Coins).Validate",
+                [
+                  [
+                    "param",
+                    "amount"
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "github.com/cosmos/cosmos-sdk/x/distribution/keeper.validateAmount",
+      "span": "x/distribution/keeper/msg_server.go:234",
+      "typed": {
+        "lengths": {
+          "amount": null
+        },
+        "stale": true,
+        "terms": [
+          [
+            [
+              "call",
+              "(github.com/cosmos/cosmos-sdk/types.Coins).Validate",
+              [
+                [
+                  "param",
+                  "amount"
+                ]
+              ]
+            ],
+            "error"
+          ],
+          [
+            [
+              "global",
+              "github.com/cosmos/cosmos-sdk/types/errors.ErrInvalidCoins"
+            ],
+            "*cosmossdk.io/errors.Error"
+          ],
+          [
+            [
+              "param",
+              "amount"
+            ],
+            "github.com/cosmos/cosmos-sdk/types.Coins"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ]
+  }
+}

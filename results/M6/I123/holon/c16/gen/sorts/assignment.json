@@ -1,0 +1,174 @@
+{
+  "document": "assignment",
+  "inputs": [
+    {
+      "path": "results/M6/I123/holon/c16/facts/go_1_go_1.BlockPollConnector.extracted.json",
+      "sha256": "082588cc2231b0411e4bfab03e17447460a3a04e1224b07bbe8a6a93b6598bd7"
+    },
+    {
+      "path": "results/M6/I123/holon/c16/facts/go_1_go_1.CeloConnector.extracted.json",
+      "sha256": "873ba21900dc6e3f2d0a5e14da256dad69618bc5f52e5da4b7005f5c671fdfae"
+    },
+    {
+      "path": "results/M6/I123/holon/c16/facts/go_1_go_1.EthereumConnector.extracted.json",
+      "sha256": "32b7992815a895c28913fc8110f2ce4bcb4ec49810a49e3914c64b4aaafe0e75"
+    },
+    {
+      "path": "results/M6/I123/holon/c16/facts/go_1_go_1.LogPollConnector.extracted.json",
+      "sha256": "f4d2bc195fd18598f02ba50177e60105cf0643d86f82d92eaae9205d08bdc7a0"
+    },
+    {
+      "path": "results/M6/I123/holon/c16/facts/go_1_go_1.PollSubscription.extracted.json",
+      "sha256": "68ceca4f04da6679fb3f139997b1b1cae8ce8546059c02a2b0c90bfecbbc3d8a"
+    },
+    {
+      "path": "results/M6/I123/holon/c16/facts/go_1_go_1.PolygonConnector.extracted.json",
+      "sha256": "a9197a24cdce87af938a80d01fc554b9d0495a557705f123ef8a075c08fa8e08"
+    },
+    {
+      "path": "results/M6/I123/holon/c16/sidecars/sort_types.json",
+      "sha256": "670d8292fec18d3790da01e18ed10ff605bd8d4740ff81d1f91362f12e3ca2e1"
+    },
+    {
+      "path": "spec/M3/lib/sort_seeds.json",
+      "sha256": "74701ad8e12a64e63396a88d755c091ddffa6342cf4c5292870115dcfde2b12a"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.BlockPollConnector.extracted": {
+      "assignment": {
+        "Connector": "Nat (unrefined)",
+        "Delay": "Nat (unrefined)",
+        "SubscribeForBlocks.ctx": "Nat (unrefined)",
+        "SubscribeForBlocks.errC": "Nat (unrefined)",
+        "SubscribeForBlocks.sink": "Nat (unrefined)",
+        "blockFeed": "Nat (unrefined)",
+        "errFeed": "Nat (unrefined)",
+        "finalizer": "Nat (unrefined)",
+        "publishSafeBlocks": "Bool",
+        "useFinalized": "Bool"
+      },
+      "facts": "results/M6/I123/holon/c16/facts/go_1_go_1.BlockPollConnector.extracted.json",
+      "provenance": {}
+    },
+    "go_1_go_1.CeloConnector.extracted": {
+      "assignment": {
+        "GetCurrentGuardianSetIndex.ctx": "Nat (unrefined)",
+        "GetGuardianSet.ctx": "Nat (unrefined)",
+        "GetGuardianSet.index": "Nat (unrefined)",
+        "ParseLogMessagePublished.ethLog": "Nat (unrefined)",
+        "RawCallContext.args": "Nat (unrefined)",
+        "RawCallContext.ctx": "Nat (unrefined)",
+        "RawCallContext.method": "Nat (unrefined)",
+        "RawCallContext.result": "Nat (unrefined)",
+        "SubscribeForBlocks.ctx": "Nat (unrefined)",
+        "SubscribeForBlocks.errC": "Nat (unrefined)",
+        "SubscribeForBlocks.sink": "Nat (unrefined)",
+        "TimeOfBlockByHash.ctx": "Nat (unrefined)",
+        "TimeOfBlockByHash.hash": "Nat (unrefined)",
+        "TransactionReceipt.ctx": "Nat (unrefined)",
+        "TransactionReceipt.txHash": "Nat (unrefined)",
+        "WatchLogMessagePublished.ctx": "Nat (unrefined)",
+        "WatchLogMessagePublished.errC": "Nat (unrefined)",
+        "WatchLogMessagePublished.sink": "Nat (unrefined)",
+        "address": "Nat (unrefined)",
+        "call:(*github.com/celo-org/celo-blockchain/ethclient.Client).BlockByHash": "Nat (unrefined)",
+        "call:(*github.com/celo-org/celo-blockchain/ethclient.Client).SubscribeNewHead": "Nat (unrefined)",
+        "call:(*github.com/celo-org/celo-blockchain/ethclient.Client).TransactionReceipt": "Nat (unrefined)",
+        "call:(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/celoabi.AbiCaller).GetGuardianSet": "Nat (unrefined)",
+        "call:(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/celoabi.AbiFilterer).ParseLogMessagePublished": "Nat (unrefined)",
+        "call:(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/celoabi.AbiFilterer).WatchLogMessagePublished": "Nat (unrefined)",
+        "call:(github.com/ethereum/go-ethereum/common.Hash).Bytes": "Nat (unrefined)",
+        "call:github.com/celo-org/celo-blockchain/common.BytesToHash": "Nat (unrefined)",
+        "caller": "Nat (unrefined)",
+        "client": "Nat (unrefined)",
+        "filterer": "Nat (unrefined)",
+        "logger": "Nat (unrefined)",
+        "networkName": "Nat (unrefined)",
+        "rawClient": "Nat (unrefined)"
+      },
+      "facts": "results/M6/I123/holon/c16/facts/go_1_go_1.CeloConnector.extracted.json",
+      "provenance": {}
+    },
+    "go_1_go_1.EthereumConnector.extracted": {
+      "assignment": {
+        "GetCurrentGuardianSetIndex.ctx": "Nat (unrefined)",
+        "GetGuardianSet.ctx": "Nat (unrefined)",
+        "GetGuardianSet.index": "Nat (unrefined)",
+        "ParseLogMessagePublished.log": "Nat (unrefined)",
+        "RawCallContext.args": "Nat (unrefined)",
+        "RawCallContext.ctx": "Nat (unrefined)",
+        "RawCallContext.method": "Nat (unrefined)",
+        "RawCallContext.result": "Nat (unrefined)",
+        "SubscribeForBlocks.ctx": "Nat (unrefined)",
+        "SubscribeForBlocks.errC": "Nat (unrefined)",
+        "SubscribeForBlocks.sink": "Nat (unrefined)",
+        "TimeOfBlockByHash.ctx": "Nat (unrefined)",
+        "TimeOfBlockByHash.hash": "Nat (unrefined)",
+        "TransactionReceipt.ctx": "Nat (unrefined)",
+        "TransactionReceipt.txHash": "Nat (unrefined)",
+        "WatchLogMessagePublished.ctx": "Nat (unrefined)",
+        "WatchLogMessagePublished.errC": "Nat (unrefined)",
+        "WatchLogMessagePublished.sink": "Nat (unrefined)",
+        "address": "Nat (unrefined)",
+        "call:(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash": "Nat (unrefined)",
+        "call:(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead": "Nat (unrefined)",
+        "caller": "Nat (unrefined)",
+        "client": "Nat (unrefined)",
+        "filterer": "Nat (unrefined)",
+        "logger": "Nat (unrefined)",
+        "networkName": "Nat (unrefined)",
+        "rawClient": "Nat (unrefined)"
+      },
+      "facts": "results/M6/I123/holon/c16/facts/go_1_go_1.EthereumConnector.extracted.json",
+      "provenance": {}
+    },
+    "go_1_go_1.LogPollConnector.extracted": {
+      "assignment": {
+        "Connector": "Nat (unrefined)",
+        "WatchLogMessagePublished.ctx": "Nat (unrefined)",
+        "WatchLogMessagePublished.errC": "Nat (unrefined)",
+        "WatchLogMessagePublished.sink": "Nat (unrefined)",
+        "client": "Nat (unrefined)",
+        "errFeed": "Nat (unrefined)",
+        "messageFeed": "Nat (unrefined)",
+        "prevBlockNum": "Nat (unrefined)"
+      },
+      "facts": "results/M6/I123/holon/c16/facts/go_1_go_1.LogPollConnector.extracted.json",
+      "provenance": {}
+    },
+    "go_1_go_1.PollSubscription.extracted": {
+      "assignment": {
+        "err": "Nat (unrefined)",
+        "errOnce": "Nat (unrefined)",
+        "quit": "Nat (unrefined)",
+        "unsubDone": "Nat (unrefined)"
+      },
+      "facts": "results/M6/I123/holon/c16/facts/go_1_go_1.PollSubscription.extracted.json",
+      "provenance": {}
+    },
+    "go_1_go_1.PolygonConnector.extracted": {
+      "assignment": {
+        "Connector": "Nat (unrefined)",
+        "SubscribeForBlocks.ctx": "Nat (unrefined)",
+        "SubscribeForBlocks.errC": "Nat (unrefined)",
+        "SubscribeForBlocks.sink": "Nat (unrefined)",
+        "call:(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/polygonabi.AbiRootChainCaller).GetLastChildBlock": "Nat (unrefined)",
+        "call:(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/polygonabi.AbiRootChainFilterer).WatchNewHeaderBlock": "Nat (unrefined)",
+        "call:fmt.Errorf": "Nat (unrefined)",
+        "call:github.com/certusone/wormhole/node/pkg/watchers/evm/connectors.Connector.RawCallContext": "Nat (unrefined)",
+        "logger": "Nat (unrefined)",
+        "rootCaller": "Nat (unrefined)",
+        "rootClient": "Nat (unrefined)",
+        "rootFilterer": "Nat (unrefined)",
+        "rootRawClient": "Nat (unrefined)"
+      },
+      "facts": "results/M6/I123/holon/c16/facts/go_1_go_1.PolygonConnector.extracted.json",
+      "provenance": {}
+    }
+  },
+  "sites": [],
+  "sorts_sha256": "54312993ea7f4b3df6102e8816979f5da4bce13e4bf79f52f3ea7d708f8d7e66",
+  "sorts_version": "holon-sorts/0.1"
+}

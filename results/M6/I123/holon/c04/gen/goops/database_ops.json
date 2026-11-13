@@ -1,0 +1,89 @@
+{
+  "carrier": {
+    "id": "Database",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "github.com/ethereum/go-ethereum/ethdb.Database"
+  },
+  "component": "database_ops",
+  "document": "results/M6/I123/holon/c04/facts/go_1.go.extracted.json",
+  "document_sha256": "02a4c70238f18cd98eb15175b19eaa78a04f5d0f68a9bc6589785a7808ee900c",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "rawdb_inspectFreezers": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "db",
+          "type": "github.com/ethereum/go-ethereum/ethdb.Database"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "[]github.com/ethereum/go-ethereum/core/rawdb.freezerInfo",
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t5",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t5",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "global",
+                  "github.com/ethereum/go-ethereum/core/rawdb.freezers"
+                ]
+              ]
+            ]
+          ],
+          "id": "core/rawdb/ancient_utils.go:82:26:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "github.com/ethereum/go-ethereum/core/rawdb.inspectFreezers",
+      "span": "core/rawdb/ancient_utils.go:80"
+    }
+  },
+  "results": {
+    "R_SliceFreezerInfo_Error": [
+      "[]github.com/ethereum/go-ethereum/core/rawdb.freezerInfo",
+      "error"
+    ]
+  }
+}
