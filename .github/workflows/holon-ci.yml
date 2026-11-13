@@ -338,6 +338,15 @@ jobs:
             # sealed target (Q56 (5)).
             timeout: 30
             run: python -m unittest tests_m6.test_i119_go_reasoner_soundness.TestFixture tests_m6.test_i119_go_reasoner_soundness.TestDifferential tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_names_no_law tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_counts_are_per_milestone tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_corpus_covered tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_is_read_only tests_m6.test_i119_go_reasoner_soundness.TestDefault tests_m6.test_i119_go_reasoner_soundness.TestRegressions -v
+          - name: tests-m6-i121
+            # I121 (M6, the re-decision; HUMAN_ANSWERS Q96, Q97 (2), Q101-Q103): I119 (b) re-applied (P1); reextraction's
+            # facts form on the committed lines and planted variants, in a scratch clone for the edited sidecar and the
+            # tampered two-input link (P2); the re-decision's aggregates, no law id, no PROVED/REFUTED split (P3-P5);
+            # F-M6-02's ledger entry (P6); the counted run's protocol rule (P7); the regressions (P8). The re-decision
+            # itself ran in the builder's sandbox, vault first (Q96 (2)), never here; nothing here decides a law or
+            # analyses a sealed target (Q56 (5)).
+            timeout: 90
+            run: python -m unittest tests_m6.test_i121_re_decision.TestFlip tests_m6.test_i121_re_decision.TestFactsForm tests_m6.test_i121_re_decision.TestRedecision tests_m6.test_i121_re_decision.TestF0602.test_p6_ledger_entry_closed tests_m6.test_i121_re_decision.TestCorpusRun.test_p7_protocol_is_its_base tests_m6.test_i121_re_decision.TestCorpusRun.test_p7_no_new_opt_in tests_m6.test_i121_re_decision.TestRegressions -v
           - name: tests-m6-i104
             # I104 (M6): holon roles. The contract R1-R6 (TestBuild: determinism and the committed Morph roles, evidence,
             # names as tie-breakers, the proposal channel and its model-free provenance, hand sidecars win, no target

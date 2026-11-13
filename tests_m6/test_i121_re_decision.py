@@ -206,6 +206,57 @@ class TestFactsForm(unittest.TestCase):
         e["chain"][0]["producer"] = "tools/i121_hand_ops.py"
         self.refused(e)
 
+    def test_p2_sidecar_value_read_by_the_claim_refused(self):
+        """HUMAN_ANSWERS Q103 (1): a claim that reads a value of a configuration sidecar (a string no extracted document
+        of its chain holds) asserts the sidecar's content as facts; a name the sidecar shares with the code does not."""
+        side = [json.dumps({"components": {"c": {"carrier": "*pkg.T", "reach": "external: only in the sidecar"}}})
+                .encode("utf-8")]
+        ext = [json.dumps({"go": {"functions": {"pkg.F": {"params": [{"type": "*pkg.T"}]}}}}).encode("utf-8")]
+        self.assertEqual(self.SD.sidecar_values_read([{"id": "T", "type": "*pkg.T"}], side, ext), [])
+        self.assertEqual(self.SD.sidecar_values_read([{"type": "external: only in the sidecar"}], side, ext),
+                         ["external: only in the sidecar"])
+        # the check is conservative: a key that only the sidecar holds counts as a value read too
+        self.assertEqual(self.SD.sidecar_values_read([{"reach": "*pkg.T"}], side, ext), ["reach"])
+
+    def test_p2_unchanged_sidecars_in_a_valid_chain_accepted(self):
+        """Q103 (2): the committed lines whose producers read configuration sidecars (unchanged since the base)."""
+        gen = [e for e in self.lines if e["facts"].startswith("gen/")]
+        self.assertTrue(gen)
+        self.assertTrue(any(e["facts"].startswith("gen/M3/codec/") for e in gen))   # a two-input link
+
+    def test_p2_edited_sidecar_and_tampered_input_refused_in_a_clone(self):
+        """Q103 (2): a configuration sidecar edited after the base is refused; and (the coordinator's suggested
+        fixture, not part of Q103) a two-input link with one input tampered is refused: both inputs are walked."""
+        codec = [e for e in self.lines if e["facts"].startswith("gen/M3/codec/")]
+        self.assertTrue(codec)
+        e = copy.deepcopy(codec[0])
+        d = Path(tempfile.mkdtemp(prefix="i121-clone-"))
+        try:
+            p = subprocess.run(["git", "clone", "-q", "--no-hardlinks", str(ROOT), str(d / "repo")],
+                               capture_output=True, text=True)
+            self.assertEqual(p.returncode, 0, p.stderr[-500:])
+            repo = d / "repo"
+            link = repo / "spec" / "M3" / "lib" / "link.json"
+            orig = link.read_bytes()
+            sc = json.loads(orig)
+            sc["doc"] = str(sc.get("doc")) + " (edited after the base)"
+            link.write_text(json.dumps(sc, indent=2, sort_keys=True) + "\n")
+            r = self.SD.check_entry(e, repo)
+            self.assertFalse(r["ok"], r)
+            self.assertIn("not byte-identical", r["reason"])
+            link.write_bytes(orig)
+            doc = json.loads((repo / e["facts"]).read_text(encoding="utf-8"))
+            ins = [x["path"] for x in doc["inputs"] if "/facts/" in x["path"]]
+            self.assertEqual(len(ins), 2)
+            q = repo / ins[-1]   # the second input: a tamper there is caught only if both inputs are walked
+            q.write_bytes(q.read_bytes().replace(b"\n", b"\n ", 1))
+            r = self.SD.check_entry(e, repo)
+            self.assertFalse(r["ok"], r)
+            self.assertIn("sha256", r["reason"])
+        finally:
+            import shutil
+            shutil.rmtree(d, ignore_errors=True)
+
     def test_p2_facts_sha256_not_the_documents_refused(self):
         e = self.first()
         e["new"]["facts_sha256"] = "0" * 64
