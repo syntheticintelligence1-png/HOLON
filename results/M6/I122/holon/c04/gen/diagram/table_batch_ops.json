@@ -1,0 +1,64 @@
+{
+  "carriers": [
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "tableBatch",
+      "cls": "rep",
+      "domains": [
+        "ok_rawdb_tableBatch_Write"
+      ],
+      "id": "tableBatch",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_tableBatch_Write",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_tableBatch_Write",
+      "kind": "CODEC",
+      "model_fn": "rawdb_tableBatch_Write",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.tableBatch).Write"
+        }
+      ],
+      "src": "tableBatch",
+      "tgt": "R_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/table_batch_ops.json",
+  "facts_sha256": "efc2244ea27251326be277055e05ad2b0ebdf5a01765882c93b4b48ae6951bce",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "table_batch_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

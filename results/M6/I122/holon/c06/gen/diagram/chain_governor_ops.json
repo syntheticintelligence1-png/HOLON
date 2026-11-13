@@ -1,0 +1,205 @@
+{
+  "carriers": [
+    {
+      "base_type": "ChainGovernor",
+      "cls": "rep",
+      "domains": [
+        "ok_governor_ChainGovernor_CheckPending",
+        "ok_governor_ChainGovernor_Reload",
+        "ok_governor_ChainGovernor_initConfig",
+        "ok_governor_ChainGovernor_loadFromDB",
+        "ok_governor_ChainGovernor_loadFromDBAlreadyLocked",
+        "ok_governor_ChainGovernor_queryCoinGecko"
+      ],
+      "id": "ChainGovernor",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_SlicePtrMessagePublication_Error",
+      "cls": "rep",
+      "id": "R_SlicePtrMessagePublication_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_String_Error",
+      "cls": "rep",
+      "id": "R_String_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c06/facts/go_1.go.extracted.json",
+      "domain": "ok_governor_ChainGovernor_CheckPending",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.governor_ChainGovernor_CheckPending",
+      "kind": "CODEC",
+      "model_fn": "governor_ChainGovernor_CheckPending",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).CheckPending"
+        }
+      ],
+      "src": "ChainGovernor",
+      "tgt": "R_SlicePtrMessagePublication_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c06/facts/go_1.go.extracted.json",
+      "domain": "ok_governor_ChainGovernor_Reload",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.governor_ChainGovernor_Reload",
+      "kind": "CODEC",
+      "model_fn": "governor_ChainGovernor_Reload",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).Reload"
+        }
+      ],
+      "src": "ChainGovernor",
+      "tgt": "R_String_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c06/facts/go_1.go.extracted.json",
+      "domain": "ok_governor_ChainGovernor_initConfig",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.governor_ChainGovernor_initConfig",
+      "kind": "CODEC",
+      "model_fn": "governor_ChainGovernor_initConfig",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initConfig"
+        }
+      ],
+      "src": "ChainGovernor",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c06/facts/go_1.go.extracted.json",
+      "domain": "ok_governor_ChainGovernor_loadFromDB",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.governor_ChainGovernor_loadFromDB",
+      "kind": "CODEC",
+      "model_fn": "governor_ChainGovernor_loadFromDB",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).loadFromDB"
+        }
+      ],
+      "src": "ChainGovernor",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c06/facts/go_1.go.extracted.json",
+      "domain": "ok_governor_ChainGovernor_loadFromDBAlreadyLocked",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.governor_ChainGovernor_loadFromDBAlreadyLocked",
+      "kind": "CODEC",
+      "model_fn": "governor_ChainGovernor_loadFromDBAlreadyLocked",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).loadFromDBAlreadyLocked"
+        }
+      ],
+      "src": "ChainGovernor",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c06/facts/go_1.go.extracted.json",
+      "domain": "ok_governor_ChainGovernor_queryCoinGecko",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.governor_ChainGovernor_queryCoinGecko",
+      "kind": "CODEC",
+      "model_fn": "governor_ChainGovernor_queryCoinGecko",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).queryCoinGecko"
+        }
+      ],
+      "src": "ChainGovernor",
+      "tgt": "R_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/chain_governor_ops.json",
+  "facts_sha256": "33eb58c915d75d57fab167561835ee6a7daf6110bb5b0c31841bbd462744fab6",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "chain_governor_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

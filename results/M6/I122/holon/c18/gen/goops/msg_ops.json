@@ -1,0 +1,677 @@
+{
+  "carrier": {
+    "id": "Msg",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "[]github.com/cosmos/cosmos-sdk/types.Msg"
+  },
+  "component": "msg_ops",
+  "document": "results/M6/I122/holon/c18/facts/go_2.go.extracted.json",
+  "document_sha256": "10a10763d337a4b44083cce690fa1376f2d905cb442addbbd0a99c16aba5bf8f",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "keeper_validateMsgs": {
+      "loop_bodies": [
+        {
+          "carried": [],
+          "cmp": "<",
+          "exits": [
+            "return"
+          ],
+          "fuel": [
+            "len",
+            [
+              "param",
+              "msgs"
+            ]
+          ],
+          "init": [
+            "const",
+            0
+          ],
+          "iv": null,
+          "limit": [
+            "len",
+            [
+              "param",
+              "msgs"
+            ]
+          ],
+          "paths": [
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "-",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ],
+                    [
+                      "const",
+                      1
+                    ]
+                  ],
+                  [
+                    "len",
+                    [
+                      "param",
+                      "msgs"
+                    ]
+                  ]
+                ],
+                [
+                  ">",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "-",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ],
+                    [
+                      "const",
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "end": "panic",
+              "error": null,
+              "returns": null,
+              "site": "x/group/keeper/msg_server.go:1148:22:index"
+            },
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "-",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ],
+                    [
+                      "const",
+                      1
+                    ]
+                  ],
+                  [
+                    "len",
+                    [
+                      "param",
+                      "msgs"
+                    ]
+                  ]
+                ],
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "-",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ],
+                    [
+                      "const",
+                      1
+                    ]
+                  ]
+                ],
+                [
+                  "false",
+                  [
+                    "result",
+                    [
+                      "unknown",
+                      "assert"
+                    ],
+                    1
+                  ]
+                ]
+              ],
+              "end": "continue",
+              "error": null,
+              "returns": null,
+              "site": null,
+              "updates": {}
+            },
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "-",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ],
+                    [
+                      "const",
+                      1
+                    ]
+                  ],
+                  [
+                    "len",
+                    [
+                      "param",
+                      "msgs"
+                    ]
+                  ]
+                ],
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "-",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ],
+                    [
+                      "const",
+                      1
+                    ]
+                  ]
+                ],
+                [
+                  "true",
+                  [
+                    "result",
+                    [
+                      "unknown",
+                      "assert"
+                    ],
+                    1
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "call",
+                    "dynamic:ValidateBasic",
+                    [
+                      [
+                        "result",
+                        [
+                          "unknown",
+                          "assert"
+                        ],
+                        0
+                      ]
+                    ]
+                  ],
+                  [
+                    "nil"
+                  ]
+                ]
+              ],
+              "end": "continue",
+              "error": null,
+              "returns": null,
+              "site": null,
+              "updates": {}
+            },
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "-",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ],
+                    [
+                      "const",
+                      1
+                    ]
+                  ],
+                  [
+                    "len",
+                    [
+                      "param",
+                      "msgs"
+                    ]
+                  ]
+                ],
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "-",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ],
+                    [
+                      "const",
+                      1
+                    ]
+                  ]
+                ],
+                [
+                  "true",
+                  [
+                    "result",
+                    [
+                      "unknown",
+                      "assert"
+                    ],
+                    1
+                  ]
+                ],
+                [
+                  "!=",
+                  [
+                    "call",
+                    "dynamic:ValidateBasic",
+                    [
+                      [
+                        "result",
+                        [
+                          "unknown",
+                          "assert"
+                        ],
+                        0
+                      ]
+                    ]
+                  ],
+                  [
+                    "nil"
+                  ]
+                ]
+              ],
+              "end": "return",
+              "error": "unknown",
+              "returns": [
+                [
+                  "call",
+                  "cosmossdk.io/errors.Wrapf",
+                  [
+                    [
+                      "call",
+                      "dynamic:ValidateBasic",
+                      [
+                        [
+                          "result",
+                          [
+                            "unknown",
+                            "assert"
+                          ],
+                          0
+                        ]
+                      ]
+                    ],
+                    [
+                      "str",
+                      "msg %d"
+                    ],
+                    [
+                      "varargs",
+                      [
+                        [
+                          "unknown",
+                          "opaque"
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              "site": null
+            },
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  ">=",
+                  [
+                    "op",
+                    "+",
+                    [
+                      "op",
+                      "-",
+                      [
+                        "iv",
+                        "i"
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ],
+                    [
+                      "const",
+                      1
+                    ]
+                  ],
+                  [
+                    "len",
+                    [
+                      "param",
+                      "msgs"
+                    ]
+                  ]
+                ]
+              ],
+              "end": "return",
+              "error": "nil",
+              "returns": [
+                [
+                  "nil"
+                ]
+              ],
+              "site": null
+            }
+          ],
+          "span": "x/group/keeper/msg_server.go:1148",
+          "step": 1,
+          "typed": {
+            "iv_type": "int",
+            "lengths": {
+              "msgs": null
+            },
+            "stale": false,
+            "terms": [
+              [
+                [
+                  "call",
+                  "dynamic:ValidateBasic",
+                  [
+                    [
+                      "result",
+                      [
+                        "unknown",
+                        "assert"
+                      ],
+                      0
+                    ]
+                  ]
+                ],
+                "error"
+              ],
+              [
+                [
+                  "elem",
+                  "github.com/cosmos/cosmos-sdk/types.Msg",
+                  [
+                    "index",
+                    [
+                      "param",
+                      "msgs"
+                    ],
+                    [
+                      "op",
+                      "+",
+                      [
+                        "op",
+                        "-",
+                        [
+                          "iv",
+                          "i"
+                        ],
+                        [
+                          "const",
+                          1
+                        ]
+                      ],
+                      [
+                        "const",
+                        1
+                      ]
+                    ]
+                  ]
+                ],
+                "github.com/cosmos/cosmos-sdk/types.Msg"
+              ],
+              [
+                [
+                  "len",
+                  [
+                    "param",
+                    "msgs"
+                  ]
+                ],
+                "int"
+              ],
+              [
+                [
+                  "op",
+                  "+",
+                  [
+                    "op",
+                    "-",
+                    [
+                      "iv",
+                      "i"
+                    ],
+                    [
+                      "const",
+                      1
+                    ]
+                  ],
+                  [
+                    "const",
+                    1
+                  ]
+                ],
+                "int"
+              ]
+            ]
+          }
+        }
+      ],
+      "params": [
+        {
+          "name": "msgs",
+          "type": "[]github.com/cosmos/cosmos-sdk/types.Msg"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t1",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ]
+            ],
+            [
+              "<",
+              [
+                "op",
+                "+",
+                [
+                  "var",
+                  "t1",
+                  "rangeindex"
+                ],
+                [
+                  "const",
+                  1
+                ]
+              ],
+              [
+                "len",
+                [
+                  "param",
+                  "msgs"
+                ]
+              ]
+            ]
+          ],
+          "id": "x/group/keeper/msg_server.go:1148:22:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "cosmossdk.io/x/group/keeper.validateMsgs",
+      "span": "x/group/keeper/msg_server.go:1147"
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ]
+  }
+}

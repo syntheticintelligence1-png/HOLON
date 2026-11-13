@@ -1,0 +1,817 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [
+        {
+          "expr": [
+            "==",
+            [
+              "env",
+              "msg.value"
+            ],
+            0
+          ],
+          "kind": "callvalue",
+          "seq": 0,
+          "src": "src/osp/OneStepProverHostIo.sol:679-723",
+          "stack": []
+        },
+        {
+          "expr": [
+            ">=",
+            [
+              "env",
+              "msg.data.length"
+            ],
+            484
+          ],
+          "kind": "calldatasize",
+          "seq": 1,
+          "src": "src/osp/OneStepProverHostIo.sol:679-723",
+          "stack": []
+        },
+        {
+          "expr": [
+            "<",
+            [
+              "member",
+              [
+                "param",
+                "inst"
+              ],
+              "opcode"
+            ],
+            65536
+          ],
+          "kind": "abi",
+          "param": "inst",
+          "seq": 2,
+          "src": "src/osp/OneStepProverHostIo.sol:689",
+          "stack": []
+        }
+      ],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "OneStepProverHostIo",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "args": [
+            [
+              "str",
+              "494e56414c49445f4d454d4f52595f4f50434f4445"
+            ]
+          ],
+          "error": {
+            "name": "Error",
+            "selector": "0x08c379a0",
+            "signature": "Error(string)"
+          },
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "&&",
+                  [
+                    ">=",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "inst"
+                      ],
+                      "opcode"
+                    ],
+                    32784
+                  ],
+                  [
+                    "<=",
+                    [
+                      "member",
+                      [
+                        "param",
+                        "inst"
+                      ],
+                      "opcode"
+                    ],
+                    32787
+                  ]
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "inst"
+                    ],
+                    "opcode"
+                  ],
+                  32793
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "inst"
+                    ],
+                    "opcode"
+                  ],
+                  32800
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "inst"
+                    ],
+                    "opcode"
+                  ],
+                  32801
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "inst"
+                    ],
+                    "opcode"
+                  ],
+                  32802
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "inst"
+                    ],
+                    "opcode"
+                  ],
+                  32803
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "inst"
+                    ],
+                    "opcode"
+                  ],
+                  32804
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "inst"
+                    ],
+                    "opcode"
+                  ],
+                  32816
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "inst"
+                    ],
+                    "opcode"
+                  ],
+                  32817
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "member",
+                    [
+                      "param",
+                      "inst"
+                    ],
+                    "opcode"
+                  ],
+                  32818
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "args": [
+                [
+                  "str",
+                  "494e56414c49445f4d454d4f52595f4f50434f4445"
+                ]
+              ],
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      "&&",
+                      [
+                        ">=",
+                        [
+                          "member",
+                          [
+                            "param",
+                            "inst"
+                          ],
+                          "opcode"
+                        ],
+                        32784
+                      ],
+                      [
+                        "<=",
+                        [
+                          "member",
+                          [
+                            "param",
+                            "inst"
+                          ],
+                          "opcode"
+                        ],
+                        32787
+                      ]
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "inst"
+                        ],
+                        "opcode"
+                      ],
+                      32793
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "inst"
+                        ],
+                        "opcode"
+                      ],
+                      32800
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "inst"
+                        ],
+                        "opcode"
+                      ],
+                      32801
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "inst"
+                        ],
+                        "opcode"
+                      ],
+                      32802
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "inst"
+                        ],
+                        "opcode"
+                      ],
+                      32803
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "inst"
+                        ],
+                        "opcode"
+                      ],
+                      32804
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "inst"
+                        ],
+                        "opcode"
+                      ],
+                      32816
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "inst"
+                        ],
+                        "opcode"
+                      ],
+                      32817
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "member",
+                        [
+                          "param",
+                          "inst"
+                        ],
+                        "opcode"
+                      ],
+                      32818
+                    ]
+                  ]
+                ]
+              ],
+              "seq": 3,
+              "stack": []
+            }
+          ],
+          "reason": "INVALID_MEMORY_OPCODE",
+          "src": "src/osp/OneStepProverHostIo.sol:719"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "executeOneStep",
+      "order": [
+        [
+          "check",
+          0
+        ],
+        [
+          "check",
+          1
+        ],
+        [
+          "check",
+          2
+        ],
+        [
+          "guard",
+          "src/osp/OneStepProverHostIo.sol:719",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "fields": [
+            {
+              "name": "maxInboxMessagesRead",
+              "type": "uint256",
+              "width": 256
+            },
+            {
+              "name": "bridge",
+              "type": "contract IBridge",
+              "width": 160
+            },
+            {
+              "name": "initialWasmModuleRoot",
+              "type": "bytes32",
+              "width": 256
+            }
+          ],
+          "location": "calldata",
+          "name": "execCtx",
+          "type": "struct ExecutionContext",
+          "width": null
+        },
+        {
+          "fields": [
+            {
+              "name": "status",
+              "type": "enum MachineStatus",
+              "width": 8
+            },
+            {
+              "name": "valueStack",
+              "type": "struct ValueStack",
+              "width": null
+            },
+            {
+              "name": "valueMultiStack",
+              "type": "struct MultiStack",
+              "width": null
+            },
+            {
+              "name": "internalStack",
+              "type": "struct ValueStack",
+              "width": null
+            },
+            {
+              "name": "frameStack",
+              "type": "struct StackFrameWindow",
+              "width": null
+            },
+            {
+              "name": "frameMultiStack",
+              "type": "struct MultiStack",
+              "width": null
+            },
+            {
+              "name": "globalStateHash",
+              "type": "bytes32",
+              "width": 256
+            },
+            {
+              "name": "moduleIdx",
+              "type": "uint32",
+              "width": 32
+            },
+            {
+              "name": "functionIdx",
+              "type": "uint32",
+              "width": 32
+            },
+            {
+              "name": "functionPc",
+              "type": "uint32",
+              "width": 32
+            },
+            {
+              "name": "recoveryPc",
+              "type": "bytes32",
+              "width": 256
+            },
+            {
+              "name": "modulesRoot",
+              "type": "bytes32",
+              "width": 256
+            }
+          ],
+          "location": "calldata",
+          "name": "startMach",
+          "type": "struct Machine",
+          "width": null
+        },
+        {
+          "fields": [
+            {
+              "name": "globalsMerkleRoot",
+              "type": "bytes32",
+              "width": 256
+            },
+            {
+              "name": "moduleMemory",
+              "type": "struct ModuleMemory",
+              "width": null
+            },
+            {
+              "name": "tablesMerkleRoot",
+              "type": "bytes32",
+              "width": 256
+            },
+            {
+              "name": "functionsMerkleRoot",
+              "type": "bytes32",
+              "width": 256
+            },
+            {
+              "name": "extraHash",
+              "type": "bytes32",
+              "width": 256
+            },
+            {
+              "name": "internalsOffset",
+              "type": "uint32",
+              "width": 32
+            }
+          ],
+          "location": "calldata",
+          "name": "startMod",
+          "type": "struct Module",
+          "width": null
+        },
+        {
+          "fields": [
+            {
+              "name": "opcode",
+              "type": "uint16",
+              "width": 16
+            },
+            {
+              "name": "argumentData",
+              "type": "uint256",
+              "width": 256
+            }
+          ],
+          "location": "calldata",
+          "name": "inst",
+          "type": "struct Instruction",
+          "width": null
+        },
+        {
+          "location": "calldata",
+          "name": "proof",
+          "type": "bytes",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "tuple",
+        [
+          "param",
+          "startMach"
+        ],
+        [
+          "param",
+          "startMod"
+        ]
+      ],
+      "selector": "0xa92cb501",
+      "src": "src/osp/OneStepProverHostIo.sol:679-723",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (storage before the transaction, block, msg and tx members, blobhash, results of external calls and whether they succeed (callok, caught), sload) are free: every value of them is possible. The result of an external call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit reverts are checks (checks, panics, calls), except the ABI decoding of dynamic calldata (offsets and lengths inside the calldata, and the Panic 0x41 of allocating a decoded dynamic value in memory) and the range of array elements of narrow types: they are not checked. A member of a calldata struct is range-checked where the walk first reads it under a context, as the compiler validates it on access. Running out of gas is not a check."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is walked at a generic iteration: the names it carries from one iteration to the next are found by a fixpoint and bound to closed forms (entry + d * iter) or carried symbols; a check inside it holds at every iteration; after it, a carried name holds a closed form at the iteration count (counted loops and loops that only end by break) or an exit term defined by the loop record. Counts assume the induction variable does not wrap (a wrapping counter would panic or loop forever)."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every reach of a require, assert or revert is recorded (guards[].reaches, with its call stack): a guard entry's expr is its first reach's, and the later reaches keep their own expressions."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "External calls do not change this contract's storage (no reentrancy): a storage read after an external call is the value this contract last wrote, or the value before the transaction."
+    }
+  ],
+  "constants": {
+    "BLS_MODULUS": "52435875175126190479447740508185965837690552500527637822603658699938581184513",
+    "CERT_SIZE_LEN": "8",
+    "CLAIMED_VALID_LEN": "1",
+    "DELAYED_HEADER_LEN": "113",
+    "INBOX_HEADER_LEN": "40",
+    "INBOX_NUM": "2",
+    "LEAF_SIZE": "32",
+    "PRIMITIVE_ROOT_OF_UNITY": "10238227357739495823651030575849232062558860180284477541189508159991286009131"
+  },
+  "contract": "OneStepProverHostIo",
+  "extraction": {
+    "frontend": "solidity",
+    "frontend_version": "holon-frontend-solidity/0.3",
+    "inputs": [
+      {
+        "sha256": "84aac6436d2609d78899f302b9e01805451195010aba5e996cbf302c4d03dc30",
+        "unit": "src/bridge/DelayBufferTypes.sol"
+      },
+      {
+        "sha256": "3b8cb076fa43cf14755ed836e9cebacec15cdfaf27db07c974bb5069528bea7f",
+        "unit": "src/bridge/IBridge.sol"
+      },
+      {
+        "sha256": "81d2542e66ec9314e8759d8e9fa56e9f6c31050b5f3c09b3fc90693eac3e4016",
+        "unit": "src/bridge/IDelayedMessageProvider.sol"
+      },
+      {
+        "sha256": "49b5257ef1078a2a7aa8502189407872c14aba0d4faf0d2ee7d5bb5015f57d1b",
+        "unit": "src/bridge/IOwnable.sol"
+      },
+      {
+        "sha256": "5eb979c80f3c823cd21946fe61956d65ac9521edc8ab9488544ec62467e8cd6f",
+        "unit": "src/bridge/ISequencerInbox.sol"
+      },
+      {
+        "sha256": "1240e227ee687c43a1a919ca97b68b53c0c246ae62b2c7038c2fd8714376adeb",
+        "unit": "src/bridge/Messages.sol"
+      },
+      {
+        "sha256": "1baaa5556984d60f257597fde8df72df39377bc42238a1bc6b8cec20581b6c6e",
+        "unit": "src/libraries/IGasRefunder.sol"
+      },
+      {
+        "sha256": "ab86305a015325417c99bf24a45c49568b567df8e8b525503461bab311b4f891",
+        "unit": "src/osp/ICustomDAProofValidator.sol"
+      },
+      {
+        "sha256": "4e760abe7abdfdd6ffd39d502bc86c573ef4d73f189e65af6262bc9b9be89176",
+        "unit": "src/osp/IOneStepProver.sol"
+      },
+      {
+        "sha256": "552b337b4ffe1df1ed7c9840be86d3266367fda6094a2b8281eecd77e88c0509",
+        "unit": "src/osp/OneStepProverHostIo.sol"
+      },
+      {
+        "sha256": "f6bd061eb9e06b32b4c99b177fdc0038dffa3f2d295bbb48ae7f32c91ae8e54e",
+        "unit": "src/state/Deserialize.sol"
+      },
+      {
+        "sha256": "510e694cd7b6c4d13b18d4e9d943e71efece76c836716c67c2484634c2557c44",
+        "unit": "src/state/GlobalState.sol"
+      },
+      {
+        "sha256": "6f78d95507febd7287c77e0b70f1f06c1d7b750de18d1df1b4cb46e38405edb6",
+        "unit": "src/state/Instructions.sol"
+      },
+      {
+        "sha256": "e1abfde3b384792322adc53b3ac41b557552ca5cb558e066ebbbfa390997b55a",
+        "unit": "src/state/Machine.sol"
+      },
+      {
+        "sha256": "2e5a3401f558131249af0f43df21fc16cfa266c1495c2975d982d2b05ef35ddc",
+        "unit": "src/state/MerkleProof.sol"
+      },
+      {
+        "sha256": "43c4b4bbce5a4db10cdacf9033062b5d740d857b4759943a213adcb831ad2d2b",
+        "unit": "src/state/Module.sol"
+      },
+      {
+        "sha256": "4adba636980d0a5aed19a36fe21b0900e6fa6212c57499d7ea39b254232ef780",
+        "unit": "src/state/ModuleMemory.sol"
+      },
+      {
+        "sha256": "25a7d82a8f0d0ee9ba3027c98b356577a2e9426776b2f03fffbaf3e2eb5f1f2d",
+        "unit": "src/state/ModuleMemoryCompact.sol"
+      },
+      {
+        "sha256": "0f15fc2dad2b9974b0ed4b6ea943573daff1fa3e0ef5be61de2175a00db63caa",
+        "unit": "src/state/MultiStack.sol"
+      },
+      {
+        "sha256": "728ccae0a09173ba0e29ebb4d3866338239b152cd0fa899be11858ad2052bb94",
+        "unit": "src/state/StackFrame.sol"
+      },
+      {
+        "sha256": "fe44fb3c7744518521e4a1435da56ca0a2cb1a67efae31f4156d59089cb17e45",
+        "unit": "src/state/Value.sol"
+      },
+      {
+        "sha256": "1be61a1ea7dddcf8feee205f98f65cc28427beccdca606103c24dee817af840e",
+        "unit": "src/state/ValueArray.sol"
+      },
+      {
+        "sha256": "e7ab95bcd47143be1d903c57cdfafb9df69e20f3add8f67cdb29e3d6962ec05f",
+        "unit": "src/state/ValueStack.sol"
+      }
+    ],
+    "kind": "transitions",
+    "method": "extracted",
+    "settings": {
+      "optimizer": {
+        "enabled": false
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "storageLayout"
+          ]
+        }
+      },
+      "remappings": [
+        "ds-test/=lib/forge-std/lib/ds-test/src/",
+        "forge-std/=lib/forge-std/src/",
+        "@openzeppelin/contracts-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable/",
+        "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
+        "@offchainlabs/upgrade-executor/=node_modules/@offchainlabs/upgrade-executor/",
+        "@uniswap/v2-core/=node_modules/@uniswap/v2-core/contracts/",
+        "@uniswap/lib/=node_modules/@uniswap/lib/contracts/"
+      ]
+    },
+    "sidecar": {
+      "path": "results/M6/base/holon/c17/sidecars/extract_onestepproverhostio.json",
+      "sha256": "3bc86bbc4fa78f3bbab497c4003c0aa2d97c1859718b55228a99b97affa385e7"
+    },
+    "term_budget": 4000000,
+    "toolchain": {
+      "solc": {
+        "arithmetic": "checked",
+        "selected_by": {
+          "pragmas": [
+            ">=0.4.21 <0.9.0",
+            ">=0.6.9 <0.9.0",
+            "^0.8.0"
+          ],
+          "rule": "the newest pinned release (config solc_set) satisfying every version pragma of the units solc reads"
+        },
+        "sha256": "65c3180a336eabb6bdc4bbd49cc405aeb233976964ae6c11fba2a6c8be8f3243",
+        "version": "0.8.38+commit.1835d247.Linux.g++"
+      }
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "inherited_storage": [],
+  "storage": [],
+  "target": {
+    "commit": "4341b132cfbdcc980ead03765ca5224ff6cb5d97",
+    "repo": "OffchainLabs/nitro-contracts",
+    "scope": "contract OneStepProverHostIo of src/osp/OneStepProverHostIo.sol"
+  }
+}

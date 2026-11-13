@@ -135,12 +135,18 @@ class Analysis:
         meets another loop's header (that loop is not enumerated) or performs a store the memory model does not track
         (holon.frontends.go.paths.LoopStore). Memory the iteration stores to is havocked at the header (_loop_fixpoint)."""
         fn = self.prog.funcs[fid]
-        if not fn.has_body or not self.codec_shaped(fn):
+        shapes = self.ctx.loop_shapes   # I122 (loops "shapes"): every function with a body, every constant step
+        if not fn.has_body or not (shapes or self.codec_shaped(fn)):
             return None
         fl = self.flow(fid)
         out = []
         for L in fl.loops():
-            if L.kind not in ("counted", "range") or L.phi is None or L.fuel is None or L.step != 1:
+            if L.kind not in ("counted", "range") or L.phi is None:
+                continue
+            if shapes:
+                if not isinstance(L.step, int) or L.step == 0 or L.cmp is None:
+                    continue
+            elif L.fuel is None or L.step != 1:
                 continue
             try:
                 res = self._loop_fixpoint(fn, L)
@@ -166,6 +172,13 @@ class Analysis:
             if self.ctx.v03:   # I93: the carried variables, in header order, with their entry values
                 ent["carried"] = [{"name": n, "init": to_json(t)} for n, t in res.carried.items()] \
                     if paths is not None else None
+            if shapes:   # I122: the typed terms of the iteration's paths and the induction variable's Go type
+                ent["typed"] = {"terms": [[json.loads(k), t] for k, t in sorted(res.term_types.items())]
+                                if paths is not None else None,
+                                "stale": res.stale if paths is not None else None,
+                                "iv_type": L.phi.type or None,
+                                "lengths": {n: self.ty.array_len(self.ty.pointer_elem(t) if t.startswith("*") else t)
+                                            for n, t in fn.params}}
             out.append(ent)
         return out or None
 
