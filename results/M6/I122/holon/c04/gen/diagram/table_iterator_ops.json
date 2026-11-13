@@ -1,0 +1,64 @@
+{
+  "carriers": [
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "tableIterator",
+      "cls": "rep",
+      "domains": [
+        "ok_rawdb_tableIterator_Error"
+      ],
+      "id": "tableIterator",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_tableIterator_Error",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_tableIterator_Error",
+      "kind": "CODEC",
+      "model_fn": "rawdb_tableIterator_Error",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.tableIterator).Error"
+        }
+      ],
+      "src": "tableIterator",
+      "tgt": "R_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/table_iterator_ops.json",
+  "facts_sha256": "dfef2989c808849613c6580e7fe2e511506071bfa02011e3c435d2c7d1861365",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "table_iterator_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

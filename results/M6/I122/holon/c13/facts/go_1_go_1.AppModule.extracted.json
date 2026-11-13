@@ -1,0 +1,1634 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "transfer.AppModule",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "BeginBlock",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "tuple",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "req",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "modules/apps/transfer/module.go:136",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "transfer.AppModule",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "ConsensusVersion",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": 3,
+      "selector": null,
+      "src": "modules/apps/transfer/module.go:133",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "transfer.AppModule",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "EndBlock",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "tuple",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "req",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "unknown",
+        "modules/apps/transfer/module.go:141",
+        "ptr"
+      ],
+      "selector": null,
+      "src": "modules/apps/transfer/module.go:140",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "transfer.AppModule",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "ExportGenesis",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "tuple",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "cdc",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "github.com/cosmos/cosmos-sdk/codec.JSONCodec.MustMarshalJSON",
+        [
+          "param",
+          "cdc"
+        ],
+        [
+          "call",
+          "(github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper.Keeper).ExportGenesis",
+          [
+            "storage",
+            "keeper"
+          ],
+          [
+            "param",
+            "ctx"
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "modules/apps/transfer/module.go:127",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "transfer.AppModule",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "GenerateGenesisState",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "simState",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "modules/apps/transfer/module.go:147",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "transfer.AppModule",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "InitGenesis",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "tuple",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "cdc",
+          "type": "uint256",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "data",
+          "type": "bytes",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "unknown",
+        "modules/apps/transfer/module.go:122",
+        "ptr"
+      ],
+      "selector": null,
+      "src": "modules/apps/transfer/module.go:118",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "transfer.AppModule",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "RegisterInvariants",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ir",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "modules/apps/transfer/module.go:97",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "transfer.AppModule",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "!",
+            [
+              "!=",
+              [
+                "call",
+                "github.com/cosmos/cosmos-sdk/types/module.Configurator.RegisterMigration",
+                [
+                  "param",
+                  "cfg"
+                ],
+                [
+                  "str",
+                  "7472616e73666572"
+                ],
+                1,
+                [
+                  "unknown",
+                  "modules/apps/transfer/module.go:107",
+                  "clo"
+                ]
+              ],
+              0
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "!",
+                [
+                  "!=",
+                  [
+                    "call",
+                    "github.com/cosmos/cosmos-sdk/types/module.Configurator.RegisterMigration",
+                    [
+                      "param",
+                      "cfg"
+                    ],
+                    [
+                      "str",
+                      "7472616e73666572"
+                    ],
+                    1,
+                    [
+                      "unknown",
+                      "modules/apps/transfer/module.go:107",
+                      "clo"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": "failed to migrate transfer app from version 1 to 2: %v",
+          "src": "modules/apps/transfer/module.go:108"
+        },
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "!=",
+                  [
+                    "call",
+                    "github.com/cosmos/cosmos-sdk/types/module.Configurator.RegisterMigration",
+                    [
+                      "param",
+                      "cfg"
+                    ],
+                    [
+                      "str",
+                      "7472616e73666572"
+                    ],
+                    1,
+                    [
+                      "unknown",
+                      "modules/apps/transfer/module.go:107",
+                      "clo"
+                    ]
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!=",
+                [
+                  "call",
+                  "github.com/cosmos/cosmos-sdk/types/module.Configurator.RegisterMigration",
+                  [
+                    "param",
+                    "cfg"
+                  ],
+                  [
+                    "str",
+                    "7472616e73666572"
+                  ],
+                  2,
+                  [
+                    "unknown",
+                    "modules/apps/transfer/module.go:111",
+                    "clo"
+                  ]
+                ],
+                0
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "call",
+                        "github.com/cosmos/cosmos-sdk/types/module.Configurator.RegisterMigration",
+                        [
+                          "param",
+                          "cfg"
+                        ],
+                        [
+                          "str",
+                          "7472616e73666572"
+                        ],
+                        1,
+                        [
+                          "unknown",
+                          "modules/apps/transfer/module.go:107",
+                          "clo"
+                        ]
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!=",
+                    [
+                      "call",
+                      "github.com/cosmos/cosmos-sdk/types/module.Configurator.RegisterMigration",
+                      [
+                        "param",
+                        "cfg"
+                      ],
+                      [
+                        "str",
+                        "7472616e73666572"
+                      ],
+                      2,
+                      [
+                        "unknown",
+                        "modules/apps/transfer/module.go:111",
+                        "clo"
+                      ]
+                    ],
+                    0
+                  ]
+                ]
+              ],
+              "seq": 1,
+              "stack": []
+            }
+          ],
+          "reason": "failed to migrate transfer app from version 2 to 3: %v",
+          "src": "modules/apps/transfer/module.go:112"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "RegisterServices",
+      "order": [
+        [
+          "guard",
+          "modules/apps/transfer/module.go:108",
+          0
+        ],
+        [
+          "guard",
+          "modules/apps/transfer/module.go:112",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "cfg",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "modules/apps/transfer/module.go:102",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "transfer.AppModule",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "RegisterStoreDecoder",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "sdr",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "modules/apps/transfer/module.go:152",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "transfer.AppModule",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "WeightedOperations",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "_",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": 0,
+      "selector": null,
+      "src": "modules/apps/transfer/module.go:157",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/cosmos/ibc-go/v7/modules/apps/transfer.AppModule",
+  "debt": [],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I122/holon/c13/sidecars/go_1_machines.json",
+      "sha256": "3c5a7a6282d90ee876fb48b6afc05efaa0fd00b3e6fed6f7272f1c51919e787c"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "a526e584c22a688f7eb76a2b4c52c05134f6b9119ddac882bac7635bb8e849c4",
+        "unit": "modules/apps/transfer/ibc_module.go"
+      },
+      {
+        "sha256": "1e7e9ce8bdcbd374fe289df1063e09100143411649ca0f2c37664ef47d9725d9",
+        "unit": "modules/apps/transfer/module.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "transfer.AppModule",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "BeginBlock": {
+        "declared_in": "transfer.AppModule",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "baseCtx",
+                "type": "uint256"
+              },
+              {
+                "name": "ms",
+                "type": "uint256"
+              },
+              {
+                "name": "header",
+                "type": "uint256"
+              },
+              {
+                "name": "headerHash",
+                "type": "bytes"
+              },
+              {
+                "name": "chainID",
+                "type": "string"
+              },
+              {
+                "name": "txBytes",
+                "type": "bytes"
+              },
+              {
+                "name": "logger",
+                "type": "uint256"
+              },
+              {
+                "name": "voteInfo",
+                "type": "uint256"
+              },
+              {
+                "name": "gasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "blockGasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "checkTx",
+                "type": "bool"
+              },
+              {
+                "name": "recheckTx",
+                "type": "bool"
+              },
+              {
+                "name": "minGasPrice",
+                "type": "uint256"
+              },
+              {
+                "name": "consParams",
+                "type": "uint256"
+              },
+              {
+                "name": "eventManager",
+                "type": "uint256"
+              },
+              {
+                "name": "priority",
+                "type": "int64"
+              },
+              {
+                "name": "kvGasConfig",
+                "type": "uint256"
+              },
+              {
+                "name": "transientKVGasConfig",
+                "type": "uint256"
+              }
+            ],
+            "name": "ctx",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "name": "Hash",
+                "type": "bytes"
+              },
+              {
+                "name": "Header",
+                "type": "uint256"
+              },
+              {
+                "name": "LastCommitInfo",
+                "type": "uint256"
+              },
+              {
+                "name": "ByzantineValidators",
+                "type": "uint256"
+              }
+            ],
+            "name": "req",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "BeginBlock",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "ConsensusVersion": {
+        "declared_in": "transfer.AppModule",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "ConsensusVersion",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint64"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "EndBlock": {
+        "declared_in": "transfer.AppModule",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "baseCtx",
+                "type": "uint256"
+              },
+              {
+                "name": "ms",
+                "type": "uint256"
+              },
+              {
+                "name": "header",
+                "type": "uint256"
+              },
+              {
+                "name": "headerHash",
+                "type": "bytes"
+              },
+              {
+                "name": "chainID",
+                "type": "string"
+              },
+              {
+                "name": "txBytes",
+                "type": "bytes"
+              },
+              {
+                "name": "logger",
+                "type": "uint256"
+              },
+              {
+                "name": "voteInfo",
+                "type": "uint256"
+              },
+              {
+                "name": "gasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "blockGasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "checkTx",
+                "type": "bool"
+              },
+              {
+                "name": "recheckTx",
+                "type": "bool"
+              },
+              {
+                "name": "minGasPrice",
+                "type": "uint256"
+              },
+              {
+                "name": "consParams",
+                "type": "uint256"
+              },
+              {
+                "name": "eventManager",
+                "type": "uint256"
+              },
+              {
+                "name": "priority",
+                "type": "int64"
+              },
+              {
+                "name": "kvGasConfig",
+                "type": "uint256"
+              },
+              {
+                "name": "transientKVGasConfig",
+                "type": "uint256"
+              }
+            ],
+            "name": "ctx",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "name": "Height",
+                "type": "int64"
+              }
+            ],
+            "name": "req",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "EndBlock",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "ExportGenesis": {
+        "declared_in": "transfer.AppModule",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "baseCtx",
+                "type": "uint256"
+              },
+              {
+                "name": "ms",
+                "type": "uint256"
+              },
+              {
+                "name": "header",
+                "type": "uint256"
+              },
+              {
+                "name": "headerHash",
+                "type": "bytes"
+              },
+              {
+                "name": "chainID",
+                "type": "string"
+              },
+              {
+                "name": "txBytes",
+                "type": "bytes"
+              },
+              {
+                "name": "logger",
+                "type": "uint256"
+              },
+              {
+                "name": "voteInfo",
+                "type": "uint256"
+              },
+              {
+                "name": "gasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "blockGasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "checkTx",
+                "type": "bool"
+              },
+              {
+                "name": "recheckTx",
+                "type": "bool"
+              },
+              {
+                "name": "minGasPrice",
+                "type": "uint256"
+              },
+              {
+                "name": "consParams",
+                "type": "uint256"
+              },
+              {
+                "name": "eventManager",
+                "type": "uint256"
+              },
+              {
+                "name": "priority",
+                "type": "int64"
+              },
+              {
+                "name": "kvGasConfig",
+                "type": "uint256"
+              },
+              {
+                "name": "transientKVGasConfig",
+                "type": "uint256"
+              }
+            ],
+            "name": "ctx",
+            "type": "tuple"
+          },
+          {
+            "name": "cdc",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "ExportGenesis",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bytes"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "GenerateGenesisState": {
+        "declared_in": "transfer.AppModule",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "AppParams",
+                "type": "uint256"
+              },
+              {
+                "name": "Cdc",
+                "type": "uint256"
+              },
+              {
+                "name": "Rand",
+                "type": "uint256"
+              },
+              {
+                "name": "GenState",
+                "type": "uint256"
+              },
+              {
+                "name": "Accounts",
+                "type": "uint256"
+              },
+              {
+                "name": "InitialStake",
+                "type": "uint256"
+              },
+              {
+                "name": "NumBonded",
+                "type": "int64"
+              },
+              {
+                "name": "BondDenom",
+                "type": "string"
+              },
+              {
+                "name": "GenTimestamp",
+                "type": "uint256"
+              },
+              {
+                "name": "UnbondTime",
+                "type": "int64"
+              },
+              {
+                "name": "LegacyParamChange",
+                "type": "uint256"
+              },
+              {
+                "name": "LegacyProposalContents",
+                "type": "uint256"
+              },
+              {
+                "name": "ProposalMsgs",
+                "type": "uint256"
+              }
+            ],
+            "name": "simState",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "GenerateGenesisState",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "InitGenesis": {
+        "declared_in": "transfer.AppModule",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "baseCtx",
+                "type": "uint256"
+              },
+              {
+                "name": "ms",
+                "type": "uint256"
+              },
+              {
+                "name": "header",
+                "type": "uint256"
+              },
+              {
+                "name": "headerHash",
+                "type": "bytes"
+              },
+              {
+                "name": "chainID",
+                "type": "string"
+              },
+              {
+                "name": "txBytes",
+                "type": "bytes"
+              },
+              {
+                "name": "logger",
+                "type": "uint256"
+              },
+              {
+                "name": "voteInfo",
+                "type": "uint256"
+              },
+              {
+                "name": "gasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "blockGasMeter",
+                "type": "uint256"
+              },
+              {
+                "name": "checkTx",
+                "type": "bool"
+              },
+              {
+                "name": "recheckTx",
+                "type": "bool"
+              },
+              {
+                "name": "minGasPrice",
+                "type": "uint256"
+              },
+              {
+                "name": "consParams",
+                "type": "uint256"
+              },
+              {
+                "name": "eventManager",
+                "type": "uint256"
+              },
+              {
+                "name": "priority",
+                "type": "int64"
+              },
+              {
+                "name": "kvGasConfig",
+                "type": "uint256"
+              },
+              {
+                "name": "transientKVGasConfig",
+                "type": "uint256"
+              }
+            ],
+            "name": "ctx",
+            "type": "tuple"
+          },
+          {
+            "name": "cdc",
+            "type": "uint256"
+          },
+          {
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "InitGenesis",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "RegisterInvariants": {
+        "declared_in": "transfer.AppModule",
+        "inputs": [
+          {
+            "name": "ir",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "RegisterInvariants",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "RegisterServices": {
+        "declared_in": "transfer.AppModule",
+        "inputs": [
+          {
+            "name": "cfg",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "RegisterServices",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "RegisterStoreDecoder": {
+        "declared_in": "transfer.AppModule",
+        "inputs": [
+          {
+            "name": "sdr",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "RegisterStoreDecoder",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "WeightedOperations": {
+        "declared_in": "transfer.AppModule",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "AppParams",
+                "type": "uint256"
+              },
+              {
+                "name": "Cdc",
+                "type": "uint256"
+              },
+              {
+                "name": "Rand",
+                "type": "uint256"
+              },
+              {
+                "name": "GenState",
+                "type": "uint256"
+              },
+              {
+                "name": "Accounts",
+                "type": "uint256"
+              },
+              {
+                "name": "InitialStake",
+                "type": "uint256"
+              },
+              {
+                "name": "NumBonded",
+                "type": "int64"
+              },
+              {
+                "name": "BondDenom",
+                "type": "string"
+              },
+              {
+                "name": "GenTimestamp",
+                "type": "uint256"
+              },
+              {
+                "name": "UnbondTime",
+                "type": "int64"
+              },
+              {
+                "name": "LegacyParamChange",
+                "type": "uint256"
+              },
+              {
+                "name": "LegacyProposalContents",
+                "type": "uint256"
+              },
+              {
+                "name": "ProposalMsgs",
+                "type": "uint256"
+              }
+            ],
+            "name": "_",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "WeightedOperations",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "transfer.AppModule",
+          "label": "AppModuleBasic",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "transfer.AppModule",
+          "label": "keeper",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "transfer.AppModule"
+    ],
+    "members": {
+      "(github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper.Keeper).ExportGenesis": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper.Keeper).ExportGenesis",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x27787f3e",
+          "visibility": "external"
+        }
+      ],
+      "(github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper.Keeper).InitGenesis": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper.Keeper).InitGenesis",
+          "outputs": [],
+          "selector": "0xdf7bd531",
+          "visibility": "external"
+        }
+      ],
+      "fmt.Sprintf": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "string"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "fmt.Sprintf",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "selector": "0x0d8b86cf",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/cosmos-sdk/codec.JSONCodec.MustMarshalJSON": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/cosmos-sdk/codec.JSONCodec.MustMarshalJSON",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes"
+            }
+          ],
+          "selector": "0x5c288cdc",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/cosmos-sdk/codec.JSONCodec.MustUnmarshalJSON": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "bytes"
+            },
+            {
+              "name": "a2",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/cosmos-sdk/codec.JSONCodec.MustUnmarshalJSON",
+          "outputs": [],
+          "selector": "0x70c9de6c",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/cosmos-sdk/types/module.Configurator.MsgServer": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/cosmos-sdk/types/module.Configurator.MsgServer",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xf0649c47",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/cosmos-sdk/types/module.Configurator.QueryServer": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/cosmos-sdk/types/module.Configurator.QueryServer",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x015a2534",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/cosmos-sdk/types/module.Configurator.RegisterMigration": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "string"
+            },
+            {
+              "name": "a2",
+              "type": "uint64"
+            },
+            {
+              "name": "a3",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/cosmos-sdk/types/module.Configurator.RegisterMigration",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x6f8dd784",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper.NewMigrator": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper.NewMigrator",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xd7aa731e",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper.RegisterInvariants": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper.RegisterInvariants",
+          "outputs": [],
+          "selector": "0xd9b2507e",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/ibc-go/v7/modules/apps/transfer/simulation.NewDecodeStore": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/ibc-go/v7/modules/apps/transfer/simulation.NewDecodeStore",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x305d59b9",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/ibc-go/v7/modules/apps/transfer/simulation.RandomizedGenState": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/ibc-go/v7/modules/apps/transfer/simulation.RandomizedGenState",
+          "outputs": [],
+          "selector": "0x59376986",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types.RegisterMsgServer": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types.RegisterMsgServer",
+          "outputs": [],
+          "selector": "0xd343c081",
+          "visibility": "external"
+        }
+      ],
+      "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types.RegisterQueryServer": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types.RegisterQueryServer",
+          "outputs": [],
+          "selector": "0x366c0a0b",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "modules/apps/transfer/ibc_module.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "AppModuleBasic",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "keeper",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "37ab926637aab78892aed61952fbb4b49da48ccd",
+    "repo": "cosmos/ibc-go",
+    "scope": "go machine github.com/cosmos/ibc-go/v7/modules/apps/transfer.AppModule"
+  }
+}

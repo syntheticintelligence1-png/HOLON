@@ -1,0 +1,162 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "daprovider.CertificateValidationError",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Error",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "storage",
+        "Reason"
+      ],
+      "selector": null,
+      "src": "daprovider/reader.go:24",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/offchainlabs/nitro/daprovider.CertificateValidationError",
+  "debt": [],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I122/holon/c12/sidecars/go_1_machines.json",
+      "sha256": "1b44c78668be8267d6c12aaa26f197f548c62457660366793d6f9bf5d37a8cf3"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "1439f2e413fe32c4e44b74e1a467331a29d700e67339cb7a63c5ffc10f1cefc9",
+        "unit": "daprovider/reader.go"
+      },
+      {
+        "sha256": "e80df2dfc48061716ffa1eb3c863ee46bdba6b7153369793dc26302a7d17e001",
+        "unit": "daprovider/registry.go"
+      },
+      {
+        "sha256": "f153c36c2eadb147536c23df27c91c9815470abfe0d95235f17f6842947e5ed7",
+        "unit": "daprovider/util.go"
+      },
+      {
+        "sha256": "d572db85876380879e34348fd018590358103055f59de2f69f3c9548223200af",
+        "unit": "daprovider/validator.go"
+      },
+      {
+        "sha256": "1c61803bba8c678b9172db8988b398142fa140e07c9b06954c62d5a80f38dfe5",
+        "unit": "daprovider/writer.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.25.14",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "daprovider.CertificateValidationError",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "Error": {
+        "declared_in": "daprovider.CertificateValidationError",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Error",
+        "outputs": [
+          {
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "daprovider.CertificateValidationError",
+          "label": "Reason",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_string_storage"
+        }
+      ],
+      "types": {
+        "t_string_storage": {
+          "encoding": "bytes",
+          "label": "string",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "daprovider.CertificateValidationError"
+    ],
+    "members": {},
+    "unit": "daprovider/reader.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "Reason",
+      "offset": 0,
+      "slot": 0,
+      "value": "string"
+    }
+  ],
+  "target": {
+    "commit": "b4178a009b07d61be26c46e9b77be591cf599675",
+    "repo": "OffchainLabs/nitro",
+    "scope": "go machine github.com/offchainlabs/nitro/daprovider.CertificateValidationError"
+  }
+}
