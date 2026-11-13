@@ -275,7 +275,7 @@ class TestCorpus(unittest.TestCase):
 
     def rows(self, p: Path) -> dict:
         d = json.loads(p.read_text(encoding="utf-8"))
-        return {r["id"]: r for r in d["entries"]}
+        return {r["id"]: r for r in d["rows"]}
 
     def test_p9_no_run_step_lost(self):
         a, b = self.rows(BASE_CORPUS), self.rows(HOLON_CORPUS)
@@ -284,7 +284,19 @@ class TestCorpus(unittest.TestCase):
 
     def test_p9_typed_models_not_fewer(self):
         a, b = self.rows(BASE_CORPUS), self.rows(HOLON_CORPUS)
-        n = lambda rs: sum(int((r.get("typed_runner") or {}).get("models_built") or 0) for r in rs.values())
+        def n(rs: dict) -> int:
+            built = 0
+            for r in rs.values():
+                m = (r.get("run_runners") or {}).get("milestone") or {}
+                if m.get("status") != "ok":
+                    continue
+                langs = {x.get("language") for x in r.get("documents") or []}
+                if "solidity" not in langs:
+                    continue
+                self.assertEqual(langs, {"solidity"}, f"{r['id']}: the typed runner ran over a mix of languages")
+                sol = sum(1 for x in r["documents"] if x.get("status") == "extracted")
+                built += sol - int(m.get("fallback_documents") or 0)
+            return built
         self.assertGreaterEqual(n(b), n(a))
 
     def test_p9_no_law_id_committed(self):
