@@ -128,10 +128,29 @@ class Trace:
         mm.shifts = before
         used = set(re.findall(r"(?<![\w.])([A-Za-z_]\w*)\s*[({]", w))
         missing = sorted(n for n in used if n not in self.names and n not in ("Nil", "Con", "True", "False", "Unit"))
+        if (new or missing) and getattr(mm, "sort_ops", False):
+            missing = self.define_shifts(new, missing)   # I123 D1
+            new = set()
         if new or missing:
             raise GenError(f"{action}: the term needs definitions the typed model does not hold "
                            f"({sorted(f'w_sh{d}_{n}' for d, n in new) + missing})")
         return self.code(w)
+
+    def define_shifts(self, new: set, missing: list) -> list:
+        """I123 D1 (only under the typed model's sort operations): the constant shifts a term needs that the model does
+        not define, defined in this section by the model's own builder (holon.sorts.sortops.section_shifts); returns the
+        names still missing (any that is not such a shift: the term stays refused)."""
+        from ..sorts import sortops
+        names = {f"w_sh{d}_{k}": (d, k) for d, k in new}
+        for n in missing:
+            m = re.fullmatch(r"w_sh([lr])_(\d+)", n)
+            if m and int(m.group(2)) < 256:
+                names[n] = (m.group(1), int(m.group(2)))
+        todo = {dk for n, dk in names.items() if n not in self.mine}
+        for text in sortops.section_shifts(self.mm, todo):
+            # the model's word type and its constructor, qualified (the builder writes them unqualified)
+            self.add(re.sub(r"(?<![\w.])W\b", self.Q("W"), text) if self.q else text)
+        return [n for n in missing if n not in names]
 
     def family(self, f: str):
         return self.mm.m.family(f)

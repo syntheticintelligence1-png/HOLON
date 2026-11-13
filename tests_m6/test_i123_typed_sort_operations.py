@@ -197,7 +197,8 @@ class TestSections(_Fixture):
         self.assertTrue(ok, text[-2000:])
 
     def test_p8_without_opt_in_refused(self):
-        ok, text = self.fx.section_shift("Pre05", sort_ops=False)
+        # amended (spec/M6/amendments/I123.jsonl): PreVar05, whose model builds without the opt-in
+        ok, text = self.fx.section_shift("PreVar05", sort_ops=False)
         self.assertFalse(ok)
         self.assertIn("needs definitions the typed model does not hold", text)
 

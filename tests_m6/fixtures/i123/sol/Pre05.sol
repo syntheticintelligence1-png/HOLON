@@ -12,7 +12,7 @@ contract Pre05 {
     function shrC(uint256 x) public { r = x >> 3; }
     function sarC(int256 x) public { s = x >> 3; }
     function shl8C(uint8 x) public { r = uint256(x << 3); }
-    function sarYC(uint256 x) public { uint256 v; assembly { v := sar(260, x) } r = v; }
+    // amended (spec/M6/amendments/I123.jsonl): no inline assembly here, which solc 0.5.17 gives as text only
 }
 
 // R1: a shift by a non-constant amount, whose type the term does not record, stays refused

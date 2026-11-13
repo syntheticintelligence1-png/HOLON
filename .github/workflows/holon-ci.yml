@@ -340,6 +340,18 @@ jobs:
             # sealed target (Q56 (5)).
             timeout: 30
             run: python -m unittest tests_m6.test_i119_go_reasoner_soundness.TestFixture.test_p1_old_reading_recorded tests_m6.test_i119_go_reasoner_soundness.TestFixture.test_p1_control_unchanged tests_m6.test_i119_go_reasoner_soundness.TestDifferential tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_names_no_law tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_counts_are_per_milestone tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_corpus_covered tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_is_read_only tests_m6.test_i119_go_reasoner_soundness.TestDefault.test_p6_reasoner_unit tests_m6.test_i119_go_reasoner_soundness.TestDefault.test_p6_narrow_loop_mode_unchanged tests_m6.test_i119_go_reasoner_soundness.TestRegressions -v
+          - name: tests-m6-i123
+            # I123 (M6, the typed model's sort operations; HUMAN_ANSWERS Q100 (1)): under the opt-in typed.sort_ops
+            # "word", the planted fixtures (tests_m6/fixtures/i123, from the EVM and Solidity semantics alone): every
+            # edge case's reference equals the code the pinned solc compiled, run by the pinned forge, and the typed
+            # model's definitions, checked as laws by Bend, with a planted wrong value rejected (P1); the A/B
+            # differential of the typed model's steps against the compiled code (P2); the planted false laws rejected
+            # and the true laws checked (P3, P4); the refusals just outside each class and the composed route's
+            # runner over a refused document (P5); the opt-in, Morph's typed model byte-identical (P6, P11); D1's
+            # section (P8); the regressions (P7, R1). The corpus and spent-target measures (P9, P10; results/M6/I123)
+            # are the key's measured outcome, not run here. Nothing here analyses a sealed target (Q56 (5)).
+            timeout: 60
+            run: python -m unittest tests_m6.test_i123_typed_sort_operations.TestSemantics tests_m6.test_i123_typed_sort_operations.TestDifferential tests_m6.test_i123_typed_sort_operations.TestLaws tests_m6.test_i123_typed_sort_operations.TestRefusal tests_m6.test_i123_typed_sort_operations.TestOptIn tests_m6.test_i123_typed_sort_operations.TestSections tests_m6.test_i123_typed_sort_operations.TestRegressions -v
           - name: tests-m6-i104
             # I104 (M6): holon roles. The contract R1-R6 (TestBuild: determinism and the committed Morph roles, evidence,
             # names as tie-breakers, the proposal channel and its model-free provenance, hand sidecars win, no target

@@ -40,7 +40,7 @@ contract SortOps {
     function shrT(uint256 n) external { r = last >> n; }
     // W1 with C1: raw arithmetic on typed words outside checked code wraps
     function uncheckedT() external { unchecked { r = last + block.timestamp; } }
-    function uncheckedSubT() external { unchecked { r = last - block.timestamp - block.timestamp; } }
+    // amended (spec/M6/amendments/I123.jsonl): uncheckedSubT moved to RSignSite below
 }
 
 // Just outside each class: each stays refused (its document falls back, its laws UNKNOWN).
@@ -75,4 +75,14 @@ contract RCheckedT {
     uint256 public last;
     function setLast() external { last = block.timestamp; }
     function f() external { r = last + block.timestamp; }
+}
+
+// amended (spec/M6/amendments/I123.jsonl): the sort pass reads this unchecked Time - Time - Time as a signed difference
+// with a sign obligation (a SORT realize law); stating it from the wrapped word would conclude the sign from a word, so
+// the document stays refused
+contract RSignSite {
+    uint256 public r;
+    uint256 public last;
+    function setLast() external { last = block.timestamp; }
+    function uncheckedSubT() external { unchecked { r = last - block.timestamp - block.timestamp; } }
 }
