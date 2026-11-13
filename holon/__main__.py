@@ -608,9 +608,11 @@ def _main(argv: list) -> int:
     bd.add_argument("--accept-change", help="reason for changing an existing binding (logged in spec/bindings/changes.jsonl)")
     bd.add_argument("--laws", help="comma-separated law ids: (re)bind only these; every other law keeps its binding "
                                    "(or stays unbound)")
-    bd.add_argument("--unbound", choices=["skip"],
+    bd.add_argument("--unbound", choices=["skip", "document"],
                     help="I115 (Q88 (2)): bind a milestone that has no bindings file yet, leaving out each law whose "
-                         "statement cannot be bound (BindingError) and listing it in spec/bindings/<M>.unbound.json")
+                         "statement cannot be bound (BindingError) and listing it in spec/bindings/<M>.unbound.json; "
+                         "I118 (B) document: also unbind every law over a document whose binding fails otherwise, "
+                         "when the failure is confined to it (spec/bindings/<M>.fallback.json)")
     bd.add_argument("--remodel", metavar="LICENSE",
                     help="(I68) first append the remodel entries the license covers (holon.statement_diff.remodel_entries, "
                          "each checked by check_entry), then rebind through them")

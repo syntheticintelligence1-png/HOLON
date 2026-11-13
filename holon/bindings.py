@@ -972,41 +972,96 @@ def unbound_path(m: str, root: Path) -> Path:
     return Path(root) / BINDINGS_DIR / f"{m}.unbound.json"
 
 
-def bind_unbound_skip(m: str, root: Path) -> int:
+def fallback_path(m: str, root: Path = ROOT) -> Path:
+    """I118 (B): spec/bindings/<m>.fallback.json, the documents --unbound document fell back."""
+    return Path(root) / "spec" / "bindings" / f"{m}.fallback.json"
+
+
+def bind_unbound_skip(m: str, root: Path, document: bool = False) -> int:
     """I115 (Q88 (2)): `holon bind --unbound skip`, the composed route's binding of its own milestone. Every law is
     bound by bind_law as derive binds it; a law whose bind_law raises BindingError (its statement names a definition
     its model does not define) is left out of spec/bindings/<m>.json and listed in spec/bindings/<m>.unbound.json
     {law: error}; the creation is logged as derive's is. Only a milestone with no bindings file is bound this way: an
-    existing binding changes only through the statement lifecycle (main_bind, unchanged)."""
+    existing binding changes only through the statement lifecycle (main_bind, unchanged).
+
+    document (I118 (B), `--unbound document`): also a per-document fallback. An exception other than BindingError that
+    bind_law raises for a law L over document D (L's facts) falls back when no law over another document has L's model
+    (model_path, computed for every law first; a law whose model_path raises is its own model): every law over D is
+    then unbound with "document fallback: <class>: <message>", and spec/bindings/<m>.fallback.json {milestone,
+    documents: [{document, class, error, laws}]} records D. Any other failure refuses (exit 1, nothing written): L
+    with no facts string, L's model shared with another document's law, or a failure outside the per-law step."""
     root = Path(root)
     p = path(m, root)
     if p.exists():
-        print(f"refusing --unbound skip: {p.relative_to(root)} exists (an existing binding changes only through the "
-              "statement lifecycle)", file=sys.stderr)
+        print(f"refusing --unbound {'document' if document else 'skip'}: {p.relative_to(root)} exists (an existing "
+              "binding changes only through the statement lifecycle)", file=sys.stderr)
         return 1
     cfg = bend.config(root)
-    out, unbound = {}, {}
-    for law in ir.load_laws_any(m, root):
+    laws = ir.load_laws_any(m, root)
+    owners: dict = {}   # model -> the documents whose laws have it (I118 (B): confinement)
+    if document:
+        for law in laws:
+            try:
+                key = model_path(law, m, root).as_posix()
+            except Exception:   # an unresolvable model is the law's own
+                key = ("own", law["law_id"])
+            owners.setdefault(key, set()).add(law.get("facts"))
+    out, unbound, fell, by_doc = {}, {}, {}, {}
+    for law in laws:
+        lid, doc = law["law_id"], law.get("facts")
+        by_doc.setdefault(doc, []).append(lid)
+        if document and doc in fell:
+            unbound[lid] = fell[doc]["text"]
+            continue
         try:
-            out[law["law_id"]] = bind_law(law, m, root, cfg)
+            out[lid] = bind_law(law, m, root, cfg)
         except BindingError as e:
-            unbound[law["law_id"]] = str(e)
+            unbound[lid] = str(e)
+        except Exception as e:
+            if not document:
+                raise
+            try:
+                key = model_path(law, m, root).as_posix()
+            except Exception:
+                key = ("own", lid)
+            others = owners.get(key, set()) - {doc}
+            if not isinstance(doc, str) or others:
+                why = "the law names no document" if not isinstance(doc, str) else \
+                    f"its model is shared with the laws of {len(others)} other document(s)"
+                print(f"refusing --unbound document: binding {lid} failed ({type(e).__name__}: {e}), and the failure is "
+                      f"not confined to one document: {why}; nothing written", file=sys.stderr)
+                return 1
+            fell[doc] = {"class": type(e).__name__, "error": str(e),
+                         "text": f"document fallback: {type(e).__name__}: {e}"}
+            for x in by_doc[doc]:   # every law over the document, the ones already bound too
+                out.pop(x, None)
+                unbound[x] = fell[doc]["text"]
+    for doc in fell:   # the laws over a fallen-back document that came after its failure are unbound already
+        fell[doc]["laws"] = sum(1 for law in laws if law.get("facts") == doc)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(dump({"milestone": m, "kernel": "bendtt", "laws": dict(sorted(out.items()))}))
     unbound_path(m, root).write_text(dump({"milestone": m, "laws": dict(sorted(unbound.items()))}))
+    if document:
+        fallback_path(m, root).write_text(dump({"milestone": m, "documents": [
+            {"document": d, "class": fell[d]["class"], "error": fell[d]["error"], "laws": fell[d]["laws"]}
+            for d in sorted(fell)]}))
     with (root / CHANGES).open("a") as fh:
         fh.write(json.dumps({"milestone": m, "created": True, "laws": sorted(out), "unbound": sorted(unbound),
-                             "reason": "initial binding (--unbound skip)"}, sort_keys=True) + "\n")
+                             **({"fallback": sorted(fell)} if document else {}),
+                             "reason": f"initial binding (--unbound {'document' if document else 'skip'})"},
+                            sort_keys=True) + "\n")
     print(f"wrote {p.relative_to(root)}: {len(out)} laws bound, {len(unbound)} unbound "
-          f"({unbound_path(m, root).relative_to(root)})")
+          f"({unbound_path(m, root).relative_to(root)})" + (f", {len(fell)} documents fallen back "
+                                                             f"({fallback_path(m, root).relative_to(root)})"
+                                                             if document else ""))
     return 0
 
 
 def main_bind(args) -> int:
     root = Path(getattr(args, "root", None) or ROOT).resolve()
     m = args.milestone
-    if getattr(args, "unbound", None) == "skip":
-        return bind_unbound_skip(m, root)
+    if getattr(args, "unbound", None) in ("skip", "document"):
+        return bind_unbound_skip(m, root, document=args.unbound == "document")
     new = derive(m, root)
     p = path(m, root)
     log = root / CHANGES

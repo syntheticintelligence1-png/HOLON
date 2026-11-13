@@ -605,6 +605,7 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
             x["roles_source"] = law_roles_source(row["roles_sources"])
     if compose and proto.get("document_fallback"):   # I116: documents fallen back per stage (before any decision: Q72)
         row["fallbacks"] = fallbacks(edir / "gen")
+        row["fallbacks"].update(later_fallbacks(proto, edir / "gen", row))
     sb = edir / "gen" / "sorts" / "budget.json"
     if sb.is_file():   # I110 (a): the documents over the per-document sort budget (a stage reason, before any decision)
         b = json.loads(sb.read_text())
@@ -830,6 +831,28 @@ def typed_sidecar_keys(proto: dict) -> dict:
     return {"sort_ops": v} if v is not None else {}
 
 
+def later_fallbacks(proto: dict, gen: Path, row: dict) -> dict:
+    """I118: the coverage stage's skipped documents (by reason), and the run and bind steps' fallen-back documents, as
+    counts only, for each stage the protocol's document_fallback names (none: {}, so I116's rows are unchanged)."""
+    out = {}
+    if fallback_of(proto, "coverage"):
+        cp = gen / "coverage.json"
+        xs = ((json.loads(cp.read_text(encoding="utf-8")).get("skipped") or []) if cp.is_file() else [])
+        cls: dict = {}
+        for x in xs:
+            cls[x["reason"]] = cls.get(x["reason"], 0) + 1
+        out["coverage"] = {"documents": len(xs), "classes": dict(sorted(cls.items()))}
+    if fallback_of(proto, "run"):
+        rr = (row.get("run_runners") or {}).values()
+        out["run"] = {"documents": sum(v.get("fallback_documents", 0) for v in rr),
+                      "laws": sum(v.get("fallback_laws", 0) for v in rr),
+                      "milestone_refusals": sum(1 for v in rr if v.get("milestone_refusal"))}
+    if fallback_of(proto, "bind"):
+        b = row.get("bind") or {}
+        out["bind"] = {"documents": b.get("fallback_documents", 0), "laws": b.get("fallback_laws", 0)}
+    return out
+
+
 def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages: dict, before_derive=None) -> None:
     """H3-H4 over the transitions documents. before_derive (I110 (b), --compose): route C's stages, run after disch
     and before derive (derive checks that the evidence it reads is what holon evidence writes over the final tree)."""
@@ -890,9 +913,10 @@ def _rules(R: Runner, S: Path, rel: str, M: str, proto: dict, sol: list, stages:
         # (holon.records.coverage_field); holon coverage reads the milestone's spec sidecars, so the composed route
         # accounts for its own extraction sidecars (the frontend's walk, as for any milestone)
         xs = sorted(p.relative_to(S).as_posix() for p in (S / rel / "sidecars").glob("extract_*.json"))
-        if xs:
+        if xs:   # I118 (C): under document_fallback.coverage, only the extracted, typed documents are walked
+            typed_only = ["--typed-only"] if fallback_of(proto, "coverage") == "typed_only" else []
             stages["coverage"] = R.holon("coverage", ["coverage", "--milestone", M, "--root", str(S), "--sidecars",
-                                                      ",".join(xs)], timeout_key="derive")
+                                                      ",".join(xs), *typed_only], timeout_key="derive")
         _run_routed(R, S, M, proto, laws, stages, ts, ds, fs, out)
         return
     r1 = R.holon("run", ["run", "--milestone", M, "--sidecar", ts, "--disch", ds, "--fact-sidecar", fs, *out])
@@ -967,6 +991,9 @@ def _run_routed(R: Runner, S: Path, M: str, proto: dict, laws: list[str], stages
     for k, ids in groups.items():
         r = R.holon("run", ["run", "--milestone", M, *runner_args(k, proto, ts, ds, fs), "--laws", ",".join(ids), *out])
         R.run_outputs[k] = r["detail"]
+        fb = None
+        if r["status"] != "ok" and fallback_of(proto, "run") == "unknown":   # I118 (R): per document
+            r, fb = _run_per_document(R, S, M, k, ids, r, [*runner_args(k, proto, ts, ds, fs)], out)
         recs = [i for i in ids if (S / "results" / M / f"{i}.json").is_file()]
         sec: set = set()   # the documents whose DISCH section is refused (each recorded on its laws, I112)
         if k == "disch":
@@ -979,6 +1006,8 @@ def _run_routed(R: Runner, S: Path, M: str, proto: dict, laws: list[str], stages
                       1 for i in recs if k == "disch" and any(isinstance(a, dict) and a.get("kind") == "section"
                                                               for a in common.load_json(S / "results" / M / f"{i}.json")
                                                               .get("attempts") or []))}
+        if fb is not None:   # I118 (R): counts only (Q72: the run decides laws)
+            res[k].update(fb)
         if proto.get("run_unbound"):   # I115: the laws UNKNOWN because their statement cannot be bound (an aggregate)
             res[k]["binding_unknown"] = sum(1 for i in recs if any(
                 isinstance(a, dict) and a.get("kind") == "binding"
@@ -988,26 +1017,93 @@ def _run_routed(R: Runner, S: Path, M: str, proto: dict, laws: list[str], stages
                      "detail": "per runner: " + json.dumps(res, sort_keys=True) + f"; {len(still)} laws with no record"}
     stages["run"]["runners"] = res
     if proto.get("bind") == "derived":   # I115 (Q88 (2)): the composed route binds its own milestone, then checks
-        _bind(R, S, M, laws, stages)
+        _bind(R, S, M, laws, stages, proto)
     stages["replay"] = {"status": "not_applicable", "exit": None, "detail": proto["replay"]}
     stages["filter"] = {"status": "ok", "exit": None, "detail": proto["filter"]}
 
 
+# ---------------------------------------------------------------------------------------------- I118 (R): runners
+_LAW_TOKEN = re.compile(r"\bL_[A-Za-z0-9_]+")
+
+
+def _last_line(detail: str) -> str:
+    lines = [x for x in (detail or "").splitlines() if x.strip()]
+    return lines[-1].strip() if lines else ""
+
+
+def _masked(line: str, docs: list[str]) -> str:
+    """A failure's last line with every law id and every law document path masked (I118 (R): confinement)."""
+    for d in sorted(docs, key=len, reverse=True):
+        line = line.replace(d, "<document>")
+    return _LAW_TOKEN.sub("<law>", line)
+
+
+def fallback_record(lid: str, statement_hash, runner: str, error: str) -> dict:
+    """I118 (R): the record of a law whose document's runner fails: UNKNOWN, nothing decided, the error attempted."""
+    return {"law_id": lid, "statement_hash": statement_hash, "status": "UNKNOWN", "scope": "bounded",
+            "bound": f"not decided: document fallback (run): {error}", "witness": None, "difference": None,
+            "triage": "none", "kernel": {"verdict": "not_run"}, "checker": {"exit_code": None, "marker": "not_run"},
+            "artifacts": {"laws": None, "proof": None, "law_name": None, "model": None},
+            "attempts": [{"kind": "document_fallback", "stage": "run", "runner": runner, "error": error}]}
+
+
+def _run_per_document(R: Runner, S: Path, M: str, k: str, ids: list[str], first: dict, args: list[str],
+                      out: list) -> tuple[dict, dict]:
+    """I118 (R), the protocol's document_fallback.run "unknown": runner k's group failed (first), so it is re-run once
+    per law document. A document whose re-run fails falls back: every law of the group over it gets fallback_record.
+    Not confined to one document (first or a re-run exits 2, or at least two documents all failing with the same
+    masked last line): the group is a refusal and no record of it is kept. Returns (the group's result, its fallback
+    counts); each re-run's output goes to R.run_outputs for the vault."""
+    der = {e.get("law_id"): e for e in common.load_json(S / "laws" / M / "DERIVATION.json").get("laws") or []
+           if isinstance(e, dict)}
+    docs: dict = {}
+    for i in ids:
+        docs.setdefault(common.load_json(S / "laws" / M / f"{i}.json").get("facts"), []).append(i)
+    rd = S / "results" / M
+    runs = {}
+    for n, d in enumerate(sorted(docs, key=str)):
+        runs[d] = R.holon("run", ["run", "--milestone", M, *args, "--laws", ",".join(docs[d]), *out])
+        R.run_outputs[f"{k}/{n}"] = runs[d]["detail"]
+    failed = {d: x for d, x in runs.items() if x["status"] != "ok"}
+    names = [d for d in docs if isinstance(d, str)]
+    wide = (first["exit"] == 2 or any(x["exit"] == 2 for x in failed.values()) or
+            (len(docs) >= 2 and len(failed) == len(docs) and
+             len({_masked(_last_line(x["detail"]), names) for x in failed.values()}) == 1))
+    if wide:
+        for i in ids:   # a refusal writes no record
+            (rd / f"{i}.json").unlink(missing_ok=True)
+        return ({"status": "failed", "exit": first["exit"], "detail": first["detail"]},
+                {"fallback_documents": 0, "fallback_laws": 0, "milestone_refusal": True})
+    for d, x in failed.items():
+        err = _last_line(x["detail"]) or f"exit {x['exit']}"
+        for i in docs[d]:
+            rd.mkdir(parents=True, exist_ok=True)
+            (rd / f"{i}.json").write_text(dumps(fallback_record(i, (der.get(i) or {}).get("statement_hash"), k, err)))
+    return ({"status": "ok", "exit": 0, "detail": first["detail"]},
+            {"fallback_documents": len(failed), "fallback_laws": sum(len(docs[d]) for d in failed),
+             "milestone_refusal": False})
+
+
 # ---------------------------------------------------------------------------------------------- I115 (1): binding
-def _bind(R: Runner, S: Path, M: str, laws: list[str], stages: dict) -> None:
+def _bind(R: Runner, S: Path, M: str, laws: list[str], stages: dict, proto: dict | None = None) -> None:
     """Stage bind (protocol bind "derived"): holon bind --unbound skip over every derived law and the models the run
     generated, in the scratch root (route A's milestones are bound the same way, into spec/bindings/<M>.json, which G2
     checks), then binding_check over every record. The detail is aggregates only (the bindings name law ids: the vault
     keeps them)."""
-    r = R.holon("bind", ["bind", "--milestone", M, "--root", str(S), "--unbound", "skip"], timeout_key="derive")
+    mode = "document" if fallback_of(proto or {}, "bind") == "unknown" else "skip"   # I118 (B)
+    r = R.holon("bind", ["bind", "--milestone", M, "--root", str(S), "--unbound", mode], timeout_key="derive")
     bp, up = S / "spec" / "bindings" / f"{M}.json", S / "spec" / "bindings" / f"{M}.unbound.json"
     bound = (common.load_json(bp).get("laws") or {}) if bp.is_file() else {}
     unbound = (common.load_json(up).get("laws") or {}) if up.is_file() else {}
     refused = binding_check(S, M, laws)
     counts = {"laws": len(laws), "bound": sum(1 for x in laws if x in bound), "unbound": sum(1 for x in laws if x in unbound),
               "refused": refused}
+    if mode == "document":   # I118 (B): the documents fallen back (counts only)
+        fp = S / "spec" / "bindings" / f"{M}.fallback.json"
+        fd = (common.load_json(fp).get("documents") or []) if fp.is_file() else []
+        counts.update({"fallback_documents": len(fd), "fallback_laws": sum(x.get("laws", 0) for x in fd)})
     stages["bind"] = {"status": r["status"], "exit": r["exit"], "aggregate": counts,
-                      "detail": f"holon bind --unbound skip: {r['status']} (exit {r['exit']}); " + json.dumps(counts, sort_keys=True)}
+                      "detail": f"holon bind --unbound {mode}: {r['status']} (exit {r['exit']}); " + json.dumps(counts, sort_keys=True)}
 
 
 def binding_check(S: Path, M: str, laws: list[str]) -> int:
