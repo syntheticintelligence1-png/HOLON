@@ -1,5 +1,5 @@
 {
-  "base_protocol": "spec/M6/lib/i117_run.json",
+  "base_protocol": "spec/M6/lib/base_run.json",
   "bind": "derived",
   "bind_doc": "I115 (bind derived): route A's milestones are bound by holon bind into spec/bindings/<M>.json, which G2 checks; the composed route binds its own milestone the same way, over the derived statements and the models the run generated, in its scratch root (never the repository's spec/bindings). Every family goes through it: no runner is exempt. The bindings name law ids, so they go to the vault with the records (Q56); the row keeps aggregates only (laws bound, unbound, and decided records refused by the binding check).",
   "catalog": "holon-rules/1.16",
@@ -13,13 +13,10 @@
   "disch": {
     "binding": null,
     "disch_version": "holon-disch/0.1",
-    "hypotheses": {},
     "hypothesis_verdicts": null,
     "r0": {
       "doc": "the zero storage (no deployment)",
-      "keys": {},
-      "proxy_slots": [],
-      "values": {}
+      "proxy_slots": []
     },
     "search": {
       "max_prefixes": 3000,
@@ -29,16 +26,19 @@
     },
     "section_errors": "unknown"
   },
-  "doc": "I122: the protocol of the last landing before this key's measured runs (base_protocol; at this prereg I117's, spec/M6/lib/i117_run.json) plus exactly go.loops \"shapes\" (spec/M6/predictions/I122.json's protocol_rule; regenerated from it by that rule at the merge of the base the coordinator names, before any measured run).",
+  "doc": "I122: Q104's base protocol (spec/M6/lib/base_run.json at the base d05abec7, sha256 bff577284cdd30673eca2c2797304fdc0d5155950689987833c18bd90c078a5d) plus exactly go.loops \"shapes\" (spec/M6/predictions/I122.json's protocol_rule, amended for Q104 in spec/M6/amendments/I122.jsonl).",
   "document_fallback": {
+    "bind": "unknown",
+    "coverage": "typed_only",
     "disch": "unknown",
-    "evidence": "unknown"
+    "evidence": "unknown",
+    "run": "unknown"
   },
   "document_fallback_doc": "I116 (Q83, Q88 (3)): per-document fallbacks. disch \"unknown\": every DISCH sidecar the driver generates names document_fallback \"unknown\" (holon.analysis.closure): a document whose DISCH analysis D2-D10 refuses (ClassError, class class_error; a KeyError, TypeError or IndexError while analysing it, class malformed) is a recorded miss in gen/<M>/disch/fallback.json, with no DISCH analysis and no DISCH law; every other document's DISCH runs. evidence \"unknown\": the adoption sidecar holon roles installs for the entry (spec/<M>/lib/derive_extracted.json, never a hand sidecar) names document_fallback \"unknown\" (holon.diagram.evidence): an adopted transitions document whose E2 atoms the rule over transitions documents does not map (holon.diagram.transitions.TransitionsError, class e2_unmapped) keeps its anchors and gets no atom, a recorded miss under the evidence document's fallback; derive rebuilds the same set. The definitions are spec/M6/predictions/I116.json's thresholds.",
+  "document_fallback_i118_doc": "I118 (Q92 (1)): coverage \"typed_only\": the composed coverage stage runs holon coverage --typed-only, which accounts only for the extraction sidecars whose document was extracted and is typed, and lists every other one under the report's skipped [{document, reason: not_extracted | opaque}]. run \"unknown\": a runner group whose holon run exits non-zero is re-run once per law document; a document whose own run fails has every law of the group over it recorded UNKNOWN with the error (attempts [{kind: document_fallback, stage: run, runner, error}]); a failure that is not confined to one document (the runner refused its input, exit 2, or, with at least two documents, the same failure, law ids and document paths masked, in every document) stays a refusal of the group: no record of it is kept. bind \"unknown\": holon bind --unbound document, I115's --unbound skip plus a per-document fallback: an error other than BindingError while binding a law over document D, whose model no law of another document shares, unbinds every law over D with the error (spec/bindings/<M>.fallback.json); any other error refuses (exit 1, nothing written). binding_check then refuses every decided record over D. Spec: spec/M6/predictions/I118.json thresholds.",
   "fact": {
     "binding": null,
     "fact_version": "holon-fact/0.1",
-    "hypotheses": {},
     "measure": {
       "fresh": [
         "0x0100000000000000000000000000000000000000000000000000000000000001",
@@ -53,8 +53,7 @@
       "prefix_depth": 3,
       "time_candidates": "E - 1, E and E + 1 for every term E an atom of a check of the candidate step compares with block.timestamp, evaluated on the candidate state, and the trace's own times (never 0, never decreasing)"
     },
-    "term_size": "spec/M3/lib/term_size.json",
-    "verdicts": {}
+    "term_size": "spec/M3/lib/term_size.json"
   },
   "filter": "the record's replay status decides the class of a finding (REFUTED record): failed is model_defect; otherwise localized is true_defect; passed and not localized is intended_asymmetry; anything else unreplayed",
   "go": {
@@ -70,10 +69,11 @@
     "ops": "typed",
     "ops_doc": "I117 (ops \"typed\", opt-in): the codec frontend records each path-enumerated function's typed terms (their Go types) and reads sized arithmetic as opaque in its reasoner (Go integers wrap), and the Go-op model's straight-line class (holon.gen.gostraight) models an op with no loop over a byte-array carrier with Go's integer semantics (holon.gen.goint). The Go machine documents are extracted as before (the machines config carries no ops).",
     "package": "the directory of the file; its module is the nearest directory at or above it holding go.mod; its import path is the module path (go.mod's module line) joined with the directory relative to the module",
-    "primitives": {},
     "source": "the module directory, when its go.mod has no replace directive with a relative path that leaves it; otherwise a scratch copy of the whole checkout with a generated go.work whose use list is the closure of the module directory under its relative replace targets that hold a go.mod (a checkout that has its own go.work keeps it, unchanged); under work_replace main_module the generated go.work also carries a replace for each module path two used modules replace differently, taken from the package's own module (paths rewritten relative to the workspace root), and its go line is the highest go directive among the used modules",
     "stem": "go_<n>, n the 1-based index of the package in the sorted list of the entry's import paths",
     "store_max_bytes": 1000000,
+    "store_scope": "commit",
+    "store_scope_doc": "I120 (store_scope \"commit\", opt-in; HUMAN_ANSWERS Q93 (2)): store_max_bytes governs only what is committed, never what is evaluated. Every extracted Go document stays whole in the run's working tree, and every stage (roles, route C's Go-op documents, diagram, evidence, machines, derive, run, bind) reads it in full. A document over store_max_bytes is then removed from the entry's committed output and recorded by sha256 and bytes only (stored false), as before; its row also says evaluated \"full\". With --vault the whole document is also kept in the vault (<vault>/<id>/facts/), never in the repository. Without the key a document over the limit is removed right after extraction, before any later stage (the behaviour of every earlier protocol).",
     "toolchain": "go_directive",
     "work_replace": "main_module"
   },
