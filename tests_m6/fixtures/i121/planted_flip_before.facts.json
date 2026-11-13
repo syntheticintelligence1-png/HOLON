@@ -1,0 +1,194 @@
+{
+  "assumptions": [
+    {
+      "id": "A-fixture",
+      "text": "a fixture: nothing is assumed"
+    }
+  ],
+  "extraction": {
+    "date": "2026-11-13",
+    "method": "hand-written fixture (I121 prereg: the planted flip, derived from tests_m3/fixtures/par_round_trip.facts.json)"
+  },
+  "facts_version": "holon-facts/0.1",
+  "functions": {
+    "dec_rt": {
+      "from": "Bytes",
+      "getters": [
+        {
+          "code": "b[0]",
+          "name": "version",
+          "offset": 0,
+          "width": 1
+        },
+        {
+          "code": "b[1:3]",
+          "name": "a",
+          "offset": 1,
+          "width": 2
+        },
+        {
+          "code": "b[3:5]",
+          "name": "b",
+          "offset": 3,
+          "width": 2
+        }
+      ],
+      "guard": "ok_rt",
+      "kind": "decoder",
+      "lang": "go",
+      "meaning": "None if Validate() fails, else Some(getters in order)",
+      "source": [
+        {
+          "file": "fixture/roundtrip.go",
+          "fn": "RecordBytes.Getters"
+        }
+      ],
+      "to": "Maybe<Fields>"
+    },
+    "enc_rt_sol": {
+      "domain": {
+        "code": "require(version == 0)",
+        "version_le": 0
+      },
+      "from": "Header",
+      "kind": "encoder",
+      "lang": "solidity-evm-memory",
+      "length_by_version": {
+        "0": 5
+      },
+      "memory_init": "dirty",
+      "ops": [
+        {
+          "code": "mstore8(p, version)",
+          "offset": 0,
+          "op": "mstore8",
+          "src": [
+            {
+              "field": "version"
+            }
+          ]
+        },
+        {
+          "code": "mstore(add(p, 1), shl(240, a))",
+          "offset": 1,
+          "op": "mstore",
+          "src": [
+            {
+              "field": "a"
+            },
+            {
+              "zeros": 30
+            }
+          ]
+        },
+        {
+          "code": "mstore(add(p, 3), 0): b is never stored",
+          "offset": 3,
+          "op": "mstore",
+          "src": [
+            {
+              "zeros": 32
+            }
+          ]
+        }
+      ],
+      "source": [
+        {
+          "file": "fixture/RoundTrip.sol",
+          "fn": "encodeRecord"
+        }
+      ],
+      "to": "Bytes"
+    },
+    "ok_rt": {
+      "from": "Bytes",
+      "kind": "predicate",
+      "lang": "go",
+      "meaning": "true iff Validate() returns nil",
+      "rules": [
+        {
+          "code": "len(b) == 0 -> error",
+          "if": "empty",
+          "then": false
+        },
+        {
+          "code": "len(b) != 5 -> error",
+          "if": {
+            "version_in": [
+              0
+            ]
+          },
+          "then": {
+            "len_eq": 5
+          }
+        },
+        {
+          "code": "unknown version -> error",
+          "if": "otherwise",
+          "then": false
+        }
+      ],
+      "source": [
+        {
+          "file": "fixture/roundtrip.go",
+          "fn": "Validate"
+        }
+      ],
+      "to": "Bool"
+    },
+    "view_rt": {
+      "from": "Header",
+      "kind": "projection",
+      "meaning": "the fields a correct decoder recovers, in getter order",
+      "order": [
+        "version",
+        "a",
+        "b"
+      ],
+      "to": "Fields"
+    }
+  },
+  "target": {
+    "commit": "0000000000000000000000000000000000000000",
+    "repo": "holon/fixture-i121-planted-flip",
+    "scope": "I121 planted flip (HUMAN_ANSWERS Q96 (1)(b), P2): I24's round-trip fixture, its Solidity encoder storing b as zero. Synthetic; not a target; never replayed."
+  },
+  "types": {
+    "Bool": {
+      "kind": "bool"
+    },
+    "Byte": {
+      "kind": "byte"
+    },
+    "Bytes": {
+      "kind": "bytes"
+    },
+    "Fields": {
+      "doc": "decoded fields in getter order",
+      "kind": "list_of_bytes"
+    },
+    "Header": {
+      "fields": [
+        {
+          "go": "-",
+          "name": "version",
+          "sol": "uint8 version",
+          "width": 1
+        },
+        {
+          "go": "A uint16",
+          "name": "a",
+          "sol": "uint16 a",
+          "width": 2
+        },
+        {
+          "go": "B uint16",
+          "name": "b",
+          "sol": "uint16 b (stored as zero)",
+          "width": 2
+        }
+      ],
+      "kind": "record"
+    }
+  }
+}

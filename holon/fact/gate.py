@@ -149,7 +149,7 @@ class FactGate:
         for lid, r in sorted(self.records().items()):
             if r is not None and r.get("generator_sha256") != dig:
                 bad.append(f"{lid}: its generator_sha256 is not the FACT generators' digest now (the record is stale)")
-        repo = tmp / "repo"
+        repo = tmp / "repo-rerun"   # I121 (F-M6-02): its own copy; backtest_problems makes another in the same tmp
         shutil.copytree(self.root, repo, symlinks=True,
                         ignore=shutil.ignore_patterns(".git", "build", "__pycache__", "node_modules"))
         rep = Path("replay") / self.m / "fact" / "report.json"
@@ -194,7 +194,7 @@ class FactGate:
         if not (self.results / "fact" / "backtest.json").is_file():
             return [] if RF.load_sidecar(self.m, self.root).backtest is None else \
                 [f"results/{self.m}/fact/backtest.json is missing"]
-        repo = tmp / "repo"
+        repo = tmp / "repo-backtest"   # I121 (F-M6-02): not rerun_problems' copy
         shutil.copytree(self.root, repo, symlinks=True,
                         ignore=shutil.ignore_patterns(".git", "build", "__pycache__", "node_modules", ".claude"))
         shutil.rmtree(repo / "gen" / self.m / "fact" / "backtest", ignore_errors=True)

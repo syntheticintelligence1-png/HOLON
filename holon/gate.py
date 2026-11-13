@@ -1400,6 +1400,9 @@ class Gate:
             env["PYTHONPATH"] = str(self.root) + os.pathsep + env.get("PYTHONPATH", "")
             env["HOLON_BUILD_DIR"] = str(tmp / "build")
             par = ["--jobs", str(self.g1_jobs)] if self.g1_jobs > 1 else []   # I47: merged as the sequential run's
+            from .sorts.typed_sidecar import typed
+            if par and typed(self.m) and self.m.startswith("M"):   # I121 (F-M6-02): holon run --jobs refuses a typed
+                par = []                                            # milestone (holon.parallel); it runs sequentially
             p = subprocess.run([sys.executable, "-m", "holon", "run", "--milestone", self.m, "--out",
                                 str(tmp / "results"), "--gen-dir", str(tmp / "gen")] + par,
                                cwd=self.root, env=env, capture_output=True, text=True, timeout=3600)

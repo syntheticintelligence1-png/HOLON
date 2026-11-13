@@ -351,6 +351,21 @@ jobs:
             # sealed target (Q56 (5)).
             timeout: 30
             run: python -m unittest tests_m6.test_i119_go_reasoner_soundness.TestFixture.test_p1_old_reading_recorded tests_m6.test_i119_go_reasoner_soundness.TestFixture.test_p1_control_unchanged tests_m6.test_i119_go_reasoner_soundness.TestDifferential tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_names_no_law tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_counts_are_per_milestone tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_corpus_covered tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_is_read_only tests_m6.test_i119_go_reasoner_soundness.TestDefault.test_p6_reasoner_unit tests_m6.test_i119_go_reasoner_soundness.TestDefault.test_p6_narrow_loop_mode_unchanged tests_m6.test_i119_go_reasoner_soundness.TestRegressions -v
+          - name: tests-m6-i121
+            # I121 (M6, the re-decision; HUMAN_ANSWERS Q96, Q97 (2), Q101-Q103): I119 (b) re-applied (P1); reextraction's
+            # facts form on the committed lines and planted variants, in a scratch clone for the edited sidecar and the
+            # tampered two-input link (P2); the re-decision's aggregates, no law id, no PROVED/REFUTED split (P3-P5);
+            # F-M6-02's ledger entry (P6); the counted run's protocol rule (P7); the regressions (P8). The re-decision
+            # itself ran in the builder's sandbox, vault first (Q96 (2)), never here; nothing here decides a law or
+            # analyses a sealed target (Q56 (5)).
+            # HUMAN_ANSWERS Q116 (the lead, delegated): the tests whose claim is about the state Q116 holds for the
+            # human's call (the flip, the re-extracted documents, the re-decided records, the facts-form lines over them)
+            # stay byte-identical in the file and join this job in the PR that lands the held state; each has its
+            # amendment line in spec/M6/amendments/I121.jsonl. Every other test of this key runs here (Q67), but
+            # TestRedecision.test_p4_m3_counts_consistent, a recorded miss of P4 (161 compared, 162 predicted), left out
+            # as I122's and I123's recorded misses are.
+            timeout: 90
+            run: python -m unittest tests_m6.test_i121_re_decision.TestFactsForm.test_p2_sidecar_value_read_by_the_claim_refused tests_m6.test_i121_re_decision.TestFactsForm.test_p2_verdict_flip_redecided_not_carried tests_m6.test_i121_re_decision.TestRedecision.test_names_no_law tests_m6.test_i121_re_decision.TestRedecision.test_shape tests_m6.test_i121_re_decision.TestRedecision.test_p3_m0_m2_nothing_remade tests_m6.test_i121_re_decision.TestRedecision.test_p5_channels_cover_case_a tests_m6.test_i121_re_decision.TestRedecision.test_p5_log_lines_for_the_cone_channels tests_m6.test_i121_re_decision.TestF0602.test_p6_ledger_entry_closed tests_m6.test_i121_re_decision.TestF0602Planted tests_m6.test_i121_re_decision.TestCorpusRun.test_p7_protocol_is_its_base tests_m6.test_i121_re_decision.TestCorpusRun.test_p7_no_new_opt_in tests_m6.test_i121_re_decision.TestRegressions.test_p8_earlier_jobs_listed tests_m6.test_i121_re_decision.TestRegressions.test_p8_i119_p3_stays_its_prereg_source tests_m6.test_i121_re_decision.TestRegressions.test_p8_i117_amendment_first tests_m6.test_i121_re_decision.TestRegressions.test_p8_no_bend_escape_hatch tests_m6.test_i121_re_decision.TestRegressions.test_f_m6_13_slot_archived_before_reset tests_m6.test_i121_re_decision.TestRegressions.test_p8_reads_no_sealed_input -v
           - name: tests-m6-i123
             # I123 (M6, the typed model's sort operations; HUMAN_ANSWERS Q100 (1)): under the opt-in typed.sort_ops
             # "word", the planted fixtures (tests_m6/fixtures/i123, from the EVM and Solidity semantics alone): every
