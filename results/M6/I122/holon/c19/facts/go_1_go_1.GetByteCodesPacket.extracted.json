@@ -1,0 +1,245 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "snap.GetByteCodesPacket",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Kind",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": 4,
+      "selector": null,
+      "src": "eth/protocols/snap/protocol.go:209",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "snap.GetByteCodesPacket",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Name",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "str",
+        "47657442797465436f646573"
+      ],
+      "selector": null,
+      "src": "eth/protocols/snap/protocol.go:208",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/eth/protocols/snap.GetByteCodesPacket",
+  "debt": [],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I122/holon/c19/sidecars/go_1_machines.json",
+      "sha256": "afe17f7d16b1f1b717c1e6f685b9ff59bfe3ae1165cf2b2a952b4e8099f00994"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "5ad90643189821d29b42e8a24361eda6140d792e42f3293fb17f7fd78f77a1bf",
+        "unit": "eth/protocols/snap/discovery.go"
+      },
+      {
+        "sha256": "582fab07ada10763cf8466b70b9cf8bb14191c1f0d05b2efdedd157a645dece7",
+        "unit": "eth/protocols/snap/handler.go"
+      },
+      {
+        "sha256": "cbc9a50fc0658a4f77c946682d61403bb3ad4b1bc128ebf8ffaee267b5c8ca5a",
+        "unit": "eth/protocols/snap/peer.go"
+      },
+      {
+        "sha256": "3d37e0434efbbec27fc94a2b78cb6222cd0e407154e1af90ce66f0b4d7fa4466",
+        "unit": "eth/protocols/snap/protocol.go"
+      },
+      {
+        "sha256": "a7d1341737c1d5d02cfc41a1d4a62b5cb0caac02662030491f9be4b2ac92a73c",
+        "unit": "eth/protocols/snap/range.go"
+      },
+      {
+        "sha256": "506305fb8d7e5ec3ddafd53c95e44e6d258293ee9e88b06c0fdadd957f746752",
+        "unit": "eth/protocols/snap/sync.go"
+      },
+      {
+        "sha256": "68d05c48d2b92120c6ee24aaa4262da00a2055587b12de2302d48e1e571fe92d",
+        "unit": "eth/protocols/snap/tracker.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "snap.GetByteCodesPacket",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "Kind": {
+        "declared_in": "snap.GetByteCodesPacket",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Kind",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint8"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Name": {
+        "declared_in": "snap.GetByteCodesPacket",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Name",
+        "outputs": [
+          {
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "snap.GetByteCodesPacket",
+          "label": "ID",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_uint64"
+        },
+        {
+          "contract": "snap.GetByteCodesPacket",
+          "label": "Hashes",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "snap.GetByteCodesPacket",
+          "label": "Bytes",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_uint64"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        },
+        "t_uint64": {
+          "encoding": "inplace",
+          "label": "uint64",
+          "numberOfBytes": "8"
+        }
+      }
+    },
+    "linearization": [
+      "snap.GetByteCodesPacket"
+    ],
+    "members": {},
+    "unit": "eth/protocols/snap/discovery.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "ID",
+      "offset": 0,
+      "slot": 0,
+      "value": "uint64"
+    },
+    {
+      "kind": "scalar",
+      "name": "Hashes",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "Bytes",
+      "offset": 0,
+      "slot": 2,
+      "value": "uint64"
+    }
+  ],
+  "target": {
+    "commit": "42bc1944a17260d75dc1e33e1571c804b9a4a88a",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/eth/protocols/snap.GetByteCodesPacket"
+  }
+}

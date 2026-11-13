@@ -1,0 +1,64 @@
+{
+  "carriers": [
+    {
+      "base_type": "Peer",
+      "cls": "rep",
+      "domains": [
+        "ok_p2p_Peer_run"
+      ],
+      "id": "Peer",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Bool_Error",
+      "cls": "rep",
+      "id": "R_Bool_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c14/facts/go_1.go.extracted.json",
+      "domain": "ok_p2p_Peer_run",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.p2p_Peer_run",
+      "kind": "CODEC",
+      "model_fn": "p2p_Peer_run",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/p2p.Peer).run"
+        }
+      ],
+      "src": "Peer",
+      "tgt": "R_Bool_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/peer_ops.json",
+  "facts_sha256": "cd609bf7f3d868065083bfe8c77e620154e2d65abc6bb3297298c4a1631792ed",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "peer_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

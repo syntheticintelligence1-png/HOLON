@@ -1,0 +1,64 @@
+{
+  "carriers": [
+    {
+      "base_type": "Database",
+      "cls": "rep",
+      "domains": [
+        "ok_rawdb_inspectFreezers"
+      ],
+      "id": "Database",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_SliceFreezerInfo_Error",
+      "cls": "rep",
+      "id": "R_SliceFreezerInfo_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_inspectFreezers",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_inspectFreezers",
+      "kind": "CODEC",
+      "model_fn": "rawdb_inspectFreezers",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "github.com/ethereum/go-ethereum/core/rawdb.inspectFreezers"
+        }
+      ],
+      "src": "Database",
+      "tgt": "R_SliceFreezerInfo_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/database_ops.json",
+  "facts_sha256": "aef782330461f0dc860c01653d29c09b2429babcc5115db2f8fdeb011bee833f",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "database_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

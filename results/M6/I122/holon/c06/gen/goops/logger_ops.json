@@ -1,0 +1,356 @@
+{
+  "carrier": {
+    "id": "Logger",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*go.uber.org/zap.Logger"
+  },
+  "component": "logger_ops",
+  "document": "results/M6/I122/holon/c06/facts/go_1.go.extracted.json",
+  "document_sha256": "d92a93df2f34a8eab712371d2ec64b02caddcd38770f4b689cd9e3c7b6f7ee0f",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "governor_CheckQuery": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "logger",
+          "type": "*go.uber.org/zap.Logger"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "call",
+                "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initConfig",
+                [
+                  [
+                    "alloc",
+                    "node/pkg/governor/governor.go:142:23",
+                    null
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "call",
+              "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initConfig",
+              [
+                [
+                  "alloc",
+                  "node/pkg/governor/governor.go:142:23",
+                  null
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "call",
+                "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initConfig",
+                [
+                  [
+                    "alloc",
+                    "node/pkg/governor/governor.go:142:23",
+                    null
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "!=",
+              [
+                "call",
+                "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initCoinGecko",
+                [
+                  [
+                    "alloc",
+                    "node/pkg/governor/governor.go:142:23",
+                    null
+                  ],
+                  [
+                    "call",
+                    "context.Background",
+                    []
+                  ],
+                  [
+                    "bool",
+                    false
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "call",
+              "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initCoinGecko",
+              [
+                [
+                  "alloc",
+                  "node/pkg/governor/governor.go:142:23",
+                  null
+                ],
+                [
+                  "call",
+                  "context.Background",
+                  []
+                ],
+                [
+                  "bool",
+                  false
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "call",
+                "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initConfig",
+                [
+                  [
+                    "alloc",
+                    "node/pkg/governor/governor.go:142:23",
+                    null
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "==",
+              [
+                "call",
+                "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initCoinGecko",
+                [
+                  [
+                    "alloc",
+                    "node/pkg/governor/governor.go:142:23",
+                    null
+                  ],
+                  [
+                    "call",
+                    "context.Background",
+                    []
+                  ],
+                  [
+                    "bool",
+                    false
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "!=",
+              [
+                "call",
+                "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).queryCoinGecko",
+                [
+                  [
+                    "alloc",
+                    "node/pkg/governor/governor.go:142:23",
+                    null
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "call",
+              "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).queryCoinGecko",
+              [
+                [
+                  "alloc",
+                  "node/pkg/governor/governor.go:142:23",
+                  null
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "call",
+                "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initConfig",
+                [
+                  [
+                    "alloc",
+                    "node/pkg/governor/governor.go:142:23",
+                    null
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "==",
+              [
+                "call",
+                "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initCoinGecko",
+                [
+                  [
+                    "alloc",
+                    "node/pkg/governor/governor.go:142:23",
+                    null
+                  ],
+                  [
+                    "call",
+                    "context.Background",
+                    []
+                  ],
+                  [
+                    "bool",
+                    false
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ],
+            [
+              "==",
+              [
+                "call",
+                "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).queryCoinGecko",
+                [
+                  [
+                    "alloc",
+                    "node/pkg/governor/governor.go:142:23",
+                    null
+                  ]
+                ]
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "github.com/certusone/wormhole/node/pkg/governor.CheckQuery",
+      "span": "node/pkg/governor/governor_prices.go:274",
+      "typed": {
+        "lengths": {
+          "logger": null
+        },
+        "stale": false,
+        "terms": [
+          [
+            [
+              "call",
+              "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initCoinGecko",
+              [
+                [
+                  "alloc",
+                  "node/pkg/governor/governor.go:142:23",
+                  null
+                ],
+                [
+                  "call",
+                  "context.Background",
+                  []
+                ],
+                [
+                  "bool",
+                  false
+                ]
+              ]
+            ],
+            "error"
+          ],
+          [
+            [
+              "call",
+              "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).initConfig",
+              [
+                [
+                  "alloc",
+                  "node/pkg/governor/governor.go:142:23",
+                  null
+                ]
+              ]
+            ],
+            "error"
+          ],
+          [
+            [
+              "call",
+              "(*github.com/certusone/wormhole/node/pkg/governor.ChainGovernor).queryCoinGecko",
+              [
+                [
+                  "alloc",
+                  "node/pkg/governor/governor.go:142:23",
+                  null
+                ]
+              ]
+            ],
+            "error"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ]
+  }
+}

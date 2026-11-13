@@ -32,6 +32,8 @@ class Ctx:
         # I117 (opt-in, ops "typed"): each path-enumerated function records the Go type of its typed terms, and the
         # reasoner reads sized arithmetic as opaque (Go integers wrap), so no branch is pruned by unbounded arithmetic
         self.typed_ops = config.get("ops") == "typed"
+        # I122 (opt-in, loops "shapes", with ops "typed"): loop bodies for every function and every constant step
+        self.loop_shapes = config.get("loops") == "shapes"
         lim = config.get("limits") or {}
         self.max_paths = int(lim.get("max_paths", 512))
         self.inline_depth = int(lim.get("inline_depth", 4))

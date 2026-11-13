@@ -1,0 +1,189 @@
+{
+  "components": {
+    "chain_freezer_ops": {
+      "carrier": "*github.com/ethereum/go-ethereum/core/rawdb.chainFreezer",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.chainFreezer).Close"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "database_ops": {
+      "carrier": "github.com/ethereum/go-ethereum/ethdb.Database",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.github.com/ethereum/go-ethereum/core/rawdb.inspectFreezers"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "freezer_batch_ops": {
+      "carrier": "*github.com/ethereum/go-ethereum/core/rawdb.freezerBatch",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerBatch).commit"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "freezer_ops": {
+      "carrier": "*github.com/ethereum/go-ethereum/core/rawdb.Freezer",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Ancients",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Close",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Sync",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Tail",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).repair",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).validate"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "freezer_table_batch_ops": {
+      "carrier": "*github.com/ethereum/go-ethereum/core/rawdb.freezerTableBatch",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerTableBatch).commit",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerTableBatch).maybeCommit"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "freezer_table_ops": {
+      "carrier": "*github.com/ethereum/go-ethereum/core/rawdb.freezerTable",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerTable).Close",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerTable).Sync",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerTable).advanceHead",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerTable).preopen",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerTable).repair",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerTable).size",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerTable).sizeHidden",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerTable).sizeNolock"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "freezerdb_ops": {
+      "carrier": "*github.com/ethereum/go-ethereum/core/rawdb.freezerdb",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerdb).AncientDatadir",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerdb).Close",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.freezerdb).Freeze"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "key_value_store_ops": {
+      "carrier": "github.com/ethereum/go-ethereum/ethdb.KeyValueStore",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.github.com/ethereum/go-ethereum/core/rawdb.PushUncleanShutdownMarker"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "nofreezedb_ops": {
+      "carrier": "*github.com/ethereum/go-ethereum/core/rawdb.nofreezedb",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.nofreezedb).AncientDatadir",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.nofreezedb).Ancients",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.nofreezedb).Sync",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.nofreezedb).Tail"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "open_options_ops": {
+      "carrier": "github.com/ethereum/go-ethereum/core/rawdb.OpenOptions",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.github.com/ethereum/go-ethereum/core/rawdb.Open",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.github.com/ethereum/go-ethereum/core/rawdb.openKeyValueDatabase"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "resettable_freezer_ops": {
+      "carrier": "*github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer).Ancients",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer).Close",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer).Reset",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer).Sync",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.ResettableFreezer).Tail"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "table_batch_ops": {
+      "carrier": "*github.com/ethereum/go-ethereum/core/rawdb.tableBatch",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.tableBatch).Write"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "table_iterator_ops": {
+      "carrier": "*github.com/ethereum/go-ethereum/core/rawdb.tableIterator",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.tableIterator).Error"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    },
+    "table_ops": {
+      "carrier": "*github.com/ethereum/go-ethereum/core/rawdb.table",
+      "evidence": {
+        "facts": [
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.table).AncientDatadir",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.table).Ancients",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.table).Close",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.table).NewSnapshot",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.table).Sync",
+          "results/M6/I122/holon/c04/facts/go_1.go.extracted.json#go.functions.(*github.com/ethereum/go-ethereum/core/rawdb.table).Tail"
+        ],
+        "rule": "go_ops_carrier"
+      },
+      "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+      "roles_source": "static"
+    }
+  },
+  "doc": "Generated by holon roles (I104): Go-op components over every carrier type (rule go_ops_carrier) or proposed; reach is not inferred.",
+  "document": "results/M6/I122/holon/c04/facts/go_1.go.extracted.json",
+  "go_ops_version": "holon-go-ops/0.1"
+}

@@ -1,0 +1,213 @@
+{
+  "carriers": [
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Snapshot_Error",
+      "cls": "rep",
+      "id": "R_Snapshot_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_String_Error",
+      "cls": "rep",
+      "id": "R_String_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Uint64_Error",
+      "cls": "rep",
+      "id": "R_Uint64_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "table",
+      "cls": "rep",
+      "domains": [
+        "ok_rawdb_table_AncientDatadir",
+        "ok_rawdb_table_Ancients",
+        "ok_rawdb_table_Close",
+        "ok_rawdb_table_NewSnapshot",
+        "ok_rawdb_table_Sync",
+        "ok_rawdb_table_Tail"
+      ],
+      "id": "table",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_table_AncientDatadir",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_table_AncientDatadir",
+      "kind": "CODEC",
+      "model_fn": "rawdb_table_AncientDatadir",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.table).AncientDatadir"
+        }
+      ],
+      "src": "table",
+      "tgt": "R_String_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_table_Ancients",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_table_Ancients",
+      "kind": "CODEC",
+      "model_fn": "rawdb_table_Ancients",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.table).Ancients"
+        }
+      ],
+      "src": "table",
+      "tgt": "R_Uint64_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_table_Close",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_table_Close",
+      "kind": "CODEC",
+      "model_fn": "rawdb_table_Close",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.table).Close"
+        }
+      ],
+      "src": "table",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_table_NewSnapshot",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_table_NewSnapshot",
+      "kind": "CODEC",
+      "model_fn": "rawdb_table_NewSnapshot",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.table).NewSnapshot"
+        }
+      ],
+      "src": "table",
+      "tgt": "R_Snapshot_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_table_Sync",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_table_Sync",
+      "kind": "CODEC",
+      "model_fn": "rawdb_table_Sync",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.table).Sync"
+        }
+      ],
+      "src": "table",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I122/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_table_Tail",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_table_Tail",
+      "kind": "CODEC",
+      "model_fn": "rawdb_table_Tail",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.table).Tail"
+        }
+      ],
+      "src": "table",
+      "tgt": "R_Uint64_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/table_ops.json",
+  "facts_sha256": "f1730d7dfbd90ee167a26b2374bff2c136e3f5198873b20203caf600ec5491c5",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "table_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

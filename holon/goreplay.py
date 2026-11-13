@@ -79,7 +79,10 @@ def named_ops(law: dict, doc: dict) -> list[str]:
 
 def concretize(cmap: tuple, cells: list[int]) -> list[list[int]]:
     """[[byte index, value]] of the carrier value of a witness: cell k at stride*k + base (holon.gen.goloop's
-    Shape.cell_map, the byte a*(init + k) + c), every other byte 0."""
+    Shape.cell_map, the byte a*(init + k) + c), every other byte 0. I122: class S2's map ("idx", (idx_0, ...)) puts
+    cell k at byte idx_k."""
+    if cmap[0] == "idx":
+        return [[cmap[1][k], v] for k, v in enumerate(cells) if v]
     stride, base, _ = cmap
     return [[stride * k + base, v] for k, v in enumerate(cells) if v]
 
@@ -278,8 +281,13 @@ def build(root: Path, milestone: str) -> dict:
         for lid in lids:
             law, _, rec = laws[lid]
             w = rec.get("witness") or {}
-            cells = list(bytes.fromhex(next(iter(w.values()))[2:])) if len(w) == 1 else None
+            wv = next(iter(w.values())) if len(w) == 1 else None
+            cells = list(bytes.fromhex(wv[2:])) if isinstance(wv, str) and wv.startswith("0x") else None
             names = named_ops(law, doc)
+            if any(isinstance(shapes.get(o), GG.goshapes.RangeShape) for o in names):   # I122: class S1
+                plan[lid] = {"not_run": f"the ops {names} are in class S1, whose carrier (a slice the carrier holds) "
+                                        "a generated test does not build"}
+                continue
             bad = [o for o in names if isinstance(shapes.get(o), GG.Unsupported)
                    or _go_ident(doc["ops"][o]["source"]) is None]
             if cells is None or not names or bad:
@@ -287,7 +295,7 @@ def build(root: Path, milestone: str) -> dict:
                 continue
             maps = {o: shapes[o].cell_map() for o in names}
             cmap = next(iter(maps.values()))
-            if len(set(maps.values())) != 1 or len(cells) != cmap[2]:
+            if len(set(maps.values())) != 1 or len(cells) != (len(cmap[1]) if cmap[0] == "idx" else cmap[2]):
                 plan[lid] = {"not_run": f"the witness is no one carrier value of the ops {names} (cell maps {maps}, "
                                         f"{len(cells)} cells)"}
                 continue
