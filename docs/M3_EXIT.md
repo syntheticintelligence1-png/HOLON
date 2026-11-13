@@ -71,3 +71,19 @@ Landed since, in order:
 - With the lead's records PR: F-M3-08 marked fixed by I100, whose record laws and constant read-backs closed the back-test gaps `gap:M0:L_rt_go_v0`, `_v1` and `_v2` (the only exit blocker left is `gap:M0:L_par_hdr_v2`, closed by HUMAN_ANSWERS Q44).
 
 None of these changes a clause of the decision above. E3 stays converged, with `results/M3/audit_status.json` byte for byte as at the exit. Open findings now: high 0, medium 15, low 3.
+
+## Provisional caveat (2026-11-13, HUMAN_ANSWERS Q94)
+
+**F-M6-01, high, open: a defect of HOLON's own extraction, found after this exit.** Until I117, the Go frontend's path
+reasoner read Go integers as unbounded. It pruned branches reachable only through wraparound, and called index sites
+safe that wrap out of bounds.
+- **The documents.** I119's read-only audit and the lead's own re-extraction agree: 3 of Morph's 8 committed Go
+  documents change under the opaque-arithmetic rule alone (`spec/M2/facts/morph_batch.go`,
+  `spec/M3/facts/morph_blob.go` and `spec/M3/facts/morph_go03.go`).
+- **The laws.** At least 28 of M3's 179 committed decided laws (PROVED and REFUTED together, Q56) read one of them
+  through their decision traces. 79 more decided M3 laws, and every decided M0-M2 law, have no trace, so committed
+  data does not say whether they read one. No law is named here; the list is in I119's vault.
+- **What is provisional.** Until I119 (b) re-derives and re-decides these laws, their statuses are provisional, and so
+  is every number in this record that rests on them.
+- **The decision above** stands as recorded on 2026-11-11. Whether E1-E5 still hold, E3's "no open high-priority
+  finding" included, is re-decided after I119 (b) and recorded here as an amendment.
