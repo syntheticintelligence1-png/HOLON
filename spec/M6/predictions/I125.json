@@ -1,0 +1,125 @@
+{
+ "title": "I125: F-M6-05's consistency, derive against goops' refusals (HUMAN_ANSWERS Q105 (6); Q117 (3) and (5)), choice (B): under the protocol opt-in run_unbound_reason \"goops\" (holon run --unbound-reason goops), a Go-op law that cannot be bound and names an op the generated Go-op model writes as '# <op>: unsupported (<reason>)' stays UNKNOWN and carries goops' refusal (its class and reason, read from the generated model file) as its reason instead of the bare binding error. Derive is untouched: the derived law set, every decision and every other law's record are the same with and without the opt-in.",
+ "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I125)",
+ "prompt": "prompts/I125_derive_goops_consistency.md",
+ "tests": [
+  "tests_m6/test_i125_derive_goops_consistency.py"
+ ],
+ "outcome_paths": [
+  "results/M6/I125/",
+  "docs/iterations/I125.md"
+ ],
+ "thresholds": {
+  "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P6 are on the planted fixture tests_m6/fixtures/i125 (written from the Go specification alone), unit inputs and Morph's committed outputs. P7-P8 are smoke on contaminated data (I51's corpus; the lead, with Q98): the corpus is where a key is designed, never where generality is claimed (only I114's sealed pair). Laws are reported as aggregates only; decided counts never split PROVED from REFUTED (Q56, Q89); stage reasons only for stages before any decision (Q72). A pre-decision refusal is not a verdict (Q113): the op_refused laws are counted as refusals, with stage (run, before any decision) and goops' reason class.",
+  "choice": "(B), emission with the reason. The law set is unchanged; the opt-in only replaces, for a law already UNKNOWN by its binding, the binding error with goops' refusal (the binding error is kept in the attempt as binding_error). It decides nothing new, no law becomes easier to decide, and no denominator moves: the derived count is the same with and without the opt-in, so a smaller denominator cannot read as a gain. (A) was not chosen: not deriving a law over a refused op shrinks the derived set, close to AGENTS.md rule 2; the lead preferred (B).",
+  "which_side": "derive is the side out of step under the opaque reading (it emits a law over every op of the document, as PAR's totality rule says); goops is right to refuse the ops outside its classes. The fix aligns the reporting, not the law set: neither the law nor the model is edited to make it bind (Q105 (6)).",
+  "effect_on_m0_m3": "none. M0-M3's derived law sets and records move only by re-stamp (generator_sha256), because no Morph protocol or gate names the opt-in and holon run without --unbound-reason computes nothing new (P6). Any move in M3's committed law set would stop the key (Q96).",
+  "instruments": "spec/M6/lib/i125_run.json (base_protocol plus exactly run_unbound_reason \"goops\" and its doc, with its own doc, iteration, out and go_machines.out) and tests_m6/test_i125_derive_goops_consistency.py (every check)",
+  "base": "the lead claude/holon-v2-bend2-c6z3cd at 326dcc01 for the build and the planted tests; the measured runs come after the next landing (Q117 (2)), on the base the coordinator names, merged by a merge commit before the first measured run, its sha and the base protocol's sha256 recorded in the report (Q104 (4), (5))",
+  "base_commit": "326dcc010292400de24b852a180b9a88dca3a228",
+  "protocol_rule": "spec/M6/lib/i125_run.json is base_protocol plus exactly run_unbound_reason \"goops\" and run_unbound_reason_doc (and its own doc, iteration, out, go_machines.out), checked by TestRegressions.test_p6_protocol_is_its_base_plus_the_opt_in. At the coordinator's word on the measured runs' base, it is regenerated from that base's spec/M6/lib/base_run.json by this rule (a mechanical rebase, no other change).",
+  "baseline": "I124's baseline (base 326dcc01, base_run.json 1d45d89b…, smoke on contaminated data): 14 of 20 entries ran; 268 laws derived, 1 decided (PROVED and REFUTED together, Q56), 267 UNKNOWN, of which 234 binding refusals with no checker run (all PAR laws on Go-op components: 188 on ok_<op>, 46 on the op's name; goops' reasons: straight-line 108 + 36, loop 47 + 17 + 10 + 4, other single-term refusals 12). The baseline of record is the base protocol's own run on the named base, run beside I125's (Q104 (2))."
+ },
+ "predictions": [
+  {
+   "id": "I125-P1",
+   "claim": "(goops' output) The Go-op model generated for the planted package defines gate_Low and ok_gate_Low and writes gate_Quot and gate_Twice as '# <op>: unsupported (<reason>)' lines, defining neither the op nor ok_<op>; holon.codecrun.goops_refusals reads from that text exactly those two ops, gate_Quot of class straight-line and gate_Twice of class loop.",
+   "check": "tests_m6/test_i125_derive_goops_consistency.py::TestGenerator",
+   "expected": {
+    "refused": {
+     "gate_Quot": "straight-line",
+     "gate_Twice": "loop"
+    },
+    "supported": [
+     "gate_Low"
+    ]
+   }
+  },
+  {
+   "id": "I125-P2",
+   "claim": "(planted, under the opt-in) Every law over gate_Quot or gate_Twice (at least one each) is UNKNOWN with exactly one attempt {kind op_refused, ops [{op, class, reason}], binding_error}, its reason the generated model's comment text verbatim, its bound naming that reason, no witness, no law or proof file; without the opt-in the same laws are UNKNOWN with exactly one binding attempt.",
+   "check": "tests_m6/test_i125_derive_goops_consistency.py::TestPlanted::test_p2_refused_ops_carry_goops_reason",
+   "expected": {
+    "laws_per_refused_op_at_least": 1,
+    "attempt_kinds": [
+     "op_refused"
+    ]
+   }
+  },
+  {
+   "id": "I125-P3",
+   "claim": "(planted, scope) With and without the opt-in, on this branch's code: the derived laws, DERIVATION.json and the generated models are identical; every record not over a refused op (gate_Low's included, at least one) is identical as G1 compares (generator_sha256 and seconds stripped); the decided count is the same (PROVED and REFUTED together, Q56).",
+   "check": "tests_m6/test_i125_derive_goops_consistency.py::TestPlanted::test_p3_law_set_and_other_records_unchanged",
+   "expected": {
+    "law_set_identical": true,
+    "other_records_identical": true,
+    "decided_delta": 0
+   }
+  },
+  {
+   "id": "I125-P4",
+   "claim": "(planted, without the opt-in) Under the base protocol, this branch's code and the base code (326dcc01, a git worktree) produce the same laws, DERIVATION.json, models and records (G1's comparison).",
+   "check": "tests_m6/test_i125_derive_goops_consistency.py::TestPlanted::test_p4_without_the_opt_in_as_the_base_code",
+   "expected": {
+    "identical": true
+   }
+  },
+  {
+   "id": "I125-P5",
+   "claim": "(soundness, units) holon.codecrun.op_refused_res returns a record only for a Go-op law whose binding already failed and whose statement (comments stripped) names, as M.<op> or M.ok_<op>, an op the model text refuses; a law that binds, a binding failure naming no refused op, a non-Go-op law and the option off are untouched (None). The record is UNKNOWN; it decides nothing.",
+   "check": "tests_m6/test_i125_derive_goops_consistency.py::TestUnits",
+   "expected": {
+    "untouched_cases": 5,
+    "status": "UNKNOWN"
+   }
+  },
+  {
+   "id": "I125-P6",
+   "claim": "(control) No committed M0-M3 record carries an op_refused attempt; no protocol other than I125's names run_unbound_reason; I125's protocol is its base plus exactly the opt-in; the base protocol's milestone runner gets no new argument. Morph's M0-M3 move only by re-stamp: holon land dirty re-makes no M0-M2 law, gate-M0 passes, gate-M1 and gate-M2 pass (or fail on G1 alone and pass with generator_sha256 stripped), gate-M3 partial passes; no M3 law file moves.",
+   "check": "tests_m6/test_i125_derive_goops_consistency.py::TestRegressions, and the gates run locally and reported (docs/iterations/I125.md)",
+   "expected": {
+    "m0_m3_moves": "re-stamp only",
+    "m3_law_files_moved": 0
+   }
+  },
+  {
+   "id": "I125-P7",
+   "claim": "(corpus smoke, contaminated) On the named base, the base protocol's run and I125's give the same derived, decided (PROVED and REFUTED together, Q56) and UNKNOWN totals: the opt-in moves no denominator and no verdict.",
+   "check": "tests_m6/test_i125_derive_goops_consistency.py::TestCorpusSmoke::test_p7_same_laws_same_decided",
+   "expected": {
+    "derived_delta": 0,
+    "decided_delta": 0,
+    "unknown_delta": 0
+   }
+  },
+  {
+   "id": "I125-P8",
+   "claim": "(corpus smoke, contaminated) Every law the base run records UNKNOWN by its binding names an op goops refuses (F-M6-05 is the whole binding wall: I124's 234, re-counted on the named base), so under the opt-in none is left with a bare binding error and all carry goops' refusal; by goops' class, straight-line 144 to 156 and loop 78 to 90 (I124's table: straight-line 108 + 36, loop 47 + 17 + 10 + 4, and the 12 other single-term refusals in one or the other).",
+   "check": "tests_m6/test_i125_derive_goops_consistency.py::TestCorpusSmoke::test_p8_touched_laws",
+   "expected": {
+    "binding_unknown_left": 0,
+    "touched_equals_base_binding_unknown": true,
+    "touched_baseline_I124": 234,
+    "classes": {
+     "straight-line": [
+      144,
+      156
+     ],
+     "loop": [
+      78,
+      90
+     ]
+    }
+   }
+  },
+  {
+   "id": "I125-P9",
+   "claim": "(confinement) Nothing committed under results/M6/I125 names a law id.",
+   "check": "tests_m6/test_i125_derive_goops_consistency.py::TestCorpusSmoke::test_p9_nothing_per_law_committed",
+   "expected": {
+    "law_ids": 0
+   }
+  }
+ ],
+ "regressions": []
+}
