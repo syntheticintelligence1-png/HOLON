@@ -1,0 +1,2841 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Caps",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "unknown",
+        "p2p/peer.go:176",
+        "load"
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:174",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!=",
+                [
+                  "unknown",
+                  "p2p/peer.go:206",
+                  "ptr"
+                ],
+                0
+              ],
+              [
+                "call",
+                "(*sync/atomic.Bool).Swap",
+                [
+                  "unknown",
+                  "p2p/message.go:216",
+                  "load"
+                ],
+                1
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  1
+                ]
+              ]
+            ]
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!=",
+                    [
+                      "unknown",
+                      "p2p/peer.go:206",
+                      "ptr"
+                    ],
+                    0
+                  ],
+                  [
+                    "call",
+                    "(*sync/atomic.Bool).Swap",
+                    [
+                      "unknown",
+                      "p2p/message.go:216",
+                      "load"
+                    ],
+                    1
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "seq": 0,
+              "stack": []
+            },
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!=",
+                    [
+                      "unknown",
+                      "p2p/peer.go:206",
+                      "ptr"
+                    ],
+                    0
+                  ],
+                  [
+                    "!",
+                    [
+                      "call",
+                      "(*sync/atomic.Bool).Swap",
+                      [
+                        "unknown",
+                        "p2p/message.go:216",
+                        "load"
+                      ],
+                      1
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "seq": 1,
+              "stack": []
+            },
+            {
+              "expr": [
+                "!",
+                [
+                  "&&",
+                  [
+                    "!",
+                    [
+                      "!=",
+                      [
+                        "unknown",
+                        "p2p/peer.go:206",
+                        "ptr"
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      0
+                    ]
+                  ],
+                  [
+                    "!",
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      1
+                    ]
+                  ]
+                ]
+              ],
+              "seq": 2,
+              "stack": []
+            }
+          ],
+          "reason": "blocking select matched no case",
+          "src": "p2p/peer.go:205"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Disconnect",
+      "order": [
+        [
+          "guard",
+          "p2p/peer.go:205",
+          0
+        ],
+        [
+          "guard",
+          "p2p/peer.go:205",
+          1
+        ],
+        [
+          "guard",
+          "p2p/peer.go:205",
+          2
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "reason",
+          "type": "uint8",
+          "width": 8
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "p2p/peer.go:205",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Fullname",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "unknown",
+        "p2p/peer.go:170",
+        "load"
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:169",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "ID",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "(*github.com/ethereum/go-ethereum/p2p/enode.Node).ID",
+        [
+          "unknown",
+          "p2p/peer.go:151",
+          "load"
+        ]
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:150",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [
+        {
+          "family": "closed",
+          "src": "p2p/peer.go:224"
+        },
+        {
+          "family": "created",
+          "src": "p2p/peer.go:224"
+        },
+        {
+          "family": "disc",
+          "src": "p2p/peer.go:224"
+        },
+        {
+          "family": "events",
+          "src": "p2p/peer.go:224"
+        },
+        {
+          "family": "log",
+          "src": "p2p/peer.go:224"
+        },
+        {
+          "family": "protoErr",
+          "src": "p2p/peer.go:224"
+        },
+        {
+          "family": "running",
+          "src": "p2p/peer.go:224"
+        },
+        {
+          "family": "rw",
+          "src": "p2p/peer.go:224"
+        },
+        {
+          "family": "testPipe",
+          "src": "p2p/peer.go:224"
+        },
+        {
+          "family": "wg",
+          "src": "p2p/peer.go:224"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "Inbound",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "closed": [
+          "unknown",
+          "p2p/peer.go:224",
+          "havoc"
+        ],
+        "created": [
+          "unknown",
+          "p2p/peer.go:224",
+          "havoc"
+        ],
+        "disc": [
+          "unknown",
+          "p2p/peer.go:224",
+          "havoc"
+        ],
+        "events": [
+          "unknown",
+          "p2p/peer.go:224",
+          "havoc"
+        ],
+        "log": [
+          "unknown",
+          "p2p/peer.go:224",
+          "havoc"
+        ],
+        "protoErr": [
+          "unknown",
+          "p2p/peer.go:224",
+          "havoc"
+        ],
+        "running": [
+          "unknown",
+          "p2p/peer.go:224",
+          "havoc"
+        ],
+        "rw": [
+          "unknown",
+          "p2p/peer.go:224",
+          "havoc"
+        ],
+        "testPipe": [
+          "unknown",
+          "p2p/peer.go:224",
+          "havoc"
+        ],
+        "wg": [
+          "unknown",
+          "p2p/peer.go:224",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "!=",
+        [
+          "sext",
+          32,
+          [
+            "&",
+            [
+              "call",
+              "sync/atomic.LoadInt32",
+              [
+                "unknown",
+                "p2p/server.go:288",
+                "ptr"
+              ]
+            ],
+            4
+          ]
+        ],
+        0
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:223",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "closed",
+          "path": [],
+          "seq": 0,
+          "src": "p2p/peer.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "created",
+          "path": [],
+          "seq": 1,
+          "src": "p2p/peer.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "disc",
+          "path": [],
+          "seq": 2,
+          "src": "p2p/peer.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "events",
+          "path": [],
+          "seq": 3,
+          "src": "p2p/peer.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "log",
+          "path": [],
+          "seq": 4,
+          "src": "p2p/peer.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "protoErr",
+          "path": [],
+          "seq": 5,
+          "src": "p2p/peer.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "running",
+          "path": [],
+          "seq": 6,
+          "src": "p2p/peer.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "rw",
+          "path": [],
+          "seq": 7,
+          "src": "p2p/peer.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "testPipe",
+          "path": [],
+          "seq": 8,
+          "src": "p2p/peer.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "wg",
+          "path": [],
+          "seq": 9,
+          "src": "p2p/peer.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:224",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [
+        {
+          "family": "closed",
+          "src": "p2p/peer.go:536"
+        },
+        {
+          "family": "created",
+          "src": "p2p/peer.go:536"
+        },
+        {
+          "family": "disc",
+          "src": "p2p/peer.go:536"
+        },
+        {
+          "family": "events",
+          "src": "p2p/peer.go:536"
+        },
+        {
+          "family": "log",
+          "src": "p2p/peer.go:536"
+        },
+        {
+          "family": "protoErr",
+          "src": "p2p/peer.go:536"
+        },
+        {
+          "family": "running",
+          "src": "p2p/peer.go:536"
+        },
+        {
+          "family": "rw",
+          "src": "p2p/peer.go:536"
+        },
+        {
+          "family": "testPipe",
+          "src": "p2p/peer.go:536"
+        },
+        {
+          "family": "wg",
+          "src": "p2p/peer.go:536"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "Info",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "closed": [
+          "?",
+          [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                  [
+                    "unknown",
+                    "p2p/peer.go:156",
+                    "load"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/peer.go:536",
+              "havoc"
+            ],
+            [
+              "storage",
+              "closed"
+            ]
+          ]
+        ],
+        "created": [
+          "?",
+          [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                  [
+                    "unknown",
+                    "p2p/peer.go:156",
+                    "load"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/peer.go:536",
+              "havoc"
+            ],
+            [
+              "storage",
+              "created"
+            ]
+          ]
+        ],
+        "disc": [
+          "?",
+          [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                  [
+                    "unknown",
+                    "p2p/peer.go:156",
+                    "load"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/peer.go:536",
+              "havoc"
+            ],
+            [
+              "storage",
+              "disc"
+            ]
+          ]
+        ],
+        "events": [
+          "?",
+          [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                  [
+                    "unknown",
+                    "p2p/peer.go:156",
+                    "load"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/peer.go:536",
+              "havoc"
+            ],
+            [
+              "storage",
+              "events"
+            ]
+          ]
+        ],
+        "log": [
+          "?",
+          [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                  [
+                    "unknown",
+                    "p2p/peer.go:156",
+                    "load"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/peer.go:536",
+              "havoc"
+            ],
+            [
+              "storage",
+              "log"
+            ]
+          ]
+        ],
+        "protoErr": [
+          "?",
+          [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                  [
+                    "unknown",
+                    "p2p/peer.go:156",
+                    "load"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/peer.go:536",
+              "havoc"
+            ],
+            [
+              "storage",
+              "protoErr"
+            ]
+          ]
+        ],
+        "running": [
+          "?",
+          [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                  [
+                    "unknown",
+                    "p2p/peer.go:156",
+                    "load"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/peer.go:536",
+              "havoc"
+            ],
+            [
+              "storage",
+              "running"
+            ]
+          ]
+        ],
+        "rw": [
+          "?",
+          [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                  [
+                    "unknown",
+                    "p2p/peer.go:156",
+                    "load"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/peer.go:536",
+              "havoc"
+            ],
+            [
+              "storage",
+              "rw"
+            ]
+          ]
+        ],
+        "testPipe": [
+          "?",
+          [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                  [
+                    "unknown",
+                    "p2p/peer.go:156",
+                    "load"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/peer.go:536",
+              "havoc"
+            ],
+            [
+              "storage",
+              "testPipe"
+            ]
+          ]
+        ],
+        "wg": [
+          "?",
+          [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                ">",
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                  [
+                    "unknown",
+                    "p2p/peer.go:156",
+                    "load"
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/peer.go:536",
+              "havoc"
+            ],
+            [
+              "storage",
+              "wg"
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          ">",
+          [
+            "call",
+            "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+            [
+              "unknown",
+              "p2p/peer.go:156",
+              "load"
+            ]
+          ],
+          0
+        ],
+        [
+          "unknown",
+          "p2p/peer.go:536",
+          "ptr"
+        ],
+        [
+          "unknown",
+          "p2p/peer.go:536",
+          "ptr"
+        ]
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:501",
+      "writes": [
+        {
+          "cond": [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 0,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          "family": "created",
+          "path": [],
+          "seq": 1,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          "family": "disc",
+          "path": [],
+          "seq": 2,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          "family": "events",
+          "path": [],
+          "seq": 3,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          "family": "log",
+          "path": [],
+          "seq": 4,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          "family": "protoErr",
+          "path": [],
+          "seq": 5,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          "family": "running",
+          "path": [],
+          "seq": 6,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          "family": "rw",
+          "path": [],
+          "seq": 7,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          "family": "testPipe",
+          "path": [],
+          "seq": 8,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            ">",
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+              [
+                "unknown",
+                "p2p/peer.go:156",
+                "load"
+              ]
+            ],
+            0
+          ],
+          "family": "wg",
+          "path": [],
+          "seq": 9,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              ">",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                [
+                  "unknown",
+                  "p2p/peer.go:156",
+                  "load"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 10,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              ">",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                [
+                  "unknown",
+                  "p2p/peer.go:156",
+                  "load"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "created",
+          "path": [],
+          "seq": 11,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              ">",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                [
+                  "unknown",
+                  "p2p/peer.go:156",
+                  "load"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "disc",
+          "path": [],
+          "seq": 12,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              ">",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                [
+                  "unknown",
+                  "p2p/peer.go:156",
+                  "load"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "events",
+          "path": [],
+          "seq": 13,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              ">",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                [
+                  "unknown",
+                  "p2p/peer.go:156",
+                  "load"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "log",
+          "path": [],
+          "seq": 14,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              ">",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                [
+                  "unknown",
+                  "p2p/peer.go:156",
+                  "load"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "protoErr",
+          "path": [],
+          "seq": 15,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              ">",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                [
+                  "unknown",
+                  "p2p/peer.go:156",
+                  "load"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "running",
+          "path": [],
+          "seq": 16,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              ">",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                [
+                  "unknown",
+                  "p2p/peer.go:156",
+                  "load"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "rw",
+          "path": [],
+          "seq": 17,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              ">",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                [
+                  "unknown",
+                  "p2p/peer.go:156",
+                  "load"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "testPipe",
+          "path": [],
+          "seq": 18,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              ">",
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+                [
+                  "unknown",
+                  "p2p/peer.go:156",
+                  "load"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "wg",
+          "path": [],
+          "seq": 19,
+          "src": "p2p/peer.go:536",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/peer.go:536",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "LocalAddr",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "net.Conn.LocalAddr",
+        [
+          "unknown",
+          "p2p/peer.go:200",
+          "load"
+        ]
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:199",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Log",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "storage",
+        "log"
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:241",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Name",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "s>",
+          [
+            "len",
+            [
+              "unknown",
+              "p2p/peer.go:161",
+              "load"
+            ]
+          ],
+          20
+        ],
+        [
+          "abi.encodePacked",
+          [
+            "unknown",
+            "p2p/peer.go:163",
+            "slice"
+          ],
+          [
+            "str",
+            "2e2e2e"
+          ]
+        ],
+        [
+          "unknown",
+          "p2p/peer.go:161",
+          "load"
+        ]
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:160",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Node",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "unknown",
+        "p2p/peer.go:156",
+        "load"
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:155",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "RemoteAddr",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "net.Conn.RemoteAddr",
+        [
+          "unknown",
+          "p2p/peer.go:195",
+          "load"
+        ]
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:194",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "RunningCap",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "protocol",
+          "type": "string",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "versions",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "unknown",
+          "p2p/peer.go:183",
+          "ok"
+        ],
+        1,
+        [
+          "?",
+          [
+            "unknown",
+            "p2p/peer.go:183",
+            "ok"
+          ],
+          0,
+          0
+        ]
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:182",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.Peer",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "String",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "call",
+        "fmt.Sprintf",
+        [
+          "str",
+          "50656572202578202576"
+        ],
+        [
+          "unknown",
+          "p2p/peer.go:219",
+          "ptr"
+        ]
+      ],
+      "selector": null,
+      "src": "p2p/peer.go:217",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/p2p.Peer",
+  "debt": [
+    {
+      "action": "Disconnect",
+      "kind": "channel",
+      "src": "p2p/peer.go:210",
+      "what": "select"
+    },
+    {
+      "action": "Info",
+      "kind": "loop",
+      "src": "p2p/peer.go:501",
+      "what": "loop not iterated; havocked: closed,created,disc,events,log,protoErr,running,rw,testPipe,wg"
+    },
+    {
+      "action": "Info",
+      "kind": "loop",
+      "src": "p2p/peer.go:503",
+      "what": "loop not iterated; havocked: closed,created,disc,events,log,protoErr,running,rw,testPipe,wg"
+    },
+    {
+      "action": "RunningCap",
+      "kind": "loop",
+      "src": "p2p/peer.go:182",
+      "what": "loop not iterated; havocked: "
+    }
+  ],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I116/holon/c09/sidecars/go_1_machines.json",
+      "sha256": "e6221dfcc19ab52182470e180491273b1b5fc4c5ac80882eb039d5385cb828c9"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "552aafb2f900a4cfd4fd0f1abaf860ab28d07a4d5624d26824710f9913488548",
+        "unit": "p2p/dial.go"
+      },
+      {
+        "sha256": "9ed3661b0aa04ae025f40bf140bcd7373029ea3903476d27b8f9c4ab9ca94a4e",
+        "unit": "p2p/message.go"
+      },
+      {
+        "sha256": "bcbd485ed0a843602e73fdafcf88c4e8c700dd0f2ae006d5aae33d751c5a8f93",
+        "unit": "p2p/metrics.go"
+      },
+      {
+        "sha256": "c55cf31f788e70baa25b7bf5d35354b5be0aabb0ed4673b5ea55fda72d804a4f",
+        "unit": "p2p/peer.go"
+      },
+      {
+        "sha256": "0a8e6b992ea1df69f413055d172edfe15fdcc547bebdd2cd5bc0dcd4157b3e69",
+        "unit": "p2p/peer_error.go"
+      },
+      {
+        "sha256": "0d9a72573ce3b1e7c30bcfa14d34138dd4097b19ff18908e40c560ee5efae42e",
+        "unit": "p2p/protocol.go"
+      },
+      {
+        "sha256": "c4238dc625c78fd462bd45b76aede8d0db4267dca8661d354a2bd7893bbbad01",
+        "unit": "p2p/server.go"
+      },
+      {
+        "sha256": "2e0a158e585224e2c80c791e13d63ddb7c1427f882d16c6481c70a8263c3f250",
+        "unit": "p2p/server_nat.go"
+      },
+      {
+        "sha256": "2c81a97d985e7d181b64b2cf6356897092c246d2ca8f0d2182aa6a1fad629474",
+        "unit": "p2p/transport.go"
+      },
+      {
+        "sha256": "346bf0e408e7d39c8cbbe0b75d433400a3ba653ab5f40d3cb8aaab47c272fdcf",
+        "unit": "p2p/util.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "p2p.Peer",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "Caps": {
+        "declared_in": "p2p.Peer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Caps",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Disconnect": {
+        "declared_in": "p2p.Peer",
+        "inputs": [
+          {
+            "name": "reason",
+            "type": "uint8"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Disconnect",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Fullname": {
+        "declared_in": "p2p.Peer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Fullname",
+        "outputs": [
+          {
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "ID": {
+        "declared_in": "p2p.Peer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "ID",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Inbound": {
+        "declared_in": "p2p.Peer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "Inbound",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Info": {
+        "declared_in": "p2p.Peer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "Info",
+        "outputs": [
+          {
+            "components": [
+              {
+                "name": "ENR",
+                "type": "string"
+              },
+              {
+                "name": "Enode",
+                "type": "string"
+              },
+              {
+                "name": "ID",
+                "type": "string"
+              },
+              {
+                "name": "Name",
+                "type": "string"
+              },
+              {
+                "name": "Caps",
+                "type": "uint256"
+              },
+              {
+                "name": "Network",
+                "type": "uint256"
+              },
+              {
+                "name": "Protocols",
+                "type": "uint256"
+              }
+            ],
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "LocalAddr": {
+        "declared_in": "p2p.Peer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "LocalAddr",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Log": {
+        "declared_in": "p2p.Peer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Log",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Name": {
+        "declared_in": "p2p.Peer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Name",
+        "outputs": [
+          {
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "Node": {
+        "declared_in": "p2p.Peer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Node",
+        "outputs": [
+          {
+            "components": [
+              {
+                "name": "r",
+                "type": "uint256"
+              },
+              {
+                "name": "id",
+                "type": "uint256"
+              }
+            ],
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "RemoteAddr": {
+        "declared_in": "p2p.Peer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "RemoteAddr",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "RunningCap": {
+        "declared_in": "p2p.Peer",
+        "inputs": [
+          {
+            "name": "protocol",
+            "type": "string"
+          },
+          {
+            "name": "versions",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "RunningCap",
+        "outputs": [
+          {
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "String": {
+        "declared_in": "p2p.Peer",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "String",
+        "outputs": [
+          {
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "p2p.Peer",
+          "label": "rw",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.Peer",
+          "label": "running",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_mapping(t_string_memory_ptr,t_bytes32)"
+        },
+        {
+          "contract": "p2p.Peer",
+          "label": "log",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.Peer",
+          "label": "created",
+          "offset": 0,
+          "slot": "3",
+          "type": "t_int64"
+        },
+        {
+          "contract": "p2p.Peer",
+          "label": "wg",
+          "offset": 0,
+          "slot": "4",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.Peer",
+          "label": "protoErr",
+          "offset": 0,
+          "slot": "5",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.Peer",
+          "label": "closed",
+          "offset": 0,
+          "slot": "6",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.Peer",
+          "label": "disc",
+          "offset": 0,
+          "slot": "7",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.Peer",
+          "label": "events",
+          "offset": 0,
+          "slot": "8",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.Peer",
+          "label": "testPipe",
+          "offset": 0,
+          "slot": "9",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        },
+        "t_int64": {
+          "encoding": "inplace",
+          "label": "int64",
+          "numberOfBytes": "8"
+        },
+        "t_mapping(t_string_memory_ptr,t_bytes32)": {
+          "encoding": "mapping",
+          "key": "t_string_memory_ptr",
+          "label": "mapping(string => bytes32)",
+          "numberOfBytes": "32",
+          "value": "t_bytes32"
+        },
+        "t_string_memory_ptr": {
+          "encoding": "bytes",
+          "label": "string",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "p2p.Peer"
+    ],
+    "members": {
+      "(*github.com/ethereum/go-ethereum/p2p/enode.Node).ID": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/p2p/enode.Node).ID",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xbe67b36a",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/p2p/enode.Node).Seq",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint64"
+            }
+          ],
+          "selector": "0x6728a41e",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/p2p/enode.Node).String": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/p2p/enode.Node).String",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "selector": "0xeaf969f1",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/p2p/enode.Node).URLv4": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/p2p/enode.Node).URLv4",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "selector": "0x8dc5a334",
+          "visibility": "external"
+        }
+      ],
+      "(*sync/atomic.Bool).Swap": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "bool"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*sync/atomic.Bool).Swap",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "selector": "0xd27be5b9",
+          "visibility": "external"
+        }
+      ],
+      "(github.com/ethereum/go-ethereum/p2p/enode.ID).String": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(github.com/ethereum/go-ethereum/p2p/enode.ID).String",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "selector": "0x2fd27059",
+          "visibility": "external"
+        }
+      ],
+      "fmt.Sprintf": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "string"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "fmt.Sprintf",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "selector": "0x0d8b86cf",
+          "visibility": "external"
+        }
+      ],
+      "len": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "len",
+          "outputs": [
+            {
+              "name": "",
+              "type": "int64"
+            }
+          ],
+          "selector": "0xccc84848",
+          "visibility": "external"
+        }
+      ],
+      "net.Addr.String": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "net.Addr.String",
+          "outputs": [
+            {
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "selector": "0x37f1cbf6",
+          "visibility": "external"
+        }
+      ],
+      "net.Conn.LocalAddr": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "net.Conn.LocalAddr",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xc9467263",
+          "visibility": "external"
+        }
+      ],
+      "net.Conn.RemoteAddr": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "net.Conn.RemoteAddr",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x7c096f33",
+          "visibility": "external"
+        }
+      ],
+      "sync/atomic.LoadInt32": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "sync/atomic.LoadInt32",
+          "outputs": [
+            {
+              "name": "",
+              "type": "int32"
+            }
+          ],
+          "selector": "0x5318cae5",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "p2p/dial.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "rw",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    },
+    {
+      "key": "string",
+      "kind": "mapping",
+      "name": "running",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "log",
+      "offset": 0,
+      "slot": 2,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "created",
+      "offset": 0,
+      "slot": 3,
+      "value": "int64"
+    },
+    {
+      "kind": "scalar",
+      "name": "wg",
+      "offset": 0,
+      "slot": 4,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "protoErr",
+      "offset": 0,
+      "slot": 5,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "closed",
+      "offset": 0,
+      "slot": 6,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "disc",
+      "offset": 0,
+      "slot": 7,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "events",
+      "offset": 0,
+      "slot": 8,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "testPipe",
+      "offset": 0,
+      "slot": 9,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "e13fa32cea3497aa311226c62daf21c5847c8e4f",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/p2p.Peer"
+  }
+}

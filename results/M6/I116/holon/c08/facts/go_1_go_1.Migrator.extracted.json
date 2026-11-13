@@ -1,0 +1,290 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "keeper.Migrator",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [
+        {
+          "expr": [
+            "==",
+            [
+              "call",
+              "cosmossdk.io/x/group/migrations/v2.Migrate",
+              [
+                "param",
+                "ctx"
+              ],
+              [
+                "storage",
+                "keeper"
+              ],
+              [
+                "storage",
+                "keeper"
+              ],
+              [
+                "storage",
+                "keeper"
+              ],
+              [
+                "storage",
+                "keeper"
+              ]
+            ],
+            0
+          ],
+          "kind": "revert",
+          "reaches": [
+            {
+              "expr": [
+                "==",
+                [
+                  "call",
+                  "cosmossdk.io/x/group/migrations/v2.Migrate",
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "storage",
+                    "keeper"
+                  ],
+                  [
+                    "storage",
+                    "keeper"
+                  ],
+                  [
+                    "storage",
+                    "keeper"
+                  ],
+                  [
+                    "storage",
+                    "keeper"
+                  ]
+                ],
+                0
+              ],
+              "seq": 0,
+              "stack": []
+            }
+          ],
+          "reason": null,
+          "src": "x/group/keeper/migrations.go:21"
+        }
+      ],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Migrate1to2",
+      "order": [
+        [
+          "guard",
+          "x/group/keeper/migrations.go:21",
+          0
+        ]
+      ],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "x/group/keeper/migrations.go:20",
+      "writes": []
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "cosmossdk.io/x/group/keeper.Migrator",
+  "debt": [],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I116/holon/c08/sidecars/go_1_machines.json",
+      "sha256": "cb3c5565bdbe7bf42017fe375f99c110fe435694bbe68bb3183f416393f9a3de"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "3515df3195af5537f7508be800532b1e3905b34d922adcf6d5e908fbd42b2246",
+        "unit": "x/group/keeper/abci.go"
+      },
+      {
+        "sha256": "a840d8a4c30e833df748843a21cf784c6aff454158aedb29cc47bc9137501950",
+        "unit": "x/group/keeper/genesis.go"
+      },
+      {
+        "sha256": "df02a0878c7e884af934b95bc189bf68821b173917f1dcbe2e741b3bdf2b5935",
+        "unit": "x/group/keeper/grpc_query.go"
+      },
+      {
+        "sha256": "7d7f2d58bcd7ca5b76bacff153153b616deb5674a19cee22c668f10e7e3ad0d8",
+        "unit": "x/group/keeper/keeper.go"
+      },
+      {
+        "sha256": "cbfce0af78dd07ed04e93900560d676a9cb55458a3f8dff809c6c99e8022ecc8",
+        "unit": "x/group/keeper/migrations.go"
+      },
+      {
+        "sha256": "a8ee7774235a2c6d8ef2377c8f672db5e8fdb006c1c14a92c08229247474793e",
+        "unit": "x/group/keeper/msg_server.go"
+      },
+      {
+        "sha256": "9c112da27621ca1254fb207510b675953ee757d2bc064ea0697f8e759d71eeaa",
+        "unit": "x/group/keeper/proposal_executor.go"
+      },
+      {
+        "sha256": "1ae9d62a3f4333a44c6fb26659d1dcaf9e198f7f790d089ccc891a57575033e2",
+        "unit": "x/group/keeper/tally.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "keeper.Migrator",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "Migrate1to2": {
+        "declared_in": "keeper.Migrator",
+        "inputs": [
+          {
+            "name": "ctx",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Migrate1to2",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "keeper.Migrator",
+          "label": "keeper",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "keeper.Migrator"
+    ],
+    "members": {
+      "cosmossdk.io/x/group/migrations/v2.Migrate": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "uint256"
+            },
+            {
+              "name": "a3",
+              "type": "uint256"
+            },
+            {
+              "name": "a4",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "cosmossdk.io/x/group/migrations/v2.Migrate",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x5b60a548",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "x/group/keeper/abci.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "keeper",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "548ca00b11f89145fc112e54e680f6710172bb5a",
+    "repo": "cosmos/cosmos-sdk",
+    "scope": "go machine cosmossdk.io/x/group/keeper.Migrator"
+  }
+}
