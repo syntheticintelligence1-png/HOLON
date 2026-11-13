@@ -95,3 +95,12 @@ safe that wrap out of bounds.
     through their decision traces or a changed statement, and 76 more because their facts document changes. 14 UNKNOWN
     laws and 1 law that the re-derivation renumbers are affected too. None is undetermined.
   - The re-decision lands whole as I121 (Q97). Until then these statuses are provisional.
+- **Update (I121's landing, HUMAN_ANSWERS Q115-Q117).** I121 re-decided the 162 affected M3 laws on (b)'s tree, vault
+  first (`results/M6/I121/redecide.json`, aggregates only).
+  - 161 were compared with their committed records: 158 unchanged and 3 verdicts changed (PROVED and REFUTED together,
+    Q56). The renumbered law's old id is retired and its new id decided fresh. Nothing in M0-M2 needed re-deciding.
+  - **Withheld until the human's call (Q96 (2), Q116).** The opaque-arithmetic flip, the re-extracted Go documents and
+    the 162 re-decided records stay on I121's branch and in its vault (bundle commitment
+    `8c501b2647307c6a18644ca3b6683389c817c150fa680a21b06689200af6aa57` over 759 files). The records committed here stay
+    as they are, consistent with the lead's code; their statuses stay provisional, and F-M6-01 stays open.
+  - Whether E1-E5 still hold is re-decided when the human's call lands, as an amendment here.
