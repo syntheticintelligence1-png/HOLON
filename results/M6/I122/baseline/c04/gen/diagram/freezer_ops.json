@@ -1,0 +1,197 @@
+{
+  "carriers": [
+    {
+      "base_type": "Freezer",
+      "cls": "rep",
+      "domains": [
+        "ok_rawdb_Freezer_Ancients",
+        "ok_rawdb_Freezer_Close",
+        "ok_rawdb_Freezer_Sync",
+        "ok_rawdb_Freezer_Tail",
+        "ok_rawdb_Freezer_repair",
+        "ok_rawdb_Freezer_validate"
+      ],
+      "id": "Freezer",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_Uint64_Error",
+      "cls": "rep",
+      "id": "R_Uint64_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_Freezer_Ancients",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_Freezer_Ancients",
+      "kind": "CODEC",
+      "model_fn": "rawdb_Freezer_Ancients",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Ancients"
+        }
+      ],
+      "src": "Freezer",
+      "tgt": "R_Uint64_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_Freezer_Close",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_Freezer_Close",
+      "kind": "CODEC",
+      "model_fn": "rawdb_Freezer_Close",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Close"
+        }
+      ],
+      "src": "Freezer",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_Freezer_Sync",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_Freezer_Sync",
+      "kind": "CODEC",
+      "model_fn": "rawdb_Freezer_Sync",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Sync"
+        }
+      ],
+      "src": "Freezer",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_Freezer_Tail",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_Freezer_Tail",
+      "kind": "CODEC",
+      "model_fn": "rawdb_Freezer_Tail",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).Tail"
+        }
+      ],
+      "src": "Freezer",
+      "tgt": "R_Uint64_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_Freezer_repair",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_Freezer_repair",
+      "kind": "CODEC",
+      "model_fn": "rawdb_Freezer_repair",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).repair"
+        }
+      ],
+      "src": "Freezer",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c04/facts/go_1.go.extracted.json",
+      "domain": "ok_rawdb_Freezer_validate",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.rawdb_Freezer_validate",
+      "kind": "CODEC",
+      "model_fn": "rawdb_Freezer_validate",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/core/rawdb.Freezer).validate"
+        }
+      ],
+      "src": "Freezer",
+      "tgt": "R_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/freezer_ops.json",
+  "facts_sha256": "e3a6bd0f216c90cd6b69e4175174569fb1d8b262f6a5a4fd754db22705824f77",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "freezer_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

@@ -1,0 +1,374 @@
+{
+  "carrier": {
+    "id": "msgEventer",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/p2p.msgEventer"
+  },
+  "component": "msg_eventer_ops",
+  "document": "results/M6/I122/holon/c09/facts/go_1.go.extracted.json",
+  "document_sha256": "eafbc75a39b62f9cc82ed2c392db9087f32e6afca1b2cf618e842955633dbd1e",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "p2p_msgEventer_Close": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "ev",
+          "type": "*github.com/ethereum/go-ethereum/p2p.msgEventer"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "true",
+              [
+                "result",
+                [
+                  "unknown",
+                  "assert"
+                ],
+                1
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "unknown",
+          "returns": [
+            [
+              "call",
+              "dynamic:Close",
+              [
+                [
+                  "result",
+                  [
+                    "unknown",
+                    "assert"
+                  ],
+                  0
+                ]
+              ]
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "false",
+              [
+                "result",
+                [
+                  "unknown",
+                  "assert"
+                ],
+                1
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.msgEventer).Close",
+      "span": "p2p/message.go:320",
+      "typed": {
+        "lengths": {
+          "ev": null
+        },
+        "stale": false,
+        "terms": [
+          [
+            [
+              "field",
+              [
+                "param",
+                "ev"
+              ],
+              "MsgReadWriter"
+            ],
+            "github.com/ethereum/go-ethereum/p2p.MsgReadWriter"
+          ]
+        ]
+      }
+    },
+    "p2p_msgEventer_ReadMsg": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "ev",
+          "type": "*github.com/ethereum/go-ethereum/p2p.msgEventer"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "result",
+                [
+                  "call",
+                  "dynamic:ReadMsg",
+                  [
+                    [
+                      "field",
+                      [
+                        "param",
+                        "ev"
+                      ],
+                      "MsgReadWriter"
+                    ]
+                  ]
+                ],
+                1
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nonnil",
+          "returns": [
+            [
+              "result",
+              [
+                "call",
+                "dynamic:ReadMsg",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "ev"
+                    ],
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              0
+            ],
+            [
+              "result",
+              [
+                "call",
+                "dynamic:ReadMsg",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "ev"
+                    ],
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              1
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "result",
+                [
+                  "call",
+                  "dynamic:ReadMsg",
+                  [
+                    [
+                      "field",
+                      [
+                        "param",
+                        "ev"
+                      ],
+                      "MsgReadWriter"
+                    ]
+                  ]
+                ],
+                1
+              ],
+              [
+                "nil"
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "result",
+              [
+                "call",
+                "dynamic:ReadMsg",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "ev"
+                    ],
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              0
+            ],
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "github.com/ethereum/go-ethereum/p2p.Msg",
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/p2p.msgEventer).ReadMsg",
+      "span": "p2p/message.go:282",
+      "typed": {
+        "lengths": {
+          "ev": null
+        },
+        "stale": true,
+        "terms": [
+          [
+            [
+              "field",
+              [
+                "param",
+                "ev"
+              ],
+              "MsgReadWriter"
+            ],
+            "github.com/ethereum/go-ethereum/p2p.MsgReadWriter"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "ev"
+              ],
+              "Protocol"
+            ],
+            "string"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "ev"
+              ],
+              "feed"
+            ],
+            "*github.com/ethereum/go-ethereum/event.Feed"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "ev"
+              ],
+              "localAddress"
+            ],
+            "string"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "ev"
+              ],
+              "peerID"
+            ],
+            "github.com/ethereum/go-ethereum/p2p/enode.ID"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "ev"
+              ],
+              "remoteAddress"
+            ],
+            "string"
+          ],
+          [
+            [
+              "result",
+              [
+                "call",
+                "dynamic:ReadMsg",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "ev"
+                    ],
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              0
+            ],
+            "github.com/ethereum/go-ethereum/p2p.Msg"
+          ],
+          [
+            [
+              "result",
+              [
+                "call",
+                "dynamic:ReadMsg",
+                [
+                  [
+                    "field",
+                    [
+                      "param",
+                      "ev"
+                    ],
+                    "MsgReadWriter"
+                  ]
+                ]
+              ],
+              1
+            ],
+            "error"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ],
+    "R_Msg_Error": [
+      "github.com/ethereum/go-ethereum/p2p.Msg",
+      "error"
+    ]
+  }
+}

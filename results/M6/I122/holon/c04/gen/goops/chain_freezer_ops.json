@@ -1,0 +1,131 @@
+{
+  "carrier": {
+    "id": "chainFreezer",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/core/rawdb.chainFreezer"
+  },
+  "component": "chain_freezer_ops",
+  "document": "results/M6/I122/holon/c04/facts/go_1.go.extracted.json",
+  "document_sha256": "047121c1bfb641f3f9b46653482686041fb4d6f582edd45209b023bdf31dcb3d",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "rawdb_chainFreezer_Close": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "f",
+          "type": "*github.com/ethereum/go-ethereum/core/rawdb.chainFreezer"
+        }
+      ],
+      "paths": [
+        {
+          "cond": [
+            [
+              "==",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        },
+        {
+          "cond": [
+            [
+              "!=",
+              [
+                "result",
+                [
+                  "unknown",
+                  "select"
+                ],
+                0
+              ],
+              [
+                "const",
+                0
+              ]
+            ]
+          ],
+          "end": "return",
+          "error": "nil",
+          "returns": [
+            [
+              "nil"
+            ]
+          ],
+          "site": null
+        }
+      ],
+      "paths_reason": null,
+      "results": [
+        "error"
+      ],
+      "sites": [],
+      "source": "(*github.com/ethereum/go-ethereum/core/rawdb.chainFreezer).Close",
+      "span": "core/rawdb/chain_freezer.go:66",
+      "typed": {
+        "lengths": {
+          "f": null
+        },
+        "stale": true,
+        "terms": [
+          [
+            [
+              "field",
+              [
+                "param",
+                "f"
+              ],
+              "Freezer"
+            ],
+            "*github.com/ethereum/go-ethereum/core/rawdb.Freezer"
+          ],
+          [
+            [
+              "field",
+              [
+                "param",
+                "f"
+              ],
+              "quit"
+            ],
+            "chan struct{}"
+          ],
+          [
+            [
+              "result",
+              [
+                "unknown",
+                "select"
+              ],
+              0
+            ],
+            "int"
+          ]
+        ]
+      }
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ]
+  }
+}

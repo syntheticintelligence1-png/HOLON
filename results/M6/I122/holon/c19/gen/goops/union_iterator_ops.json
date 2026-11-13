@@ -1,0 +1,424 @@
+{
+  "carrier": {
+    "id": "unionIterator",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/trie.unionIterator"
+  },
+  "component": "union_iterator_ops",
+  "document": "results/M6/I122/holon/c19/facts/go_2.go.extracted.json",
+  "document_sha256": "cc2940dd4440ec61df9b1e96f5d25475ecd682ccdb955fdc72a0135b824a5e0e",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "trie_unionIterator_Error": {
+      "loop_bodies": [
+        {
+          "carried": [],
+          "cmp": "<",
+          "exits": [
+            "return"
+          ],
+          "fuel": [
+            "len",
+            [
+              "field",
+              [
+                "param",
+                "it"
+              ],
+              "items"
+            ]
+          ],
+          "init": [
+            "const",
+            0
+          ],
+          "iv": "i",
+          "limit": [
+            "len",
+            [
+              "field",
+              [
+                "param",
+                "it"
+              ],
+              "items"
+            ]
+          ],
+          "paths": [
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "iv",
+                    "i"
+                  ],
+                  [
+                    "len",
+                    [
+                      "field",
+                      [
+                        "param",
+                        "it"
+                      ],
+                      "items"
+                    ]
+                  ]
+                ],
+                [
+                  "!=",
+                  [
+                    "call",
+                    "dynamic:Error",
+                    [
+                      [
+                        "elem",
+                        "github.com/ethereum/go-ethereum/trie.NodeIterator",
+                        [
+                          "index",
+                          [
+                            "field",
+                            [
+                              "param",
+                              "it"
+                            ],
+                            "items"
+                          ],
+                          [
+                            "iv",
+                            "i"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "nil"
+                  ]
+                ]
+              ],
+              "end": "return",
+              "error": "nonnil",
+              "returns": [
+                [
+                  "call",
+                  "dynamic:Error",
+                  [
+                    [
+                      "elem",
+                      "github.com/ethereum/go-ethereum/trie.NodeIterator",
+                      [
+                        "index",
+                        [
+                          "field",
+                          [
+                            "param",
+                            "it"
+                          ],
+                          "items"
+                        ],
+                        [
+                          "iv",
+                          "i"
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              "site": null
+            },
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  "<",
+                  [
+                    "iv",
+                    "i"
+                  ],
+                  [
+                    "len",
+                    [
+                      "field",
+                      [
+                        "param",
+                        "it"
+                      ],
+                      "items"
+                    ]
+                  ]
+                ],
+                [
+                  "==",
+                  [
+                    "call",
+                    "dynamic:Error",
+                    [
+                      [
+                        "elem",
+                        "github.com/ethereum/go-ethereum/trie.NodeIterator",
+                        [
+                          "index",
+                          [
+                            "field",
+                            [
+                              "param",
+                              "it"
+                            ],
+                            "items"
+                          ],
+                          [
+                            "iv",
+                            "i"
+                          ]
+                        ]
+                      ]
+                    ]
+                  ],
+                  [
+                    "nil"
+                  ]
+                ]
+              ],
+              "end": "continue",
+              "error": null,
+              "returns": null,
+              "site": null,
+              "updates": {}
+            },
+            {
+              "cond": [
+                [
+                  "<=",
+                  [
+                    "const",
+                    0
+                  ],
+                  [
+                    "iv",
+                    "i"
+                  ]
+                ],
+                [
+                  ">=",
+                  [
+                    "iv",
+                    "i"
+                  ],
+                  [
+                    "len",
+                    [
+                      "field",
+                      [
+                        "param",
+                        "it"
+                      ],
+                      "items"
+                    ]
+                  ]
+                ]
+              ],
+              "end": "return",
+              "error": "nil",
+              "returns": [
+                [
+                  "nil"
+                ]
+              ],
+              "site": null
+            }
+          ],
+          "span": "trie/iterator.go:708",
+          "step": 1,
+          "typed": {
+            "iv_type": "int",
+            "lengths": {
+              "it": null
+            },
+            "stale": false,
+            "terms": [
+              [
+                [
+                  "call",
+                  "dynamic:Error",
+                  [
+                    [
+                      "elem",
+                      "github.com/ethereum/go-ethereum/trie.NodeIterator",
+                      [
+                        "index",
+                        [
+                          "field",
+                          [
+                            "param",
+                            "it"
+                          ],
+                          "items"
+                        ],
+                        [
+                          "iv",
+                          "i"
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                "error"
+              ],
+              [
+                [
+                  "elem",
+                  "github.com/ethereum/go-ethereum/trie.NodeIterator",
+                  [
+                    "index",
+                    [
+                      "field",
+                      [
+                        "param",
+                        "it"
+                      ],
+                      "items"
+                    ],
+                    [
+                      "iv",
+                      "i"
+                    ]
+                  ]
+                ],
+                "github.com/ethereum/go-ethereum/trie.NodeIterator"
+              ],
+              [
+                [
+                  "field",
+                  [
+                    "param",
+                    "it"
+                  ],
+                  "items"
+                ],
+                null
+              ],
+              [
+                [
+                  "iv",
+                  "i"
+                ],
+                "int"
+              ],
+              [
+                [
+                  "len",
+                  [
+                    "field",
+                    [
+                      "param",
+                      "it"
+                    ],
+                    "items"
+                  ]
+                ],
+                "int"
+              ],
+              [
+                [
+                  "op",
+                  "+",
+                  [
+                    "iv",
+                    "i"
+                  ],
+                  [
+                    "const",
+                    1
+                  ]
+                ],
+                "int"
+              ]
+            ]
+          }
+        }
+      ],
+      "params": [
+        {
+          "name": "it",
+          "type": "*github.com/ethereum/go-ethereum/trie.unionIterator"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "var",
+                "t7",
+                "i"
+              ]
+            ],
+            [
+              "<",
+              [
+                "var",
+                "t7",
+                "i"
+              ],
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "param",
+                    "it"
+                  ],
+                  "items"
+                ]
+              ]
+            ]
+          ],
+          "id": "trie/iterator.go:709:24:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/ethereum/go-ethereum/trie.unionIterator).Error",
+      "span": "trie/iterator.go:707"
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ]
+  }
+}
