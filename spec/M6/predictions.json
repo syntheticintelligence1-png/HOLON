@@ -1756,6 +1756,90 @@
         }
       ],
       "regressions": []
+    },
+    "I121": {
+      "title": "I121: the re-decision (HUMAN_ANSWERS Q93 (1)(b), Q96, Q97 (2), Q98 (3)): I119 (b) lands whole (the opaque-arithmetic rule is the Go frontend's default for every Go document, the narrow-arithmetic loop mode unchanged; Morph's three changed Go documents re-extracted), re-applied after the prereg by reverting I119's reverts; every affected Morph law is re-decided through Q96 (1)'s channel by case, vault first under Q96 (2)'s Q56 handling ((a) law file unchanged: re-made and re-decided, the binding through model_extension, binding_change or from scratch where its cone changes; (b) law file different only in facts_sha256: reextraction's new facts form, with planted fixtures; (c) the renumbered PAR law: the old verdict retired, the new law decided fresh); F-M6-02 fixed if small; one counted corpus run after the flip, aggregates only, smoke on contaminated data",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I121)",
+      "prompt": "prompts/I121_re_decision.md",
+      "tests": [
+        "tests_m6/test_i121_re_decision.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I121/",
+        "docs/iterations/I121.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced, and what is not done is a miss. P1 and P2 are on the code and on planted fixtures (tests_m6/fixtures/i121: synthetic laws and documents, never Morph or corpus code). P3-P6 are the re-decision of Morph's committed laws, run once in the builder's sandbox, vault first (never in a CI re-make), scored on its first finished run. P7 is a smoke measure on I51's corpus, contaminated (I51, I103-I120, I107). Laws are reported as per-milestone counts only, never splitting PROVED from REFUTED (Q56, Q89), and never by id; a verdict change is counted in either direction together. Alerts are reported only in the outcome-independent form (Q101): every decided law was handled under Q56 from the vault, and every alert the procedure called for was sent.",
+        "instruments": "tests_m6/test_i121_re_decision.py (every check); results/M6/I121/redecide.json (the re-decision's aggregates: per milestone and per channel, the counts of records re-made and re-decided and of verdicts changed, and one sha256 bundle commitment of the vault's re-decided set in I107's canonical form); spec/M6/lib/i121_run.json (the counted corpus run's protocol)",
+        "base": "the lead claude/holon-v2-bend2-c6z3cd at 65328226 (I119 (a), #201); each later lead move is merged by a merge commit, never while a counted run is going; I118's landing is merged before the counted corpus run, whose base the coordinator confirms",
+        "affected": "I119's exact affected set on (b)'s tree (results/M6/I119/rederive.json; the list itself in the vault): M0, M1, M2 none (G1 byte-identical); M3 148 decided laws (PROVED and REFUTED together, Q56) and 14 UNKNOWN laws whose decision inputs change, and 1 PAR law renumbered (its id changes; the old id is retired). Of the M3 laws whose law file changes, 5 differ only in facts_sha256 (case (b)); the renumbered law is case (c); every other affected law's file is unchanged (case (a))",
+        "facts_form": "A statement-diff line {\"kind\": \"reextraction\", \"form\": \"facts\", law_id, milestone, old, new, facts, derivation, record} is accepted unsigned only when all hold: (1) old and new, the committed law file at HEAD and the law file on the tree, are identical with facts_sha256 masked, and no other key differs; (2) the new facts document is extractor output that its frontend reproduces byte for byte from the pinned checkout, as G1 does (holon.statement_diff.reproduce_extraction), or a generated document whose chain to the pinned checkout is mechanical and re-checked by the acceptance check itself, never trusted from the entry (HUMAN_ANSWERS Q102): (i) the generated document (gen/<M>/goops/*, holon-goops/0.1) is what its generator, the committed one on the tree and in a generator closure, writes byte for byte from the document it names; (ii) each named document is extractor output its frontend reproduces byte for byte from the pinned checkout, as G1 does; (iii) every link's name and sha256 match; (iv) the chain is finite and acyclic, and the line records each link's path, sha256, producer and version (\"chain\"), which the check recomputes and compares; a hand-written link anywhere is refused, and so is a link whose producer sits outside a generator closure; (3) new.facts_sha256 is the sha256 of the new facts document's bytes; (4) holon derive on the tree reproduces new, with its statement hash, from the same (rule, subform, basis) as the law's entry in HEAD's laws/<M>/DERIVATION.json; (5) the law's committed record on the tree is re-decided on the new inputs: its statement hash and facts sha256 are new's, and its trace's inputs are the tree's. A proof, verdict or signature carried by the line is never read",
+        "redecision": "Each affected record is re-made and re-decided by holon's own pipeline on (b)'s tree in the builder's sandbox (a worktree outside the repository's committed outputs), its verdict established by the checker there and never copied from the committed record. A verdict changes when the re-decided status differs from the committed one, in either direction (PROVED, REFUTED and UNKNOWN; for the renumbered law, nothing is compared: the old id is retired). If no verdict changes, the re-made records are committed; if any changes, every affected record of the milestone is committed as UNKNOWN with a reason naming I121 and Q56 (never its old or new status), the re-decided records stay in the vault, and redecide.json carries their bundle commitment",
+        "protocol_rule": "spec/M6/lib/i121_run.json is its base_protocol with only doc, iteration, out and go_machines.out changed (TestCorpusRun.test_p7_protocol_is_its_base). Until I118's landing is merged its base_protocol is spec/M6/lib/i117_run.json (for the planted tests only); at that merge, before any measured run, base_protocol becomes the protocol of the last landing (I118's, and I120's go.store_scope if it has landed) and the file is regenerated from it by this rule (a mechanical rebase, no other change). The run: holon eval holon --protocol spec/M6/lib/i121_run.json --compose --vault <vault>, after the preflight (I112's and Q87's go pins) and tools/install_toolchain_sets.sh; the first finished run counts (Q80)",
+        "baseline": "the counted composed run of the protocol's base key (I118's results/M6/I118/holon/corpus.json once I118 has landed, else I117's results/M6/I117/holon/corpus.json: 43 laws derived, 1 decided, PROVED and REFUTED together, Q56), read at the merged head",
+        "soundness": "The rule only removes implications from the path reasoner (an op or unop term is an atom of the linear forms), so the default keeps every path the old reading kept and adds the ones it pruned through unbounded arithmetic: a sound over-approximation of Go's wrapping semantics. The re-decision carries no verdict: each affected record is re-established by the checker on the new inputs, and the facts form only lets a law file whose sole change is the sha256 of a reproduced document be re-hashed, the record still re-decided"
+      },
+      "predictions": [
+        {
+          "id": "I121-P1",
+          "claim": "(b) re-applied: the opaque-arithmetic rule is the Go frontend's default under every config version (holon.frontends.go.ctx.Ctx.opaque_arith_of(config) is True for every config, the path enumerator's Reasoner built with it); the narrow-arithmetic loop mode unchanged; Morph's three changed Go documents (spec/M2/facts/morph_batch.go.extracted.json, spec/M3/facts/morph_blob.go.extracted.json, spec/M3/facts/morph_go03.go.extracted.json) are byte-identical to ff9e463e's and reproduce under G1; I119's TestFixture and TestDefault pass in full (P1 and P6 of I119, unscored there, now run).",
+          "check": "tests_m6/test_i121_re_decision.py::TestFlip"
+        },
+        {
+          "id": "I121-P2",
+          "claim": "The facts form (thresholds.facts_form) on planted fixtures: a law whose file differs only in facts_sha256, over a reproduced document, with derive reproducing it and its record re-decided, is accepted (a valid two-link chain: a generated Go-op document naming an extracted document); the same with any other key of the law file changed is refused; with a hand-written facts document refused; with a hand-written middle link (a generated-shape document naming a hand-written document) refused; with a link's sha256 not its document's refused; with a generated document its generator does not reproduce refused; with a link whose producer is outside a generator closure refused; with facts_sha256 not the document's sha256 refused; with derive giving another (rule, subform, basis) refused; with the record not re-decided (its statement hash or facts sha256 the old ones) refused; a planted law whose verdict flips under re-decision is re-decided, its committed status the new one, never carried.",
+          "check": "tests_m6/test_i121_re_decision.py::TestFactsForm"
+        },
+        {
+          "id": "I121-P3",
+          "claim": "M0, M1 and M2: nothing is re-made (G1 byte-identical on (b)'s tree, I119's rederive.json); 0 verdicts changed (PROVED and REFUTED together) per milestone; gate-M0, gate-M1 and gate-M2 pass on (b)'s tree.",
+          "expected": {
+            "M0": 0,
+            "M1": 0,
+            "M2": 0
+          }
+        },
+        {
+          "id": "I121-P4",
+          "claim": "M3, the re-decision, vault first: 148 decided and 14 UNKNOWN affected records re-made and re-decided, and 1 renumbered law decided fresh (163 decisions); verdicts changed among the 162 compared records (PROVED and REFUTED together, either direction): 0 (judged before the run: the added paths are wraparound branches that the affected laws' properties do not read). So the re-made records are committed with no new verdict; the committed M3 decided count is unchanged but for the renumbered law (retired and decided fresh).",
+          "expected": {
+            "M3_compared": 162,
+            "M3_verdicts_changed": 0,
+            "M3_new_laws": 1,
+            "M3_retired_laws": 1
+          }
+        },
+        {
+          "id": "I121-P5",
+          "claim": "M3, the channel per case, as counts: (b) facts form 5 lines, all accepted; (c) 1 retired, 1 new; (a) 156 laws whose file is unchanged, of which the binding's cone changes for the PAR laws whose model is generated from a changed Go document: model_extension 0 (the flip changes existing definitions, which X3's conservative extension does not cover), binding_change 0 (the paths it adds are real, so the changed definitions are not equal), the rest of the cone-changed laws re-made and re-decided from scratch; the laws whose cone does not change are re-decided with no statement-diff line.",
+          "expected": {
+            "facts_form_accepted": 5,
+            "model_extension": 0,
+            "binding_change": 0,
+            "retired": 1,
+            "new": 1
+          }
+        },
+        {
+          "id": "I121-P6",
+          "claim": "F-M6-02 is small and fixed: holon land's G1 on M3 with --jobs no longer collides the fact directories (no FileExistsError) and M3's G1 is evidence on (b)'s tree; the ledger entry is closed with fix_iteration I121. No re-make for F-M6-03.",
+          "check": "tests_m6/test_i121_re_decision.py::TestF0602"
+        },
+        {
+          "id": "I121-P7",
+          "claim": "The counted corpus run after the flip (smoke on contaminated data, Q98 (3)), aggregates only, protocol by protocol_rule: the preflight passes; laws derived not fewer than the baseline's; decided (PROVED and REFUTED together) equal to the baseline's; every decided law handled under Q56 from the vault, and every alert the procedure called for sent (Q101's form).",
+          "expected": {
+            "laws_derived_at_least_baseline": true,
+            "decided_equal_baseline": true
+          }
+        },
+        {
+          "id": "I121-P8",
+          "claim": "Regressions: the target-agnostic test passes; every earlier tests-m6-* job passes locally after each lead merge, an earlier key's test that asserts the old reading amended with its amendment line first (I117's P2 reasoner control, whose amendment line I119 appended, is the one predicted); I119's test_p3_morph_baseline_reproduces stays its prereg source and out of CI (a recorded miss); no Bend escape hatch; the CI job tests-m6-i121 lists this key's classes; the M3 exit record's E1-E5 are re-decided as an amendment and F-M6-01's provisional caveat is lifted.",
+          "check": "tests_m6/test_i121_re_decision.py::TestRegressions"
+        }
+      ],
+      "regressions": []
     }
   }
 }
