@@ -1,0 +1,64 @@
+{
+  "carriers": [
+    {
+      "base_type": "R_Node_Node_Error",
+      "cls": "rep",
+      "id": "R_Node_Node_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "Trie",
+      "cls": "rep",
+      "domains": [
+        "ok_trie_Trie_hashRoot"
+      ],
+      "id": "Trie",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/I123/holon/c19/facts/go_2.go.extracted.json",
+      "domain": "ok_trie_Trie_hashRoot",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.trie_Trie_hashRoot",
+      "kind": "CODEC",
+      "model_fn": "trie_Trie_hashRoot",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/trie.Trie).hashRoot"
+        }
+      ],
+      "src": "Trie",
+      "tgt": "R_Node_Node_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/trie_ops.json",
+  "facts_sha256": "2b7a72789e37bce79af6869e2bdb6f036c6163b1fbfae095b84ae3b2475ab7bc",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "trie_ops",
+  "principal_classes": [],
+  "provenance": {}
+}
