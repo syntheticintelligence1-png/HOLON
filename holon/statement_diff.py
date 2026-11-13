@@ -355,6 +355,8 @@ def check_entry(entry: dict, root: Path | None = None) -> dict:
             return _res(False, "a signed weakening also needs an auditor review (\"review\")")
         return _res(True, f"weakening: {why}; reviewed")
     if kind == "reextraction":
+        if entry.get("form") == "facts":   # I121: the facts form (Q96 (1)(b), Q102)
+            return _reextraction_facts(entry, old, new, root)
         return _reextraction(entry, old, new, root)
     if kind == "binding_change":
         if core(old) != core(new):
@@ -463,6 +465,357 @@ def _ref_view(law: dict, root: Path, old: bool) -> tuple[dict, str]:
     return R.refs(law, facts, root=root), R.law_hash(law, facts, root=root)
 
 
+FACTS_FORM_MAX_LINKS = 8   # I121: a generated facts document's chain to the pinned checkout is finite (Q102 (4))
+_GOREPRO: dict = {}   # (root, config path, config sha256) -> {stem: rendered text} | error string
+
+
+def reproduce_go_document(rel: str, root: Path) -> tuple[bool, str]:
+    """G1 for one extracted Go document (gate G1's Go step, holon.gate): its config (extraction.config.path, still at
+    extraction.config.sha256) extracted again by holon.frontends.go from the pinned checkout gives the document byte for
+    byte. A document whose extraction.method is not "extracted" never qualifies."""
+    root = Path(root)
+    p = root / rel
+    if not p.is_file():
+        return False, f"{rel} does not exist"
+    data = p.read_bytes()
+    try:
+        doc = json.loads(data.decode("utf-8"))
+    except ValueError as e:
+        return False, f"{rel} is not JSON: {e}"
+    ext = doc.get("extraction") if isinstance(doc, dict) else None
+    method = str(ext.get("method", "")) if isinstance(ext, dict) else ""
+    if method != "extracted" or doc.get("facts_version") != "holon-facts/0.3" or ext.get("frontend") != "go":
+        return False, (f"{rel} is hand-written or not Go extractor output (extraction.method {method!r}): a facts "
+                       "document must be what its frontend reproduces from the pinned checkout")
+    cfg = ext.get("config") or {}
+    crel, csha = cfg.get("path"), cfg.get("sha256")
+    if not isinstance(crel, str) or not (root / crel).is_file():
+        return False, f"{rel}: its extraction names no config in the tree ({crel!r})"
+    got = hashlib.sha256((root / crel).read_bytes()).hexdigest()
+    if got != csha:
+        return False, f"{rel}: its config {crel} hashes to {got[:12]}.., the document records {str(csha)[:12]}.."
+    key = (str(root.resolve()), crel, got)
+    if key not in _GOREPRO:
+        from .frontends import go as gofe
+        try:
+            _GOREPRO[key] = {s: gofe.render(d) for s, d in gofe.extract(root / crel, None, root).items()}
+        except Exception as e:  # noqa: BLE001  (an extraction that fails reproduces nothing)
+            _GOREPRO[key] = f"{type(e).__name__}: {e}"
+    docs = _GOREPRO[key]
+    if isinstance(docs, str):
+        return False, f"G1 cannot re-extract {rel} from the pinned checkout: {docs}"
+    stem = Path(rel).name[:-len(".go.extracted.json")] if rel.endswith(".go.extracted.json") else None
+    if stem not in docs:
+        return False, f"G1's extraction of {crel} writes no document {rel}"
+    if docs[stem].encode("utf-8") != data:
+        return False, f"G1 re-extracts {rel} from the pinned checkout and gets other bytes"
+    return True, f"G1 re-extracts {rel} byte for byte with {ext.get('frontend_version')}"
+
+
+def _reproduce_extracted(rel: str, root: Path) -> tuple[bool, str]:
+    """An extracted document of either kind: a Go document (its config) or a sidecar's (reproduce_extraction)."""
+    p = Path(root) / rel
+    try:
+        ext = json.loads(p.read_bytes().decode("utf-8")).get("extraction") or {}
+    except (OSError, ValueError, AttributeError):
+        ext = {}
+    if isinstance(ext, dict) and ext.get("frontend") == "go" and "config" in ext:
+        return reproduce_go_document(rel, root)
+    return reproduce_extraction(rel, root)
+
+
+# I121 (Q102): the generated facts documents a facts-form chain may pass through: (version key, producer module, the
+# gen/<M>/ directory it writes, the producer's render of every file of that directory)
+def _render_goops(root: Path, m: str) -> dict:
+    from .diagram import goops as GO
+    return GO.render_all(root, m)
+
+
+def _render_own(root: Path, m: str) -> dict:
+    from . import own
+    return own.render_all(root, m)
+
+
+def _render_codec(root: Path, m: str) -> dict:
+    from .diagram import linked
+    return linked.render_all(root, m, *linked.default_sidecars(m))
+
+
+GENERATED_FACTS = (("goops_version", "holon/diagram/goops.py", "goops", _render_goops),
+                   ("gocount_version", "holon/diagram/gocount.py", "goops", _render_goops),
+                   ("own_version", "holon/own.py", "own", _render_own),
+                   ("linked_version", "holon/diagram/linked.py", "codec", _render_codec))
+# I121 (HUMAN_ANSWERS Q103): the configuration sidecars each producer reads (spec/<M>/lib/<name>), besides those its
+# document names; a producer input, accepted only byte-identical to the base commit
+PRODUCER_SIDECARS = {"holon/diagram/goops.py": ("go_ops.json", "go_counts.json"),
+                     "holon/diagram/gocount.py": ("go_ops.json", "go_counts.json"),
+                     "holon/own.py": ("own.json",),
+                     "holon/diagram/linked.py": ("derive_extracted.json", "link.json")}
+_RENDERED: dict = {}   # (root, milestone, directory, inputs fingerprint) -> {file name: text} | error string
+
+
+def _named(doc: dict) -> list[tuple[str, str | None]]:
+    """The (path, sha256) a generated document names: its one source document, or its inputs."""
+    out = []
+    if isinstance(doc.get("document"), str):
+        out.append((doc["document"], doc.get("document_sha256")))
+    for x in doc.get("inputs") or []:
+        if isinstance(x, dict) and isinstance(x.get("path"), str):
+            out.append((x["path"], x.get("sha256")))
+    return list(dict.fromkeys(out))
+
+
+def _is_facts_rel(rel: str) -> bool:
+    """A chain link: anything a generated document names but a configuration sidecar under spec/<M>/lib/, which is
+    sha256-checked as the producer's input and not walked."""
+    parts = Path(rel).parts
+    return not (len(parts) >= 3 and parts[0] == "spec" and parts[2] == "lib")
+
+
+def facts_chain(rel: str, milestone: str, ir_version: str, root: Path, base: str | None = None,
+                sidecars_out: list | None = None) -> tuple[list[dict] | None, str]:
+    """I121 (HUMAN_ANSWERS Q102): the chain of a facts document to the pinned checkout, recomputed here, never read
+    from an entry: every link, in depth-first order from the document, as {path, sha256, producer, version}. A
+    generated link (GENERATED_FACTS: a Go-op, Go count, own or linked codec document at gen/<M>/<dir>/<file>) has its
+    producer in the law's generator closure (holon.records.generator_files), the committed producer writes it byte for
+    byte from the tree, and every document it names is at the sha256 it names; the named facts documents are links in
+    turn, every one of them (a linked codec document's two extracted inputs both). Every leaf is extractor output its
+    frontend reproduces byte for byte from the pinned checkout, as G1 does. A configuration sidecar a producer reads
+    (spec/<M>/lib/*: those the document names and PRODUCER_SIDECARS) is a producer input, not a link (Q103): it is
+    accepted only byte-identical to its blob at `base` (the commit before the change, compared from git; with no base,
+    refused); its paths go to `sidecars_out`. A hand-written link anywhere, a sha256 or name that does not match, a
+    cycle or a chain over FACTS_FORM_MAX_LINKS links is refused: (None, why)."""
+    root = Path(root)
+    links: list[dict] = []
+    done: set = set()
+    closure = None
+    notes = []
+
+    def walk(cur: str, stack: tuple) -> str | None:
+        nonlocal closure
+        if cur in stack:
+            return f"the facts chain of {rel} has a cycle at {cur}"
+        if cur in done:
+            return None
+        if len(links) >= FACTS_FORM_MAX_LINKS:
+            return f"the facts chain of {rel} has more than {FACTS_FORM_MAX_LINKS} links"
+        p = root / cur
+        if not p.is_file():
+            return f"the facts chain of {rel} names {cur}, which does not exist"
+        raw = p.read_bytes()
+        try:
+            doc = json.loads(raw.decode("utf-8"))
+        except ValueError as e:
+            return f"{cur} is not JSON: {e}"
+        sha = hashlib.sha256(raw).hexdigest()
+        gen = next((g for g in GENERATED_FACTS if isinstance(doc, dict) and isinstance(doc.get(g[0]), str)), None)
+        if gen is None:
+            ext = doc.get("extraction") if isinstance(doc, dict) else None
+            method = str(ext.get("method", "")) if isinstance(ext, dict) else ""
+            if method != "extracted" or doc.get("facts_version") != "holon-facts/0.3":
+                return (f"{cur} is a hand-written link (extraction.method {method!r}): every link of a facts chain is "
+                        "extractor output or a generated document")
+            links.append({"path": cur, "sha256": sha, "producer": f"holon/frontends/{ext.get('frontend')}",
+                          "version": str(ext.get("frontend_version"))})
+            done.add(cur)
+            ok, why = _reproduce_extracted(cur, root)
+            if not ok:
+                return why
+            notes.append(why)
+            return None
+        key, producer, d, render = gen
+        links.append({"path": cur, "sha256": sha, "producer": producer, "version": doc[key]})
+        done.add(cur)
+        named = _named(doc)
+        if not named:
+            return f"{cur} names no source document"
+        for nrel, nsha in named:   # names and sha256s first, then the links, then the producer's bytes
+            q = root / nrel
+            if not q.is_file() or hashlib.sha256(q.read_bytes()).hexdigest() != nsha:
+                return f"{cur} names {nrel} at another sha256 than its bytes' (a link's sha256 does not match)"
+        for nrel, _ in named:
+            if _is_facts_rel(nrel):
+                bad = walk(nrel, stack + (cur,))
+                if bad:
+                    return bad
+        cfgs = sorted({n for n, _ in named if not _is_facts_rel(n)} |
+                      {f"spec/{milestone}/lib/{s}" for s in PRODUCER_SIDECARS.get(producer, ())
+                       if (root / "spec" / milestone / "lib" / s).is_file()})
+        for c in cfgs:   # Q103: a producer input, byte-identical to the base commit's
+            if base is None or not in_git(root):
+                return f"{cur}: its producer reads {c}, which is checked against the base commit (none given)"
+            was = blob_at(root, base, c)
+            if was is None or hashlib.sha256(was).hexdigest() != hashlib.sha256((root / c).read_bytes()).hexdigest():
+                return (f"{cur}: its producer reads the configuration sidecar {c}, which is not byte-identical to its "
+                        f"committed version at the base {base[:12]} (an edited sidecar is refused)")
+            if sidecars_out is not None and c not in sidecars_out:
+                sidecars_out.append(c)
+        if closure is None:
+            from . import records
+            closure = set(records.generator_files(ir_version, root))
+        if producer not in closure:
+            return f"{cur}: its producer {producer} is outside the generator closure of {ir_version}"
+        parts = Path(cur).parts
+        if len(parts) != 4 or parts[0] != "gen" or parts[1] != milestone or parts[2] != d:
+            return f"{cur}: a {doc[key]} document of {milestone} lives at gen/{milestone}/{d}/<file>"
+        fp = json.dumps(sorted(named)) + json.dumps(sorted(
+            (x.relative_to(root).as_posix(), hashlib.sha256(x.read_bytes()).hexdigest())
+            for x in sorted((root / "spec" / milestone / "lib").glob("*.json"))))
+        rk = (str(root.resolve()), milestone, d, producer, fp)
+        if rk not in _RENDERED:
+            try:
+                _RENDERED[rk] = render(root, milestone)
+            except Exception as e:  # noqa: BLE001  (a producer that refuses reproduces nothing)
+                _RENDERED[rk] = f"{type(e).__name__}: {e}"
+        texts = _RENDERED[rk]
+        if isinstance(texts, str):
+            return f"{cur}: its producer {producer} refuses the tree: {texts}"
+        if texts.get(parts[3], "").encode("utf-8") != raw:
+            return f"{cur}: its producer {producer} writes other bytes from the tree (not what the generator wrote)"
+        return None
+
+    bad = walk(rel, ())
+    if bad:
+        return None, bad
+    return links, "; ".join(dict.fromkeys(notes))
+
+
+def _strings(x, out: set) -> None:
+    if isinstance(x, str):
+        out.add(x)
+    elif isinstance(x, dict):
+        for k, v in x.items():
+            out.add(k)
+            _strings(v, out)
+    elif isinstance(x, list):
+        for v in x:
+            _strings(v, out)
+
+
+def sidecar_values_read(objs: list, sidecars: list[bytes], extracted: list[bytes]) -> list[str]:
+    """I121 (HUMAN_ANSWERS Q103): the strings of a law's statement-hashed ref objects that come from a configuration
+    sidecar and from no extracted document of its chain: a value the claim reads from the sidecar, so its content
+    would be asserted as facts. A name that the sidecar shares with the code (a type, a document path) is not one."""
+    side: set = set()
+    for raw in sidecars:
+        try:
+            _strings(json.loads(raw.decode("utf-8")), side)
+        except ValueError:
+            continue
+    mine: set = set()
+    _strings(objs, mine)
+    out = []
+    for s in sorted(mine & side):
+        enc = json.dumps(s, ensure_ascii=False)[1:-1].encode("utf-8")
+        if not any(enc in raw for raw in extracted):
+            out.append(s)
+    return out
+
+
+def ref_objects(law: dict, facts: dict, root: Path) -> list:
+    """The objects behind a law's statement-hashed refs (holon.gen.refs.refs, which hashes each with _h), in key order."""
+    from .gen import refs as R
+    seen: list = []
+    h0 = R._h
+
+    def cap(obj):
+        seen.append(obj)
+        return h0(obj)
+    R._h = cap
+    try:
+        R.refs(law, facts, root=root)
+    finally:
+        R._h = h0
+    return seen
+
+
+def _masked(law: dict) -> dict:
+    return {k: v for k, v in law.items() if k != "facts_sha256"}
+
+
+def _reextraction_facts(entry: dict, old: dict, new: dict, root: Path) -> dict:
+    """I121 (HUMAN_ANSWERS Q96 (1)(b), Q102): reextraction's facts form. Accepted unsigned only when (1) old (the law
+    file at old_commit, an ancestor of HEAD) and new (the law file on the tree) are identical with facts_sha256 masked;
+    (2) the new facts document's chain to the pinned checkout (facts_chain) is recomputed and is the entry's; (3)
+    new.facts_sha256 is that document's sha256; (4) holon derive on the tree reproduces new, with its statement hash,
+    from the same (rule, subform, basis) as old_commit's laws/<M>/DERIVATION.json; (5) the law's record on the tree is
+    re-decided on the new inputs: its law, facts sha256 and statement hash are new's, and its trace, when it has one,
+    checks against the tree (holon.trace.check). A proof, verdict or signature carried by the entry is never read."""
+    m, lid, rel = entry.get("milestone"), new["law_id"], entry.get("facts")
+    for k in ("milestone", "facts", "old_commit", "derivation", "record", "chain"):
+        if k not in entry:
+            return _res(False, f"a facts-form reextraction carries {k!r}")
+    if entry.get("signature"):
+        return _res(False, "a facts-form reextraction is unsigned: its rules are checked, never signed for")
+    if not isinstance(m, str) or not isinstance(rel, str):
+        return _res(False, "a facts-form reextraction names its milestone and the new facts document")
+    if _masked(old) != _masked(new):
+        diff = sorted(k for k in set(old) | set(new) if k != "facts_sha256" and old.get(k) != new.get(k))
+        return _res(False, f"a facts-form reextraction changes facts_sha256 alone; this one also changes {diff}")
+    if old.get("facts_sha256") == new.get("facts_sha256"):
+        return _res(False, "a facts-form reextraction changes facts_sha256, and this one does not")
+    if new.get("facts") != rel:
+        return _res(False, f"the entry names {rel}, the law's facts file is {new.get('facts')}")
+    if not in_git(root):
+        return _res(False, "a facts-form reextraction is checked against the law file at old_commit, which needs git")
+    oc = entry["old_commit"]
+    if not isinstance(oc, str) or _git(root, "merge-base", "--is-ancestor", oc, "HEAD").returncode != 0:
+        return _res(False, f"old_commit {str(oc)[:12]} is not a commit in HEAD's history")
+    if _json_or_none(blob_at(root, oc, f"laws/{m}/{lid}.json")) != old:
+        return _res(False, f"the entry's old statement is not laws/{m}/{lid}.json at {oc[:12]}")
+    cur = root / "laws" / m / f"{lid}.json"
+    if not cur.is_file() or _json_or_none(cur.read_bytes()) != new:
+        return _res(False, f"the entry's new statement is not laws/{m}/{lid}.json on the tree")
+    side: list = []
+    chain, why = facts_chain(rel, m, str(new.get("ir_version")), root, base=oc, sidecars_out=side)
+    if chain is None:
+        return _res(False, why)
+    if side:   # Q103: a claim that reads a sidecar's value asserts its content as facts
+        try:
+            objs = ref_objects(new, json.loads((root / rel).read_text(encoding="utf-8")), root)
+        except Exception as e:  # noqa: BLE001
+            return _res(False, f"the refs of {lid} cannot be recomputed: {type(e).__name__}: {e}")
+        ext = [(root / x["path"]).read_bytes() for x in chain if not x["path"].startswith("gen/")]
+        read = sidecar_values_read(objs, [(root / c).read_bytes() for c in side], ext)
+        if read:
+            return _res(False, f"the claim of {lid} reads values of the configuration sidecars {side} that no extracted "
+                               f"document holds ({len(read)}, e.g. {read[0][:80]!r}): re-made from scratch, not re-hashed")
+    if entry["chain"] != chain:
+        return _res(False, "the entry's chain is not the recomputed one (each link's path, sha256, producer, version)")
+    if new.get("facts_sha256") != chain[0]["sha256"]:
+        return _res(False, f"new facts_sha256 is not the sha256 of {rel}")
+    try:
+        der = _derived(m, root, ir.hash_scheme(new))
+    except Exception as e:  # noqa: BLE001
+        return _res(False, f"holon derive fails on the tree: {type(e).__name__}: {e}")
+    law = der["laws"].get(lid)
+    de = next((e for e in der["derivation"]["laws"] if e["law_id"] == lid), None)
+    if law is None or de is None or law != new:
+        return _res(False, f"holon derive does not reproduce the new law file of {lid}")
+    same = {k: de.get(k) for k in ("rule", "subform", "basis")}
+    if same != entry["derivation"]:
+        return _res(False, "holon derive derives the law from another (rule, subform, basis element) than the entry's")
+    before = _json_or_none(blob_at(root, oc, f"laws/{m}/DERIVATION.json"))
+    ob = next((e for e in (before or {}).get("laws") or [] if e.get("law_id") == lid), None)
+    if ob is None or {k: ob.get(k) for k in ("rule", "subform", "basis")} != same:
+        return _res(False, "the old law was not derived from the same (rule, subform, basis element)")
+    rp = root / entry["record"]
+    rec = _json_or_none(rp.read_bytes()) if rp.is_file() else None
+    if not isinstance(rec, dict) or rec.get("law_id") != lid:
+        return _res(False, f"the entry's record {entry['record']} is not a record of {lid}")
+    if rec.get("facts_sha256") != new["facts_sha256"] or rec.get("statement_hash") != de.get("statement_hash"):
+        return _res(False, f"the record of {lid} is not re-decided on the new inputs (its facts sha256 or statement "
+                           "hash is not the new law's): a verdict is never carried across a change")
+    tp = root / "traces" / m / f"{lid}.json"
+    if tp.is_file():
+        from . import trace as T
+        bad = T.check(root, json.loads(tp.read_text(encoding="utf-8")))
+        if bad:
+            return _res(False, f"the record of {lid} is not re-decided on the tree's inputs: {bad}")
+    return _res(True, f"reextraction (facts form): {why}; chain of {len(chain)} link(s) recomputed; holon derive "
+                      f"reproduces the law from {same['rule']}/{same['subform']}; the record is re-decided on it")
+
+
 def _reextraction(entry: dict, old: dict, new: dict, root: Path) -> dict:
     """A reextraction is accepted unsigned only when (1) G1 reproduces the document it names from the pinned code with
     the pinned extractor, (2) the statement's refs that changed are exactly the entry's, each now hashing what the
@@ -528,6 +881,31 @@ def _reextraction(entry: dict, old: dict, new: dict, root: Path) -> dict:
                 return _res(False, "the old statement was not derived from the same (rule, subform, basis element)")
     return _res(True, f"reextraction: {why}; refs {', '.join(changed)} carry its evidence; holon derive reproduces "
                       f"the new statement from {same['rule']}/{same['subform']} {json.dumps(same['basis'], sort_keys=True)[:120]}")
+
+
+def facts_form_entries(milestone: str, root: Path, base: str) -> list[dict]:
+    """I121: the facts-form reextraction entries the milestone's re-extraction needs: for every law of laws/<M> whose
+    file on the tree differs from its file at `base` only in facts_sha256, {"kind": "reextraction", "form": "facts",
+    ...} with the law at base (old), on the tree (new), its facts chain, its derivation on the tree and its record.
+    Entries are not appended here (append checks each one)."""
+    root = Path(root)
+    der = json.loads((root / "laws" / milestone / "DERIVATION.json").read_text(encoding="utf-8"))
+    by = {e["law_id"]: e for e in der.get("laws") or []}
+    out = []
+    for p in sorted((root / "laws" / milestone).glob("L_*.json")):
+        new = json.loads(p.read_text(encoding="utf-8"))
+        old = _json_or_none(blob_at(root, base, f"laws/{milestone}/{p.name}"))
+        if not _is_law(old) or old == new or _masked(old) != _masked(new) or p.stem not in by:
+            continue
+        chain, _ = facts_chain(new["facts"], milestone, str(new.get("ir_version")), root, base=base)
+        out.append({"kind": "reextraction", "form": "facts", "law_id": p.stem, "milestone": milestone,
+                    "old": old, "new": new, "facts": new["facts"], "old_commit": base, "chain": chain,
+                    "derivation": {k: by[p.stem].get(k) for k in ("rule", "subform", "basis")},
+                    "record": f"results/{milestone}/{p.stem}.json",
+                    "reason": f"{p.stem}: its facts document {new['facts']} was re-generated from re-extracted code "
+                              "(I121: the Go frontend's opaque-arithmetic default); only facts_sha256 moves, and the "
+                              "record is re-decided on the new inputs"})
+    return out
 
 
 def reextraction_entries(milestone: str, root: Path) -> list[dict]:
@@ -1579,6 +1957,10 @@ def acceptance(entry: dict, result: dict, root: Path) -> dict:
             facts[rel] = _sha((root / rel).read_bytes())
     if entry.get("kind") == "reextraction" and isinstance(entry.get("facts"), str) and (root / entry["facts"]).is_file():
         facts[entry["facts"]] = _sha((root / entry["facts"]).read_bytes())   # the extracted document (I20)
+    if entry.get("kind") == "reextraction" and entry.get("form") == "facts":   # I121: every link of the chain
+        for ln in entry.get("chain") or []:
+            if isinstance(ln, dict) and isinstance(ln.get("path"), str) and (root / ln["path"]).is_file():
+                facts[ln["path"]] = _sha((root / ln["path"]).read_bytes())
     acc = {"kind": entry.get("kind"), "facts": dict(sorted(facts.items()))}
     if entry.get("kind") == "catalog_rederivation":   # F30: the two catalogs holon derive reproduced each side under
         acc["catalogs"] = [entry.get("old_catalog"), entry.get("new_catalog")]
@@ -3403,7 +3785,8 @@ def main(argv: list[str] | None = None) -> int:
     import argparse
     ap = argparse.ArgumentParser(prog="python -m holon.statement_diff")
     ap.add_argument("command", choices=("append", "check", "reextract", "recatalog", "rebind", "extend", "store",
-                                        "migrate-hash", "remodel"))
+                                        "migrate-hash", "remodel", "refacts"))
+    ap.add_argument("--base", help="refacts: the commit before the re-extraction (the old law files, the sidecars)")
     ap.add_argument("entry", nargs="?")
     ap.add_argument("--root", default=str(ir.ROOT))
     ap.add_argument("--milestone", default="M2", help="reextract, recatalog: the milestone whose laws are re-derived")
@@ -3488,6 +3871,18 @@ def main(argv: list[str] | None = None) -> int:
         for n in notes:
             print(f"not a catalog re-derivation, no entry: {n}")
         print(f"{len(es)} catalog_rederivation entries, {bad} rejected; {len(notes)} uncovered changes of another kind")
+        return 0 if not bad else 1
+    if a.command == "refacts":   # I121: the facts form
+        if not a.base:
+            ap.error("refacts needs --base")
+        es = facts_form_entries(a.milestone, root, a.base)
+        bad = 0
+        for e in es:
+            r = append(e, root) if a.append else check_entry(e, root)
+            print(f"{e['law_id']}: {'accepted' if r['ok'] else 'REJECTED'}{' and appended' if r['ok'] and a.append else ''}"
+                  f": {r['reason']}")
+            bad += not r["ok"]
+        print(f"{len(es)} facts-form reextraction entries, {bad} rejected")
         return 0 if not bad else 1
     if a.command == "reextract":
         es = reextraction_entries(a.milestone, root)

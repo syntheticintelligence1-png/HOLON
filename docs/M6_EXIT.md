@@ -110,6 +110,9 @@ not its back half. No law is yet derived on a target nobody tuned it on.
      provisional until I119 (b) re-derives and re-decides them.
    - Exact counts at I119 (a)'s landing (`results/M6/I119/rederive.json`): M0-M2 are unaffected. In M3, 148 of the 179
      decided laws are affected, plus 14 UNKNOWN laws and 1 renumbered law. The re-decision is I121 (Q97).
+   - I121's re-decision (HUMAN_ANSWERS Q115-Q117): of the 162 affected M3 laws, 161 compared, 158 unchanged and 3
+     verdicts changed (PROVED and REFUTED together, Q56), and 1 renumbered. The flip, the re-extracted documents and the
+     re-decided records are withheld until the human's call (Q96 (2), Q116), so these scores stay provisional.
 9. **An instrument finding after this exit (F-M6-15, HUMAN_ANSWERS Q113, 2026-11-13).** From I115 until #212, `holon run
    --unbound unknown` (the base protocol's `run_unbound`) checked each law's binding before deciding it on the emitter's
    fallback names (`Header` as `Hdr`), which disagree with a Go-derived model's (`R_Header`).
@@ -117,5 +120,10 @@ not its back half. No law is yet derived on a target nobody tuned it on.
      of it.
    - Every composed corpus measure from I115 to I123 ran it. In I122's counted run the binding check recorded 234 of the
      268 derived laws UNKNOWN, an upper bound on this defect's share, since a genuinely unbindable law counts there too.
-   - Those keys' corpus decided counts (smoke) understate what their code could decide. I124's baseline, measured after
-     the fix, is the first corpus measure without it.
+   - **Corrected at I121's landing (HUMAN_ANSWERS Q117 (3), (4)).** This bullet first said those keys' corpus decided
+     counts understate what their code could decide. That went beyond the evidence: 234 was an upper bound. I124's
+     baseline (`e727d210` on its branch; base code `326dcc01`, `base_run.json` `1d45d89b…`), the first corpus measure
+     after #212, has the same count, 234 of 268, refused by the binding pre-check, so the fix moved none of the corpus's
+     laws. All 234 are PAR laws over Go ops that the Go-op model generator writes as unsupported (144 straight-line, 78
+     loop-shape, 12 other): F-M6-05's mechanism at corpus scale. Their UNKNOWN is right, and the corpus's main wall is
+     that generator's coverage, not the binding path.
