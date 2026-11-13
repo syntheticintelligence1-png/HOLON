@@ -1,0 +1,4693 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.EthereumConnector",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "Client",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "unknown",
+        "node/pkg/watchers/evm/connectors/ethereum.go:140",
+        "ptr"
+      ],
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:139",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.EthereumConnector",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "ContractAddress",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "storage",
+        "address"
+      ],
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:66",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.EthereumConnector",
+      "edges": [],
+      "effects": [
+        {
+          "family": "address",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71"
+        },
+        {
+          "family": "caller",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71"
+        },
+        {
+          "family": "client",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71"
+        },
+        {
+          "family": "filterer",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71"
+        },
+        {
+          "family": "logger",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71"
+        },
+        {
+          "family": "networkName",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71"
+        },
+        {
+          "family": "rawClient",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "GetCurrentGuardianSetIndex",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "address": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "havoc"
+        ],
+        "caller": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "havoc"
+        ],
+        "client": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "havoc"
+        ],
+        "filterer": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "havoc"
+        ],
+        "logger": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "havoc"
+        ],
+        "networkName": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "havoc"
+        ],
+        "rawClient": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "at",
+        0,
+        [
+          "call",
+          "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiCaller).GetCurrentGuardianSetIndex",
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:71",
+            "ptr"
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:71",
+            "ptr"
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:70",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "address",
+          "path": [],
+          "seq": 0,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:71",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "caller",
+          "path": [],
+          "seq": 1,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:71",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "client",
+          "path": [],
+          "seq": 2,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:71",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "filterer",
+          "path": [],
+          "seq": 3,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:71",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "logger",
+          "path": [],
+          "seq": 4,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:71",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "networkName",
+          "path": [],
+          "seq": 5,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:71",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "rawClient",
+          "path": [],
+          "seq": 6,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:71",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:71",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.EthereumConnector",
+      "edges": [],
+      "effects": [
+        {
+          "family": "address",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75"
+        },
+        {
+          "family": "caller",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75"
+        },
+        {
+          "family": "client",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75"
+        },
+        {
+          "family": "filterer",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75"
+        },
+        {
+          "family": "logger",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75"
+        },
+        {
+          "family": "networkName",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75"
+        },
+        {
+          "family": "rawClient",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "GetGuardianSet",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "uint256",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "index",
+          "type": "uint32",
+          "width": 32
+        }
+      ],
+      "payable": false,
+      "post": {
+        "address": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "havoc"
+        ],
+        "caller": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "havoc"
+        ],
+        "client": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "havoc"
+        ],
+        "filterer": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "havoc"
+        ],
+        "logger": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "havoc"
+        ],
+        "networkName": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "havoc"
+        ],
+        "rawClient": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "at",
+        0,
+        [
+          "call",
+          "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiCaller).GetGuardianSet",
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:75",
+            "ptr"
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:75",
+            "ptr"
+          ],
+          [
+            "param",
+            "index"
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:74",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "address",
+          "path": [],
+          "seq": 0,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:75",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "caller",
+          "path": [],
+          "seq": 1,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:75",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "client",
+          "path": [],
+          "seq": 2,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:75",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "filterer",
+          "path": [],
+          "seq": 3,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:75",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "logger",
+          "path": [],
+          "seq": 4,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:75",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "networkName",
+          "path": [],
+          "seq": 5,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:75",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "rawClient",
+          "path": [],
+          "seq": 6,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:75",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:75",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.EthereumConnector",
+      "edges": [],
+      "effects": [],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "view",
+      "name": "NetworkName",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {},
+      "principal": null,
+      "returns": [
+        "storage",
+        "networkName"
+      ],
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:62",
+      "writes": []
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.EthereumConnector",
+      "edges": [],
+      "effects": [
+        {
+          "family": "address",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98"
+        },
+        {
+          "family": "caller",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98"
+        },
+        {
+          "family": "client",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98"
+        },
+        {
+          "family": "filterer",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98"
+        },
+        {
+          "family": "logger",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98"
+        },
+        {
+          "family": "networkName",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98"
+        },
+        {
+          "family": "rawClient",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "ParseLogMessagePublished",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "log",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "address": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "havoc"
+        ],
+        "caller": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "havoc"
+        ],
+        "client": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "havoc"
+        ],
+        "filterer": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "havoc"
+        ],
+        "logger": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "havoc"
+        ],
+        "networkName": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "havoc"
+        ],
+        "rawClient": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "at",
+        0,
+        [
+          "call",
+          "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiFilterer).ParseLogMessagePublished",
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:98",
+            "ptr"
+          ],
+          [
+            "param",
+            "log"
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:97",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "address",
+          "path": [],
+          "seq": 0,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:98",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "caller",
+          "path": [],
+          "seq": 1,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:98",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "client",
+          "path": [],
+          "seq": 2,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:98",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "filterer",
+          "path": [],
+          "seq": 3,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:98",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "logger",
+          "path": [],
+          "seq": 4,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:98",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "networkName",
+          "path": [],
+          "seq": 5,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:98",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "rawClient",
+          "path": [],
+          "seq": 6,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:98",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:98",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.EthereumConnector",
+      "edges": [],
+      "effects": [
+        {
+          "family": "address",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135"
+        },
+        {
+          "family": "caller",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135"
+        },
+        {
+          "family": "client",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135"
+        },
+        {
+          "family": "filterer",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135"
+        },
+        {
+          "family": "logger",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135"
+        },
+        {
+          "family": "networkName",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135"
+        },
+        {
+          "family": "rawClient",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "RawCallContext",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "uint256",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "result",
+          "type": "uint256",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "method",
+          "type": "string",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "args",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "address": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "havoc"
+        ],
+        "caller": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "havoc"
+        ],
+        "client": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "havoc"
+        ],
+        "filterer": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "havoc"
+        ],
+        "logger": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "havoc"
+        ],
+        "networkName": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "havoc"
+        ],
+        "rawClient": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:134",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "address",
+          "path": [],
+          "seq": 0,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:135",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "caller",
+          "path": [],
+          "seq": 1,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:135",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "client",
+          "path": [],
+          "seq": 2,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:135",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "filterer",
+          "path": [],
+          "seq": 3,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:135",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "logger",
+          "path": [],
+          "seq": 4,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:135",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "networkName",
+          "path": [],
+          "seq": 5,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:135",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "rawClient",
+          "path": [],
+          "seq": 6,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:135",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:135",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.EthereumConnector",
+      "edges": [],
+      "effects": [
+        {
+          "family": "address",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105"
+        },
+        {
+          "family": "caller",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105"
+        },
+        {
+          "family": "client",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105"
+        },
+        {
+          "family": "filterer",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105"
+        },
+        {
+          "family": "logger",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105"
+        },
+        {
+          "family": "networkName",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105"
+        },
+        {
+          "family": "rawClient",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105"
+        },
+        {
+          "family": "address",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131"
+        },
+        {
+          "family": "caller",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131"
+        },
+        {
+          "family": "client",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131"
+        },
+        {
+          "family": "filterer",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131"
+        },
+        {
+          "family": "logger",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131"
+        },
+        {
+          "family": "networkName",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131"
+        },
+        {
+          "family": "rawClient",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "SubscribeForBlocks",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "uint256",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "errC",
+          "type": "uint256",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "sink",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "address": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "local"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:131",
+              "havoc"
+            ],
+            [
+              "storage",
+              "address"
+            ]
+          ]
+        ],
+        "caller": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "local"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:131",
+              "havoc"
+            ],
+            [
+              "storage",
+              "caller"
+            ]
+          ]
+        ],
+        "client": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "local"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:131",
+              "havoc"
+            ],
+            [
+              "storage",
+              "client"
+            ]
+          ]
+        ],
+        "filterer": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "local"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:131",
+              "havoc"
+            ],
+            [
+              "storage",
+              "filterer"
+            ]
+          ]
+        ],
+        "logger": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "local"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:131",
+              "havoc"
+            ],
+            [
+              "storage",
+              "logger"
+            ]
+          ]
+        ],
+        "networkName": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "local"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:131",
+              "havoc"
+            ],
+            [
+              "storage",
+              "networkName"
+            ]
+          ]
+        ],
+        "rawClient": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                      "local"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:131",
+              "havoc"
+            ],
+            [
+              "storage",
+              "rawClient"
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "!=",
+          [
+            "at",
+            1,
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+              [
+                "unknown",
+                "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                "ptr"
+              ],
+              [
+                "param",
+                "ctx"
+              ],
+              [
+                "unknown",
+                "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                "local"
+              ]
+            ]
+          ],
+          0
+        ],
+        0,
+        [
+          "at",
+          0,
+          [
+            "call",
+            "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:103",
+              "ptr"
+            ],
+            [
+              "param",
+              "ctx"
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:103",
+              "local"
+            ]
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:101",
+      "writes": [
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "address",
+          "path": [],
+          "seq": 0,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "caller",
+          "path": [],
+          "seq": 1,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "client",
+          "path": [],
+          "seq": 2,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "filterer",
+          "path": [],
+          "seq": 3,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "logger",
+          "path": [],
+          "seq": 4,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "networkName",
+          "path": [],
+          "seq": 5,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                  "local"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "rawClient",
+          "path": [],
+          "seq": 6,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:105",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:105",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "local"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "address",
+          "path": [],
+          "seq": 7,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:131",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "local"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "caller",
+          "path": [],
+          "seq": 8,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:131",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "local"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "client",
+          "path": [],
+          "seq": 9,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:131",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "local"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "filterer",
+          "path": [],
+          "seq": 10,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:131",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "local"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "logger",
+          "path": [],
+          "seq": 11,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:131",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "local"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "networkName",
+          "path": [],
+          "seq": 12,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:131",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:103",
+                    "local"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "rawClient",
+          "path": [],
+          "seq": 13,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:131",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:131",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.EthereumConnector",
+      "edges": [],
+      "effects": [
+        {
+          "family": "address",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91"
+        },
+        {
+          "family": "caller",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91"
+        },
+        {
+          "family": "client",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91"
+        },
+        {
+          "family": "filterer",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91"
+        },
+        {
+          "family": "logger",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91"
+        },
+        {
+          "family": "networkName",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91"
+        },
+        {
+          "family": "rawClient",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91"
+        },
+        {
+          "family": "address",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94"
+        },
+        {
+          "family": "caller",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94"
+        },
+        {
+          "family": "client",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94"
+        },
+        {
+          "family": "filterer",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94"
+        },
+        {
+          "family": "logger",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94"
+        },
+        {
+          "family": "networkName",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94"
+        },
+        {
+          "family": "rawClient",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "TimeOfBlockByHash",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "uint256",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "hash",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "address": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "param",
+                      "hash"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:94",
+              "havoc"
+            ],
+            [
+              "storage",
+              "address"
+            ]
+          ]
+        ],
+        "caller": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "param",
+                      "hash"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:94",
+              "havoc"
+            ],
+            [
+              "storage",
+              "caller"
+            ]
+          ]
+        ],
+        "client": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "param",
+                      "hash"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:94",
+              "havoc"
+            ],
+            [
+              "storage",
+              "client"
+            ]
+          ]
+        ],
+        "filterer": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "param",
+                      "hash"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:94",
+              "havoc"
+            ],
+            [
+              "storage",
+              "filterer"
+            ]
+          ]
+        ],
+        "logger": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "param",
+                      "hash"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:94",
+              "havoc"
+            ],
+            [
+              "storage",
+              "logger"
+            ]
+          ]
+        ],
+        "networkName": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "param",
+                      "hash"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:94",
+              "havoc"
+            ],
+            [
+              "storage",
+              "networkName"
+            ]
+          ]
+        ],
+        "rawClient": [
+          "?",
+          [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "at",
+                  1,
+                  [
+                    "call",
+                    "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                    [
+                      "unknown",
+                      "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                      "ptr"
+                    ],
+                    [
+                      "param",
+                      "ctx"
+                    ],
+                    [
+                      "param",
+                      "hash"
+                    ]
+                  ]
+                ],
+                0
+              ]
+            ],
+            [
+              "unknown",
+              "node/pkg/watchers/evm/connectors/ethereum.go:94",
+              "havoc"
+            ],
+            [
+              "storage",
+              "rawClient"
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "?",
+        [
+          "!=",
+          [
+            "at",
+            1,
+            [
+              "call",
+              "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+              [
+                "unknown",
+                "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                "ptr"
+              ],
+              [
+                "param",
+                "ctx"
+              ],
+              [
+                "param",
+                "hash"
+              ]
+            ]
+          ],
+          0
+        ],
+        0,
+        [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:94",
+          "load"
+        ]
+      ],
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:88",
+      "writes": [
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "address",
+          "path": [],
+          "seq": 0,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "caller",
+          "path": [],
+          "seq": 1,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "client",
+          "path": [],
+          "seq": 2,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "filterer",
+          "path": [],
+          "seq": 3,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "logger",
+          "path": [],
+          "seq": 4,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "networkName",
+          "path": [],
+          "seq": 5,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "at",
+              1,
+              [
+                "call",
+                "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                [
+                  "unknown",
+                  "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                  "ptr"
+                ],
+                [
+                  "param",
+                  "ctx"
+                ],
+                [
+                  "param",
+                  "hash"
+                ]
+              ]
+            ],
+            0
+          ],
+          "family": "rawClient",
+          "path": [],
+          "seq": 6,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:91",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:91",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "param",
+                    "hash"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "address",
+          "path": [],
+          "seq": 7,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:94",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "param",
+                    "hash"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "caller",
+          "path": [],
+          "seq": 8,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:94",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "param",
+                    "hash"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "client",
+          "path": [],
+          "seq": 9,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:94",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "param",
+                    "hash"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "filterer",
+          "path": [],
+          "seq": 10,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:94",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "param",
+                    "hash"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "logger",
+          "path": [],
+          "seq": 11,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:94",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "param",
+                    "hash"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "networkName",
+          "path": [],
+          "seq": 12,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:94",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "at",
+                1,
+                [
+                  "call",
+                  "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+                  [
+                    "unknown",
+                    "node/pkg/watchers/evm/connectors/ethereum.go:89",
+                    "ptr"
+                  ],
+                  [
+                    "param",
+                    "ctx"
+                  ],
+                  [
+                    "param",
+                    "hash"
+                  ]
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "rawClient",
+          "path": [],
+          "seq": 13,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:94",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:94",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.EthereumConnector",
+      "edges": [],
+      "effects": [
+        {
+          "family": "address",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85"
+        },
+        {
+          "family": "caller",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85"
+        },
+        {
+          "family": "client",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85"
+        },
+        {
+          "family": "filterer",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85"
+        },
+        {
+          "family": "logger",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85"
+        },
+        {
+          "family": "networkName",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85"
+        },
+        {
+          "family": "rawClient",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "TransactionReceipt",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "uint256",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "txHash",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "address": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "havoc"
+        ],
+        "caller": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "havoc"
+        ],
+        "client": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "havoc"
+        ],
+        "filterer": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "havoc"
+        ],
+        "logger": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "havoc"
+        ],
+        "networkName": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "havoc"
+        ],
+        "rawClient": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "at",
+        0,
+        [
+          "call",
+          "(*github.com/ethereum/go-ethereum/ethclient.Client).TransactionReceipt",
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:85",
+            "ptr"
+          ],
+          [
+            "param",
+            "ctx"
+          ],
+          [
+            "param",
+            "txHash"
+          ]
+        ]
+      ],
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:84",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "address",
+          "path": [],
+          "seq": 0,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:85",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "caller",
+          "path": [],
+          "seq": 1,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:85",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "client",
+          "path": [],
+          "seq": 2,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:85",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "filterer",
+          "path": [],
+          "seq": 3,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:85",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "logger",
+          "path": [],
+          "seq": 4,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:85",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "networkName",
+          "path": [],
+          "seq": 5,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:85",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "rawClient",
+          "path": [],
+          "seq": 6,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:85",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:85",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "connectors.EthereumConnector",
+      "edges": [],
+      "effects": [
+        {
+          "family": "address",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81"
+        },
+        {
+          "family": "caller",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81"
+        },
+        {
+          "family": "client",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81"
+        },
+        {
+          "family": "filterer",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81"
+        },
+        {
+          "family": "logger",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81"
+        },
+        {
+          "family": "networkName",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81"
+        },
+        {
+          "family": "rawClient",
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "WatchLogMessagePublished",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "ctx",
+          "type": "uint256",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "errC",
+          "type": "uint256",
+          "width": null
+        },
+        {
+          "location": "default",
+          "name": "sink",
+          "type": "uint256",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "address": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "havoc"
+        ],
+        "caller": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "havoc"
+        ],
+        "client": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "havoc"
+        ],
+        "filterer": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "havoc"
+        ],
+        "logger": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "havoc"
+        ],
+        "networkName": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "havoc"
+        ],
+        "rawClient": [
+          "unknown",
+          "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "havoc"
+        ]
+      },
+      "principal": null,
+      "returns": [
+        "at",
+        0,
+        [
+          "call",
+          "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiFilterer).WatchLogMessagePublished",
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:81",
+            "ptr"
+          ],
+          [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:81",
+            "ptr"
+          ],
+          [
+            "param",
+            "sink"
+          ],
+          0
+        ]
+      ],
+      "selector": null,
+      "src": "node/pkg/watchers/evm/connectors/ethereum.go:78",
+      "writes": [
+        {
+          "cond": 1,
+          "family": "address",
+          "path": [],
+          "seq": 0,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:81",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "caller",
+          "path": [],
+          "seq": 1,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:81",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "client",
+          "path": [],
+          "seq": 2,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:81",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "filterer",
+          "path": [],
+          "seq": 3,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:81",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "logger",
+          "path": [],
+          "seq": 4,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:81",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "networkName",
+          "path": [],
+          "seq": 5,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:81",
+            "havoc"
+          ]
+        },
+        {
+          "cond": 1,
+          "family": "rawClient",
+          "path": [],
+          "seq": 6,
+          "src": "node/pkg/watchers/evm/connectors/ethereum.go:81",
+          "stack": [],
+          "value": [
+            "unknown",
+            "node/pkg/watchers/evm/connectors/ethereum.go:81",
+            "havoc"
+          ]
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/certusone/wormhole/node/pkg/watchers/evm/connectors.EthereumConnector",
+  "debt": [],
+  "extraction": {
+    "config": {
+      "path": "results/M6/base/holon/c16/sidecars/go_1_machines.json",
+      "sha256": "6e1320e1fbd52504e5693e7f498a7feeade6c66b8e8cd4f0292b1175bc3c1616"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "deacc3cdaeefa64d49d668d1a250e24cbc2074cde58eea93313f11b5f0974e6f",
+        "unit": "node/pkg/watchers/evm/connectors/celo.go"
+      },
+      {
+        "sha256": "55a8fb0b2d16e4965967dc4777a19b81a71de1921a3446c26eaabfcb608ab1e1",
+        "unit": "node/pkg/watchers/evm/connectors/common.go"
+      },
+      {
+        "sha256": "41048728b90fa0570d00236fedce398402441045019ff34529605a4ed2b2971e",
+        "unit": "node/pkg/watchers/evm/connectors/ethereum.go"
+      },
+      {
+        "sha256": "747042ddb76b8125f9afea90ad853d637c0b25adb187ee20c7bfd3efa555aa19",
+        "unit": "node/pkg/watchers/evm/connectors/logpoller.go"
+      },
+      {
+        "sha256": "a00180ac5c0a6b327d12c4a8bda95e30cc56703d39ef9effcc7d086e987fb585",
+        "unit": "node/pkg/watchers/evm/connectors/poller.go"
+      },
+      {
+        "sha256": "23c42aed84fd84a75076ae46f612723958a09be0b6977153541d863733b7261d",
+        "unit": "node/pkg/watchers/evm/connectors/polygon.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "connectors.EthereumConnector",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "Client": {
+        "declared_in": "connectors.EthereumConnector",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "Client",
+        "outputs": [
+          {
+            "components": [
+              {
+                "name": "c",
+                "type": "uint256"
+              }
+            ],
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "ContractAddress": {
+        "declared_in": "connectors.EthereumConnector",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "ContractAddress",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "GetCurrentGuardianSetIndex": {
+        "declared_in": "connectors.EthereumConnector",
+        "inputs": [
+          {
+            "name": "ctx",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "GetCurrentGuardianSetIndex",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint32"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "GetGuardianSet": {
+        "declared_in": "connectors.EthereumConnector",
+        "inputs": [
+          {
+            "name": "ctx",
+            "type": "uint256"
+          },
+          {
+            "name": "index",
+            "type": "uint32"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "GetGuardianSet",
+        "outputs": [
+          {
+            "components": [
+              {
+                "name": "Keys",
+                "type": "uint256"
+              },
+              {
+                "name": "ExpirationTime",
+                "type": "uint32"
+              }
+            ],
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "NetworkName": {
+        "declared_in": "connectors.EthereumConnector",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "view",
+        "name": "NetworkName",
+        "outputs": [
+          {
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "ParseLogMessagePublished": {
+        "declared_in": "connectors.EthereumConnector",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "Address",
+                "type": "uint256"
+              },
+              {
+                "name": "Topics",
+                "type": "uint256"
+              },
+              {
+                "name": "Data",
+                "type": "bytes"
+              },
+              {
+                "name": "BlockNumber",
+                "type": "uint64"
+              },
+              {
+                "name": "TxHash",
+                "type": "uint256"
+              },
+              {
+                "name": "TxIndex",
+                "type": "uint64"
+              },
+              {
+                "name": "BlockHash",
+                "type": "uint256"
+              },
+              {
+                "name": "Index",
+                "type": "uint64"
+              },
+              {
+                "name": "Removed",
+                "type": "bool"
+              }
+            ],
+            "name": "log",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "ParseLogMessagePublished",
+        "outputs": [
+          {
+            "components": [
+              {
+                "name": "Sender",
+                "type": "uint256"
+              },
+              {
+                "name": "Sequence",
+                "type": "uint64"
+              },
+              {
+                "name": "Nonce",
+                "type": "uint32"
+              },
+              {
+                "name": "Payload",
+                "type": "bytes"
+              },
+              {
+                "name": "ConsistencyLevel",
+                "type": "uint8"
+              },
+              {
+                "name": "Raw",
+                "type": "uint256"
+              }
+            ],
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "RawCallContext": {
+        "declared_in": "connectors.EthereumConnector",
+        "inputs": [
+          {
+            "name": "ctx",
+            "type": "uint256"
+          },
+          {
+            "name": "result",
+            "type": "uint256"
+          },
+          {
+            "name": "method",
+            "type": "string"
+          },
+          {
+            "name": "args",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "RawCallContext",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "SubscribeForBlocks": {
+        "declared_in": "connectors.EthereumConnector",
+        "inputs": [
+          {
+            "name": "ctx",
+            "type": "uint256"
+          },
+          {
+            "name": "errC",
+            "type": "uint256"
+          },
+          {
+            "name": "sink",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "SubscribeForBlocks",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "TimeOfBlockByHash": {
+        "declared_in": "connectors.EthereumConnector",
+        "inputs": [
+          {
+            "name": "ctx",
+            "type": "uint256"
+          },
+          {
+            "name": "hash",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "TimeOfBlockByHash",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint64"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "TransactionReceipt": {
+        "declared_in": "connectors.EthereumConnector",
+        "inputs": [
+          {
+            "name": "ctx",
+            "type": "uint256"
+          },
+          {
+            "name": "txHash",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "TransactionReceipt",
+        "outputs": [
+          {
+            "components": [
+              {
+                "name": "Type",
+                "type": "uint8"
+              },
+              {
+                "name": "PostState",
+                "type": "bytes"
+              },
+              {
+                "name": "Status",
+                "type": "uint64"
+              },
+              {
+                "name": "CumulativeGasUsed",
+                "type": "uint64"
+              },
+              {
+                "name": "Bloom",
+                "type": "uint256"
+              },
+              {
+                "name": "Logs",
+                "type": "uint256"
+              },
+              {
+                "name": "TxHash",
+                "type": "uint256"
+              },
+              {
+                "name": "ContractAddress",
+                "type": "uint256"
+              },
+              {
+                "name": "GasUsed",
+                "type": "uint64"
+              },
+              {
+                "name": "BlockHash",
+                "type": "uint256"
+              },
+              {
+                "name": "BlockNumber",
+                "type": "uint256"
+              },
+              {
+                "name": "TransactionIndex",
+                "type": "uint64"
+              }
+            ],
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "WatchLogMessagePublished": {
+        "declared_in": "connectors.EthereumConnector",
+        "inputs": [
+          {
+            "name": "ctx",
+            "type": "uint256"
+          },
+          {
+            "name": "errC",
+            "type": "uint256"
+          },
+          {
+            "name": "sink",
+            "type": "uint256"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "WatchLogMessagePublished",
+        "outputs": [
+          {
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "connectors.EthereumConnector",
+          "label": "networkName",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_string_storage"
+        },
+        {
+          "contract": "connectors.EthereumConnector",
+          "label": "address",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "connectors.EthereumConnector",
+          "label": "logger",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "connectors.EthereumConnector",
+          "label": "client",
+          "offset": 0,
+          "slot": "3",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "connectors.EthereumConnector",
+          "label": "rawClient",
+          "offset": 0,
+          "slot": "4",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "connectors.EthereumConnector",
+          "label": "filterer",
+          "offset": 0,
+          "slot": "5",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "connectors.EthereumConnector",
+          "label": "caller",
+          "offset": 0,
+          "slot": "6",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        },
+        "t_string_storage": {
+          "encoding": "bytes",
+          "label": "string",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "connectors.EthereumConnector"
+    ],
+    "members": {
+      "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiCaller).GetCurrentGuardianSetIndex": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiCaller).GetCurrentGuardianSetIndex",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint32"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xae06ddd2",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiCaller).GetGuardianSet": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "uint32"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiCaller).GetGuardianSet",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xd6924b94",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiFilterer).ParseLogMessagePublished": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiFilterer).ParseLogMessagePublished",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xb7e562d8",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiFilterer).WatchLogMessagePublished": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "uint256"
+            },
+            {
+              "name": "a3",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/certusone/wormhole/node/pkg/watchers/evm/connectors/ethabi.AbiFilterer).WatchLogMessagePublished",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x6f907ddc",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/ethclient.Client).HeaderByHash",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x8a3047d0",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/ethclient.Client).SubscribeNewHead",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xceb2118b",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/ethclient.Client).TransactionReceipt": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/ethclient.Client).TransactionReceipt",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x308b6542",
+          "visibility": "external"
+        }
+      ],
+      "(*github.com/ethereum/go-ethereum/rpc.Client).CallContext": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "uint256"
+            },
+            {
+              "name": "a3",
+              "type": "string"
+            },
+            {
+              "name": "a4",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "(*github.com/ethereum/go-ethereum/rpc.Client).CallContext",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0xc9c7db34",
+          "visibility": "external"
+        }
+      ],
+      "context.WithTimeout": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "int64"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "context.WithTimeout",
+          "outputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            },
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "selector": "0x44bfe6fb",
+          "visibility": "external"
+        }
+      ],
+      "github.com/certusone/wormhole/node/pkg/common.RunWithScissors": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "uint256"
+            },
+            {
+              "name": "a2",
+              "type": "string"
+            },
+            {
+              "name": "a3",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "github.com/certusone/wormhole/node/pkg/common.RunWithScissors",
+          "outputs": [],
+          "selector": "0xf70bcd0e",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "node/pkg/watchers/evm/connectors/celo.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "networkName",
+      "offset": 0,
+      "slot": 0,
+      "value": "string"
+    },
+    {
+      "kind": "scalar",
+      "name": "address",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "logger",
+      "offset": 0,
+      "slot": 2,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "client",
+      "offset": 0,
+      "slot": 3,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "rawClient",
+      "offset": 0,
+      "slot": 4,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "filterer",
+      "offset": 0,
+      "slot": 5,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "caller",
+      "offset": 0,
+      "slot": 6,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "100a01b4b17fbf396a9e7b3ffde2733a5086d1aa",
+    "repo": "wormhole-foundation/wormhole",
+    "scope": "go machine github.com/certusone/wormhole/node/pkg/watchers/evm/connectors.EthereumConnector"
+  }
+}
