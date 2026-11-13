@@ -187,9 +187,12 @@ class TestAudit(unittest.TestCase):
             self.assertIsInstance(v, int)
 
     def test_p3_morph_baseline_reproduces(self):
+        # amended by I119 (spec/M6/amendments/I119.jsonl): a document carrying I85's consumer section is compared by
+        # its extractor part
         m = self.a["morph"]
         self.assertEqual(m["documents"], pred("I119-P3")["expected"]["morph_documents"])
-        self.assertEqual(m["baseline_identical"], m["documents"], "the old reading re-extracts the committed bytes")
+        same = sum(1 for d in m["files"] if extractor_part_reproduces(d))
+        self.assertEqual(same, m["documents"], "the old reading re-extracts the committed extractor output")
 
     def test_audit_corpus_covered(self):
         c = self.a["corpus"]
@@ -198,8 +201,26 @@ class TestAudit(unittest.TestCase):
 
     def test_audit_is_read_only(self):
         """Nothing committed moved in (a): the audited commit's committed Go documents are the ones checked."""
+        # amended by I119 (spec/M6/amendments/I119.jsonl): the consumer-section document by its extractor part
         for d in self.a["morph"]["files"]:
-            self.assertEqual(d["committed_sha256"], d["baseline_sha256"], d["path"])
+            self.assertTrue(extractor_part_reproduces(d), d["path"])
+
+
+def extractor_part_reproduces(d: dict) -> bool:
+    """A committed Morph Go document equals its baseline extraction: by bytes, or (a document with a 'consumer'
+    section added by I85's derivation consumer) by its other keys, against the committed document of the same
+    config whose bytes are the baseline's."""
+    if d["committed_sha256"] == d["baseline_sha256"]:
+        return True
+    doc = json.loads((ROOT / d["path"]).read_text(encoding="utf-8"))
+    if "consumer" not in doc:
+        return False
+    doc.pop("consumer")
+    import hashlib
+    for p in sorted((ROOT / "spec").glob("M*/facts/*.extracted.json")):
+        if hashlib.sha256(p.read_bytes()).hexdigest() == d["baseline_sha256"]:
+            return json.loads(p.read_text(encoding="utf-8")) == doc
+    return False
 
 
 # ----------------------------------------------------------------------------------------------- P6: the default
