@@ -233,6 +233,12 @@ def main_run(args) -> int:
         if getattr(args, "unbound", None):   # I115: a law that cannot be bound is UNKNOWN (holon.codecrun.UNBOUND)
             from . import codecrun
             codecrun.UNBOUND = args.unbound
+        if getattr(args, "unbound_reason", None):   # I125: goops' refusal as the UNKNOWN reason (with --unbound unknown)
+            if getattr(args, "unbound", None) != "unknown":
+                print("refusing to run: --unbound-reason needs --unbound unknown", file=sys.stderr)
+                return 2
+            from . import codecrun
+            codecrun.UNBOUND_REASON = args.unbound_reason
         run(args.milestone, args.facts, args.out, args.gen_dir, args.no_registry, core=getattr(args, "core", "import"),
             only=only)
     except RegistryMismatch as e:

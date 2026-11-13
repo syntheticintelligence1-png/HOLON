@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -114,6 +115,54 @@ def emitted_text(law: dict, kind: str, doc: dict, cm, imp: str, shash: str) -> s
 
 def unbound_res(err: str) -> dict:
     return {"status": "UNKNOWN", "attempts": [{"kind": "binding", "error": err}], "bound": UNBOUND_BOUND.format(err)}
+
+
+# I125 (F-M6-05, Q105 (6), Q117): `holon run --unbound-reason goops` sets this (with --unbound unknown). holon.gen.goloop
+# writes an op outside its classes as the line '# <op>: unsupported (<reason>)' and defines neither <op> nor ok_<op>, so
+# a Go-op law naming one cannot be bound. Under "goops" such a law stays UNKNOWN (nothing decided, nothing attempted
+# beyond the binding) and its reason is goops' refusal, read from the generated model's text, the binding error kept
+# beside it. Nothing else moves: a law that binds, a binding failure naming no refused op, and every other kind of law
+# are as without the option. None (the default): nothing is computed.
+UNBOUND_REASON = None
+OP_REFUSED_BOUND = "not decided: the statement names {} that the Go-op model's generator refuses ({}), so it cannot be bound"
+_REFUSAL_LINE = re.compile(r"^# (\S+): unsupported \((.*)\)$", re.M)
+
+
+def goops_refusals(model_text: str) -> dict:
+    """{op: {"class", "reason"}} of every op a generated Go-op model writes as '# <op>: unsupported (<reason>)'. The
+    class is "straight-line" where the refusal is the straight-line class's (I117), "loop" otherwise (goloop's loop
+    classes, I67 and I122, which are tried for every op that is not straight-line)."""
+    out = {}
+    for op, why in _REFUSAL_LINE.findall(model_text):
+        out[op] = {"class": "straight-line" if ": straight-line class: " in why else "loop", "reason": why}
+    return out
+
+
+def op_refused_res(kind: str, stmt_text: str, model_text: str, ub: str | None) -> dict | None:
+    """Under UNBOUND_REASON "goops": the UNKNOWN result of a Go-op law whose binding failed (ub) and whose statement
+    names, as M.<op> or M.ok_<op> (comments stripped), an op the model refuses; None in every other case."""
+    if UNBOUND_REASON != "goops" or ub is None or kind != "goops":
+        return None
+    from .bindings import _QUAL
+    ref = goops_refusals(model_text)
+    named = set()
+    for tok in _QUAL.findall(re.sub(r"#[^\n]*", "", stmt_text)):
+        head = tok.split(".")[0]
+        for op in (head, head[3:] if head.startswith("ok_") else None):
+            if op in ref:
+                named.add(op)
+    if not named:
+        return None
+    ops = [{"op": op, "class": ref[op]["class"], "reason": ref[op]["reason"]} for op in sorted(named)]
+    return {"status": "UNKNOWN", "attempts": [{"kind": "op_refused", "binding_error": ub, "ops": ops}],
+            "bound": OP_REFUSED_BOUND.format(", ".join(o["op"] for o in ops),
+                                             "; ".join(f"{o['class']}: {o['reason']}" for o in ops))}
+
+
+def _unbound(kind: str, stmt_text: str, model_src: Path, ub: str) -> dict:
+    """unbound_res, or goops' refusal under UNBOUND_REASON "goops" (I125)."""
+    r = op_refused_res(kind, stmt_text, model_src.read_text(encoding="utf-8"), ub) if UNBOUND_REASON else None
+    return r if r is not None else unbound_res(ub)
 
 
 class Models:
@@ -293,7 +342,7 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
     ub = unbound_error(stmt_text, model_src, cfg)   # I115: the binding first (None unless --unbound unknown)
     try:
         if ub is not None:
-            res = unbound_res(ub)
+            res = _unbound(kind, stmt_text, model_src, ub)
         else:
             ir.check_premises(law)
             ir.check_binder_types(law, doc)
@@ -313,7 +362,7 @@ def decide(law: dict, kind: str, models: Models, milestone: str, root: Path, gen
     if ub is None:   # I115: a law whose decided statement cannot be bound is UNKNOWN the same way (a decision dropped)
         ub = unbound_error(stmt_text, model_src, cfg)
         if ub is not None:
-            res = unbound_res(ub)
+            res = _unbound(kind, stmt_text, model_src, ub)
     status = res["status"]
     attempts = res["attempts"]
     for a in attempts:   # one line of the checker's first error is enough in a record

@@ -594,6 +594,10 @@ def _main(argv: list) -> int:
     r.add_argument("--unbound", choices=["unknown"],
                    help="I115 (Q88 (2)): a law whose statement cannot be bound to its model (holon.bindings.kernel_cone) "
                         "is UNKNOWN, recorded with the error, and every other law is decided (default: the run stops)")
+    r.add_argument("--unbound-reason", choices=["goops"],
+                   help="I125 (F-M6-05), with --unbound unknown: a Go-op law that cannot be bound because its statement "
+                        "names an op the generated model refuses ('# <op>: unsupported (<reason>)') is UNKNOWN with "
+                        "goops' refusal as its reason (holon.codecrun.op_refused_res); nothing else changes")
     r.add_argument("--laws", help="comma-separated law ids: decide only those laws (the registry is still checked whole; "
                                   "state-machine milestones)")
     g = sub.add_parser("gate", help="re-check everything from scratch (G1-G5, G7, G11, GENV, canaries)")

@@ -7,7 +7,9 @@
 //     "Integer operators"), and the frontend's paths do not record that panic, so the straight-line class refuses it:
 //     the straight-line refusal;
 //   - Twice runs two counted loops in sequence. goloop's loop classes (I67, and I122's S1 and S2) each take one loop
-//     body, so it is refused: the loop refusal.
+//     body, so it is refused: the loop refusal;
+//   - Counter is a Go machine, there only so that the composed route has a machine document for DISCH (a route with
+//     none refuses at DISCH, before derive). Its Bump guards over the field Count, inside the straight-line class.
 // No op of this package is copied or adapted from any corpus entry.
 package gate
 
@@ -43,5 +45,18 @@ func Twice(b Blob) error {
 			return errLow
 		}
 	}
+	return nil
+}
+
+// Counter counts up to a cap.
+type Counter struct {
+	Count uint64
+}
+
+func (c *Counter) Bump() error {
+	if c.Count >= 10 {
+		return errLow
+	}
+	c.Count++
 	return nil
 }

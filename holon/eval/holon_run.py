@@ -979,6 +979,8 @@ def runner_args(runner: str, proto: dict, ts: str, ds: str, fs: str) -> list[str
     if runner == "typed":
         return ["--sidecar", ts]
     # I115 (Q88 (2)): the milestone runner checks each law's binding first (holon run --unbound unknown)
+    if proto.get("run_unbound_reason"):   # I125 (F-M6-05): goops' refusal as the UNKNOWN reason
+        return ["--unbound", proto["run_unbound"], "--unbound-reason", proto["run_unbound_reason"]]
     return ["--unbound", proto["run_unbound"]] if proto.get("run_unbound") else []
 
 
@@ -1015,6 +1017,15 @@ def _run_routed(R: Runner, S: Path, M: str, proto: dict, laws: list[str], stages
             res[k]["binding_unknown"] = sum(1 for i in recs if any(
                 isinstance(a, dict) and a.get("kind") == "binding"
                 for a in common.load_json(S / "results" / M / f"{i}.json").get("attempts") or []))
+        if proto.get("run_unbound_reason"):   # I125: the laws UNKNOWN by goops' refusal, and by its class (aggregates)
+            cls: dict = {}
+            for i in recs:
+                for a in common.load_json(S / "results" / M / f"{i}.json").get("attempts") or []:
+                    if isinstance(a, dict) and a.get("kind") == "op_refused":
+                        c = "+".join(sorted({o["class"] for o in a.get("ops") or []}))
+                        cls[c] = cls.get(c, 0) + 1
+            res[k]["op_refused_unknown"] = sum(cls.values())
+            res[k]["op_refused_classes"] = dict(sorted(cls.items()))
     still = [lid for lid in laws if not (S / "results" / M / f"{lid}.json").is_file()]
     stages["run"] = {"status": "ok" if all(v["status"] == "ok" for v in res.values()) else "failed", "exit": None,
                      "detail": "per runner: " + json.dumps(res, sort_keys=True) + f"; {len(still)} laws with no record"}

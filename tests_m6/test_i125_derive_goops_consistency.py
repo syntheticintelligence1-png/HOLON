@@ -121,7 +121,13 @@ def run(which: str) -> dict:
                 base = key()["thresholds"]["base_commit"]
                 subprocess.run(["git", "worktree", "add", "--detach", str(code), base], cwd=ROOT, check=True,
                                capture_output=True)
-            proto = ROOT / (PROTO if which == "opt" else BASE_PROTO)
+            proto = ROOT / BASE_PROTO
+            if which == "opt":   # amended (I125.jsonl): the base protocol plus exactly the opt-in, nothing of I125's
+                # own metadata (its iteration tag is written into the Go machine documents, so it moves facts hashes)
+                d = protocol(BASE_PROTO)
+                d.update({k: protocol()[k] for k in ("run_unbound_reason", "run_unbound_reason_doc")})
+                proto = tmp / "opt_run.json"
+                proto.write_text(json.dumps(d, indent=2, sort_keys=True) + "\n")
             out = tmp / "out.json"
             p = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--planted-run", str(code), str(proto),
                                 str(out)], cwd=code, env=ENV, capture_output=True, text=True, timeout=3600)
@@ -145,7 +151,7 @@ class TestGenerator(unittest.TestCase):
 
     def test_p1_model_refusal_lines(self):
         r = run("base")
-        (text,) = [t for n, t in r["models"].items() if "_ops" in n]
+        (text,) = [t for t in r["models"].values() if f"def {SUPPORTED}(" in t]   # amended (I125.jsonl)
         self.assertIn(f"def {SUPPORTED}(", text)
         self.assertIn(f"def ok_{SUPPORTED}(", text)
         from holon import codecrun
@@ -165,25 +171,28 @@ class TestPlanted(unittest.TestCase):
 
     def test_p2_refused_ops_carry_goops_reason(self):
         opt = run("opt")
-        (text,) = [t for n, t in opt["models"].items() if "_ops" in n]
+        (text,) = [t for t in opt["models"].values() if f"def {SUPPORTED}(" in t]   # amended (I125.jsonl)
         from holon import codecrun
         ref = codecrun.goops_refusals(text)
-        touched = 0
+        touched, seen = 0, set()
         for op, cls in REFUSED.items():
-            lids = sorted(lid for lid in opt["laws"] if over(lid, op))
+            lids = sorted(lid for lid in opt["laws"] if over(lid, op) and lid not in seen)
             self.assertGreaterEqual(len(lids), 1, op)
             for lid in lids:
                 rec = opt["records"][lid]
                 self.assertEqual(rec["status"], "UNKNOWN", lid)
                 (a,) = rec["attempts"]
                 self.assertEqual(a["kind"], "op_refused", lid)
-                self.assertEqual(a["ops"], [{"op": op, "class": cls, "reason": ref[op]["reason"]}], lid)
+                # amended (I125.jsonl): a pair law (PAR's dom and weak) names two ops, each refused one listed
+                self.assertEqual(a["ops"], [{"op": o, "class": REFUSED[o], "reason": ref[o]["reason"]}
+                                            for o in sorted(REFUSED) if over(lid, o)], lid)
                 self.assertIsInstance(a["binding_error"], str)
                 self.assertIn(ref[op]["reason"], rec["bound"])
                 self.assertIsNone(rec["witness"])
                 self.assertIsNone(rec["artifacts"]["laws"])
                 self.assertIsNone(rec["artifacts"]["proof"])
                 touched += 1
+                seen.add(lid)
         base = run("base")
         for lid in opt["laws"]:   # the same laws were UNKNOWN by their binding without the opt-in
             if any(over(lid, op) for op in REFUSED):
