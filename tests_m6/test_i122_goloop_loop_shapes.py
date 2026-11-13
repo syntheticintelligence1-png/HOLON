@@ -489,8 +489,8 @@ class TestCorpusSmoke(unittest.TestCase):
         return json.loads(SHAPES.read_text(encoding="utf-8"))
 
     def base_doc(self) -> dict:
-        base = protocol(protocol()["base_protocol"])
-        return json.loads((ROOT / base["out"] / "corpus.json").read_text(encoding="utf-8"))
+        # amended (spec/M6/amendments/I122.jsonl, Q104): this key's own baseline run, base_run.json alone, same code
+        return json.loads((OUT / "baseline" / "corpus.json").read_text(encoding="utf-8"))
 
     def test_p8_loop_bodies_and_reasons(self):
         s = self.shapes_doc()
