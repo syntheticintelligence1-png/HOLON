@@ -1886,6 +1886,107 @@
         }
       ],
       "regressions": []
+    },
+    "I122": {
+      "title": "I122: goloop's loop shapes (HUMAN_ANSWERS Q93 (3), Q98 (2), Q90): two loop classes of the Go-op model defined from the Go specification, S1 (a for-range over a slice the carrier holds, its trip count the slice's length, read from the carrier) and S2 (a counted loop with a constant step other than 1, of either sign, over a fixed-length byte array, its trip sequence computed in the induction variable's Go type with wraparound), behind the Go frontend's opt-in loops \"shapes\" (protocol go.loops \"shapes\", with ops \"typed\"), the frontend's loop_bodies widened to match; every op outside them stays Unsupported, its laws unbound and UNKNOWN, its reason counted before any decision (Q72). Run through holon eval holon --compose with the protocol of the last landing before this key's measured runs plus go.loops \"shapes\"",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I122)",
+      "prompt": "prompts/I122_goloop_loop_shapes.md",
+      "tests": [
+        "tests_m6/test_i122_goloop_loop_shapes.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I122/",
+        "docs/iterations/I122.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P7 and P12 are on the planted fixture tests_m6/fixtures/i122 (a Go package written from the Go specification's rules, never from corpus code), unit inputs and Morph's committed outputs. P8-P10 are smoke on contaminated data (I51's corpus, contaminated by I51, I103-I121 and I107): the corpus is where I122 is designed, not where its generality is claimed; generality is claimed only from I114's sealed pair, never from these numbers. P11 is a measurement on I106's spent targets, contaminated: post-I107, run only if the coordinator asks. Laws are reported as aggregates only, never splitting PROVED from REFUTED (Q56, Q89); stage reasons only for stages before any decision (Q72).",
+        "instruments": "spec/M6/lib/i122_run.json (the run protocol: base_protocol plus go.loops \"shapes\") and tests_m6/test_i122_goloop_loop_shapes.py (every check)",
+        "base": "claude/holon-v2-bend2-c6z3cd at 40da439d (I117's landing is its last protocol, spec/M6/lib/i117_run.json). Per Q92 (4) and Q98 (2) the measured runs come after I120's landing, on the base the coordinator names (the last landing before this key's, merged into this branch by a merge commit); its sha is recorded in the report.",
+        "protocol_rule": "spec/M6/lib/i122_run.json is base_protocol plus exactly go.loops \"shapes\" (and go.loops_doc), with its own doc, iteration, out and go_machines.out, checked by TestRegressions.test_p7_protocol_is_its_base_plus_go_loops. base_protocol is the newest protocol on the lead at the base the coordinator names (at this prereg spec/M6/lib/i117_run.json); at that merge, before any measured run, the file is regenerated from it by this rule (a mechanical rebase, no other change).",
+        "corpus_count": "The count this prereg used, as the stated reason for choosing its classes (aggregates only, Q98's lead addition 1): counted before this prereg from the committed Go-op documents and go.loops of I116's counted run, never from an entry's code. 13 corpus Go ops have paths_reason loop and no loop body. Their recorded loop shapes: 5 ops have one for-range loop over a slice whose length is read from the carrier (the parameter, or a field path from it); 4 have two or more loops in sequence or nested (over locals, call results or fields, some with unbounded loops inside); 3 have one unbounded loop (no induction variable: a map or channel range, or a for without a condition); 1 has a range over a field with a nested range. Every recorded step is 1 or none. S1 is the class of the first shape (Q93 (3): the shape the corpus's ops use most); S2 (constant strides) is defined from the Go specification and has no corpus op; sequential, nested and unbounded loops, calls before reads and conditions over call results stay outside (Q93 (3): they need an inter-procedural model). No entry name, path or identifier appears in a class's definition or its code.",
+        "definitions": "Each class is fixed here, before any build commit, from the Go specification (\"For statements with range clause\", \"For statements with for clause\", \"Integer overflow\", \"Index expressions\", \"Comparison operators\"); both are tried only after goloop's I67 class refuses an op (Unsupported), so an op in that class is modelled exactly as before. S1 (range): an op with one parameter p and exactly one loop, the loop_bodies entry's init the constant 0, step 1, cmp <, limit len(X) where X is p or a field path from p (field of field ..., through pointer dereference), X of slice type []E with E an integer type of at most 32 bits, and paths over the symbolic index i and the element term X[i] only. Go: the range expression is evaluated once before the loop, so the trip count is len(X) at entry, the iterations are i = 0, 1, ..., len(X)-1, and the element is X[i]; X[i] is always in range. The carrier value is the sequence of X's elements, of any length (one List<&2, U32> node per element: an unsigned E's value as is; a signed E of n bits as value + 2**(n-1), offset binary, which preserves the signed order, so a comparison with a constant k is the unsigned comparison with k + 2**(n-1)). Each iteration's outcome is the one body path its element and index satisfy (comparisons of the element with constants in E's order; index thresholds against constants); the exit outcome follows the last iteration. S2 (stride): an op with one parameter p of a fixed-length byte array type (or a pointer to one) of length n and exactly one loop, counted, with constant init, constant limit, constant step s other than 0 and 1 (either sign), cmp one of < <= > >= !=, the induction variable of a recorded integer type T. Go: the post statement i += s wraps modulo 2**bits(T) (\"Integer overflow\"), so the trip sequence is iv_0 = init, iv_(k+1) = fit(iv_k + s, T), while cmp(iv_k, limit) holds in T's order (holon.gen.goint), computed concretely; more than 4096 iterations, or an index read outside [0, n), or two iterations reading one byte, is Unsupported. Each iteration k reads the one cell p[a*iv_k + c] (the frontend's affine read, with every value an exact integer); a body path's index atoms (a*iv + c REL K) are evaluated at iv_k exactly, so each becomes a set of iteration numbers. The carrier is the cell sequence (p[idx_0], ..., p[idx_(m-1)]); its cell map is the explicit index tuple, and every other byte of p is not modelled (concretized to 0 on replay, as rule Y9). Unsupported in both (the op undefined, its laws unbound and UNKNOWN, the reason recorded): any other loop form, a second loop, a body reading a second cell or any term but the index and the element, an element type of more than 32 bits or not an integer, an atom that is not a comparison with a constant, an outcome other than OPanic, OErr, ORet, continue, body paths that do not partition the sample points, a stale or store-carrying loop body.",
+        "frontend": "Opt-in only: the codec frontend's config key loops \"shapes\" (config holon-go-frontend/0.3, and only with ops \"typed\"; any other value, or loops without ops \"typed\", refused), passed by the composed driver from protocol go.loops \"shapes\" (never to the Go machine frontend). Under it: loop_bodies are emitted for every function with a body, codec-shaped or not, and for counted loops of any constant non-zero step and any cmp (not only step 1); a loop of step other than 1 binds the induction variable without the assumption init <= iv (false for a negative step or a wrapping one); each entry carries typed: {terms: [[term, Go type]], iv_type: the induction variable's Go type | null}. Every other output, and every output without it, is as before.",
+        "arithmetic": "Both classes need ops \"typed\", so the frontend's reasoner reads every sized arithmetic term as opaque (I117's rule; I119's defect is the unbounded reading, which these classes never use). S1 has no arithmetic: its atoms compare the element with constants and the index with constants. S2's only arithmetic is the trip sequence and the affine index, both evaluated concretely in Go's semantics (goint.fit in T for the post statement, exact integers for a*iv_k + c, with every index required in [0, n)); no branch the frontend keeps or prunes depends on unbounded integers: a step-other-than-1 loop gets no init <= iv fact, and flow.loop_facts gives facts for step 1 only (unchanged). The narrow-arithmetic loop mode is unchanged (Q93 (1)).",
+        "deciding": "As goloop's rule Y7: the ops a law names must share one cell map (S1: the slice path X; S2: the index tuple) or the law is UNKNOWN unsearched. Candidates per op of the component by model name: the shortest panic witness its shape gives (S1: the elements before the panicking iteration at their smallest continue value and the panicking element, length k+1; S2: as goloop's panic_witness over the trip sequence); then the first named op's continue values (S1: also the empty slice). A law is REFUTED only by a counter-law Bend accepts at a candidate; no proof route (UNKNOWN otherwise, gap G6, not closed here).",
+        "counting": "Q80, Q76, Q69: the counted run is the first measured run of holon eval holon --protocol spec/M6/lib/i122_run.json --compose over the corpus that finishes; every prediction is scored on it. A re-run counts only if the first attempt never finished; any other re-run is reported beside it as not counted. No started run's output is ever deleted. The preflight (I112's plus Q87's go pins) must pass before it.",
+        "soundness": "Each class is the specification's rule, and every planted op in it is compared with the pinned go 1.24.7 by running the real function (P3): outcome by outcome on edge inputs, and the trip sequence of each S2 header. An op outside the classes has no definitions, so every law naming it is unbound (I115's check) and UNKNOWN. There is no proof route, so nothing becomes PROVED; a REFUTED needs a counter-law Bend accepts at a concrete witness, and the planted tests replay each one as real Go. The frontend change only adds loop bodies under the opt-in and removes an assumption, so it can only keep paths; it never prunes a reachable one. A Morph document carries no loops opt-in, so its documents, models and records are unchanged (P7, P12).",
+        "amendment_to_brief": "The lead's two additions recorded with Q98 (the coordinator's message, read before this prereg and acknowledged): (1) the prereg records the count it used as the stated reason for the classes, as aggregates only, each class defined by its semantic shape, with no entry name, path or identifier in a class's definition or its code (corpus_count); (2) the corpus predictions are labelled smoke on contaminated data, as I117's were: the corpus is where I122 is designed, and generality is claimed only from I114's sealed pair, never from the corpus numbers, in the report, the PR or any message."
+      },
+      "predictions": [
+        {
+          "id": "I122-P1",
+          "claim": "(S1, frontend and class) On the planted package under loops \"shapes\": Frame.Scan, Frame.Tail and Signed each get one loop body (range, init 0, step 1, cmp <, limit len(X): Frame.Data, Frame.Data, the parameter) with typed terms and iv_type, and each is in class S1; Frame.Wide gets a loop body and is Unsupported (a 64-bit element), with the reason recorded. Without loops \"shapes\" no function of the package has loop_bodies, and the other outputs are byte-identical to an extraction without it; any other loops value, or loops without ops \"typed\", is refused.",
+          "check": "tests_m6/test_i122_goloop_loop_shapes.py::TestFrontend, TestClasses::test_p1_s1_shapes"
+        },
+        {
+          "id": "I122-P2",
+          "claim": "(S2) Back, WrapScan and Down are in class S2 with trip sequences (7, 5, 3, 1), (250, 254, 2) and (30, 27, 24, 21, 18, 15, 12, 9, 6, 3); WrapScan's third iteration is the wrapped one (258 wraps to 2 in uint8); Pair (two cells per iteration) is Unsupported with the reason recorded.",
+          "check": "tests_m6/test_i122_goloop_loop_shapes.py::TestClasses::test_p2_s2_shapes"
+        },
+        {
+          "id": "I122-P3",
+          "claim": "(Q90's differential method) For every planted op in S1 or S2, the compiled Bend model's outcome (holon/js/linked.mjs) equals real Go's on the pinned go 1.24.7 (the real function run under recover) on every edge input: S1, every slice of length 0 to 3 over the element type's edge values (its minimum and maximum, -101, -100, -1, 0, 1, 254, 255 where representable); S2, every array whose read bytes are set from {0, 1, 0x7f, 0x80, 0xff} at up to two iterations (others 0); at least 2000 cases in all. Each S2 op's trip sequence equals the sequence of induction values the same loop header prints when run as Go.",
+          "check": "tests_m6/test_i122_goloop_loop_shapes.py::TestDifferential",
+          "expected": {
+            "cases_at_least": 2000
+          }
+        },
+        {
+          "id": "I122-P4",
+          "claim": "(The planted false laws, never PROVED) The composed planted run's totality laws of WrapScan (true only if integers did not wrap inside the loop), Back, Frame.Scan and Signed are each REFUTED: WrapScan at b[2] = 0x7f (every other byte 0), Back at b[3] = 0x80, Frame.Scan at Data = [255], Signed at s = [-101]. Every REFUTED PAR record's witness, run as real Go on the pinned toolchain, gives exactly the outcomes its difference states (at least 8 replayed sides).",
+          "check": "tests_m6/test_i122_goloop_loop_shapes.py::TestPlanted::test_p4_false_laws_refuted_and_replayed",
+          "expected": {
+            "replayed_sides_at_least": 8
+          }
+        },
+        {
+          "id": "I122-P5",
+          "claim": "(The planted true laws, never REFUTED) The totality laws of Frame.Tail and Down are UNKNOWN (no candidate refutes them; no proof route, gap G6); no PAR law of the planted run is PROVED.",
+          "check": "tests_m6/test_i122_goloop_loop_shapes.py::TestPlanted::test_p5_true_laws_never_refuted"
+        },
+        {
+          "id": "I122-P6",
+          "claim": "(Just outside each class) Every law naming Frame.Wide or Pair is UNKNOWN with exactly one attempt, kind binding, and the model's comment line for each gives its reason.",
+          "check": "tests_m6/test_i122_goloop_loop_shapes.py::TestPlanted::test_p6_outside_unbound"
+        },
+        {
+          "id": "I122-P7",
+          "claim": "(The control) Without the opt-in every output is as before: the committed M3 Go-op models regenerate byte-identical; a Go-op document without the shapes data generates the model it generated before; an op in goloop's I67 class is modelled as before even under the opt-in; no protocol but I122's names go.loops; I122's protocol is its base plus go.loops alone; the generated Bend carries no escape hatch.",
+          "check": "tests_m6/test_i122_goloop_loop_shapes.py::TestRegressions"
+        },
+        {
+          "id": "I122-P8",
+          "claim": "(Corpus, smoke on contaminated data; the counted run; pre-decision, Q72) Of the corpus Go ops with a loop (13 in I116's count), at least 3 get a loop body under loops \"shapes\" (paths not null); every corpus Go op's goloop class or Unsupported reason is committed as a count by reason (model generation, before any decision).",
+          "check": "tests_m6/test_i122_goloop_loop_shapes.py::TestCorpusSmoke::test_p8_loop_bodies_and_reasons",
+          "expected": {
+            "loop_bodies_at_least": 3
+          }
+        },
+        {
+          "id": "I122-P9",
+          "claim": "(Corpus, smoke on contaminated data) No corpus Go op is in S1 or S2 (0 ops: by the count's recorded parameter types, the single-range loops range over slices whose element type is not an integer of at most 32 bits), so the corpus PAR laws bound, and the laws decided (PROVED and REFUTED together, Q56), equal the base landing's counted run on the same corpus.",
+          "check": "tests_m6/test_i122_goloop_loop_shapes.py::TestCorpusSmoke::test_p9_ops_in_class_and_laws",
+          "expected": {
+            "ops_in_new_classes": 0
+          }
+        },
+        {
+          "id": "I122-P10",
+          "claim": "(Corpus, smoke on contaminated data) No law id, binding, unbound list, witness or per-law record is committed; one bundle commitment per entry with laws; under withhold() the summary's findings, classes, recall and detected_any are withheld (zero by construction), never reported as measured.",
+          "check": "tests_m6/test_i122_goloop_loop_shapes.py::TestCorpusSmoke::test_p10_nothing_per_law_committed"
+        },
+        {
+          "id": "I122-P11",
+          "claim": "(Spent targets, contaminated: post-I107, only if run) Aggregates only and one bundle commitment per target; their stages and aggregates equal the base landing's spent-target measurement (both targets are Solidity: no document reaches this key's change).",
+          "check": "tests_m6/test_i122_goloop_loop_shapes.py::TestSealedContaminated"
+        },
+        {
+          "id": "I122-P12",
+          "claim": "Morph's M0-M3 move only by re-stamp: holon land dirty re-makes no M0-M2 law; gate-M0 passes; gate-M1 and gate-M2 pass, or fail on G1 alone and pass with generator_sha256 stripped; gate-M3 partial passes.",
+          "check": "the gates, run locally and reported (docs/iterations/I122.md)"
+        }
+      ],
+      "regressions": []
     }
   }
 }
