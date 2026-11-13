@@ -1,0 +1,75 @@
+{
+  "carrier": {
+    "id": "unionIterator",
+    "reach": "inferred by holon roles (rule go_ops_carrier): every value of the carrier is taken as supplied by the environment; whether it is in fact external is not inferred",
+    "type": "*github.com/ethereum/go-ethereum/trie.unionIterator"
+  },
+  "component": "union_iterator_ops",
+  "document": "results/M6/I120/holon/c19/facts/go_2.go.extracted.json",
+  "document_sha256": "f612b4f198298d4d796d9a8884d3efecadc4fed8c0bddedddf6a21baaf88a3d4",
+  "goops_version": "holon-goops/0.1",
+  "ops": {
+    "trie_unionIterator_Error": {
+      "loop_bodies": null,
+      "params": [
+        {
+          "name": "it",
+          "type": "*github.com/ethereum/go-ethereum/trie.unionIterator"
+        }
+      ],
+      "paths": null,
+      "paths_reason": "loop",
+      "results": [
+        "error"
+      ],
+      "sites": [
+        {
+          "bound": [
+            [
+              "<=",
+              [
+                "const",
+                0
+              ],
+              [
+                "var",
+                "t7",
+                "i"
+              ]
+            ],
+            [
+              "<",
+              [
+                "var",
+                "t7",
+                "i"
+              ],
+              [
+                "len",
+                [
+                  "field",
+                  [
+                    "param",
+                    "it"
+                  ],
+                  "items"
+                ]
+              ]
+            ]
+          ],
+          "id": "trie/iterator.go:709:24:index",
+          "kind": "index",
+          "status": "safe",
+          "witness": null
+        }
+      ],
+      "source": "(*github.com/ethereum/go-ethereum/trie.unionIterator).Error",
+      "span": "trie/iterator.go:707"
+    }
+  },
+  "results": {
+    "R_Error": [
+      "error"
+    ]
+  }
+}

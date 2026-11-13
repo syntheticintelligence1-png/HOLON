@@ -537,7 +537,7 @@ class TestRegressions(unittest.TestCase):
 
     def test_p6_no_earlier_protocol_names_go_ops(self):
         for p in sorted((ROOT / "spec").glob("*/lib/*.json")):
-            if p.name == "i117_run.json":
+            if p.name in ("i117_run.json", "base_run.json"):   # amended (I117.jsonl): base_run.json is Q104's combined base
                 continue
             try:
                 d = json.loads(p.read_text(encoding="utf-8"))
