@@ -660,8 +660,10 @@ def emit(law: dict, doc: dict, model_import: str, counter: bool = False, note: s
 
 
 def cells_literal(cells: list[int]) -> str:
-    """A cell sequence as a Bend term: runs of one value as List.replicate, joined by List.append."""
-    if not cells:   # I122: class S1's empty sequence (an I67 or straight-line witness is never empty)
+    """A cell sequence as a Bend term: runs of one value as List.replicate, joined by List.append. The empty sequence
+    is the empty list [], the only List<&2, U32> of length 0: I122's class S1 has one, and so does a carrier of zero
+    cells (I124, F-M6-06: a component whose ops read no field has exactly one value)."""
+    if not cells:
         return "[]"
     runs = []
     for v in cells:

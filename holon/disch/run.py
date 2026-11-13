@@ -330,7 +330,8 @@ class Run:
 
     def section_error(self, e: dict) -> str | None:
         """I112: the text of the SectionError building e's document's section raised (under --section-errors unknown
-        only; else None and the error propagates from doc_of, as before)."""
+        only; else None and the error propagates from doc_of, as before). I124 (F-M6-07): an EvalError building the
+        document (its typed model cannot be compiled or loaded) is refused the same way, under the same option."""
         if self.section_errors != "unknown":
             return None
         doc_rel = e["facts"]
@@ -341,6 +342,8 @@ class Run:
                 self.doc_of(e)
             except SEC.SectionError as x:
                 self.doc_errors[doc_rel] = str(x)
+            except E3.EvalError as x:   # I124 (F-M6-07): the document's model cannot be built (compiled, loaded)
+                self.doc_errors[doc_rel] = f"the document's model could not be built: {x}"
         return self.doc_errors.get(doc_rel)
 
     def section_record(self, lid: str, e: dict, error: str) -> dict:
