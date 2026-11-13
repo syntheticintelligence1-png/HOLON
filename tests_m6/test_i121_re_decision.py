@@ -378,6 +378,58 @@ class TestF0602(unittest.TestCase):
         self.assertNotIn("FileExistsError", json.dumps(g))
 
 
+class TestF0602Planted(unittest.TestCase):
+    """F-M6-02's fix, planted (the lead at I121's landing): (i) the FACT gate's re-run and back-test copies of the tree
+    go to distinct directories of one temporary directory (before the fix both used tmp/"repo", so the second copy
+    raised FileExistsError); (ii) G1's `holon run` carries no --jobs for a typed M milestone even when g1_jobs > 1
+    (holon run --jobs refuses a typed milestone), while an untyped milestone keeps --jobs. A synthetic tree and stubbed
+    subprocesses: nothing is decided, and no milestone's real G1 runs."""
+
+    def test_p6_fact_copies_do_not_collide(self):
+        from types import SimpleNamespace
+        from unittest import mock
+        from holon.fact import gate as FG
+        with tempfile.TemporaryDirectory(prefix="i121-fm602-") as d:
+            root, tmp = Path(d) / "root", Path(d) / "tmp"
+            (root / "results" / "M9" / "fact").mkdir(parents=True)
+            (root / "results" / "M9" / "fact" / "backtest.json").write_text("{}")
+            tmp.mkdir()
+            calls = []
+            g3 = SimpleNamespace(holon=lambda args, cwd, timeout=None: (calls.append(Path(cwd)) or
+                                                                       SimpleNamespace(returncode=1, stdout="",
+                                                                                       stderr="stubbed")))
+            fg = object.__new__(FG.FactGate)
+            fg.g3, fg.root, fg.m, fg.results, fg.entries = g3, root, "M9", root / "results" / "M9", {}
+            fg.records = lambda: {}
+            with mock.patch("holon.fact.run.generator_sha256", return_value="0" * 64):
+                fg.rerun_problems(tmp)
+                fg.backtest_problems(tmp)   # before the fix: FileExistsError on tmp/"repo"
+            self.assertEqual(len(calls), 2)
+            self.assertNotEqual(calls[0], calls[1])
+            self.assertTrue(all(c.parent == tmp and c.is_dir() for c in calls), calls)
+
+    def test_p6_g1_drops_jobs_only_for_a_typed_m_milestone(self):
+        from types import SimpleNamespace
+        from unittest import mock
+        from holon import gate as G
+        for m, typed, want_jobs in (("M3", True, False), ("M1", False, True)):
+            with self.subTest(milestone=m, typed=typed):
+                g = object.__new__(G.Gate)
+                g.root, g.m, g.g1_jobs, g.checks = ROOT, m, 2, {}
+                seen = []
+
+                def run(argv, **kw):
+                    seen.append(list(argv))
+                    return SimpleNamespace(returncode=1, stdout="", stderr="stubbed")
+                with mock.patch.object(G.subprocess, "run", side_effect=run), \
+                        mock.patch("holon.sorts.typed_sidecar.typed", return_value=typed):
+                    g.g1()
+                (argv,) = [a for a in seen if a[1:4] == ["-m", "holon", "run"]]
+                self.assertEqual("--jobs" in argv, want_jobs, argv)
+                self.assertIn("regeneration failed", g.checks["G1"]["detail"]
+                              if isinstance(g.checks["G1"], dict) else str(g.checks["G1"]))
+
+
 # ----------------------------------------------------------------------------------------------- P7: corpus run
 class TestCorpusRun(unittest.TestCase):
     def test_p7_protocol_is_its_base(self):
