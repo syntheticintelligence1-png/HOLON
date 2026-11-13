@@ -21,8 +21,10 @@ Every rule is read from the EVM and Solidity semantics, never from a target's co
       checked code (an unchecked block, assembly, a release below 0.8.0) it is the wrapping word operation w_add /
       w_sub over the operands' words, of kind w. The checked operation's revert is its own check, kept by the model.
   R1  a shift (<< >> sar) by a non-constant amount in a document compiled by a release below 0.8.0 is refused: the term
-      does not record the amount's type, and there a negative signed amount reverts (0.8.0 and later reject a signed
-      amount at compile time, so the amount is an unsigned word).
+      does not record the amount's type. Checked on the pinned compilers (I123's report): 0.5.17 and 0.6.12 accept a
+      signed amount, and a negative one fails at run time (an invalid opcode); 0.7.6 and every 0.8 release reject it at
+      compile time ("Operator << not compatible with types uint256 and int256"). The preregistered bound 0.8.0 is
+      therefore sound but refuses 0.7.x documents that 0.7.0 alone would have made safe.
   V1  fits and sfits over a value (not an operation): the ABI's validity of a narrow argument. ["fits", N, x] is
       x < 2^N; ["sfits", N, x] is x read as two's complement in [-2^(N-1), 2^(N-1)), which is sext(N, x) == x; both
       True for N >= 256. sfits over an operation stays refused.

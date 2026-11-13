@@ -598,14 +598,14 @@ def pre_i123_tree(root: Path, tmp: Path) -> Path:
 
 
 def morph_models_changed(root: Path) -> int:
-    """Morph's committed typed models (gen/M3/sorts/models/*.bend) that the generator, without the opt-in (no Morph
+    """M3's committed typed models (gen/M3/sorts/models/*.bend) that the generator, without the opt-in (no M3
     sidecar names sort_ops), would now write differently: each regenerated over the committed assignment."""
     from . import model3
     from .typed_sidecar import load
     root = Path(root)
     sc = load("M3", root)
     if sc.sort_ops is not None:
-        raise RuntimeError("Morph's sidecar names sort_ops")
+        raise RuntimeError("M3's sidecar names sort_ops")
     assignment = json.loads((root / "gen" / "M3" / "sorts" / "assignment.json").read_text(encoding="utf-8"))
     n = 0
     seen = 0
@@ -617,5 +617,5 @@ def morph_models_changed(root: Path) -> int:
         text, _mm = model3.generate("M3", root, doc, init=model3.init_of("M3", root, None, doc), assignment=assignment)
         n += text != mp.read_text(encoding="utf-8")
     if not seen:
-        raise RuntimeError("no committed typed model of Morph found")
+        raise RuntimeError("no committed typed model of M3 found")
     return n
