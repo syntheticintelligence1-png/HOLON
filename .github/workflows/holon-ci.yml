@@ -312,6 +312,16 @@ jobs:
             # run here. Nothing here analyses a sealed target (Q56 (5)).
             timeout: 90
             run: python -m unittest tests_m6.test_i118_post_derive_walls.TestCoverageUnit tests_m6.test_i118_post_derive_walls.TestCoverageShapes tests_m6.test_i118_post_derive_walls.TestRunShapes tests_m6.test_i118_post_derive_walls.TestRunMilestoneWide tests_m6.test_i118_post_derive_walls.TestBindShapes tests_m6.test_i118_post_derive_walls.TestBindMilestoneWide tests_m6.test_i118_post_derive_walls.TestEvidenceSchema tests_m6.test_i118_post_derive_walls.TestBytes tests_m6.test_i118_post_derive_walls.TestRegressions -v
+          - name: tests-m6-i124
+            # I124 (M6, the post-derive crashes; HUMAN_ANSWERS Q106, Q108): F-M6-06 the zero-cell carrier is Bend's []
+            # (P1 unit; P2, P3 planted: the false laws REFUTED and replayed on real Go, the true law never REFUTED,
+            # the class outside the model UNKNOWN); F-M6-07 a compile that fails for any recorded cause names it (P4)
+            # and, under disch.section_errors "unknown", is confined to its document (P5; P6 without the opt-in, as
+            # before); F-M6-08 a law whose model the run never generated is unbound, the rest bound as before (P7-P9);
+            # the regressions (R1, R3). The corpus measures (P10-P12; results/M6/I124) are the key's measured outcome,
+            # not run here. Nothing here analyses a sealed target (Q56 (5)).
+            timeout: 60
+            run: python -m unittest tests_m6.test_i124_post_derive_crashes.TestF06Unit tests_m6.test_i124_post_derive_crashes.TestF06Planted tests_m6.test_i124_post_derive_crashes.TestF07Unit tests_m6.test_i124_post_derive_crashes.TestF07Planted tests_m6.test_i124_post_derive_crashes.TestF08Planted tests_m6.test_i124_post_derive_crashes.TestRegressions -v
           - name: tests-m6-i113
             # I113 (M6, the second sealed draw, HUMAN_ANSWERS Q86): the draw script (D1 standard library only, its test
             # vector; D2 the Q55 (2) pin rule), the candidate list and the key's sidecar pins (C1, K1), and the seal

@@ -43,6 +43,21 @@ class EvalError(RuntimeError):
     pass
 
 
+def compile_failure(model_path, r) -> str:
+    """I124 (F-M6-07): the text of a failed compile, naming its cause: the checker timed out (bend.run's [timeout]),
+    ended by a signal (a negative exit code: the OS stopped it, e.g. for memory), exited non-zero, or exited 0 and
+    wrote no module; then the checker's last output."""
+    if r.code is None:
+        cause = f"the checker timed out after {r.seconds} s"
+    elif r.code < 0:
+        cause = f"the checker was ended by signal {-r.code}"
+    elif r.code != 0:
+        cause = f"the checker exited with exit {r.code}"
+    else:
+        cause = "the checker exited 0 but no module was written"
+    return f"bend failed to compile {model_path} ({cause}): {r.out[-2000:]}"
+
+
 def cache_dir() -> Path:
     return Path(os.environ.get("HOLON_CACHE") or (Path.home() / ".holon" / "cache")) / "m3eval"
 
@@ -173,7 +188,7 @@ class Evaluator:
             from .. import bend
             r = bend.run([src.name, "-o", mjs.name], cwd=tmp)
             if r.code != 0 or not (tmp / mjs.name).is_file():
-                raise EvalError(f"bend failed to compile {self.model_path}: {r.out[-2000:]}")
+                raise EvalError(compile_failure(self.model_path, r))
             os.replace(tmp / mjs.name, mjs)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
