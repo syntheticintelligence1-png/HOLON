@@ -1,0 +1,72 @@
+{
+  "document": "disch_closure",
+  "inputs": [
+    {
+      "path": "results/M6/I116/holon/c12/facts/go_1_go_1.CertificateValidationError.extracted.json",
+      "sha256": "49849cbc0fdb8d70895275858b15f1c416810a4660ce8a65eeb1ccd756a04d5b"
+    },
+    {
+      "path": "results/M6/I116/holon/c12/facts/go_1_go_1.DAProviderRegistry.extracted.json",
+      "sha256": "1f1c33a5bd12c76fb7604c716be3be90311ec395ad9e95bebf2067e8a9f66288"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.CertificateValidationError.extracted": {
+      "classes": {},
+      "closure": {},
+      "dead": {},
+      "permission": {},
+      "r0": {
+        "Reason": [
+          0
+        ]
+      }
+    },
+    "go_1_go_1.DAProviderRegistry.extracted": {
+      "classes": {
+        "anyone": {
+          "actions": [
+            "Register",
+            "SetupAnyTrustReader",
+            "SetupBlobReader",
+            "SetupDACertificateReader"
+          ],
+          "external": [],
+          "predicate": null
+        }
+      },
+      "closure": {
+        "anyone": {
+          "actions": [
+            "Register",
+            "SetupAnyTrustReader",
+            "SetupBlobReader",
+            "SetupDACertificateReader"
+          ],
+          "excluded": {},
+          "rounds": 2,
+          "write_closure": [
+            "providers"
+          ]
+        }
+      },
+      "dead": {},
+      "permission": {
+        "Register": null,
+        "SetupAnyTrustReader": null,
+        "SetupBlobReader": null,
+        "SetupDACertificateReader": null
+      },
+      "r0": {
+        "providers": [
+          0
+        ]
+      }
+    }
+  },
+  "sidecar": {
+    "path": "results/M6/I116/holon/c12/sidecars/disch.json",
+    "sha256": "3fb50009e5a3e49343e09305bedc9a5767bdfa4999a68b021d82acccb5c48b63"
+  }
+}

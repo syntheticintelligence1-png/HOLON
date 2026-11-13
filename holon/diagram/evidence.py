@@ -752,6 +752,24 @@ def adopted_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, by
     return out
 
 
+FALLBACKS = ("unknown",)
+
+
+def adoption_fallback(gm: str, root: Path, inp: "_Inputs") -> str | None:
+    """I116 (E): the adoption sidecar's document_fallback (None when the sidecar or the key is absent); any value but
+    "unknown" is an EvidenceError."""
+    side = root / "spec" / gm / "lib" / "derive_extracted.json"
+    if not side.exists():
+        return None
+    sc = inp.read_json(side)
+    if not isinstance(sc, dict) or "document_fallback" not in sc:
+        return None
+    if sc["document_fallback"] not in FALLBACKS:
+        raise EvidenceError(f"{inp.rel(side)}: document_fallback is {sc['document_fallback']!r}, not one of "
+                            f"{list(FALLBACKS)}")
+    return sc["document_fallback"]
+
+
 def gox_documents(gm: str, root: Path, inp: "_Inputs") -> list[tuple[str, bytes]]:
     """(path, bytes) of the Go document the milestone's gox sidecar (spec/<gm>/lib/go_laws.json, I93) names, when a law
     of the milestone's DERIVATION is over it (PAR's Go laws)."""
@@ -964,6 +982,8 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
                        "anchors": layer.anchors(cdg)}
     # I20: the milestone's adopted transitions documents, no diagram, anchors only; a build for no milestone (a
     # fixture's own documents) adopts nothing, else gen_milestone's default M2 would add M2's adoption to it
+    fbmode = adoption_fallback(gm, root, inp) if adopted and milestone is not None else None
+    fallback = []
     for rel, raw, d in (adopted_documents(gm, root, inp) if adopted and milestone is not None else []):
         key = Path(rel).name[:-len(".json")]
         if key in models:
@@ -975,7 +995,15 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
         models[key] = {"facts": rel, "facts_sha256": hashlib.sha256(raw).hexdigest(), "facts_version": FACTS03,
                        "diagram": None, "anchors": an}
         if diagrams is None and re.fullmatch(r"M\d+", milestone or ""):   # I72: E2 over the document (rule Z4)
-            atoms += transitions_atoms(key, d)
+            try:
+                atoms += transitions_atoms(key, d)
+            except EvidenceError as e:
+                # I116 (E): under the adoption sidecar's document_fallback, a construct the E2 rule does not map in
+                # this one document gives it no atom (its anchors stay), a recorded miss; otherwise a refusal
+                if fbmode is None or not isinstance(e.__cause__, TR.TransitionsError):
+                    raise
+                fallback.append({"class": "e2_unmapped", "document": rel, "error": str(e.__cause__), "model": key,
+                                 "sha256": hashlib.sha256(raw).hexdigest()})
     # I86: the documents of the milestone's bundle laws that are not models yet (bundle_documents), no diagram,
     # anchors only
     for rel, raw, d in (bundle_documents(gm, root, inp) if adopted and milestone is not None else []):
@@ -1011,6 +1039,8 @@ def build(fact_paths, root: Path | str = ROOT, diagrams: dict | None = None, ass
     doc = {"document": "evidence", "evidence_version": EVIDENCE_VERSION, "milestone": milestone,
            "inputs": inp.listing(), "levels": dict(STRENGTH), "sorts_sha256": assignment.get("sorts_sha256"),
            "models": models, "atoms": _unique(atoms), "unresolved": _unique(unresolved)}
+    if fallback:   # I116 (E): written only when a document fell back (else the set is as before, byte for byte)
+        doc["fallback"] = sorted(fallback, key=lambda x: x["document"])
     doc["evidence_sha256"] = body_sha256(doc)
     return doc
 
