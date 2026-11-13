@@ -1,0 +1,5026 @@
+{
+  "actions": [
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.MsgPipeRW",
+      "edges": [],
+      "effects": [
+        {
+          "family": "closed",
+          "src": "p2p/message.go:221"
+        },
+        {
+          "family": "closing",
+          "src": "p2p/message.go:221"
+        },
+        {
+          "family": "r",
+          "src": "p2p/message.go:221"
+        },
+        {
+          "family": "w",
+          "src": "p2p/message.go:221"
+        },
+        {
+          "family": "closed",
+          "src": "p2p/message.go:224"
+        },
+        {
+          "family": "closing",
+          "src": "p2p/message.go:224"
+        },
+        {
+          "family": "r",
+          "src": "p2p/message.go:224"
+        },
+        {
+          "family": "w",
+          "src": "p2p/message.go:224"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "Close",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "closed": [
+          "?",
+          [
+            "!=",
+            [
+              "call",
+              "sync/atomic.AddInt32",
+              [
+                "unknown",
+                "p2p/message.go:218",
+                "ptr"
+              ],
+              1
+            ],
+            1
+          ],
+          [
+            "unknown",
+            "p2p/message.go:221",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "sync/atomic.AddInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:218",
+                    "ptr"
+                  ],
+                  1
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:224",
+              "havoc"
+            ],
+            [
+              "storage",
+              "closed"
+            ]
+          ]
+        ],
+        "closing": [
+          "?",
+          [
+            "!=",
+            [
+              "call",
+              "sync/atomic.AddInt32",
+              [
+                "unknown",
+                "p2p/message.go:218",
+                "ptr"
+              ],
+              1
+            ],
+            1
+          ],
+          [
+            "unknown",
+            "p2p/message.go:221",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "sync/atomic.AddInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:218",
+                    "ptr"
+                  ],
+                  1
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:224",
+              "havoc"
+            ],
+            [
+              "storage",
+              "closing"
+            ]
+          ]
+        ],
+        "r": [
+          "?",
+          [
+            "!=",
+            [
+              "call",
+              "sync/atomic.AddInt32",
+              [
+                "unknown",
+                "p2p/message.go:218",
+                "ptr"
+              ],
+              1
+            ],
+            1
+          ],
+          [
+            "unknown",
+            "p2p/message.go:221",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "sync/atomic.AddInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:218",
+                    "ptr"
+                  ],
+                  1
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:224",
+              "havoc"
+            ],
+            [
+              "storage",
+              "r"
+            ]
+          ]
+        ],
+        "w": [
+          "?",
+          [
+            "!=",
+            [
+              "call",
+              "sync/atomic.AddInt32",
+              [
+                "unknown",
+                "p2p/message.go:218",
+                "ptr"
+              ],
+              1
+            ],
+            1
+          ],
+          [
+            "unknown",
+            "p2p/message.go:221",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "call",
+                  "sync/atomic.AddInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:218",
+                    "ptr"
+                  ],
+                  1
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:224",
+              "havoc"
+            ],
+            [
+              "storage",
+              "w"
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "p2p/message.go:217",
+      "writes": [
+        {
+          "cond": [
+            "!=",
+            [
+              "call",
+              "sync/atomic.AddInt32",
+              [
+                "unknown",
+                "p2p/message.go:218",
+                "ptr"
+              ],
+              1
+            ],
+            1
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 0,
+          "src": "p2p/message.go:221",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:221",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "call",
+              "sync/atomic.AddInt32",
+              [
+                "unknown",
+                "p2p/message.go:218",
+                "ptr"
+              ],
+              1
+            ],
+            1
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 1,
+          "src": "p2p/message.go:221",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:221",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "call",
+              "sync/atomic.AddInt32",
+              [
+                "unknown",
+                "p2p/message.go:218",
+                "ptr"
+              ],
+              1
+            ],
+            1
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 2,
+          "src": "p2p/message.go:221",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:221",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!=",
+            [
+              "call",
+              "sync/atomic.AddInt32",
+              [
+                "unknown",
+                "p2p/message.go:218",
+                "ptr"
+              ],
+              1
+            ],
+            1
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 3,
+          "src": "p2p/message.go:221",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:221",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "call",
+                "sync/atomic.AddInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:218",
+                  "ptr"
+                ],
+                1
+              ],
+              1
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 4,
+          "src": "p2p/message.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "call",
+                "sync/atomic.AddInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:218",
+                  "ptr"
+                ],
+                1
+              ],
+              1
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 5,
+          "src": "p2p/message.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "call",
+                "sync/atomic.AddInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:218",
+                  "ptr"
+                ],
+                1
+              ],
+              1
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 6,
+          "src": "p2p/message.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:224",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "!=",
+              [
+                "call",
+                "sync/atomic.AddInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:218",
+                  "ptr"
+                ],
+                1
+              ],
+              1
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 7,
+          "src": "p2p/message.go:224",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:224",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.MsgPipeRW",
+      "edges": [],
+      "effects": [
+        {
+          "family": "closed",
+          "src": "p2p/message.go:203"
+        },
+        {
+          "family": "closing",
+          "src": "p2p/message.go:203"
+        },
+        {
+          "family": "r",
+          "src": "p2p/message.go:203"
+        },
+        {
+          "family": "w",
+          "src": "p2p/message.go:203"
+        },
+        {
+          "family": "closed",
+          "src": "p2p/message.go:207"
+        },
+        {
+          "family": "closing",
+          "src": "p2p/message.go:207"
+        },
+        {
+          "family": "r",
+          "src": "p2p/message.go:207"
+        },
+        {
+          "family": "w",
+          "src": "p2p/message.go:207"
+        },
+        {
+          "family": "closed",
+          "src": "p2p/message.go:211"
+        },
+        {
+          "family": "closing",
+          "src": "p2p/message.go:211"
+        },
+        {
+          "family": "r",
+          "src": "p2p/message.go:211"
+        },
+        {
+          "family": "w",
+          "src": "p2p/message.go:211"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "ReadMsg",
+      "order": [],
+      "panics": [],
+      "params": [],
+      "payable": false,
+      "post": {
+        "closed": [
+          "?",
+          [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          [
+            "unknown",
+            "p2p/message.go:207",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "==",
+                [
+                  "call",
+                  "sync/atomic.LoadInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:204",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:211",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "==",
+                  [
+                    "call",
+                    "sync/atomic.LoadInt32",
+                    [
+                      "unknown",
+                      "p2p/message.go:204",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    1
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/message.go:203",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "call",
+                      "sync/atomic.LoadInt32",
+                      [
+                        "unknown",
+                        "p2p/message.go:204",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/message.go:211",
+                  "havoc"
+                ],
+                [
+                  "storage",
+                  "closed"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "closing": [
+          "?",
+          [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          [
+            "unknown",
+            "p2p/message.go:207",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "==",
+                [
+                  "call",
+                  "sync/atomic.LoadInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:204",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:211",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "==",
+                  [
+                    "call",
+                    "sync/atomic.LoadInt32",
+                    [
+                      "unknown",
+                      "p2p/message.go:204",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    1
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/message.go:203",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "call",
+                      "sync/atomic.LoadInt32",
+                      [
+                        "unknown",
+                        "p2p/message.go:204",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/message.go:211",
+                  "havoc"
+                ],
+                [
+                  "storage",
+                  "closing"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "r": [
+          "?",
+          [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          [
+            "unknown",
+            "p2p/message.go:207",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "==",
+                [
+                  "call",
+                  "sync/atomic.LoadInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:204",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:211",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "==",
+                  [
+                    "call",
+                    "sync/atomic.LoadInt32",
+                    [
+                      "unknown",
+                      "p2p/message.go:204",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    1
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/message.go:203",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "call",
+                      "sync/atomic.LoadInt32",
+                      [
+                        "unknown",
+                        "p2p/message.go:204",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/message.go:211",
+                  "havoc"
+                ],
+                [
+                  "storage",
+                  "r"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "w": [
+          "?",
+          [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          [
+            "unknown",
+            "p2p/message.go:207",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "==",
+                [
+                  "call",
+                  "sync/atomic.LoadInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:204",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:211",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "==",
+                  [
+                    "call",
+                    "sync/atomic.LoadInt32",
+                    [
+                      "unknown",
+                      "p2p/message.go:204",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    1
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/message.go:203",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "call",
+                      "sync/atomic.LoadInt32",
+                      [
+                        "unknown",
+                        "p2p/message.go:204",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/message.go:211",
+                  "havoc"
+                ],
+                [
+                  "storage",
+                  "w"
+                ]
+              ]
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "p2p/message.go:203",
+      "writes": [
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 0,
+          "src": "p2p/message.go:207",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:207",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 1,
+          "src": "p2p/message.go:207",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:207",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 2,
+          "src": "p2p/message.go:207",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:207",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 3,
+          "src": "p2p/message.go:207",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:207",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 4,
+          "src": "p2p/message.go:211",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:211",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 5,
+          "src": "p2p/message.go:211",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:211",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 6,
+          "src": "p2p/message.go:211",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:211",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 7,
+          "src": "p2p/message.go:211",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:211",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 8,
+          "src": "p2p/message.go:203",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:203",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 9,
+          "src": "p2p/message.go:203",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:203",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 10,
+          "src": "p2p/message.go:203",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:203",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 11,
+          "src": "p2p/message.go:203",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:203",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 12,
+          "src": "p2p/message.go:211",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:211",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 13,
+          "src": "p2p/message.go:211",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:211",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 14,
+          "src": "p2p/message.go:211",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:211",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:204",
+                  "ptr"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 15,
+          "src": "p2p/message.go:211",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:211",
+            "havoc"
+          ]
+        }
+      ]
+    },
+    {
+      "calls": [],
+      "checks": [],
+      "cost": {
+        "terms": []
+      },
+      "declared_in": "p2p.MsgPipeRW",
+      "edges": [],
+      "effects": [
+        {
+          "family": "closed",
+          "src": "p2p/message.go:182"
+        },
+        {
+          "family": "closing",
+          "src": "p2p/message.go:182"
+        },
+        {
+          "family": "r",
+          "src": "p2p/message.go:182"
+        },
+        {
+          "family": "w",
+          "src": "p2p/message.go:182"
+        },
+        {
+          "family": "closed",
+          "src": "p2p/message.go:195"
+        },
+        {
+          "family": "closing",
+          "src": "p2p/message.go:195"
+        },
+        {
+          "family": "r",
+          "src": "p2p/message.go:195"
+        },
+        {
+          "family": "w",
+          "src": "p2p/message.go:195"
+        },
+        {
+          "family": "closed",
+          "src": "p2p/message.go:199"
+        },
+        {
+          "family": "closing",
+          "src": "p2p/message.go:199"
+        },
+        {
+          "family": "r",
+          "src": "p2p/message.go:199"
+        },
+        {
+          "family": "w",
+          "src": "p2p/message.go:199"
+        }
+      ],
+      "events": [],
+      "guards": [],
+      "loops": [],
+      "modifiers": [],
+      "mstores": [],
+      "mutability": "nonpayable",
+      "name": "WriteMsg",
+      "order": [],
+      "panics": [],
+      "params": [
+        {
+          "location": "default",
+          "name": "msg",
+          "type": "tuple",
+          "width": null
+        }
+      ],
+      "payable": false,
+      "post": {
+        "closed": [
+          "?",
+          [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "==",
+                [
+                  "call",
+                  "sync/atomic.LoadInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:183",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ],
+              [
+                ">",
+                0,
+                0
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:195",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "==",
+                  [
+                    "call",
+                    "sync/atomic.LoadInt32",
+                    [
+                      "unknown",
+                      "p2p/message.go:183",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ],
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ],
+                [
+                  ">",
+                  0,
+                  0
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    1
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/message.go:182",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "==",
+                    [
+                      "call",
+                      "sync/atomic.LoadInt32",
+                      [
+                        "unknown",
+                        "p2p/message.go:183",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ],
+                  [
+                    "!",
+                    [
+                      ">",
+                      0,
+                      0
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/message.go:195",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "==",
+                      [
+                        "call",
+                        "sync/atomic.LoadInt32",
+                        [
+                          "unknown",
+                          "p2p/message.go:183",
+                          "ptr"
+                        ]
+                      ],
+                      0
+                    ],
+                    [
+                      "!",
+                      [
+                        "==",
+                        [
+                          "unknown",
+                          "?",
+                          "extract"
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      1
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/message.go:199",
+                    "havoc"
+                  ],
+                  [
+                    "?",
+                    [
+                      "&&",
+                      [
+                        "==",
+                        [
+                          "call",
+                          "sync/atomic.LoadInt32",
+                          [
+                            "unknown",
+                            "p2p/message.go:183",
+                            "ptr"
+                          ]
+                        ],
+                        0
+                      ],
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "unknown",
+                            "?",
+                            "extract"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "unknown",
+                            "?",
+                            "extract"
+                          ],
+                          1
+                        ]
+                      ]
+                    ],
+                    [
+                      "unknown",
+                      "p2p/message.go:182",
+                      "havoc"
+                    ],
+                    [
+                      "?",
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "call",
+                            "sync/atomic.LoadInt32",
+                            [
+                              "unknown",
+                              "p2p/message.go:183",
+                              "ptr"
+                            ]
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "unknown",
+                        "p2p/message.go:199",
+                        "havoc"
+                      ],
+                      [
+                        "storage",
+                        "closed"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        "closing": [
+          "?",
+          [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "==",
+                [
+                  "call",
+                  "sync/atomic.LoadInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:183",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ],
+              [
+                ">",
+                0,
+                0
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:195",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "==",
+                  [
+                    "call",
+                    "sync/atomic.LoadInt32",
+                    [
+                      "unknown",
+                      "p2p/message.go:183",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ],
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ],
+                [
+                  ">",
+                  0,
+                  0
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    1
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/message.go:182",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "==",
+                    [
+                      "call",
+                      "sync/atomic.LoadInt32",
+                      [
+                        "unknown",
+                        "p2p/message.go:183",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ],
+                  [
+                    "!",
+                    [
+                      ">",
+                      0,
+                      0
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/message.go:195",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "==",
+                      [
+                        "call",
+                        "sync/atomic.LoadInt32",
+                        [
+                          "unknown",
+                          "p2p/message.go:183",
+                          "ptr"
+                        ]
+                      ],
+                      0
+                    ],
+                    [
+                      "!",
+                      [
+                        "==",
+                        [
+                          "unknown",
+                          "?",
+                          "extract"
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      1
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/message.go:199",
+                    "havoc"
+                  ],
+                  [
+                    "?",
+                    [
+                      "&&",
+                      [
+                        "==",
+                        [
+                          "call",
+                          "sync/atomic.LoadInt32",
+                          [
+                            "unknown",
+                            "p2p/message.go:183",
+                            "ptr"
+                          ]
+                        ],
+                        0
+                      ],
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "unknown",
+                            "?",
+                            "extract"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "unknown",
+                            "?",
+                            "extract"
+                          ],
+                          1
+                        ]
+                      ]
+                    ],
+                    [
+                      "unknown",
+                      "p2p/message.go:182",
+                      "havoc"
+                    ],
+                    [
+                      "?",
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "call",
+                            "sync/atomic.LoadInt32",
+                            [
+                              "unknown",
+                              "p2p/message.go:183",
+                              "ptr"
+                            ]
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "unknown",
+                        "p2p/message.go:199",
+                        "havoc"
+                      ],
+                      [
+                        "storage",
+                        "closing"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        "r": [
+          "?",
+          [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "==",
+                [
+                  "call",
+                  "sync/atomic.LoadInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:183",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ],
+              [
+                ">",
+                0,
+                0
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:195",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "==",
+                  [
+                    "call",
+                    "sync/atomic.LoadInt32",
+                    [
+                      "unknown",
+                      "p2p/message.go:183",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ],
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ],
+                [
+                  ">",
+                  0,
+                  0
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    1
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/message.go:182",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "==",
+                    [
+                      "call",
+                      "sync/atomic.LoadInt32",
+                      [
+                        "unknown",
+                        "p2p/message.go:183",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ],
+                  [
+                    "!",
+                    [
+                      ">",
+                      0,
+                      0
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/message.go:195",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "==",
+                      [
+                        "call",
+                        "sync/atomic.LoadInt32",
+                        [
+                          "unknown",
+                          "p2p/message.go:183",
+                          "ptr"
+                        ]
+                      ],
+                      0
+                    ],
+                    [
+                      "!",
+                      [
+                        "==",
+                        [
+                          "unknown",
+                          "?",
+                          "extract"
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      1
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/message.go:199",
+                    "havoc"
+                  ],
+                  [
+                    "?",
+                    [
+                      "&&",
+                      [
+                        "==",
+                        [
+                          "call",
+                          "sync/atomic.LoadInt32",
+                          [
+                            "unknown",
+                            "p2p/message.go:183",
+                            "ptr"
+                          ]
+                        ],
+                        0
+                      ],
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "unknown",
+                            "?",
+                            "extract"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "unknown",
+                            "?",
+                            "extract"
+                          ],
+                          1
+                        ]
+                      ]
+                    ],
+                    [
+                      "unknown",
+                      "p2p/message.go:182",
+                      "havoc"
+                    ],
+                    [
+                      "?",
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "call",
+                            "sync/atomic.LoadInt32",
+                            [
+                              "unknown",
+                              "p2p/message.go:183",
+                              "ptr"
+                            ]
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "unknown",
+                        "p2p/message.go:199",
+                        "havoc"
+                      ],
+                      [
+                        "storage",
+                        "r"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ],
+        "w": [
+          "?",
+          [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ],
+          [
+            "?",
+            [
+              "&&",
+              [
+                "==",
+                [
+                  "call",
+                  "sync/atomic.LoadInt32",
+                  [
+                    "unknown",
+                    "p2p/message.go:183",
+                    "ptr"
+                  ]
+                ],
+                0
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ],
+              [
+                ">",
+                0,
+                0
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ],
+            [
+              "unknown",
+              "p2p/message.go:195",
+              "havoc"
+            ],
+            [
+              "?",
+              [
+                "&&",
+                [
+                  "==",
+                  [
+                    "call",
+                    "sync/atomic.LoadInt32",
+                    [
+                      "unknown",
+                      "p2p/message.go:183",
+                      "ptr"
+                    ]
+                  ],
+                  0
+                ],
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ],
+                [
+                  ">",
+                  0,
+                  0
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "!",
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    1
+                  ]
+                ]
+              ],
+              [
+                "unknown",
+                "p2p/message.go:182",
+                "havoc"
+              ],
+              [
+                "?",
+                [
+                  "&&",
+                  [
+                    "==",
+                    [
+                      "call",
+                      "sync/atomic.LoadInt32",
+                      [
+                        "unknown",
+                        "p2p/message.go:183",
+                        "ptr"
+                      ]
+                    ],
+                    0
+                  ],
+                  [
+                    "==",
+                    [
+                      "unknown",
+                      "?",
+                      "extract"
+                    ],
+                    0
+                  ],
+                  [
+                    "!",
+                    [
+                      ">",
+                      0,
+                      0
+                    ]
+                  ]
+                ],
+                [
+                  "unknown",
+                  "p2p/message.go:195",
+                  "havoc"
+                ],
+                [
+                  "?",
+                  [
+                    "&&",
+                    [
+                      "==",
+                      [
+                        "call",
+                        "sync/atomic.LoadInt32",
+                        [
+                          "unknown",
+                          "p2p/message.go:183",
+                          "ptr"
+                        ]
+                      ],
+                      0
+                    ],
+                    [
+                      "!",
+                      [
+                        "==",
+                        [
+                          "unknown",
+                          "?",
+                          "extract"
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "==",
+                      [
+                        "unknown",
+                        "?",
+                        "extract"
+                      ],
+                      1
+                    ]
+                  ],
+                  [
+                    "unknown",
+                    "p2p/message.go:199",
+                    "havoc"
+                  ],
+                  [
+                    "?",
+                    [
+                      "&&",
+                      [
+                        "==",
+                        [
+                          "call",
+                          "sync/atomic.LoadInt32",
+                          [
+                            "unknown",
+                            "p2p/message.go:183",
+                            "ptr"
+                          ]
+                        ],
+                        0
+                      ],
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "unknown",
+                            "?",
+                            "extract"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "unknown",
+                            "?",
+                            "extract"
+                          ],
+                          1
+                        ]
+                      ]
+                    ],
+                    [
+                      "unknown",
+                      "p2p/message.go:182",
+                      "havoc"
+                    ],
+                    [
+                      "?",
+                      [
+                        "!",
+                        [
+                          "==",
+                          [
+                            "call",
+                            "sync/atomic.LoadInt32",
+                            [
+                              "unknown",
+                              "p2p/message.go:183",
+                              "ptr"
+                            ]
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "unknown",
+                        "p2p/message.go:199",
+                        "havoc"
+                      ],
+                      [
+                        "storage",
+                        "w"
+                      ]
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      },
+      "principal": null,
+      "returns": null,
+      "selector": null,
+      "src": "p2p/message.go:182",
+      "writes": [
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 0,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 1,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 2,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 3,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 4,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 5,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 6,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 7,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 8,
+          "src": "p2p/message.go:182",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:182",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 9,
+          "src": "p2p/message.go:182",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:182",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 10,
+          "src": "p2p/message.go:182",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:182",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              ">",
+              0,
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 11,
+          "src": "p2p/message.go:182",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:182",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                ">",
+                0,
+                0
+              ]
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 12,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                ">",
+                0,
+                0
+              ]
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 13,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                ">",
+                0,
+                0
+              ]
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 14,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                ">",
+                0,
+                0
+              ]
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 15,
+          "src": "p2p/message.go:195",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:195",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 16,
+          "src": "p2p/message.go:199",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:199",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 17,
+          "src": "p2p/message.go:199",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:199",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 18,
+          "src": "p2p/message.go:199",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:199",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 19,
+          "src": "p2p/message.go:199",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:199",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 20,
+          "src": "p2p/message.go:182",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:182",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 21,
+          "src": "p2p/message.go:182",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:182",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 22,
+          "src": "p2p/message.go:182",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:182",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "&&",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 23,
+          "src": "p2p/message.go:182",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:182",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "closed",
+          "path": [],
+          "seq": 24,
+          "src": "p2p/message.go:199",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:199",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "closing",
+          "path": [],
+          "seq": 25,
+          "src": "p2p/message.go:199",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:199",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "r",
+          "path": [],
+          "seq": 26,
+          "src": "p2p/message.go:199",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:199",
+            "havoc"
+          ]
+        },
+        {
+          "cond": [
+            "!",
+            [
+              "==",
+              [
+                "call",
+                "sync/atomic.LoadInt32",
+                [
+                  "unknown",
+                  "p2p/message.go:183",
+                  "ptr"
+                ]
+              ],
+              0
+            ]
+          ],
+          "family": "w",
+          "path": [],
+          "seq": 27,
+          "src": "p2p/message.go:199",
+          "stack": [],
+          "value": [
+            "unknown",
+            "p2p/message.go:199",
+            "havoc"
+          ]
+        }
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "A-env",
+      "text": "Environment terms (the state before the action, the results of opaque calls) are free: every value of them is possible. The result of an opaque call is a function of its function and arguments."
+    },
+    {
+      "id": "A-implicit",
+      "text": "Implicit Go panics other than an integer division by zero (nil dereference, index out of range, a nil map write, a failed type assertion) are not modelled as guards."
+    },
+    {
+      "id": "A-loop",
+      "text": "A loop is not iterated: every family it may write is havocked and its values are unknown after it."
+    },
+    {
+      "id": "A-reach",
+      "text": "Every path that returns a non-nil error or panics before writing is a guard reach."
+    },
+    {
+      "id": "A-reentrancy",
+      "text": "An opaque call writes only state reachable from its arguments (and its receiver): a state pointer, map, KV store or closure handed to it havocs the families it reaches; a call through an interface held in the state does not write this machine's state otherwise."
+    }
+  ],
+  "constants": {},
+  "contract": "github.com/ethereum/go-ethereum/p2p.MsgPipeRW",
+  "debt": [
+    {
+      "action": "ReadMsg",
+      "kind": "channel",
+      "src": "p2p/message.go:205",
+      "what": "select"
+    },
+    {
+      "action": "WriteMsg",
+      "kind": "channel",
+      "src": "p2p/message.go:186",
+      "what": "select"
+    },
+    {
+      "action": "WriteMsg",
+      "kind": "channel",
+      "src": "p2p/message.go:190",
+      "what": "select"
+    }
+  ],
+  "extraction": {
+    "config": {
+      "path": "results/M6/I120/holon/c14/sidecars/go_1_machines.json",
+      "sha256": "600a29213ebc5c05a180721daf74c52a70a24cd8909f57dddc40012c26812928"
+    },
+    "frontend": "go",
+    "frontend_version": "holon-go-machines/0.1",
+    "inputs": [
+      {
+        "sha256": "3efbd5df5999050da7ea115e9da333a3fbd86fb32970c784556a58d483fcb5ea",
+        "unit": "p2p/dial.go"
+      },
+      {
+        "sha256": "aeaaf70788bcb18cdffdd9bd44b33623509f6a66518e5b32ec472b48917f5dcb",
+        "unit": "p2p/message.go"
+      },
+      {
+        "sha256": "c93bdb10b12c21b7553f998154801015ed4e5477d8148b9cbe0872a4dd680070",
+        "unit": "p2p/metrics.go"
+      },
+      {
+        "sha256": "23b706bc28f140a52a48317ad569639096ccb48a1e74dd8667c378ba7aee84c7",
+        "unit": "p2p/peer.go"
+      },
+      {
+        "sha256": "df647e286ebcf851cd9484c3edbdf9ad34d64d177a973d933352290482c244eb",
+        "unit": "p2p/peer_error.go"
+      },
+      {
+        "sha256": "b064189b7e32f6b21827f2b3297af21b1b0810fc6da8e0dcd213e2c90db174a7",
+        "unit": "p2p/protocol.go"
+      },
+      {
+        "sha256": "2c4b9c5afac351dbc8ba4161341e600cd63c9ad64caea49d5e28596673d6ab4f",
+        "unit": "p2p/server.go"
+      },
+      {
+        "sha256": "0ce419526208aa40813e9b1f2fc71310f161fe3f2763099e4984d53026da4ac1",
+        "unit": "p2p/transport.go"
+      },
+      {
+        "sha256": "b60482127849d76e19346ef2f710dfe0e33434540bb70ea5b7698f65f760109c",
+        "unit": "p2p/util.go"
+      }
+    ],
+    "kind": "transitions",
+    "machines": {
+      "nil_maps": "unknown"
+    },
+    "method": "extracted",
+    "tool": {
+      "go": "go1.24.7",
+      "ssadump_sha256": "819d0f3a64139daa6be361e666b78a57294d4bdf13f8a169f906d069c554f6e9",
+      "x_tools": "v0.36.0"
+    }
+  },
+  "facts_version": "holon-facts/0.3",
+  "info": {
+    "contract": "p2p.MsgPipeRW",
+    "errors": {},
+    "events": {},
+    "functions": {
+      "Close": {
+        "declared_in": "p2p.MsgPipeRW",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "Close",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      },
+      "ReadMsg": {
+        "declared_in": "p2p.MsgPipeRW",
+        "inputs": [],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "ReadMsg",
+        "outputs": [
+          {
+            "components": [
+              {
+                "name": "Code",
+                "type": "uint64"
+              },
+              {
+                "name": "Size",
+                "type": "uint32"
+              },
+              {
+                "name": "Payload",
+                "type": "uint256"
+              },
+              {
+                "name": "ReceivedAt",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCap",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCode",
+                "type": "uint64"
+              },
+              {
+                "name": "meterSize",
+                "type": "uint32"
+              }
+            ],
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "selector": null,
+        "visibility": "external"
+      },
+      "WriteMsg": {
+        "declared_in": "p2p.MsgPipeRW",
+        "inputs": [
+          {
+            "components": [
+              {
+                "name": "Code",
+                "type": "uint64"
+              },
+              {
+                "name": "Size",
+                "type": "uint32"
+              },
+              {
+                "name": "Payload",
+                "type": "uint256"
+              },
+              {
+                "name": "ReceivedAt",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCap",
+                "type": "uint256"
+              },
+              {
+                "name": "meterCode",
+                "type": "uint64"
+              },
+              {
+                "name": "meterSize",
+                "type": "uint32"
+              }
+            ],
+            "name": "msg",
+            "type": "tuple"
+          }
+        ],
+        "kind": "function",
+        "mutability": "nonpayable",
+        "name": "WriteMsg",
+        "outputs": [],
+        "selector": null,
+        "visibility": "external"
+      }
+    },
+    "immutables": {},
+    "info_version": "holon-extracted-info/0.2",
+    "layout": {
+      "storage": [
+        {
+          "contract": "p2p.MsgPipeRW",
+          "label": "w",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.MsgPipeRW",
+          "label": "r",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.MsgPipeRW",
+          "label": "closing",
+          "offset": 0,
+          "slot": "2",
+          "type": "t_bytes32"
+        },
+        {
+          "contract": "p2p.MsgPipeRW",
+          "label": "closed",
+          "offset": 0,
+          "slot": "3",
+          "type": "t_bytes32"
+        }
+      ],
+      "types": {
+        "t_bytes32": {
+          "encoding": "inplace",
+          "label": "bytes32",
+          "numberOfBytes": "32"
+        }
+      }
+    },
+    "linearization": [
+      "p2p.MsgPipeRW"
+    ],
+    "members": {
+      "sync/atomic.AddInt32": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "int32"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "sync/atomic.AddInt32",
+          "outputs": [
+            {
+              "name": "",
+              "type": "int32"
+            }
+          ],
+          "selector": "0x721db90e",
+          "visibility": "external"
+        }
+      ],
+      "sync/atomic.LoadInt32": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "sync/atomic.LoadInt32",
+          "outputs": [
+            {
+              "name": "",
+              "type": "int32"
+            }
+          ],
+          "selector": "0x5318cae5",
+          "visibility": "external"
+        }
+      ],
+      "sync/atomic.StoreInt32": [
+        {
+          "inputs": [
+            {
+              "name": "a0",
+              "type": "uint256"
+            },
+            {
+              "name": "a1",
+              "type": "int32"
+            }
+          ],
+          "kind": "function",
+          "mutability": "nonpayable",
+          "name": "sync/atomic.StoreInt32",
+          "outputs": [],
+          "selector": "0x03cd1151",
+          "visibility": "external"
+        }
+      ]
+    },
+    "unit": "p2p/dial.go"
+  },
+  "inherited_storage": [],
+  "storage": [
+    {
+      "kind": "scalar",
+      "name": "w",
+      "offset": 0,
+      "slot": 0,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "r",
+      "offset": 0,
+      "slot": 1,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "closing",
+      "offset": 0,
+      "slot": 2,
+      "value": "bytes32"
+    },
+    {
+      "kind": "scalar",
+      "name": "closed",
+      "offset": 0,
+      "slot": 3,
+      "value": "bytes32"
+    }
+  ],
+  "target": {
+    "commit": "a79afd9ac325e12021ae56928ba4af32bb3cc78f",
+    "repo": "ethereum/go-ethereum",
+    "scope": "go machine github.com/ethereum/go-ethereum/p2p.MsgPipeRW"
+  }
+}

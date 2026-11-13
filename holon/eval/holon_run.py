@@ -518,12 +518,7 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
                 machines += go_machines(R, S, rel, proto, entry, d, cfg, src, tmp)
         for d in docs:
             d["toolchain"] = toolchain_text(d, S / rel / "facts")
-            if d.get("status") == "extracted":
-                b = (S / rel / "facts" / d["file"]).read_bytes()
-                d["sha256"], d["bytes"] = sha256_bytes(b), len(b)
-                d["stored"] = d["language"] == "solidity" or len(b) <= proto["go"]["store_max_bytes"]
-                if not d["stored"]:
-                    (S / rel / "facts" / d["file"]).unlink()
+        store_documents(docs, S / rel / "facts", proto)
         ext = [d for d in docs if d.get("status") == "extracted"]
         stages["extract"] = {"status": "ok" if ext else "failed", "exit": None,
                              "detail": f"{len(ext)} of {len(docs)} documents extracted"}
@@ -578,7 +573,7 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
             if frm.is_dir() and any(frm.iterdir()):
                 shutil.copytree(frm, edir / sub, ignore=_IGNORE)
         _scrub(edir, ctx)
-        if compose:
+        if compose and store_scope(proto) == "evaluate":
             store_large(edir, proto["go"]["store_max_bytes"])
     finally:
         if subs:
@@ -591,6 +586,8 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
             "source")
     if proto["run_version"] != "holon-corpus-run/0.1":
         keys += ("toolchain",)
+    if store_scope(proto) == "commit":   # I120: the row says each document was evaluated in full
+        keys += ("evaluated",)
     row["documents"] = [{k: d.get(k) for k in keys} for d in docs]
     if compose:
         row["machines"] = machines
@@ -634,6 +631,10 @@ def run_entry(entry: dict, proto: dict, root: Path, stage_dir: Path, timing: dic
     row["label_rule_laws"] = sum(1 for x in row["laws"] if x["rule"] == entry["label"])
     if roles:
         withhold(row, edir)
+    if store_scope(proto) == "commit":   # I120: the limit applies to what is committed, after the row is measured
+        commit_documents(edir, docs, proto, entry["id"])
+        if compose:
+            store_large(edir, proto["go"]["store_max_bytes"])
     return row
 
 
@@ -1133,6 +1134,57 @@ def binding_check(S: Path, M: str, laws: list[str]) -> int:
         rec.pop("triage_why", None)
         rp.write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
     return n
+
+
+def store_scope(proto: dict) -> str:
+    """I120 (HUMAN_ANSWERS Q93 (2)): the protocol's go.store_scope. "commit" (the opt-in): go.store_max_bytes governs only
+    what is committed, so every stage reads each extracted document whole from the run's working tree. "evaluate"
+    (the default, every earlier protocol): a Go document over the limit is removed right after extraction, before any
+    later stage reads it."""
+    v = (proto.get("go") or {}).get("store_scope", "evaluate")
+    if v not in ("evaluate", "commit"):
+        raise common.Refused(f"protocol go.store_scope {v!r}: not evaluate or commit")
+    return v
+
+
+def store_documents(docs: list, facts: Path, proto: dict) -> None:
+    """Route A's storage rule for the extracted documents, right after extraction: each extracted document's sha256,
+    bytes and stored (a Solidity document always; a Go document when its size is at most go.store_max_bytes). Under
+    store_scope "evaluate" a document not stored is removed from the working tree here, so no later stage reads it.
+    Under "commit" (I120) it stays whole in the working tree for every stage (evaluated "full"); commit_documents
+    removes it from the committed output once the entry's row is measured (run_entry applies commit_documents, then
+    store_large, after law_rows and withhold, so no committed-output limit moves a measured field)."""
+    scope = store_scope(proto)
+    for d in docs:
+        if d.get("status") != "extracted":
+            continue
+        b = (facts / d["file"]).read_bytes()
+        d["sha256"], d["bytes"] = sha256_bytes(b), len(b)
+        d["stored"] = d["language"] == "solidity" or len(b) <= proto["go"]["store_max_bytes"]
+        if scope == "commit":
+            d["evaluated"] = "full"
+        elif not d["stored"]:
+            (facts / d["file"]).unlink()
+
+
+def commit_documents(edir: Path, docs: list, proto: dict, eid: str) -> list:
+    """I120 (store_scope "commit"): what store_documents did not remove from the working tree is removed from the
+    entry's committed output instead. Each document not stored is deleted from <id>/facts/ (its row keeps sha256 and
+    bytes, stored false); under --vault the whole document is first kept at <vault>/<id>/facts/, outside the
+    repository. Returns the files removed. A no-op under "evaluate" (the documents are already gone)."""
+    if store_scope(proto) != "commit":
+        return []
+    out = []
+    for d in docs:
+        if d.get("status") == "extracted" and not d["stored"]:
+            p = edir / "facts" / d["file"]
+            if VAULT is not None and p.is_file():
+                (VAULT / eid / "facts").mkdir(parents=True, exist_ok=True)
+                shutil.copy(p, VAULT / eid / "facts" / d["file"])
+            if p.is_file():
+                p.unlink()
+                out.append(d["file"])
+    return out
 
 
 def store_large(edir: Path, limit: int) -> list:

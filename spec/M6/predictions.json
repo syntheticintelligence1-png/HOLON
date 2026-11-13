@@ -1887,6 +1887,100 @@
       ],
       "regressions": []
     },
+    "I120": {
+      "title": "I120: route C reads beyond the store limit (HUMAN_ANSWERS Q93 (2), the lead's ruling): a storage limit must not decide what is evaluated. Under the opt-in protocol go.store_scope \"commit\" the composed driver keeps every extracted document whole in the run's working tree, so route C and every later stage (roles, Go-op documents, diagram, evidence, machines, derive, run, bind) read it in full; go.store_max_bytes then governs only what is committed: a Go document over the limit is recorded by sha256 and bytes only (stored false), as before, and its row says evaluated \"full\". Run through holon eval holon --compose with I117's protocol at its landing plus go.store_scope \"commit\"",
+      "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I120)",
+      "prompt": "prompts/I120_route_c_full_documents.md",
+      "tests": [
+        "tests_m6/test_i120_route_c_full_documents.py"
+      ],
+      "outcome_paths": [
+        "results/M6/I120/",
+        "docs/iterations/I120.md"
+      ],
+      "thresholds": {
+        "doc": "No number is a gate (BUILD_PLAN §4, M6 exit). Each prediction holds or misses as stated; a miss is reported, never forced. P1-P4 and P10 are on the planted entry (tests_m6/fixtures/i120/planted.json: I117's planted Go package as a git entry) and unit inputs. P5-P8 are smoke on contaminated data (I117's convention, restated by the coordinator before this prereg): I51's corpus is unsealed and contaminated by I51, I103-I119 and I107, so they measure how much the change restores (against I117's 29 PAR laws and I116's 93), never generality, which is claimed only from I114's sealed pair. The planted fixtures (P1-P4) and Morph's byte-identity (P11) are the evidence that the change is correct. P9 is a measurement on I106's targets, contaminated: post-I107 (both Solidity: this key should not move them). P11 is Morph's record. Laws are reported as aggregates only, never splitting PROVED from REFUTED (Q56, Q89); stage reasons only for stages before any decision (Q72). Units are invariant (Q69): counts of documents and laws, compared with I117's and I116's counted runs, never a tier calibrated on a run.",
+        "instruments": "spec/M6/lib/i120_run.json (the run protocol: base_protocol plus go.store_scope \"commit\") and tests_m6/test_i120_route_c_full_documents.py (every check)",
+        "base": "Built on the lead at 40da439d (I117's landing dda3319a and Q94). Q92 (4): the measured runs sit on the landing before this key's (I118's, then I119's, as the lead lands them), merged into this branch by a merge commit when the coordinator names the base; the merge sha is recorded in the report, so each measurement isolates one change",
+        "protocol_rule": "spec/M6/lib/i120_run.json is base_protocol plus exactly go.store_scope \"commit\" and go.store_scope_doc (and its own doc, iteration, out and go_machines.out), checked by TestRegressions.test_p10_protocol_is_its_base_plus_store_scope. Its base_protocol is spec/M6/lib/i117_run.json (I117's landing). If the base the coordinator names carries a later landed protocol (I118's or I119's), base_protocol becomes that protocol at the merge, before any measured run, and the file is regenerated from it by this rule (a mechanical rebase, no other change), recorded by an amendment line.",
+        "baseline": "I117's counted composed run (results/M6/I117/holon/corpus.json): 43 laws derived, 1 decided (PROVED and REFUTED together, Q56); PAR 29 derived. 7 extracted Go documents over store_max_bytes (c03, c04, c08, c09, c14, c18 go_2, c19 go_2), removed before route C. I116's counted run: 93 PAR derived, of which c08 1, c09 33, c14 29, c18 1 (64) came from documents that I117's run removed before route C.",
+        "definitions": "go.store_scope (holon.eval.holon_run.store_scope): \"evaluate\" (the default; every earlier protocol): a Go document over store_max_bytes is removed from the working tree right after extraction (as before). \"commit\" (the opt-in): store_documents records each extracted document's sha256, bytes and stored (Solidity always; Go when its size is at most store_max_bytes) and evaluated \"full\", and removes nothing; every stage reads the whole document from the working tree; after the outputs are copied, commit_documents removes each document not stored from <id>/facts/ (with --vault it first keeps the whole document at <vault>/<id>/facts/), and store_large then records every other file over the limit in <id>/large_files.json, as before. Any other value is refused. The committed record of a document: evaluated \"full\" and stored false means evaluated in full and stored by hash (sha256, bytes); evaluated \"full\" and stored true means evaluated in full and committed. The row has no evaluated field without the opt-in.",
+        "counting": "Q80, Q76, Q69: the counted run is the first measured run of holon eval holon --protocol spec/M6/lib/i120_run.json --compose over the corpus that finishes, on the base the coordinator names; every prediction is scored on it. A re-run counts only if the first attempt never finished; any other re-run is reported beside it as not counted. No started run's output is ever deleted. The preflight (I112's plus Q87's go pins) must pass before it. c18's first document (3.9 GB under I116, killed during extraction under I117, exit -9) is an extraction memory limit, not the store limit: counted, not fixed here.",
+        "soundness": "The change moves no law toward PROVED by itself: it only lets the stages read the document the extraction already wrote, byte for byte the document that a run with no limit reads (P2 checks the derived laws and every committed byte either side of the limit). Every law is decided by the same derive, bind and run stages and the checker, whose word is final; every REFUTED still needs its replay. What is committed is decided by the limit exactly as before (a document over it by sha256 and bytes only), so the record never holds what the limit excludes; the vault copy is outside the repository.",
+        "amendment_to_brief": "None: the brief's ruling (Q93 (2)) is applied as given."
+      },
+      "predictions": [
+        {
+          "id": "I120-P1",
+          "claim": "(Planted, over the limit) The planted entry under store_max_bytes 8192 (below its typed Go document's size) and go.store_scope \"commit\", run end to end by holon_run.run_entry --compose: the document row is stored false, evaluated \"full\"; the stages roles, goops, diagram, evidence, derive, bind and run are ok; at least 6 PAR laws are derived (I117's planted laws: the totality of SumWrap, Gate.Admit, ShiftMix, SignedLow and Counter.Bump, the domain coherence of ShiftMix and SignedLow). The committed output holds no file over the limit and not the document (its row has sha256 and bytes; it is not in large_files.json); the vault holds the whole document, of that sha256 and size.",
+          "check": "tests_m6/test_i120_route_c_full_documents.py::TestOverLimit",
+          "expected": {
+            "par_derived_at_least": 6
+          }
+        },
+        {
+          "id": "I120-P2",
+          "claim": "(Planted, either side) The same entry under the protocol's own limit (stored true): the row equals the over-limit row in every field but the documents' stored (laws aggregate and bundle commitment included), and every committed file is byte-identical, except those over the small limit, which the over-limit side records by exactly their sha256 and bytes (large_files.json, or the document's row) and never stores.",
+          "check": "tests_m6/test_i120_route_c_full_documents.py::TestEitherSide"
+        },
+        {
+          "id": "I120-P3",
+          "claim": "(Planted, the control) The same small limit without go.store_scope (every earlier protocol's rule): the document is removed before route C, no goops stage runs, 0 PAR laws are derived, the row has no evaluated field; its sha256, bytes and stored equal the over-limit side's.",
+          "check": "tests_m6/test_i120_route_c_full_documents.py::TestControl"
+        },
+        {
+          "id": "I120-P4",
+          "claim": "(Units) store_scope is \"evaluate\" by default and \"commit\" when set; any other value is refused. Without the opt-in store_documents removes an over-limit Go document at once and never a Solidity one, and commit_documents does nothing; with it the document stays until commit_documents removes it from the committed output.",
+          "check": "tests_m6/test_i120_route_c_full_documents.py::TestUnits"
+        },
+        {
+          "id": "I120-P5",
+          "claim": "(Corpus, the counted run; smoke on contaminated data) The preflight is ok; every extracted document's row says evaluated \"full\"; at least 6 extracted Go documents are stored false (evaluated in full, stored by hash: I117's 7 over-limit documents less c18's second if its size moves; c08, c09 and c14 among them by I117's count), each with a sha256 and absent from the committed facts.",
+          "check": "tests_m6/test_i120_route_c_full_documents.py::TestCorpusSmoke::test_p5_documents_evaluated_in_full_stored_by_hash",
+          "expected": {
+            "documents_at_least": 6
+          }
+        },
+        {
+          "id": "I120-P6",
+          "claim": "(Corpus; smoke on contaminated data) The PAR laws derived under I117's opt-in: at least 93 (I117's 29 plus the 64 its run lost to the store limit, I116's count), the 64 restored.",
+          "check": "tests_m6/test_i120_route_c_full_documents.py::TestCorpusSmoke::test_p6_par_laws_restored",
+          "expected": {
+            "par_derived_at_least": 93
+          }
+        },
+        {
+          "id": "I120-P7",
+          "claim": "(Corpus; smoke on contaminated data) Laws as aggregates (Q56, Q89): at least 107 derived (I117's 43 plus the 64), at least 1 decided (PROVED and REFUTED together, Q56); the per-law rows withheld.",
+          "check": "tests_m6/test_i120_route_c_full_documents.py::TestCorpusSmoke::test_p7_laws_aggregate",
+          "expected": {
+            "derived_at_least": 107,
+            "decided_at_least": 1
+          }
+        },
+        {
+          "id": "I120-P8",
+          "claim": "(Corpus; smoke on contaminated data) No law id, binding, unbound list, witness or per-law record is committed, and no committed file but corpus.json exceeds store_max_bytes (the full documents stay in the run's working tree and the vault).",
+          "check": "tests_m6/test_i120_route_c_full_documents.py::TestCorpusSmoke::test_p8_nothing_per_law_or_over_limit_committed"
+        },
+        {
+          "id": "I120-P9",
+          "claim": "(Spent targets, contaminated: post-I107) Aggregates only and one bundle commitment per target; every field of the committed measurement equals the base's own spent-target measurement except timings and the documents' evaluated field (no Solidity document is removed by the store limit, so none reaches this change).",
+          "check": "tests_m6/test_i120_route_c_full_documents.py::TestSealedContaminated, and the comparison in docs/iterations/I120.md"
+        },
+        {
+          "id": "I120-P10",
+          "claim": "Without the opt-in nothing changes: no earlier protocol names go.store_scope; I120's protocol is its base plus go.store_scope alone.",
+          "check": "tests_m6/test_i120_route_c_full_documents.py::TestRegressions"
+        },
+        {
+          "id": "I120-P11",
+          "claim": "Morph's M0-M3 move only by re-stamp: holon land dirty re-makes no law; gate-M0 passes; gate-M1 and gate-M2 pass, or fail on G1's generator_sha256 alone; gate-M3 partial passes.",
+          "check": "the gates, run locally and reported (docs/iterations/I120.md)"
+        }
+      ],
+      "regressions": []
+    },
     "I122": {
       "title": "I122: goloop's loop shapes (HUMAN_ANSWERS Q93 (3), Q98 (2), Q90): two loop classes of the Go-op model defined from the Go specification, S1 (a for-range over a slice the carrier holds, its trip count the slice's length, read from the carrier) and S2 (a counted loop with a constant step other than 1, of either sign, over a fixed-length byte array, its trip sequence computed in the induction variable's Go type with wraparound), behind the Go frontend's opt-in loops \"shapes\" (protocol go.loops \"shapes\", with ops \"typed\"), the frontend's loop_bodies widened to match; every op outside them stays Unsupported, its laws unbound and UNKNOWN, its reason counted before any decision (Q72). Run through holon eval holon --compose with the protocol of the last landing before this key's measured runs plus go.loops \"shapes\"",
       "plan": "docs/BUILD_PLAN.md#3-iteration-map (row I122)",

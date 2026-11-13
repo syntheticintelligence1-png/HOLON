@@ -351,6 +351,16 @@ jobs:
             # sealed target (Q56 (5)).
             timeout: 30
             run: python -m unittest tests_m6.test_i119_go_reasoner_soundness.TestFixture.test_p1_old_reading_recorded tests_m6.test_i119_go_reasoner_soundness.TestFixture.test_p1_control_unchanged tests_m6.test_i119_go_reasoner_soundness.TestDifferential tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_names_no_law tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_counts_are_per_milestone tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_corpus_covered tests_m6.test_i119_go_reasoner_soundness.TestAudit.test_audit_is_read_only tests_m6.test_i119_go_reasoner_soundness.TestDefault.test_p6_reasoner_unit tests_m6.test_i119_go_reasoner_soundness.TestDefault.test_p6_narrow_loop_mode_unchanged tests_m6.test_i119_go_reasoner_soundness.TestRegressions -v
+          - name: tests-m6-i120
+            # I120 (M6, route C reads beyond the store limit; HUMAN_ANSWERS Q93 (2)): the planted entry (I117's planted
+            # Go package as a git entry) run end to end by holon eval holon's run_entry --compose: over a planted small
+            # store_max_bytes under go.store_scope "commit", route C's laws are derived and the committed output holds
+            # the document by sha256 and size only (P1); the same entry under the limit gives the same row and the same
+            # committed bytes but the storage fields (P2); the control without the opt-in reproduces I117's wall (P3);
+            # the storage rule as a unit (P4); the regressions (P10, R1). The corpus and sealed measures (P5-P9;
+            # results/M6/I120) are the key's measured outcome, not run here. Nothing here analyses a sealed target.
+            timeout: 60
+            run: python -m unittest tests_m6.test_i120_route_c_full_documents.TestOverLimit tests_m6.test_i120_route_c_full_documents.TestEitherSide tests_m6.test_i120_route_c_full_documents.TestControl tests_m6.test_i120_route_c_full_documents.TestUnits tests_m6.test_i120_route_c_full_documents.TestRegressions -v
           - name: tests-m6-i122
             # I122 (M6, goloop's loop shapes; HUMAN_ANSWERS Q93 (3), Q98 (2), Q90): the frontend's opt-in loops "shapes"
             # (P1), classes S1 (a range over a carrier slice) and S2 (a constant stride, with Go's wraparound) on the

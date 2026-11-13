@@ -1,0 +1,89 @@
+{
+  "document": "assignment",
+  "inputs": [
+    {
+      "path": "results/M6/I120/holon/c06/facts/go_1_go_1.ChainGovernor.extracted.json",
+      "sha256": "f3efadf1679fdd387d9f0f5081b50eccd4f06b3bcc7c6c979cc144543d83f337"
+    },
+    {
+      "path": "results/M6/I120/holon/c06/sidecars/sort_types.json",
+      "sha256": "c8b642bf23f5b019bf8f71c941171074624f37870b4516ac2aa010e3fd615e7a"
+    },
+    {
+      "path": "spec/M3/lib/sort_seeds.json",
+      "sha256": "74701ad8e12a64e63396a88d755c091ddffa6342cf4c5292870115dcfde2b12a"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.ChainGovernor.extracted": {
+      "assignment": {
+        "CheckPendingForTime.now": "Nat (unrefined)",
+        "CollectMetrics.gk": "Nat (unrefined)",
+        "CollectMetrics.hb": "Nat (unrefined)",
+        "CollectMetrics.ourAddr": "Nat (unrefined)",
+        "CollectMetrics.sendC": "Nat (unrefined)",
+        "DropPendingVAA.vaaId": "Nat (unrefined)",
+        "HashFromMsg.msg": "Nat (unrefined)",
+        "IsGovernedMsg.msg": "Nat (unrefined)",
+        "IsVAAEnqueued.msgId": "Nat (unrefined)",
+        "PriceQuery.ctx": "Nat (unrefined)",
+        "ProcessMsg.msg": "Nat (unrefined)",
+        "ProcessMsgForTime.msg": "Nat (unrefined)",
+        "ProcessMsgForTime.now": "Nat (unrefined)",
+        "ReleasePendingVAA.vaaId": "Nat (unrefined)",
+        "ResetReleaseTimer.vaaId": "Nat (unrefined)",
+        "Run.ctx": "Nat (unrefined)",
+        "TrimAndSumValue.startTime": "Nat (unrefined)",
+        "TrimAndSumValue.transfers": "Nat (unrefined)",
+        "TrimAndSumValueForChain.ce": "Nat (unrefined)",
+        "TrimAndSumValueForChain.startTime": "Nat (unrefined)",
+        "call:(*github.com/certusone/wormhole/node/pkg/common.MessagePublication).CreateVAA": "Nat (unrefined)",
+        "call:(*github.com/wormhole-foundation/wormhole/sdk/vaa.VAA).SigningDigest": "Nat (unrefined)",
+        "call:(*math/big.Float).Int": "Nat (unrefined)",
+        "call:(*math/big.Float).Mul": "Nat (unrefined)",
+        "call:(*math/big.Float).SetInt": "Nat (unrefined)",
+        "call:(*math/big.Int).Div": "Nat (unrefined)",
+        "call:(*math/big.Int).IsUint64": "Nat (unrefined)",
+        "call:(*math/big.Int).Uint64": "Nat (unrefined)",
+        "call:(github.com/ethereum/go-ethereum/common.Hash).Bytes": "Nat (unrefined)",
+        "call:(time.Time).Add": "Nat (unrefined)",
+        "call:(time.Time).After": "Nat (unrefined)",
+        "call:encoding/hex.EncodeToString": "Nat (unrefined)",
+        "call:fmt.Errorf": "Nat (unrefined)",
+        "call:github.com/certusone/wormhole/node/pkg/db.GovernorDB.DeletePendingMsg": "Nat (unrefined)",
+        "call:github.com/certusone/wormhole/node/pkg/db.GovernorDB.GetChainGovernorData": "Nat (unrefined)",
+        "call:github.com/certusone/wormhole/node/pkg/db.GovernorDB.StorePendingMsg": "Nat (unrefined)",
+        "call:github.com/certusone/wormhole/node/pkg/db.GovernorDB.StoreTransfer": "Nat (unrefined)",
+        "call:github.com/ethereum/go-ethereum/crypto.Keccak256Hash": "Nat (unrefined)",
+        "call:github.com/ethereum/go-ethereum/crypto.Sign": "Nat (unrefined)",
+        "call:github.com/wormhole-foundation/wormhole/sdk/vaa.DecodeTransferPayloadHdr": "Nat (unrefined)",
+        "call:github.com/wormhole-foundation/wormhole/sdk/vaa.IsTransfer": "Nat (unrefined)",
+        "call:github.com/wormhole-foundation/wormhole/sdk/vaa.StringToAddress": "Nat (unrefined)",
+        "call:google.golang.org/protobuf/proto.Marshal": "Nat (unrefined)",
+        "call:len": "Nat (unrefined)",
+        "call:time.Now": "Nat (unrefined)",
+        "chains": "Nat (unrefined)",
+        "coinGeckoQueries": "Nat (unrefined)",
+        "configPublishCounter": "Nat (unrefined)",
+        "dayLengthInMinutes": "Nat (unrefined)",
+        "db": "Nat (unrefined)",
+        "env": "Nat (unrefined)",
+        "logger": "Nat (unrefined)",
+        "msgsSeen": "Bool",
+        "msgsToPublish": "Nat (unrefined)",
+        "mutex": "Nat (unrefined)",
+        "nextConfigPublishTime": "Nat (unrefined)",
+        "nextStatusPublishTime": "Nat (unrefined)",
+        "statusPublishCounter": "Nat (unrefined)",
+        "tokens": "Nat (unrefined)",
+        "tokensByCoinGeckoId": "Nat (unrefined)"
+      },
+      "facts": "results/M6/I120/holon/c06/facts/go_1_go_1.ChainGovernor.extracted.json",
+      "provenance": {}
+    }
+  },
+  "sites": [],
+  "sorts_sha256": "183839bf81b0035b7567419007481a97746b0dccbf7105cab3b760b16bb4b144",
+  "sorts_version": "holon-sorts/0.1"
+}

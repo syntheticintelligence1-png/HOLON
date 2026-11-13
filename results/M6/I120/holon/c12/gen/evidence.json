@@ -1,0 +1,125 @@
+{
+  "atoms": [],
+  "document": "evidence",
+  "evidence_sha256": "e50d3cc446b24998a3b1e3e0df18ebce15dd57001f7ee396829b0c48579d515c",
+  "evidence_version": "holon-evidence/0.1",
+  "inputs": [
+    {
+      "path": "gen/M9/sorts/assignment.json",
+      "sha256": "03d1d13f1242d7b57d48e028a6d951f0200093c554eb1d36c194ae2b783e5bcc"
+    },
+    {
+      "path": "results/M6/I120/holon/c12/facts/go_1.go.extracted.json",
+      "sha256": "f6240c119ce3acd551756dc7d44aacfc045519f7d1b7f85bd22bcac018ae5eb2"
+    },
+    {
+      "path": "results/M6/I120/holon/c12/facts/go_1_go_1.CertificateValidationError.extracted.json",
+      "sha256": "422ab4d305baa740f11a8448cd42e2aa84dd92b7f73108b449846a75ac482061"
+    },
+    {
+      "path": "results/M6/I120/holon/c12/facts/go_1_go_1.DAProviderRegistry.extracted.json",
+      "sha256": "db20362bcb859a4f4a3ac8d89b7edc294173148cd8c8fbd535e0f04fc802094d"
+    },
+    {
+      "path": "spec/M2/lib/evidence_lexical.json",
+      "sha256": "0c1b71a550906dd674c31dbf757a1b364a6806af06b3ebfc80ec38c12c869e0e"
+    },
+    {
+      "path": "spec/M9/lib/derive_extracted.json",
+      "sha256": "c6e82f754ff0b15a5d705e3bf1b34808a9b8431b4a11c1460d47ca0ac8ea2807"
+    }
+  ],
+  "levels": {
+    "E1": "strong",
+    "E2": "strong",
+    "E3": "strong",
+    "E4": "strong",
+    "E5": "medium",
+    "E6": "weak"
+  },
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.CertificateValidationError.extracted": {
+      "anchors": {
+        "actions": {
+          "Error": "TRANS.Error"
+        },
+        "carriers": {
+          "Reason": {
+            "readers": [
+              "TRANS.Error"
+            ],
+            "writers": []
+          }
+        },
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "TRANS.Error"
+        ]
+      },
+      "diagram": null,
+      "facts": "results/M6/I120/holon/c12/facts/go_1_go_1.CertificateValidationError.extracted.json",
+      "facts_sha256": "422ab4d305baa740f11a8448cd42e2aa84dd92b7f73108b449846a75ac482061",
+      "facts_version": "holon-facts/0.3"
+    },
+    "go_1_go_1.DAProviderRegistry.extracted": {
+      "anchors": {
+        "actions": {
+          "GetReader": "TRANS.GetReader",
+          "GetValidator": "TRANS.GetValidator",
+          "Register": "TRANS.Register",
+          "SetupAnyTrustReader": "TRANS.SetupAnyTrustReader",
+          "SetupBlobReader": "TRANS.SetupBlobReader",
+          "SetupDACertificateReader": "TRANS.SetupDACertificateReader",
+          "SupportedHeaderBytes": "TRANS.SupportedHeaderBytes"
+        },
+        "carriers": {
+          "providers": {
+            "readers": [
+              "TRANS.Register",
+              "TRANS.SetupAnyTrustReader",
+              "TRANS.SetupBlobReader",
+              "TRANS.SetupDACertificateReader"
+            ],
+            "writers": [
+              "TRANS.Register",
+              "TRANS.SetupAnyTrustReader",
+              "TRANS.SetupBlobReader",
+              "TRANS.SetupDACertificateReader"
+            ]
+          }
+        },
+        "codec": {},
+        "consumers": {},
+        "domains": {},
+        "migrations": {},
+        "observers": {},
+        "permissionless": [],
+        "reasons": {},
+        "sites": {},
+        "trans": [
+          "TRANS.GetReader",
+          "TRANS.GetValidator",
+          "TRANS.Register",
+          "TRANS.SetupAnyTrustReader",
+          "TRANS.SetupBlobReader",
+          "TRANS.SetupDACertificateReader",
+          "TRANS.SupportedHeaderBytes"
+        ]
+      },
+      "diagram": null,
+      "facts": "results/M6/I120/holon/c12/facts/go_1_go_1.DAProviderRegistry.extracted.json",
+      "facts_sha256": "db20362bcb859a4f4a3ac8d89b7edc294173148cd8c8fbd535e0f04fc802094d",
+      "facts_version": "holon-facts/0.3"
+    }
+  },
+  "sorts_sha256": "50b477f939cc09c5da6db4c768dc486591895af6c99f70abadb321fdf78d220d",
+  "unresolved": []
+}
