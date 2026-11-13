@@ -253,10 +253,14 @@ def fold_atom(a, nonnil=lambda t: False):
 
 
 # ---------------------------------------------------------------------------------------------- linear forms
-def lin(t):
-    """(coeffs {var term: int}, constant) with every maximal non-linear or non-constant subterm a variable."""
+def lin(t, opaque: bool = False):
+    """(coeffs {var term: int}, constant) with every maximal non-linear or non-constant subterm a variable. opaque (I117,
+    the config's ops "typed"): Go arithmetic on a sized integer wraps, so an op or unop term is itself a variable and
+    never read as an exact linear combination (x + 1 > x is not implied)."""
     if is_const(t):
         return {}, t[1]
+    if opaque and isinstance(t, tuple) and t[:1] in (("op",), ("unop",)):
+        return {t: 1}, 0
     if isinstance(t, tuple) and t[:1] == ("op",):
         o, a, b = t[1], t[2], t[3]
         if o in ("+", "-"):
@@ -284,14 +288,14 @@ def _canon(coeffs: dict) -> tuple:
     return tuple(sorted(coeffs.items(), key=lambda kv: key(kv[0])))
 
 
-def norm(a):
+def norm(a, opaque: bool = False):
     """The normal form of an atom: ("le" | "eq" | "ne", ((var, coeff), ...), c) for sum + c REL 0, or
     ("true" | "false", T)."""
     if a[0] in ("true", "false"):
         return a
     o, x, y = a
-    cx, kx = lin(x)
-    cy, ky = lin(y)
+    cx, kx = lin(x, opaque)
+    cy, ky = lin(y, opaque)
     co = dict(cx)
     for v, c in cy.items():
         co[v] = co.get(v, 0) - c
@@ -330,20 +334,21 @@ class Reasoner:
     whose interval is one point) and holds over the whole interval the facts give it; refuted: its negation is implied
     the same way, or it holds nowhere in that interval."""
 
-    def __init__(self, facts=(), nonnil=lambda t: False):
+    def __init__(self, facts=(), nonnil=lambda t: False, opaque: bool = False):
         self.facts = list(facts)
         self.nonnil = nonnil
+        self.opaque = opaque   # I117: sized arithmetic is opaque (lin)
         self.forms = set()
         self.order = []      # the facts' normal forms in fact order (iteration never depends on hashing)
         for f in self.facts:
-            n = norm(f)
+            n = norm(f, opaque)
             if n not in self.forms:
                 self.forms.add(n)
                 self.order.append(n)
         self._iv = None
 
     def plus(self, atom) -> "Reasoner":
-        r = Reasoner(self.facts + [atom], self.nonnil)
+        r = Reasoner(self.facts + [atom], self.nonnil, self.opaque)
         return r
 
     # intervals --------------------------------------------------------------------------------
@@ -449,7 +454,7 @@ class Reasoner:
         fo = fold_atom(atom, self.nonnil)
         if fo is not None:
             return fo
-        f = norm(atom)
+        f = norm(atom, self.opaque)
         if f in self.forms:
             return True
         if norm_negate(f) in self.forms:
