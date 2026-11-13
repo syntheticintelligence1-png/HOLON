@@ -1,0 +1,97 @@
+{
+  "carriers": [
+    {
+      "base_type": "R_Error",
+      "cls": "rep",
+      "id": "R_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "R_PtrNodeIteratorState_Error",
+      "cls": "rep",
+      "id": "R_PtrNodeIteratorState_Error",
+      "interface": false,
+      "reach": null,
+      "sort_ref": null
+    },
+    {
+      "base_type": "nodeIterator",
+      "cls": "rep",
+      "domains": [
+        "ok_trie_nodeIterator_Error",
+        "ok_trie_nodeIterator_init"
+      ],
+      "id": "nodeIterator",
+      "interface": true,
+      "key_space": "byte",
+      "reach": "external",
+      "sort_ref": null
+    }
+  ],
+  "coverage_debt": [],
+  "diagram_version": "holon-diagram/0.1",
+  "edges": [
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c19/facts/go_2.go.extracted.json",
+      "domain": "ok_trie_nodeIterator_Error",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.trie_nodeIterator_Error",
+      "kind": "CODEC",
+      "model_fn": "trie_nodeIterator_Error",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/trie.nodeIterator).Error"
+        }
+      ],
+      "src": "nodeIterator",
+      "tgt": "R_Error",
+      "version": null
+    },
+    {
+      "access": {
+        "reads": [],
+        "writes": []
+      },
+      "component": "results/M6/base/holon/c19/facts/go_2.go.extracted.json",
+      "domain": "ok_trie_nodeIterator_init",
+      "env": false,
+      "fn_kind": "op",
+      "id": "CODEC.trie_nodeIterator_init",
+      "kind": "CODEC",
+      "model_fn": "trie_nodeIterator_init",
+      "partial": false,
+      "principal_class": null,
+      "pseudo": false,
+      "source": [
+        {
+          "fn": "(*github.com/ethereum/go-ethereum/trie.nodeIterator).init"
+        }
+      ],
+      "src": "nodeIterator",
+      "tgt": "R_PtrNodeIteratorState_Error",
+      "version": null
+    }
+  ],
+  "facts": "gen/M9/goops/node_iterator_ops.json",
+  "facts_sha256": "259a1527682f305643ccfb14dffe281e212392174e22ed2fdf1687f4fa915cd7",
+  "facts_version": "holon-goops/0.1",
+  "index_terms": [],
+  "inputs": [],
+  "mapped_sections": {
+    "carrier": "the interface carrier, its domains the ops' ok_<op> (rule Y4)",
+    "ops": "CODEC edges from the carrier to their result carriers (rule Y4)"
+  },
+  "model": "node_iterator_ops",
+  "principal_classes": [],
+  "provenance": {}
+}

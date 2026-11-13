@@ -1,0 +1,582 @@
+{
+  "document": "disch_conjuncts",
+  "inputs": [
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.Cap.extracted.json",
+      "sha256": "52a10e5343fb2b271544e46ba6c1a5ad37df24157307af02ef3b8b2c5ff18e5a"
+    },
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.Msg.extracted.json",
+      "sha256": "e140ca688d9145ba6115fb9e448fac8c85bedf64de6783e21d5c79ad038ba3d3"
+    },
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.MsgPipeRW.extracted.json",
+      "sha256": "4852917ad191b5920745a700d3a844b101327437ddc5ea609c46e54ad15971c9"
+    },
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.Server.extracted.json",
+      "sha256": "92d6636444bb6636abb3672e20972799de345b9f62a5c4bf2938df50764089ba"
+    },
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.conn.extracted.json",
+      "sha256": "77e7e20cddc6e9b139318d55d6d4b1f2364a2b00fee463ba85ed3af28b37a822"
+    },
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.eofSignal.extracted.json",
+      "sha256": "77fa9a90020dc5786672f35a5839ce2ff97522f8a5175df8b4291cfe55ac845c"
+    },
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.meteredConn.extracted.json",
+      "sha256": "6fcf2f17b584c38eb09db81fd3abc0e2597bfd2695b9b687951a7c00b2d1e36c"
+    },
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.peerError.extracted.json",
+      "sha256": "b0ed1e8f0e9fdaa68513e94665241ed37aea6699a6c6a2264f33f89b0cdb9f3e"
+    },
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.protoRW.extracted.json",
+      "sha256": "bd7e52dae96086bc844a654f46b0206dde2885076f091080bfac7e395a2d3e62"
+    },
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.rlpxTransport.extracted.json",
+      "sha256": "6fbd054968727a03d01655311ef20455fe29a5dd21d13bffe4014226e2c3fd85"
+    },
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.sharedUDPConn.extracted.json",
+      "sha256": "a52dec9fc3c53477f3765dba374c46687b9f4e1e16d07246c2161debf83c293e"
+    },
+    {
+      "path": "results/M6/I123/holon/c09/facts/go_1_go_1.tcpDialer.extracted.json",
+      "sha256": "f54f5f5ca1137876434936454833b19cb774b566c946cc14b07fa00a34711add"
+    }
+  ],
+  "milestone": "M9",
+  "models": {
+    "go_1_go_1.Cap.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.Msg.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.MsgPipeRW.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.Server.extracted": {
+      "basis": [
+        {
+          "blocked": [
+            "&&",
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "check": "PeersInfo#p2p/server.go:694#0",
+          "check_expr": [
+            "!",
+            [
+              "&&",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  1
+                ]
+              ]
+            ]
+          ],
+          "checks": [
+            "PeersInfo#p2p/server.go:694#0"
+          ],
+          "classes": {
+            "anyone": {
+              "checks": [
+                "PeersInfo#p2p/server.go:694#0"
+              ],
+              "closure": [
+                "NodeInfo",
+                "RemovePeer",
+                "Self",
+                "SetupConn",
+                "Start",
+                "Stop",
+                "SubscribeEvents"
+              ],
+              "named": {},
+              "status": "blocked",
+              "unsafe": {}
+            }
+          },
+          "excluded": {
+            "PeersInfo": "PeersInfo#p2p/server.go:694#0"
+          },
+          "tag": "server_694_01c4b314",
+          "time": "0"
+        },
+        {
+          "blocked": [
+            "&&",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "?",
+                "extract"
+              ],
+              1
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "check": "PeersInfo#p2p/server.go:694#1",
+          "check_expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  1
+                ]
+              ]
+            ]
+          ],
+          "checks": [
+            "PeersInfo#p2p/server.go:694#1"
+          ],
+          "classes": {
+            "anyone": {
+              "checks": [
+                "PeersInfo#p2p/server.go:694#1"
+              ],
+              "closure": [
+                "NodeInfo",
+                "RemovePeer",
+                "Self",
+                "SetupConn",
+                "Start",
+                "Stop",
+                "SubscribeEvents"
+              ],
+              "named": {},
+              "status": "blocked",
+              "unsafe": {}
+            }
+          },
+          "excluded": {
+            "PeersInfo": "PeersInfo#p2p/server.go:694#1"
+          },
+          "tag": "server_694_a303e9c9",
+          "time": "0"
+        },
+        {
+          "blocked": [
+            "&&",
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "?",
+                  "extract"
+                ],
+                1
+              ]
+            ]
+          ],
+          "check": "PeersInfo#p2p/server.go:694#2",
+          "check_expr": [
+            "!",
+            [
+              "&&",
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  0
+                ]
+              ],
+              [
+                "!",
+                [
+                  "==",
+                  [
+                    "unknown",
+                    "?",
+                    "extract"
+                  ],
+                  1
+                ]
+              ]
+            ]
+          ],
+          "checks": [
+            "PeersInfo#p2p/server.go:694#2"
+          ],
+          "classes": {
+            "anyone": {
+              "checks": [
+                "PeersInfo#p2p/server.go:694#2"
+              ],
+              "closure": [
+                "NodeInfo",
+                "RemovePeer",
+                "Self",
+                "SetupConn",
+                "Start",
+                "Stop",
+                "SubscribeEvents"
+              ],
+              "named": {},
+              "status": "blocked",
+              "unsafe": {}
+            }
+          },
+          "excluded": {
+            "PeersInfo": "PeersInfo#p2p/server.go:694#2"
+          },
+          "tag": "server_694_73a6b376",
+          "time": "0"
+        }
+      ],
+      "checks": [
+        {
+          "action": "PeersInfo",
+          "class": "anyone",
+          "id": "PeersInfo#p2p/server.go:694#0",
+          "kind": "state",
+          "span": "p2p/server.go:694"
+        },
+        {
+          "action": "PeersInfo",
+          "class": "anyone",
+          "id": "PeersInfo#p2p/server.go:694#1",
+          "kind": "state",
+          "span": "p2p/server.go:694"
+        },
+        {
+          "action": "PeersInfo",
+          "class": "anyone",
+          "id": "PeersInfo#p2p/server.go:694#2",
+          "kind": "state",
+          "span": "p2p/server.go:694"
+        }
+      ],
+      "external": {},
+      "kinds": {
+        "state": 3
+      }
+    },
+    "go_1_go_1.conn.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.eofSignal.extracted": {
+      "basis": [
+        {
+          "blocked": [
+            "&&",
+            [
+              "==",
+              [
+                "storage",
+                "count"
+              ],
+              0
+            ],
+            [
+              "!",
+              [
+                "!=",
+                [
+                  "storage",
+                  "eof"
+                ],
+                0
+              ]
+            ],
+            [
+              "!",
+              [
+                "==",
+                [
+                  "unknown",
+                  "p2p/message.go:136",
+                  "load"
+                ],
+                0
+              ]
+            ]
+          ],
+          "check": "Read#p2p/message.go:136#0",
+          "check_expr": [
+            "||",
+            [
+              "!",
+              [
+                "&&",
+                [
+                  "==",
+                  [
+                    "storage",
+                    "count"
+                  ],
+                  0
+                ],
+                [
+                  "!",
+                  [
+                    "!=",
+                    [
+                      "storage",
+                      "eof"
+                    ],
+                    0
+                  ]
+                ]
+              ]
+            ],
+            [
+              "==",
+              [
+                "unknown",
+                "p2p/message.go:136",
+                "load"
+              ],
+              0
+            ]
+          ],
+          "checks": [
+            "Read#p2p/message.go:136#0"
+          ],
+          "classes": {
+            "anyone": {
+              "checks": [
+                "Read#p2p/message.go:136#0"
+              ],
+              "closure": [],
+              "named": {},
+              "status": "blocked",
+              "unsafe": {}
+            }
+          },
+          "excluded": {
+            "Read": "Read#p2p/message.go:136#0"
+          },
+          "tag": "message_136_39fc6407",
+          "time": "0"
+        }
+      ],
+      "checks": [
+        {
+          "action": "Read",
+          "class": "anyone",
+          "id": "Read#p2p/message.go:136#0",
+          "kind": "state",
+          "span": "p2p/message.go:136"
+        }
+      ],
+      "external": {},
+      "kinds": {
+        "state": 1
+      }
+    },
+    "go_1_go_1.meteredConn.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.peerError.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.protoRW.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.rlpxTransport.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.sharedUDPConn.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    },
+    "go_1_go_1.tcpDialer.extracted": {
+      "basis": [],
+      "checks": [],
+      "external": {},
+      "kinds": {}
+    }
+  },
+  "sidecar": {
+    "path": "results/M6/I123/holon/c09/sidecars/disch.json",
+    "sha256": "9a293e126d7937c0278383e739e9a630eb17cee4eb73f8648467ef653b6ce055"
+  }
+}

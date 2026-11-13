@@ -422,12 +422,11 @@ class TestBytes(unittest.TestCase):
         for p in sorted((ROOT / "spec" / "M6" / "lib").glob("i1*_run.json")):
             if p.name == Path(PROTO).name:
                 continue
-            d = json.loads(p.read_text(encoding="utf-8"))
-            # amended (spec/M6/amendments/I118.jsonl): the protocols of I118 and later keys are not earlier ones
-            it = str(d.get("iteration") or "")
+            # amended (spec/M6/amendments/I118.jsonl): the protocols of I118 and later keys carry its opt-ins
+            it = str(json.loads(p.read_text(encoding="utf-8")).get("iteration") or "")
             if it[1:].isdigit() and int(it[1:]) >= 118:
                 continue
-            fb = d.get("document_fallback") or {}
+            fb = json.loads(p.read_text(encoding="utf-8")).get("document_fallback") or {}
             self.assertFalse(set(NEW) & set(fb), p.name)
 
     def test_p8_protocol_is_i116s_plus_the_opt_ins(self):

@@ -10,7 +10,7 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | M3 | 52 | 326 | 288 | 52 |
 | M4 | 9 | 54 | 54 | 9 |
 | M5 | 8 | 41 | 22 | 6 |
-| M6 | 17 | 161 | 43 | 16 |
+| M6 | 19 | 184 | 43 | 18 |
 
 ## Audit loop (whitepaper §9.5; results/<M>/audit_status.json)
 
@@ -128,6 +128,8 @@ Rendered by `python -m holon coordinator status` (holon/coordinator.py, I87) fro
 | I118 | M6 | I118: the post-derive walls (HUMAN_ANSWERS Q92, the lead's approval): (1) the composed coverage stage accounts only for… | `prompts/I118_post_derive_walls.md` | 13 | 3 | 1 | `docs/iterations/I118.md` |
 | I119 | M6 | I119: Go reasoner soundness (HUMAN_ANSWERS Q93 (1), the defect I117 found): (a) a read-only audit that re-extracts ever… | `prompts/I119_go_reasoner_soundness.md` | 8 | 0 | 1 | `docs/iterations/I119.md` |
 | I120 | M6 | I120: route C reads beyond the store limit (HUMAN_ANSWERS Q93 (2), the lead's ruling): a storage limit must not decide … | `prompts/I120_route_c_full_documents.md` | 11 | 0 | 1 | `docs/iterations/I120.md` |
+| I122 | M6 | I122: goloop's loop shapes (HUMAN_ANSWERS Q93 (3), Q98 (2), Q90): two loop classes of the Go-op model defined from the … | `prompts/I122_goloop_loop_shapes.md` | 12 | 0 | 1 | `docs/iterations/I122.md` |
+| I123 | M6 | I123: the typed model's sort operations (HUMAN_ANSWERS Q100 (1)): under the opt-in typed.sort_ops "word", holon.sorts.m… | `prompts/I123_typed_sort_operations.md` | 11 | 0 | 1 | `docs/iterations/I123.md` |
 | I50b | M4 | Held-out target, a contaminated rerun (I50b): two generic producer changes (a sorts rule for the frontend's update term… | `prompts/I50b_heldout_rerun.md` | 5 | 6 | 1 | `docs/iterations/I50b.md` |
 | I52b | M4 | Baselines on the held-out target (I52's held-out half): the nine I52 baselines at I52's equal budget on ScrollChain (th… | `prompts/I52b_heldout_baselines.md` | 6 | 7 | 1 | `docs/iterations/I52b.md` |
 | I54b | M5 | I54b: the corpus-truth key: I54's frozen truth protocol run on I48's 20 entries by two fresh labellers per entry, every… | `prompts/I54b_m5_truth_key.md` | 5 | 3 | 1 | `docs/iterations/I54b.md` |
