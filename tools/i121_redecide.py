@@ -18,6 +18,7 @@ the repository gets aggregates only (results/M6/I121/redecide.json, written by `
       A/<label>-<n>.tgz with its status listing, and only then reset the slot to HEAD (F-M6-13: a started job's
       partial output is never deleted, Q80); refuses to reset when the archive cannot be written
   python tools/i121_redecide.py summary --vault V --out results/M6/I121/redecide.json
+  python tools/i121_redecide.py planted --vault V   (the planted flip, before summary)
       the aggregates: per milestone and channel counts, verdicts changed (PROVED and REFUTED together), and one sha256
       bundle commitment of the vault's re-decided set (I107's canonical form)
 
@@ -197,6 +198,72 @@ def archive_then_reset(slot: Path, archive_dir: Path, label: str) -> Path | None
     return out
 
 
+PLANTED = ("tests_m6/fixtures/i121/planted_flip_before.facts.json", "tests_m6/fixtures/i121/planted_flip_after.facts.json")
+
+
+def cmd_planted(a) -> int:
+    """The re-decision's planted flip (I121-P2, HUMAN_ANSWERS Q96 (1)): a synthetic law (I24's round-trip fixture, its
+    encoder storing b as zero, then the same fixture with the defect removed) whose committed status differs from the
+    checker's on the new inputs. In a scratch worktree of HEAD, test milestone T121: derive and run on the old facts (the
+    committed record, committed_before); put the new facts at the same path, derive, and re-make into the same results
+    directory (committed_after, as the channel writes it); and decide afresh into a separate directory (checker). The
+    vault's summary_inputs.json gains planted.flip, with no law id."""
+    import shutil
+    import tempfile
+    v = Path(a.vault).resolve()
+    tmp = Path(tempfile.mkdtemp(prefix="i121-planted-"))
+    wt = tmp / "wt"
+    subprocess.run(["git", "worktree", "add", "-q", "--detach", str(wt), "HEAD"], cwd=ROOT, check=True)
+    try:
+        for rel in PLANTED:   # the fixtures as on disk (they may be new in the working tree)
+            shutil.copy(ROOT / rel, wt / rel)
+        rel = "tests_m6/fixtures/i121/planted_flip.facts.json"
+
+        def holon(*args):
+            p = subprocess.run([sys.executable, "-m", "holon", *args], cwd=wt, capture_output=True, text=True,
+                               timeout=3600)
+            if p.returncode != 0:
+                raise SystemExit(f"i121_redecide planted: holon {args[0]} failed: {(p.stdout + p.stderr)[-1500:]}")
+
+        def derive(src: str, tag: str) -> dict:
+            shutil.copy(wt / src, wt / rel)
+            holon("sorts", "--facts", rel, "--out", str(tmp / f"sorts_{tag}"))
+            shutil.rmtree(wt / "laws" / "T121", ignore_errors=True)
+            holon("derive", "--milestone", "T121", "--facts", rel, "--assignment",
+                  str(tmp / f"sorts_{tag}" / "assignment.json"), "--out", str(wt / "laws" / "T121"),
+                  "--obstructions", str(tmp / f"obs_{tag}.json"))
+            return {p.stem: json.loads(p.read_text()) for p in sorted((wt / "laws" / "T121").glob("L*.json"))}
+
+        def run(out: str) -> dict:
+            holon("run", "--milestone", "T121", "--no-registry", "--out", str(tmp / out), "--gen-dir",
+                  str(tmp / f"gen_{out}"))
+            return {p.stem: json.loads(p.read_text())["status"] for p in sorted((tmp / out).glob("L*.json"))}
+
+        old = derive(PLANTED[0], "before")
+        before = run("committed")
+        new = derive(PLANTED[1], "after")
+        after = run("committed")        # the re-make writes over the committed record
+        checker = run("fresh")          # decided afresh on the new inputs, in its own directory
+        flips = sorted(k for k in new if k in old and before.get(k) != checker.get(k))
+        if len(flips) != 1:
+            print(f"i121_redecide planted: expected exactly one planted flip, got {len(flips)}", file=sys.stderr)
+            return 2
+        k = flips[0]
+        changed = sorted(x for x in set(old[k]) | set(new[k]) if old[k].get(x) != new[k].get(x))
+        flip = {"fixture": list(PLANTED), "milestone": "T121", "committed_before": before[k], "checker": checker[k],
+                "committed_after": after[k], "law_keys_changed": changed}
+        p = v / "summary_inputs.json"
+        s = json.loads(p.read_text())
+        s["planted"] = {"flip": flip}
+        p.write_text(json.dumps(s, indent=1, sort_keys=True))
+        print(f"i121_redecide planted: committed {before[k]} -> re-made {after[k]}, checker {checker[k]} "
+              f"(law keys changed: {changed})")
+        return 0
+    finally:
+        subprocess.run(["git", "worktree", "remove", "--force", str(wt)], cwd=ROOT, capture_output=True)
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 def cmd_reset_slot(a) -> int:
     out = archive_then_reset(Path(a.slot), Path(a.archive_dir), a.label)
     print(f"i121_redecide reset-slot: {a.slot}: " + (f"archived to {out}, then reset" if out else "clean, reset"))
@@ -234,6 +301,8 @@ def main(argv=None) -> int:
     sp.add_argument("--slot", required=True)
     sp.add_argument("--archive-dir", required=True)
     sp.add_argument("--label", default="slot")
+    sp = sub.add_parser("planted")
+    sp.add_argument("--vault", required=True)
     for name in ("models", "affected", "compare", "summary"):
         sp = sub.add_parser(name)
         if name != "summary":
@@ -247,7 +316,7 @@ def main(argv=None) -> int:
             sp.add_argument("--out", required=True)
     a = ap.parse_args(argv)
     return {"models": cmd_models, "affected": cmd_affected, "compare": cmd_compare, "summary": cmd_summary,
-            "reset-slot": cmd_reset_slot}[a.cmd](a)
+            "reset-slot": cmd_reset_slot, "planted": cmd_planted}[a.cmd](a)
 
 
 if __name__ == "__main__":
