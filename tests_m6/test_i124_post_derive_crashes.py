@@ -535,6 +535,22 @@ class TestCorpusSmoke(unittest.TestCase):
         self.assertGreaterEqual(decided(CORPUS), pred("I124-P12")["expected"]["decided_at_least"])
 
 
+# ======================================================================================== F-M6-11: the memory record
+class TestMemoryRecord(unittest.TestCase):
+    """Q108 (3), F-M6-11 (added after the prereg as build work, recording only): the preflight records MemTotal,
+    MemAvailable and the cgroup memory limit; it decides nothing (the status is the binaries' alone)."""
+
+    def test_memory_recorded_only(self):
+        from holon.eval import holon_run as H
+        m = H.memory_record()
+        self.assertEqual(set(m), {"mem_total", "mem_available", "cgroup_limit"})
+        self.assertGreater(m["mem_total"], 0)
+        self.assertGreaterEqual(m["mem_total"], m["mem_available"])
+        r = H.preflight(protocol("spec/M6/lib/i118_run.json"), {})
+        self.assertEqual(r["status"], "ok")   # nothing to check: the memory record does not move the status
+        self.assertEqual(set(r["memory"]), set(m))
+
+
 # ======================================================================================== regressions
 class TestRegressions(unittest.TestCase):
     def test_r1_earlier_jobs_listed(self):

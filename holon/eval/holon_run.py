@@ -1271,7 +1271,30 @@ def preflight(proto: dict, sets: dict) -> dict | None:
             bins.append(b)
     count = lambda t: {"checked": sum(b["tool"] == t for b in bins), "ok": sum(b["tool"] == t and b["ok"] for b in bins)}   # noqa: E731
     return {"status": "ok" if all(b["ok"] for b in bins) else "failed", "solc": count("solc"), "go": count("go"),
-            "binaries": bins}
+            "binaries": bins, "memory": memory_record()}
+
+
+def memory_record() -> dict:
+    """I124 (Q108 (3), F-M6-11): the run's memory, recorded only (it decides nothing and gates nothing): MemTotal and
+    MemAvailable of /proc/meminfo in bytes, and the cgroup's memory limit (cgroup v2 memory.max, else v1
+    memory.limit_in_bytes) in bytes, "max" for none, or None where the file is absent. A checker run the OS ends for
+    memory depends on these, so a run's record names them."""
+    out: dict = {"mem_total": None, "mem_available": None, "cgroup_limit": None}
+    try:
+        for line in Path("/proc/meminfo").read_text().splitlines():
+            k, _, v = line.partition(":")
+            if k in ("MemTotal", "MemAvailable") and v.split():
+                out["mem_total" if k == "MemTotal" else "mem_available"] = int(v.split()[0]) * 1024
+    except OSError:
+        pass
+    for f in ("/sys/fs/cgroup/memory.max", "/sys/fs/cgroup/memory/memory.limit_in_bytes"):
+        try:
+            v = Path(f).read_text().strip()
+        except OSError:
+            continue
+        out["cgroup_limit"] = v if v == "max" else (int(v) if v.isdigit() else v)
+        break
+    return out
 
 
 def cli_holon(argv: list[str]) -> int:
