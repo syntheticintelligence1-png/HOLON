@@ -53,8 +53,7 @@ def run(vault: Path, which: str) -> int:
     WORK.mkdir(parents=True, exist_ok=True)
     ent = subprocess.run(["git", "-C", str(ROOT), "show", ENTRIES_REF], check=True, capture_output=True).stdout
     (WORK / "entries.json").write_bytes(ent)
-    from holon.eval import common
-    proto = json.loads(json.dumps(common.load_json(ROOT / PROTOCOLS[which])))
+    proto = json.loads((ROOT / PROTOCOLS[which]).read_text(encoding="utf-8"))   # as holon.eval.common.load_json
     proto.update({"corpus": f"{rel}/entries.json", "out": f"{rel}/out"})
     (WORK / "protocol.json").write_text(dumps(proto))
     env = {**os.environ, "BEND_NO_TELEMETRY": "1"}
